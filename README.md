@@ -37,33 +37,41 @@ Here we perform various different coverage tests for developing test cases so th
     <artifactId>pitest-maven</artifactId>
     <version>LATEST</version>
     <configuration>
-					<threads>24</threads>
-					<targetClasses>
-						<param>your.package.name.*</param>
-					</targetClasses>
-					<targetTests>
-						<param>your.package.name.*</param>
-					</targetTests>
-					<timeoutFactor>
-						0.25
-					</timeoutFactor>
-					<timeoutConstant>
-						1000
-					</timeoutConstant>
-					<mutationUnitSize>
-						5
-					</mutationUnitSize>
-					<exportLineCoverage>true</exportLineCoverage>
-					<maxMutationsPerClass>
-						3
-					</maxMutationsPerClass>
-					<testPlugin>junit</testPlugin>
-					<withHistory>true</withHistory>
-					<outputFormats>
-						<outputFormat>CSV</outputFormat>
-						<outputFormat>HTML</outputFormat>
-					</outputFormats>
-				</configuration>
+	<threads>
+		24
+	</threads>
+	<targetClasses>
+		<param>your.package.name.*</param>
+	</targetClasses>
+	<targetTests>
+		<param>your.package.name.*</param>
+	</targetTests>
+	<timeoutFactor>
+		0.25
+	</timeoutFactor>
+	<timeoutConstant>
+		1000
+	</timeoutConstant>
+	<mutationUnitSize>
+		5
+	</mutationUnitSize>
+	<exportLineCoverage>
+		true
+	</exportLineCoverage>
+	<maxMutationsPerClass>
+		3
+	</maxMutationsPerClass>
+	<testPlugin>
+		junit
+	</testPlugin>
+	<withHistory>
+		true
+	</withHistory>
+	<outputFormats>
+		<outputFormat>CSV</outputFormat>
+		<outputFormat>HTML</outputFormat>
+	</outputFormats>
+	</configuration>
  </plugin>
  ```
  3.  Mutation Coverage : It can be run directly from the commandline
