@@ -1,0 +1,175 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,LinkedBlockingDeque.DescendingItr,0,14,0,0,0,3,0,3,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,GenericKeyedObjectPoolConfig,49,43,0,0,13,18,2,9,2,9
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,BaseGenericObjectPool,36,978,8,22,15,282,7,70,1,61
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,DefaultPooledObjectInfo,31,79,2,0,8,17,3,10,2,10
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,InterruptibleReentrantLock,0,22,0,2,0,6,0,3,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,SoftReferenceObjectPool,46,475,22,42,18,137,23,24,1,14
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,GenericObjectPool,145,1222,41,151,45,354,38,96,7,31
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,BaseGenericObjectPool.IdentityWrapper,25,21,2,2,6,6,4,3,2,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,SecurityManagerCallStack.new PrivilegedAction() {...},0,11,0,0,0,3,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,GenericObjectPoolConfig,40,33,0,0,11,13,2,7,2,7
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,NoOpCallStack,0,9,0,0,0,4,0,4,0,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,EvictionTimer,12,49,0,8,3,16,1,6,1,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,DefaultPooledObject,48,255,3,23,11,79,5,31,2,21
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,SecurityManagerCallStack.PrivateSecurityManager,0,34,0,2,0,5,0,2,0,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,GenericKeyedObjectPool.ObjectDeque,47,49,0,0,11,13,1,5,1,5
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,LinkedBlockingDeque,92,1004,16,102,29,293,16,104,2,59
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,EvictionConfig,38,37,0,4,9,14,1,6,1,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,LinkedBlockingDeque.AbstractItr,4,125,2,16,1,38,2,13,0,6
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,LinkedBlockingDeque.Itr,0,14,0,0,0,3,0,3,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,SecurityManagerCallStack,20,68,2,6,2,19,2,6,0,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,BaseObjectPoolConfig,165,169,0,0,43,70,6,33,6,33
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,PoolImplUtils,12,148,11,23,5,34,12,10,1,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,BaseGenericObjectPool.EvictionIterator,4,33,0,2,2,10,1,5,1,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,DefaultEvictionPolicy,0,23,0,6,0,6,0,5,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,CallStackUtils,22,16,3,3,6,5,4,2,1,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,ThrowableCallStack,0,64,0,6,0,19,0,7,0,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,BaseGenericObjectPool.StatsStore,0,131,0,8,0,29,0,8,0,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,AbandonedConfig,65,76,0,0,15,29,1,15,1,15
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,GenericKeyedObjectPool,296,1598,45,179,74,463,38,116,5,37
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,BaseGenericObjectPool.Evictor,19,46,2,2,7,17,2,4,0,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,EvictionTimer.EvictorThreadFactory,0,19,0,0,0,4,0,1,0,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,ThrowableCallStack.Snapshot,0,6,0,0,0,2,0,1,0,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,PooledSoftReference,0,52,0,0,0,14,0,5,0,5
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,SecurityManagerCallStack.Snapshot,0,9,0,0,0,4,0,1,0,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.impl,LinkedBlockingDeque.Node,0,12,0,0,0,5,0,1,0,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils.KeyedObjectPoolMinIdleTimerTask,5,78,1,5,2,22,1,5,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils.ErodingPerKeyKeyedObjectPool,0,52,0,2,0,11,0,4,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils.ObjectPoolMinIdleTimerTask,5,64,1,5,1,20,1,5,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,BaseObject,1,27,0,0,1,7,1,2,1,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils.ErodingFactor,0,71,0,0,0,15,0,4,0,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,BaseObjectPool,0,44,0,2,0,15,0,10,0,9
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils,5,265,1,43,1,72,1,39,0,18
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils.SynchronizedKeyedObjectPool,3,197,0,2,0,68,0,14,0,13
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,BaseKeyedPooledObjectFactory,0,14,0,0,0,6,0,6,0,6
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils.SynchronizedPooledObjectFactory,0,102,0,2,0,32,0,8,0,7
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,BasePooledObjectFactory,0,13,0,0,0,6,0,6,0,6
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils.SynchronizedKeyedPooledObjectFactory,0,107,0,2,0,33,0,8,0,7
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PooledObjectState,0,104,0,0,0,21,0,1,0,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils.TimerHolder,0,9,0,0,0,2,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils.ErodingKeyedObjectPool,25,121,2,6,8,37,5,15,3,13
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils.SynchronizedObjectPool,8,144,1,1,1,52,1,10,0,10
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2,PoolUtils.ErodingObjectPool,9,97,1,5,3,30,2,11,1,9
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.proxy,CglibProxyHandler,0,10,0,0,0,3,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.proxy,ProxiedObjectPool,29,71,1,1,7,24,2,9,1,9
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.proxy,JdkProxyHandler,0,10,0,0,0,3,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.proxy,JdkProxySource,30,41,0,0,7,12,1,3,1,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.proxy,CglibProxySource,20,39,0,0,5,14,1,3,1,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.proxy,ProxiedKeyedObjectPool,48,71,1,1,12,23,5,9,4,9
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/main/java,org.apache.commons.pool2.proxy,BaseProxyHandler,35,46,0,4,8,16,1,7,1,5
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,VisitTracker,63,109,3,3,12,33,10,9,7,9
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestKeyedObjectPool.TestFactory,0,9,0,0,0,2,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,PoolTest.PooledFooFactory,19,0,0,0,8,0,5,0,5,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestBaseKeyedPoolableObjectFactory,0,26,0,0,0,7,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestObjectPool,45,767,6,20,16,211,6,19,0,12
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestBaseObjectPool,62,567,12,12,20,135,12,15,3,12
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,PoolTest,73,0,4,0,20,0,5,0,3,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestKeyedObjectPool,101,1635,6,6,37,345,6,19,0,19
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,MethodCall,106,106,22,16,19,28,19,12,4,8
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestPoolUtils.MethodCallLogger,3,60,1,11,1,16,1,7,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestKeyedObjectPool.FailingKeyedPooledObjectFactory,22,186,0,10,8,50,7,18,7,13
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestBasePoolableObjectFactory,22,0,0,0,7,0,2,0,2,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,VisitTrackerFactory,5,74,0,0,2,19,1,11,1,11
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,Waiter,124,95,4,4,21,32,11,9,9,7
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestPoolUtils.new TestPoolUtils.MethodCallLogger() {...},0,21,0,2,0,6,0,3,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,ObjectPoolIssue326.Task,52,0,2,0,14,0,4,0,3,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestBasePoolableObjectFactory.TestFactory,7,0,0,0,2,0,2,0,2,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestPoolUtils.new InvocationHandler() {...},0,8,0,0,0,3,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,ObjectPoolIssue326,173,0,6,0,46,0,7,0,4,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,ObjectPoolIssue326.ObjectFactory,18,0,0,0,3,0,3,0,3,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestPoolUtils.new InvocationHandler() {...},0,8,0,0,0,3,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestBaseObjectPool.TestObjectPool,4,0,0,0,3,0,3,0,3,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,WaiterFactory,89,239,7,7,19,60,8,15,3,13
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,MethodCallPoolableObjectFactory,25,192,0,10,9,53,8,19,8,14
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestPoolUtils.new TestPoolUtils.MethodCallLogger() {...},0,21,0,2,0,6,0,3,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestBaseKeyedPoolableObjectFactory.TestFactory,7,0,0,0,2,0,2,0,2,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,PrivateException,0,4,0,0,0,2,0,1,0,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestPoolUtils.new TestPoolUtils.MethodCallLogger() {...},0,21,0,2,0,6,0,3,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,TestPoolUtils,230,1462,9,37,70,397,9,40,0,26
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2,ObjectPoolIssue326.TestObject,6,0,0,0,1,0,1,0,1,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.SimpleTestThread,0,24,0,0,0,8,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.TestThread,64,134,1,11,16,36,3,12,2,7
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestPoolImplUtils.FactoryF,4,0,0,0,1,0,1,0,1,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestLinkedBlockingDeque,213,989,1,3,54,244,1,44,0,43
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestPoolImplUtils.FactoryC,4,0,0,0,1,0,1,0,1,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.CreateErrorFactory,5,25,0,0,1,7,1,4,1,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.SimplePerKeyFactory,0,49,0,2,0,12,0,4,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.InvalidFactory,1,14,0,0,0,5,0,3,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestSynchronizedPooledObjectFactory,88,14,1,1,27,5,7,1,6,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestPoolImplUtils.NotSimpleFactory,8,0,0,0,3,0,3,0,3,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestAbandonedObjectPool.ConcurrentReturner,7,13,0,0,1,6,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestPoolImplUtils.FactoryBA,4,0,0,0,1,0,1,0,1,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,NoOpCallStackTest,0,23,0,0,0,7,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestPoolImplUtils.FactoryDE,4,0,0,0,1,0,1,0,1,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPoolClassLoaders,0,116,2,6,0,42,2,5,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.SimpleFactory,13,236,2,18,2,69,2,26,0,18
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPoolClassLoaders.CustomClassLoader,12,12,2,0,3,3,2,1,1,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.new Callable() {...},9,33,0,0,3,8,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.TestEvictionPolicy,0,18,0,2,0,5,0,3,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestEvictionConfig,0,44,0,0,0,10,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool,547,5149,66,200,68,1057,63,133,2,61
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestAbandonedObjectPool.SimpleFactory,1,62,0,2,0,22,0,8,0,7
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,CallStackTest,0,76,0,0,0,18,0,4,0,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.TestThread,68,125,1,11,16,30,3,10,2,5
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestDefaultPooledObject.new Runnable() {...},10,47,2,6,4,9,2,4,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.AtomicIntegerFactory,27,69,1,1,10,24,6,7,5,7
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.WaitingTestThread,0,52,0,0,0,17,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestSoftReferenceObjectPool.SimpleFactory,0,20,0,0,0,4,0,3,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.new BasePooledObjectFactory() {...},7,6,0,0,2,2,2,1,2,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestEvictionTimer,0,127,0,0,0,30,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.new Thread() {...},11,0,0,0,4,0,2,0,2,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestBaseGenericObjectPool,61,92,0,2,11,22,1,6,1,5
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.DummyFactory,7,0,0,0,2,0,2,0,2,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.ConcurrentBorrowAndEvictThread,1,26,0,2,0,9,0,3,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.WaitingTestThread,0,45,0,0,0,16,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.DummyFactory,7,0,0,0,2,0,2,0,2,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool,547,4935,62,200,95,1143,59,161,2,87
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPoolFactoryCreateFailure.SingleObjectFactory,31,0,2,0,7,0,5,0,4,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPoolFactoryCreateFailure.WinnerRunnable,50,0,2,0,18,0,3,0,2,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestSoftRefOutOfMemory.OomeFactory,55,0,8,0,16,0,9,0,5,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.SimpleFactory,21,304,3,21,5,92,5,30,2,21
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.ObjectFactory,0,9,0,0,0,2,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestPoolImplUtils,0,17,0,0,0,7,0,3,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.new SwallowedExceptionListener() {...},0,24,0,2,0,6,0,3,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.CreateFailFactory,5,25,0,0,1,7,1,4,1,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.EvictionThread,1,11,0,0,0,6,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.HashSetFactory,0,9,0,0,0,2,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.new BasePooledObjectFactory() {...},0,19,0,0,0,5,0,3,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestSoftRefOutOfMemory.OomeTrigger,34,0,0,0,4,0,1,0,1,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestEvictionTimer.new BasePooledObjectFactory() {...},7,6,0,0,2,2,2,1,2,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.HashSetFactory,0,9,0,0,0,2,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.InvalidateThread,10,26,0,0,2,10,0,3,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestSoftReferenceObjectPool,0,23,0,0,0,6,0,6,0,6
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestSoftRefOutOfMemory.SmallPoolableObjectFactory,0,24,0,0,0,5,0,3,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPoolFactoryCreateFailure,116,0,2,0,34,0,5,0,4,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestSoftRefOutOfMemory,249,97,11,5,77,25,9,5,2,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestDefaultPooledObject,0,81,0,6,0,19,0,5,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestPooledSoftReference,0,63,0,0,0,18,0,4,0,4
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestPoolImplUtils.SimpleFactory,4,0,0,0,2,0,2,0,2,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestAbandonedObjectPool.ConcurrentBorrower,10,11,0,0,1,5,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.DaemonThreadFactory,0,10,0,0,0,3,0,1,0,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.new TimerTask() {...},0,16,0,0,0,4,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPool.new BasePooledObjectFactory() {...},4,6,0,0,2,2,2,1,2,1
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericObjectPoolClassLoaders.CustomClassLoaderObjectFactory,5,27,1,1,1,8,1,3,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestSoftRefOutOfMemory.LargePoolableObjectFactory,41,0,0,0,9,0,3,0,3,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestDefaultPooledObject.new Runnable() {...},5,26,1,3,2,5,1,3,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,PooledTestObject,4,62,2,4,1,22,2,11,0,10
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestDefaultPooledObjectInfo,6,248,6,6,0,57,6,5,0,5
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.InvalidateThread,10,31,0,0,2,11,0,3,0,3
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestAbandonedObjectPool,38,556,8,22,6,132,8,16,0,9
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.impl,TestGenericKeyedObjectPool.new TimerTask() {...},0,17,0,0,0,4,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.proxy,TestProxiedKeyedObjectPoolWithJdkProxy,0,16,0,0,0,3,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.proxy,BaseTestProxiedKeyedObjectPool.TestKeyedObjectFactory,0,10,0,0,0,2,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.proxy,TestProxiedObjectPoolWithCglibProxy,0,8,0,0,0,2,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.proxy,BaseTestProxiedObjectPool.TestObjectFactory,0,10,0,0,0,2,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.proxy,BaseTestProxiedKeyedObjectPool.TestObjectImpl,0,7,0,0,0,3,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.proxy,BaseTestProxiedObjectPool,12,202,0,0,6,55,0,8,0,8
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.proxy,BaseTestProxiedKeyedObjectPool,13,145,0,0,6,39,0,7,0,7
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.proxy,TestProxiedKeyedObjectPoolWithCglibProxy,0,8,0,0,0,2,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.proxy,BaseTestProxiedObjectPool.TestObjectImpl,0,7,0,0,0,3,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.proxy,TestProxiedObjectPoolWithJdkProxy,0,16,0,0,0,3,0,2,0,2
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.performance,SleepingObjectFactory,106,0,2,0,30,0,11,0,10,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.performance,PerformanceTest,354,0,18,0,74,0,13,0,4,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.performance,PerformanceTest.PerfTask,234,0,8,0,41,0,7,0,3,0
+commons-pool2-2.6.2-src (16-Jun-2019 5:05:18 PM)/commons-pool2-2.6.2-src/src/test/java,org.apache.commons.pool2.performance,PerformanceTest.TaskStats,18,0,0,0,6,0,1,0,1,0

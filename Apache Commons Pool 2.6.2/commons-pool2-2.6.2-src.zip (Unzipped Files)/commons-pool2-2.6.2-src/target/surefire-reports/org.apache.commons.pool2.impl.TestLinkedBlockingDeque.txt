@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: org.apache.commons.pool2.impl.TestLinkedBlockingDeque
+-------------------------------------------------------------------------------
+Tests run: 40, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.363 s - in org.apache.commons.pool2.impl.TestLinkedBlockingDeque

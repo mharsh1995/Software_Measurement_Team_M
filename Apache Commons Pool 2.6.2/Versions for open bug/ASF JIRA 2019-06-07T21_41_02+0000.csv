@@ -1,0 +1,190 @@
+Summary,Issue key,Issue id,Issue Type,Status,Project key,Project name,Project type,Project lead,Project description,Project url,Priority,Resolution,Assignee,Reporter,Creator,Created,Updated,Last Viewed,Resolved,Affects Version/s,Affects Version/s,Affects Version/s,Fix Version/s,Fix Version/s,Due Date,Votes,Description,Environment,Original Estimate,Remaining Estimate,Time Spent,Work Ratio,Σ Original Estimate,Σ Remaining Estimate,Σ Time Spent,Security Level,Custom field (Attachment count),Custom field (Blog - New Blog Administrators),Custom field (Blog - New Blog PMC),Custom field (Blog - Write access),Custom field (Blog Administrator?),Custom field (Blogs - Admin for blog),Custom field (Blogs - Email Address),Custom field (Blogs - Existing Blog Access Level),Custom field (Blogs - Existing Blog Name),Custom field (Blogs - New Blog Write Access),Custom field (Blogs - Username),Custom field (Bug Category),Custom field (Bugzilla - Email Notification Address),Custom field (Bugzilla - List of usernames),Custom field (Bugzilla - PMC Name),Custom field (Bugzilla - Project Name),Custom field (Bugzilla Id),Custom field (Change Category),Custom field (Complexity),Custom field (Date of First Response),Custom field (Discovered By),Custom field (Docs Text),Custom field (Enable Automatic Patch Review),Custom field (Epic Link),Custom field (Existing GitBox Approval),Custom field (External issue ID),Custom field (External issue URL),Custom field (Git Notification Mailing List),Custom field (Git Repository Import Path),Custom field (Git Repository Name),Custom field (Git Repository Type),Custom field (GitHub Options),Custom field (Github Integration),Custom field (Github Integrations - Other),Custom field (Global Rank),Custom field (INFRA - Subversion Repository Path),Custom field (Initial Confluence Contributors),Custom field (Last public comment date),Custom field (Machine Readable Info),Custom field (New-TLP-TLPName),Custom field (Priority),Custom field (Project),Custom field (Protected Branch),Custom field (Rank),Custom field (Rank (Obsolete)),Custom field (Severity),Custom field (Severity),Custom field (Source Control Link),Custom field (Space Description),Custom field (Space Key),Custom field (Space Name),Custom field (Test and Documentation Plan),Custom field (Testcase included),Comment,Comment
+setTestOnCreate does not test on create,POOL-361,13220550,Bug,Open,POOL,Commons Pool,software,issues@commons.apache.org,,http://commons.apache.org/pool/,Major,,,pakman,pakman,08/Mar/19 21:55,08/Mar/19 21:55,07/Jun/19 21:40,,2.6.1,,,,,,0,"When setting testOnCreate to true, I would expect for the validation to take place when an object is created, but apparently it does not.
+
+It only seems to be tested on borrow and when idle.
+
+This has a negative impact, because when new objects get created, since they are not tested they appear in the pool as idle.
+
+I'm trying to determine if the pool's health, but even though the pool reports idle objects they are botched instances.
+
+Also related to this issue, objects aren't actually created upfront. They seem to be created on first borrow or when timeBetweenEvictionRunMillis elapses.
+
+Environment (unimportant I think): 1.8.0_191, Ubuntu 18.04
+
+Test case:
+
+ 
+{code:java}
+ public static void main(String[] args) throws Exception {
+        PooledObjectFactory<String> factory = new BasePooledObjectFactory<String>() {
+            public String create() throws Exception {
+                String s = ""Hello"";
+                System.out.println(""Creating "" + s);
+                return s;
+            }
+
+            public void destroyObject(PooledObject<String> p) throws Exception {
+                System.out.println(""Destroying "" + p.getObject());
+            }
+
+            public boolean validateObject(PooledObject<String> p) {
+                System.out.println(""Validating "" + p.getObject());
+                return super.validateObject(p);
+            }
+
+            public PooledObject<String> wrap(String obj) {
+                return new Wrapper<String>(obj);
+            }
+        };
+        GenericObjectPoolConfig<String> socketPoolConfig = new GenericObjectPoolConfig<String>();
+        socketPoolConfig.setTestOnCreate(true);
+        socketPoolConfig.setTestWhileIdle(false);
+        GenericObjectPool<String> objectPool = new GenericObjectPool<String>(factory, socketPoolConfig);
+
+        System.out.println(""Pool created"");
+        String f1 = objectPool.borrowObject();
+        System.out.println(""Borrowed"" + f1);
+        objectPool.returnObject(f1);
+        objectPool.close();
+        System.out.println(""Done"");
+    }{code}
+ 
+
+ 
+
+Expected result:
+
+{{        Pool created}}
+{{        Creating Hello}}
+{{        *Validating Hello*}}
+{{        Allocating Hello}}
+{{        BorrowedHello}}
+{{        DeallocatingHello}}
+{{        Destroying Hello}}
+{{        Done}}
+
+ 
+
+Actual result:
+
+{{        Pool created}}
+{{        Creating Hello}}
+{{        Allocating Hello}}
+{{        *Validating Hello*}}
+{{        BorrowedHello}}
+{{        DeallocatingHello}}
+{{        Destroying Hello}}
+{{        Done}}
+
+ 
+
+ Or am I misunderstanding something?
+
+ 
+
+ 
+
+ 
+
+ ",,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,9223372036854775807,,,2019-03-08 21:55:00.0,,,,,,0|z00ijs:,9223372036854775807,,,,,,,,,,
+CallStackUtils mishandles security manager check,POOL-352,13192106,Bug,Open,POOL,Commons Pool,software,issues@commons.apache.org,,http://commons.apache.org/pool/,Major,,,volkerk,volkerk,17/Oct/18 02:41,08/Feb/19 18:01,07/Jun/19 21:41,,,,,,,,0,"CallStackUtils determines at initialization time whether it is allowed to create a security manager, then sticks that info into a static variable and never checks it again, relying on this check to later try to create a SecurityManager for a SecurityManagerCallStack. This is doubly wrong:
+
+a) If the code is running in a privileged context at init time, it determines that it can create a security manager, and then later naively assumes that henceforth all code is privileged and also can create a security manager. Of course this is not true, otherwise one would not need a security manager in the first place! This info can never be kept in a static variable, it's extremely context-dependent. So this leads to AccessControlException from invoking newCallStack() if abandoned object logging is enabled.
+
+b) The permission to create a security manager must never be granted to any code, unless that code has AllPermission in the first place, i.e. is already fully privileged. This is because this permission allows circumventing the security manager completely (simply create one that lets all checks pass). Therefore even just checking whether you're allowed to create a secmgr is naive - if a secmgr is installed at all you should assume that you're NOT privileged enough to do this, simply because for sure some code that calls your code will not be privileged enough.
+
+ ",,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2018-10-17 02:57:49.372,,,false,,,,,,,,,,,,9223372036854775807,,,Fri Feb 08 18:01:57 UTC 2019,,,,,,0|i3zabr:,9223372036854775807,,,,,,,,,17/Oct/18 02:57;ggregory;Patches welcome! ,"08/Feb/19 18:01;ggregory;I can see that saving the check in a static is wrong. I do not see that being done in the JRE for example. That's easy to fix. I'm not sure where to take ATM WRT your (b), I do not want to take the time to dig into that one today. So I'll wait for others to chime in."
+java.util.ConcurrentModificationException,POOL-318,13037380,Bug,Open,POOL,Commons Pool,software,issues@commons.apache.org,,http://commons.apache.org/pool/,Major,,,sunafi,sunafi,24/Jan/17 15:36,26/May/18 17:17,07/Jun/19 21:41,,2.4.2,,,,,,0,"I am using commons.pool.2.4.2 and once size of existing pool reduces to certain number, application runs perparePool()
+I can see some instances of java.util.ConcurrentModificationException in error logs.
+
+
+	at org.apache.commons.pool2.BasePooledObjectFactory.makeObject(BasePooledObjectFactory.java:60)
+	at org.apache.commons.pool2.impl.GenericObjectPool.create(GenericObjectPool.java:868)
+	at org.apache.commons.pool2.impl.GenericObjectPool.ensureIdle(GenericObjectPool.java:927)
+	at org.apache.commons.pool2.impl.GenericObjectPool.ensureMinIdle(GenericObjectPool.java:906)
+	at org.apache.commons.pool2.impl.GenericObjectPool.preparePool(GenericObjectPool.java:844)
+	.....
+	at java.lang.Thread.run(Thread.java:722)
+Caused by: java.util.ConcurrentModificationException
+	at java.util.HashMap$HashIterator.nextEntry(HashMap.java:894)
+	at java.util.HashMap$EntryIterator.next(HashMap.java:934)
+	at java.util.HashMap$EntryIterator.next(HashMap.java:932)
+	at org.jboss.util.TimedCachePolicy.getValidKeys(TimedCachePolicy.java:364)
+	at org.jboss.virtual.plugins.cache.IterableTimedVFSCache.findContext(IterableTimedVFSCache.java:65)
+	at org.jboss.virtual.plugins.cache.CombinedVFSCache.findContext(CombinedVFSCache.java:116)
+	at org.jboss.virtual.plugins.registry.DefaultVFSRegistry.getContext(DefaultVFSRegistry.java:132)
+	at org.jboss.virtual.VFS.getVFS(VFS.java:203)
+	at org.jboss.virtual.VFS.createNewRoot(VFS.java:228)
+	at org.jboss.virtual.VFS.getRoot(VFS.java:244)
+	at org.jboss.virtual.VFS.getRoot(VFS.java:313)
+	at org.jboss.virtual.plugins.vfs.VirtualFileURLConnection.resolveVirtualFile(VirtualFileURLConnection.java:105)
+	at org.jboss.virtual.plugins.vfs.VirtualFileURLConnection.getVirtualFile(VirtualFileURLConnection.java:118)
+	at org.jboss.virtual.plugins.vfs.VirtualFileURLConnection.getInputStream(VirtualFileURLConnection.java:93)
+	at org.springframework.core.io.UrlResource.getInputStream(UrlResource.java:123)
+	at org.apache.cxf.bus.spring.BusApplicationContext.getConfigResources(BusApplicationContext.java:115)
+	at org.springframework.context.support.AbstractXmlApplicationContext.loadBeanDefinitions(AbstractXmlApplicationContext.java:107)
+	at org.apache.cxf.bus.spring.BusApplicationContext.loadBeanDefinitions(BusApplicationContext.java:262)
+	at org.springframework.context.support.AbstractRefreshableApplicationContext.refreshBeanFactory(AbstractRefreshableApplicationContext.java:123)
+	at org.springframework.context.support.AbstractApplicationContext.obtainFreshBeanFactory(AbstractApplicationContext.java:422)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:352)
+	at org.apache.cxf.bus.spring.BusApplicationContext.<init>(BusApplicationContext.java:91)
+	at org.apache.cxf.bus.spring.SpringBusFactory.createApplicationContext(SpringBusFactory.java:102)
+	at org.apache.cxf.bus.spring.SpringBusFactory.createBus(SpringBusFactory.java:93)
+	at org.apache.cxf.bus.spring.SpringBusFactory.createBus(SpringBusFactory.java:86)
+	at org.apache.cxf.bus.spring.SpringBusFactory.createBus(SpringBusFactory.java:64)
+	at org.apache.cxf.bus.spring.SpringBusFactory.createBus(SpringBusFactory.java:53)
+	at org.jboss.wsf.stack.cxf.client.ProviderImpl.setValidThreadDefaultBus(ProviderImpl.java:60)
+	at org.jboss.wsf.stack.cxf.client.ProviderImpl.createServiceDelegate(ProviderImpl.java:41)
+	at javax.xml.ws.Service.<init>(Service.java:56)
+	at javax.xml.ws.Service.create(Service.java:680)
+
+
+
+Application runs preparePool ()  in new thread. and next statement is to borrow instance from pool. Borrowing does not fail but few poolPrepartion fail log is in error log. 
+
+Any suggestions please?
+
+",,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2018-05-26 17:17:01.17,,,false,,,,,,,,,,,,9223372036854775807,,,Sat May 26 17:17:01 UTC 2018,,,,,,0|i394sn:,9223372036854775807,,,,,,,,,26/May/18 17:17;ggregory;It's not clear to me the exception is caused by Commons Pool here. Can you provide a full unabridged stack trace?,
+TestSoftRefOutOfMemory goes into infinite loop,POOL-290,12776754,Bug,Open,POOL,Commons Pool,software,issues@commons.apache.org,,http://commons.apache.org/pool/,Major,,,ronnieo,ronnieo,23/Feb/15 02:02,23/Feb/15 02:02,07/Jun/19 21:41,,,,,,,,0,"When running TestSoftOutOfMemory tests, application goes into infinite loop in case if OutOfMemoryError happens. It happens for each function that tests OutOfMemory case.
+For example in this code
+{code}
+while (pool.getNumIdle() > 0) {
+            try {
+                long freeMemory = runtime.freeMemory();
+                if (freeMemory > Integer.MAX_VALUE) {
+                    freeMemory = Integer.MAX_VALUE;
+                }
+                garbage.add(new byte[Math.min(1024 * 1024, (int)freeMemory/2)]);
+            } catch (OutOfMemoryError oome) {
+                System.gc();
+            }
+            System.gc();
+        }
+{code}
+
+Correct me if I'm wrong, but wouldn't it be more efficient to destroy pool immediatelly if error happens and wait till we free that piece of memory (for example wait till free memory increased by the size of current pool).",,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,9223372036854775807,,,2015-02-23 02:02:05.0,,,,,,0|i25wrj:,9223372036854775807,,,,,,,,,,
+NullPointerException in GKOP.borrowObject(),POOL-264,12709617,Bug,Open,POOL,Commons Pool,software,issues@commons.apache.org,,http://commons.apache.org/pool/,Major,,,LRM42,LRM42,21/Apr/14 20:19,30/May/14 22:34,07/Jun/19 21:41,,1.5.6,1.5.7,1.6,1.5.8,1.6.1,,0,"While I cannot pin down a consistent repro, I occasionally observe a NullPointerException at org.apache.commons.pool.impl.GenericKeyedObjectPool.borrowObject(GenericKeyedObjectPool.java:1126)
+
+The pool is configured as follows:
+
+maxActive = -1
+maxIdle = 32
+maxTotal = 32
+whenExhaustedAction = WHEN_EXHAUSTED_GROW
+timeBetweenEvictionRunsMillis = 20000
+minEvictableIdleTimeMillis = 60000
+numTestsPerEvictionRun = -1
+
+The NullPointerException is thrown in the WHEN_EXHAUSTED_GROW branch of the code.  Specifically it appears that latch.getPool() returns null.
+
+Any suggestions for a work-around would be appreciated.",,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-04-22 00:46:34.53,,,false,,,,,,,,,,,,387939,,,Tue Apr 22 01:48:50 UTC 2014,,,,,,0|i1uttj:,388198,,,,,,,,,"22/Apr/14 00:46;psteitz;Thank you for reporting this. 
+
+A workaround that you can try is to leave maxActive = -1 but set WHEN_EXHAUSTED_ACTION to WHEN_EXHAUSTED_BLOCK.  That may correct the sync and will achieve the same end result as negative maxActive means no limit to the number of available instances per key.
+
+I think the problem here (also present in GOP) may be that the sync in the switch case block is on the pool's monitor rather than the latch.","22/Apr/14 01:48;LRM42;Hi Phil,
+
+Thanks for the quick response!  The workaround is exactly what I ended up doing.  Haven't had issues with it so far, but didn't yet test it at the scale where we found the original NPE.
+
+Best Regards,
+Leonid.
+"

@@ -1,0 +1,140 @@
+
+*****************************************************
+Summary
+-------
+Generated at: 2019-06-06T14:45:33-04:00
+
+Notes: 4
+Binaries: 1
+Archives: 0
+Standards: 109
+
+Apache Licensed: 109
+Generated Documents: 0
+
+JavaDocs are generated, thus a license header is optional.
+Generated files do not require license headers.
+
+0 Unknown Licenses
+
+*****************************************************
+  Files with Apache License headers will be marked AL
+  Binary files (which do not require any license headers) will be marked B
+  Compressed archives will be marked A
+  Notices, licenses etc. will be marked N
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/findbugs-exclude-filter.xml
+  N     /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/RELEASE-NOTES.txt
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/pom.xml
+  N     /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/NOTICE.txt
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/checkstyle.xml
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/doc/ReaderUtil.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/doc/ReaderUtilClient.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/doc/StringBufferFactory.java
+  N     /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/README.txt
+  N     /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/LICENSE.txt
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/Waiter.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestGenericKeyedObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestEvictionConfig.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestLinkedBlockingDeque.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/NoOpCallStackTest.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestAbandonedObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestGenericObjectPoolClassLoaders.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestDefaultPooledObjectInfo.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestEvictionTimer.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestGenericObjectPoolFactoryCreateFailure.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestSynchronizedPooledObjectFactory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestPoolImplUtils.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestBaseGenericObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestPooledSoftReference.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/CallStackTest.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestSoftReferenceObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestDefaultPooledObject.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestGenericObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/impl/TestSoftRefOutOfMemory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/TestBaseKeyedPoolableObjectFactory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/WaiterFactory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/proxy/TestProxiedKeyedObjectPoolWithJdkProxy.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/proxy/BaseTestProxiedObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/proxy/BaseTestProxiedKeyedObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/proxy/TestProxiedObjectPoolWithCglibProxy.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/proxy/TestProxiedObjectPoolWithJdkProxy.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/proxy/TestProxiedKeyedObjectPoolWithCglibProxy.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/ObjectPoolIssue326.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/TestBaseObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/TestPoolUtils.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/VisitTrackerFactory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/VisitTracker.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/PoolTest.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/PrivateException.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/TestObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/TestKeyedObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/MethodCallPoolableObjectFactory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/MethodCall.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/performance/PerformanceTest.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/performance/SleepingObjectFactory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/test/java/org/apache/commons/pool2/TestBasePoolableObjectFactory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/changes/release-notes.vm
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/changes/changes.xml
+  B     /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/site/resources/images/pool-logo-white.png
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/site/xdoc/guide/index.xml
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/site/xdoc/index.xml
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/site/xdoc/mail-lists.xml
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/site/xdoc/downloads.xml
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/site/xdoc/examples.xml
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/site/xdoc/download_pool.xml
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/site/xdoc/issue-tracking.xml
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/site/site.xml
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/AbandonedConfig.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/DefaultPooledObjectInfo.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/BaseGenericObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/CallStack.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/GenericObjectPoolConfig.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/DefaultEvictionPolicy.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/GenericObjectPoolMXBean.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/package.html
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/GenericKeyedObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/PooledSoftReference.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/DefaultPooledObject.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/PoolImplUtils.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/CallStackUtils.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/EvictionTimer.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/SecurityManagerCallStack.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/ThrowableCallStack.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/EvictionConfig.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/DefaultPooledObjectInfoMBean.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/InterruptibleReentrantLock.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/GenericKeyedObjectPoolMXBean.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/SoftReferenceObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/GenericObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/BaseObjectPoolConfig.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/GenericKeyedObjectPoolConfig.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/LinkedBlockingDeque.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/EvictionPolicy.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/impl/NoOpCallStack.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/PooledObjectFactory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/KeyedObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/proxy/JdkProxySource.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/proxy/ProxiedObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/proxy/CglibProxyHandler.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/proxy/BaseProxyHandler.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/proxy/JdkProxyHandler.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/proxy/package.html
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/proxy/ProxySource.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/proxy/CglibProxySource.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/proxy/ProxiedKeyedObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/KeyedPooledObjectFactory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/BasePooledObjectFactory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/UsageTracking.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/package.html
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/overview.html
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/BaseKeyedPooledObjectFactory.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/SwallowedExceptionListener.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/PooledObject.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/ObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/PoolUtils.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/TrackedUse.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/PooledObjectState.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/BaseObjectPool.java
+  AL    /Users/yashgolwala/Desktop/workspace/commons-pool2-2.6.2-src/src/main/java/org/apache/commons/pool2/BaseObject.java
+ 
+*****************************************************
