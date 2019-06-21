@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.apache.commons.pool2.proxy.TestProxiedObjectPoolWithCglibProxy
--------------------------------------------------------------------------------
-Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.01 s - in org.apache.commons.pool2.proxy.TestProxiedObjectPoolWithCglibProxy
