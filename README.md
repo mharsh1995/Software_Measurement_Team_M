@@ -17,6 +17,13 @@ Here we perform various different coverage tests for developing test cases so th
 4. **Apache Commons IO** - [*project details*](https://commons.apache.org/proper/commons-io/) , [*source-code*](https://github.com/apache/commons-io)
 5. **Apache Commons Collections4** - [*project details*](https://commons.apache.org/proper/commons-collections/) , [*source-code*](https://github.com/apache/commons-collections)
 
+#### Directory layout
+    .
+    ├── Projects                           # Data Collection for different metrics
+    ├── DataAnalysisNoteBook               # Scripts for finding Correlations     
+    ├── Project Source Code                # latest version of project
+    ├── Docs                               # Documentation files (alternatively `doc`)
+    └── README.md
 #### Prerequisites and Installation Steps for EclEmma (JaCoCo)
 1. Prerequisites : EclEmma requires Eclipse 3.8 or higher and Java 1.5 or higher. It has no dependencies on a particular operating system. Of course your Eclipse installation needs to contain the Java development tools (JDT) which is included in the default SDK installation.
 2. Installation Steps: 
