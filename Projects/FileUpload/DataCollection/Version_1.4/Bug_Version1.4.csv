@@ -1,0 +1,507 @@
+Summary,Issue key,Issue id,Issue Type,Status,Project key,Project name,Project type,Project lead,Project description,Project url,Priority,Resolution,Assignee,Reporter,Creator,Created,Updated,Last Viewed,Resolved,Affects Version/s,Affects Version/s,Fix Version/s,Fix Version/s,Due Date,Votes,Labels,Labels,Description,Environment,Original Estimate,Remaining Estimate,Time Spent,Work Ratio,Σ Original Estimate,Σ Remaining Estimate,Σ Time Spent,Security Level,Outward issue link (Cloners),Attachment,Custom field (Attachment count),Custom field (Blog - New Blog Administrators),Custom field (Blog - New Blog PMC),Custom field (Blog - Write access),Custom field (Blog Administrator?),Custom field (Blogs - Admin for blog),Custom field (Blogs - Email Address),Custom field (Blogs - Existing Blog Access Level),Custom field (Blogs - Existing Blog Name),Custom field (Blogs - New Blog Write Access),Custom field (Blogs - Username),Custom field (Bug Category),Custom field (Bugzilla - Email Notification Address),Custom field (Bugzilla - List of usernames),Custom field (Bugzilla - PMC Name),Custom field (Bugzilla - Project Name),Custom field (Bugzilla Id),Custom field (Change Category),Custom field (Complexity),Custom field (Date of First Response),Custom field (Discovered By),Custom field (Docs Text),Custom field (Enable Automatic Patch Review),Custom field (Epic Link),Custom field (Existing GitBox Approval),Custom field (External issue ID),Custom field (External issue URL),Custom field (Git Notification Mailing List),Custom field (Git Repository Import Path),Custom field (Git Repository Name),Custom field (Git Repository Type),Custom field (GitHub Options),Custom field (Github Integration),Custom field (Github Integrations - Other),Custom field (Global Rank),Custom field (INFRA - Subversion Repository Path),Custom field (Initial Confluence Contributors),Custom field (Last public comment date),Custom field (Machine Readable Info),Custom field (New-TLP-TLPName),Custom field (Priority),Custom field (Project),Custom field (Protected Branch),Custom field (Rank),Custom field (Rank (Obsolete)),Custom field (Severity),Custom field (Severity),Custom field (Source Control Link),Custom field (Space Description),Custom field (Space Key),Custom field (Space Name),Custom field (Test and Documentation Plan),Custom field (Testcase included),Comment,Comment,Comment,Comment,Comment,Comment
+Don't create un-needed resources in FileUploadBase.java,FILEUPLOAD-292,13205799,Improvement,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Trivial,Fixed,chtompki,chtompki,chtompki,20/Dec/18 18:29,05/Feb/19 14:11,02/Jun/19 17:45,05/Feb/19 14:06,1.3.3,,1.4,,,0,,,When creating a {{FileItemStreamImpl}} we are creating an object even when {{fileSizeMax == -1}} which allocates unneeded objects that will need to be garbage collected later.,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,9223372036854775807,,,Tue Feb 05 14:11:43 UTC 2019,,,,,,0|u007co:,9223372036854775807,,,,,,,,,05/Feb/19 14:11;chtompki;1.4 Released,,,,,
+Linux dentry cache memory leak due to inappropriate temporary file detection,FILEUPLOAD-288,13120388,Improvement,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Major,Fixed,,fangwentong,fangwentong,23/Nov/17 05:09,05/Feb/19 14:11,02/Jun/19 17:45,23/Nov/17 20:44,,,1.4,Nightly Builds,,0,,,"We use commons-fileupload:1.3.3 to handle multipart request, param {{file-size-threshold}} was set to 200K. Our API handle multipart request in high QPS, the size of request body is about 20KB, which means those parts was saved in memory, not written to disk temporary file.
+
+But, in our production environment,  size of dentry cache grows up in high speed. here are some analysis:
+
+in {{strace}} result, plenty of {{stat}} system call invoked for tmp files which not exists. 
+{noformat}
+[pid 111310] <... stat resumed> {st_mode=S_IFDIR|0755, st_size=6, ...}) = 0
+[pid 57844] <... stat resumed> 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624923.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624922.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624921.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624920.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624919.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624918.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 69798] stat(""/tmp"",  <unfinished ...>
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624917.tmp"",  <unfinished ...>
+[pid 69798] <... stat resumed> {st_mode=S_IFDIR|0755, st_size=6, ...}) = 0
+[pid 57844] <... stat resumed> 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624916.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624915.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624914.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624913.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624912.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624911.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624910.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624909.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624908.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624907.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624906.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624905.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624904.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624903.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624902.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624901.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624900.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624899.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624898.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624897.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624896.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624895.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624894.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624893.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624892.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624891.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624890.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624889.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624888.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624887.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624886.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624885.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 57844] stat(""/tmp/upload_75a3e205_c3f1_43e7_8165_34f6a7a02227_518624884.tmp"", 0x7f08e80b84b0) = -1 ENOENT (No such file or directory)
+[pid 78454] --- SIGPIPE {si_signo=SIGPIPE, si_code=SI_USER, si_pid=57810, si_uid=605} ---{noformat}
+
+in {{slabtop}} result , dentry cache taken up 22GB+ memory.
+
+{noformat}
+ Active / Total Objects (% used)    : 233715492 / 234153507 (99.8%)
+ Active / Total Slabs (% used)      : 7858579 / 7858606 (100.0%)
+ Active / Total Caches (% used)     : 108 / 200 (54.0%)
+ Active / Total Size (% used)       : 29322726.34K / 29380106.43K (99.8%)
+ Minimum / Average / Maximum Object : 0.02K / 0.12K / 4096.00K
+
+  OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME
+116095303 116095295  26%    0.06K 1967717       59   7870868K size-64
+116090260 116090260  26%    0.19K 5804513       20  23218052K dentry
+{noformat}
+
+
+finally, I think the root cause is：in temporary file cleanup policy defined at {{DiskFileItem#finalize}}, call {{outputFile.exists()}} for every File, even if the part not write to disk.
+
+{code:java}
+    @Override
+    protected void finalize() {
+        if (dfos == null) {
+            return;
+        }
+        File outputFile = dfos.getFile();
+
+        if (outputFile != null && outputFile.exists()) {
+            outputFile.delete();
+        }
+    }
+{code}","OS version: CentOS release 6.7 (Final)
+Kenel: 2.6.32-573.26.1.el6.x86_64
+JVM: Oracle 1.8.0_102-b14
+Tomcat: 8.0.33.0
+commons-fileupload : 1.3.3",,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2017-11-23 05:29:33.291,,,false,,,,,,,,,,,,9223372036854775807,,,Tue Feb 05 14:11:43 UTC 2019,,,,,,0|i3n4jr:,9223372036854775807,,,,,,,,,"23/Nov/17 05:29;githubbot;GitHub user fangwentong opened a pull request:
+
+    https://github.com/apache/commons-fileupload/pull/12
+
+    FILEUPLOAD-288: detect file only if the file written to disk.
+
+    see https://issues.apache.org/jira/browse/FILEUPLOAD-288
+
+You can merge this pull request into a Git repository by running:
+
+    $ git pull https://github.com/fangwentong/commons-fileupload master
+
+Alternatively you can review and apply these changes as the patch at:
+
+    https://github.com/apache/commons-fileupload/pull/12.patch
+
+To close this pull request, make a commit to your master/trunk branch
+with (at least) the following in the commit message:
+
+    This closes #12
+    
+----
+commit b28019b27ab06847815de02ed69fffdfa6bf18d1
+Author: fangwentong <fangwentong2012@gmail.com>
+Date:   2017-11-23T05:26:05Z
+
+    FILEUPLOAD-288: detect file only if the file written to disk.
+
+----
+","23/Nov/17 20:10;githubbot;Github user asfgit closed the pull request at:
+
+    https://github.com/apache/commons-fileupload/pull/12
+","23/Nov/17 20:41;githubbot;Github user jochenw commented on the issue:
+
+    https://github.com/apache/commons-fileupload/pull/12
+  
+    Applied to master, and b1_3 branches, thank you!
+
+","23/Nov/17 20:44;jochen@apache.org;Applied to master, and b1_3, branches.
+",05/Feb/19 14:11;chtompki;1.4 Released,
+Add tests to the portlet package,FILEUPLOAD-283,13078919,Improvement,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Minor,Fixed,kinow,kinow,kinow,11/Jun/17 04:13,05/Feb/19 14:11,02/Jun/19 17:42,25/Jun/17 05:06,,,1.4,,,0,coverage,test,"Currently, the o.a.c.fileupload.portlet is reported as having 0% coverage in the cobertura report.
+
+During the last vote thread I noted that and added a post-it to add some tests. Creating a ticket so that I do not forget.",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2017-06-16 23:06:54.651,,,false,,,,,,,,,,,,9223372036854775807,,,Tue Feb 05 14:11:45 UTC 2019,,,,,,0|i3g53z:,9223372036854775807,,,,,,,,,"16/Jun/17 23:06;githubbot;GitHub user kinow opened a pull request:
+
+    https://github.com/apache/commons-fileupload/pull/8
+
+    FILEUPLOAD-283: add tests for the portlet package
+
+    Initial tests for the portlet package. I believe there have been updates to the portlet specification(s) that have not been applied to Commons FileUpload yet. Hopefully, having unit tests will help us later when changing the package.
+    
+    Removed strings like ""US-ASCII"" using the `StandardCharsets` class from Java 7.
+    
+    There was a class -`FileUploadTestCase`- that was extended by other tests. But it became problematic as there were tests that would be common to any implementation of `FileUpload`, while other tests were specific to `ServletFileUpload`.
+    
+    This pull request removed the inheritance from the tests, by a `Util` class (open to other suggestions) with methods for parsing uploads and for tests.
+    
+    Tests related to `ServletFileUpload` are now in `ServletFileUploadTest`, in the `.servlet` package in the test sources.
+    
+    Tests related to `PortletFileUpload` are now in `PortletFileUploadTest`, in the `.portlet` package in the test sources.
+    
+    There are no functional changes in the tests. Coverage remained the same for other classes. For the `.portlet` package, it went from 0% to 60% in my local working copy.
+    
+    There are lots of other parts that need better coverage, but at least I think having tests in separated classes will make it slightly easier to add more.
+    
+    Cheers
+    Bruno
+
+You can merge this pull request into a Git repository by running:
+
+    $ git pull https://github.com/kinow/commons-fileupload FILEUPLOAD-283
+
+Alternatively you can review and apply these changes as the patch at:
+
+    https://github.com/apache/commons-fileupload/pull/8.patch
+
+To close this pull request, make a commit to your master/trunk branch
+with (at least) the following in the commit message:
+
+    This closes #8
+    
+----
+commit f8f529ee0baecc9262317cc5375af1eb42aadab4
+Author: Bruno P. Kinoshita <brunodepaulak@yahoo.com.br>
+Date:   2017-06-11T05:23:07Z
+
+    FILEUPLOAD-283: add tests for the portlet package
+
+----
+","24/Jun/17 10:15;githubbot;Github user kinow commented on the issue:
+
+    https://github.com/apache/commons-fileupload/pull/8
+  
+    No objections so far, will merge it tomorrow after reviewing the code once more :+1: 
+","25/Jun/17 05:05;githubbot;Github user asfgit closed the pull request at:
+
+    https://github.com/apache/commons-fileupload/pull/8
+","25/Jun/17 05:06;kinow;Pull request merged. Coverage increased a bit, tests adapted to cover servlet, legacy class, and portlets. No tests were removed, only moved to other test classes or new ones added.",05/Feb/19 14:11;chtompki;1.4 Released,
+"Upversion complier.source, compiler.target to 1.6",FILEUPLOAD-282,13077239,Improvement,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Minor,Fixed,chtompki,chtompki,chtompki,05/Jun/17 13:01,05/Feb/19 14:11,02/Jun/19 17:45,05/Jun/17 13:02,1.3.2,,1.4,,,0,,,"For java9 compatibility we want:
+{code:xml}
+<maven.compiler.source>1.5</maven.compiler.source>
+<maven.compiler.target>1.5</maven.compiler.target>
+{code}
+in the pom.xml to be:
+{code:xml}
+<maven.compiler.source>1.6</maven.compiler.source>
+<maven.compiler.target>1.6</maven.compiler.target>
+{code}",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2017-06-05 14:08:56.024,,,false,,,,,,,,,,,,9223372036854775807,,,Tue Feb 05 14:11:42 UTC 2019,,,,,,0|i3fviv:,9223372036854775807,,,,,,,,,05/Jun/17 13:02;chtompki;Checked into master branch,"05/Jun/17 14:08;jochen@apache.org;Could you please explain, Rob, why version 1.5 affects Java 9 compatibility? (This will, most likely, affect other commons projcts as well.)
+
+","05/Jun/17 14:12;chtompki;My environment (mac OS X 10.12.5):
+{code}
+$ mvn -X
+Apache Maven 3.5.0 (ff8f5e7444045639af65f6095c62210b5713f426; 2017-04-03T15:39:06-04:00)
+Maven home: /usr/local/Cellar/maven/3.5.0/libexec
+Java version: 9-ea, vendor: Oracle Corporation
+Java home: /Library/Java/JavaVirtualMachines/jdk-9.jdk/Contents/Home
+Default locale: en_US, platform encoding: UTF-8
+$ java -version
+java version ""9-ea""
+Java(TM) SE Runtime Environment (build 9-ea+159)
+Java HotSpot(TM) 64-Bit Server VM (build 9-ea+159, mixed mode)
+{code}
+
+
+My maven output:
+{code}
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] Source option 1.5 is no longer supported. Use 1.6 or later.
+[ERROR] Target option 1.5 is no longer supported. Use 1.6 or later.
+[INFO] 2 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 2.219 s
+[INFO] Finished at: 2017-06-05T10:10:07-04:00
+[INFO] Final Memory: 22M/1024M
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.5.1:compile (default-compile) on project commons-fileupload: Compilation failure: Compilation failure: 
+[ERROR] Source option 1.5 is no longer supported. Use 1.6 or later.
+[ERROR] Target option 1.5 is no longer supported. Use 1.6 or later.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+{code}",05/Jun/17 14:13;chtompki;I also tried with maven 3.1.1 and got the same output.,"05/Jun/17 14:33;chtompki;Note, http://openjdk.java.net/jeps/182 gives
+
+bq. In JDK 8, use of a source or target of 1.5 or earlier will be deprecated and in JDK 9, support for a source or target of 1.5 or earlier will be removed.",05/Feb/19 14:11;chtompki;1.4 Released
+Test Coverage Report,FILEUPLOAD-273,12972326,Improvement,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Major,Fixed,jochen@apache.org,jochen@apache.org,jochen@apache.org,24/May/16 09:14,05/Feb/19 14:11,02/Jun/19 17:45,24/May/16 14:00,1.3.1,,1.4,,,0,,,"Right now, a coverage report is not included in the project reports. [1] This must be changed.
+
+1: http://commons.apache.org/proper/commons-fileupload/project-reports.html
+
+
+",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2019-02-05 14:11:43.003,,,false,,,,,,,,,,,,9223372036854775807,,,Tue Feb 05 14:11:43 UTC 2019,,,,,,0|i2yewv:,9223372036854775807,,,,,,,,,"24/May/16 14:00;jochen@apache.org;Fixed in 1745363 by adding the file src/site/resources/profile.cobertura.
+",05/Feb/19 14:11;chtompki;1.4 Released,,,,
+Performance Improvement in MultipartStream,FILEUPLOAD-272,12972076,Improvement,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Major,Fixed,britter,britter,britter,23/May/16 14:26,27/May/16 06:50,02/Jun/19 17:45,23/May/16 14:32,,,1.3.2,1.4,,0,,,Improve read performance of MultipartStream by better choosing the size of the read buffer.,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,9223372036854775807,,,Mon May 23 14:32:42 UTC 2016,,,,,,0|i2yddj:,9223372036854775807,,,,,,,,,23/May/16 14:32;britter;Applied a fix in r1743480 to trunk and in r1745058 to b1_3.,,,,,
+"CLONE - Bug in docs: tmp file delete conditions in ""Resource Cleanup"" section of ""using.html""",FILEUPLOAD-270,12924425,Bug,Open,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Minor,,jochen@apache.org,craftwithin,craftwithin,27/Dec/15 23:16,28/Dec/15 14:32,02/Jun/19 17:45,,1.3,,1.4,,,0,,,"The guide at http://commons.apache.org/proper/commons-fileupload/using.html incorrectly writes: ""Such temporary files are deleted automatically, if they are no longer used (more precisely, if the corresponding instance of java.io.File is garbage collected."".
+
+(The following affects maven version: http://search.maven.org/#artifactdetails|commons-fileupload|commons-fileupload|1.2.2|jar )
+
+However, the code for org.apache.commons.io.FileCleaningTracker.Tracker.Tracker(...) passes org.apache.commons.fileupload.disk.DiskFileItemFactory.this specified by org.apache.commons.fileupload.disk.DiskFileItemFactory.createItem(String, String, boolean, String) in tracker.track(result.getTempFile(), this), and not java.io.File. I.e. the ""using.html"" guide must be corrected.
+
+The correct (fixed) phrasing is: 
+
+""Such temporary files are deleted automatically, if they are no longer used (more precisely, if the corresponding instance of org.apache.commons.fileupload.disk.DiskFileItemFactory is garbage collected."".
+
+(The following affects maven version: http://search.maven.org/#artifactdetails|commons-fileupload|commons-fileupload|1.3|jar )
+
+However, the code for org.apache.commons.io.FileCleaningTracker.Tracker.Tracker(...) passes DiskFileItem.this specified by org.apache.commons.fileupload.disk.DiskFileItemFactory.createItem(String, String, boolean, String) in DiskFileItem result=[...]; [...]; tracker.track(result.getTempFile(), result), and not java.io.File. I.e. the ""using.html"" guide must be corrected.
+
+The correct (fixed) phrasing is: 
+
+""Such temporary files are deleted automatically, if they are no longer used (more precisely, if the corresponding instance of org.apache.commons.fileupload.disk.DiskFileItem is garbage collected."".
+
+(The following holds for both versions 1.2.2 and 1.3)
+
+The correct (fixed) phrasing is: 
+
+""Such temporary files are deleted automatically, if they are no longer used (more precisely, if the corresponding instance of org.apache.commons.fileupload.disk.DiskFileItem (for commons-fileupload v.1.3) and instance of org.apache.commons.fileupload.disk.DiskFileItemFactory (for commons-fileupload v.1.2.2) is garbage collected."".
+",,,,,,,,,,FILEUPLOAD-234,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,9223372036854775807,,,2015-12-27 23:16:45.0,,,,,,0|i2qbtz:,9223372036854775807,,,,,,,,,,,,,,
+Empty files in mutipart requests aren't saved to disk,FILEUPLOAD-258,12741450,Bug,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Minor,Fixed,,prcjac,prcjac,15/Sep/14 11:25,05/Feb/19 14:11,02/Jun/19 17:39,11/Nov/14 20:42,1.3,1.3.1,1.4,,,0,,,"If a multipart request contains an empty file, ServletFileUpload#parseRequest does not create a corresponding temporary file on the file system. If any operations are performed on the corresponding file object from DiskFileItem#getStoreLocation() a FileNotFoundException is thrown.
+
+FileUploadBase#parseRequest() copies the multipart file input stream to the temporary file output stream with Streams#copy(). This method only creates the temporary file on the file system if data is written to the file's output stream. Since the input stream is empty, write is never called on the output stream and the temporary file is not created.
+
+I've used the following snippet to overcome this issue. This ensures the temporary file is created on the file system prior to writing:
+
+{code:title=Snippet.java|borderStyle=solid}
+final DiskFileItemFactory factory = new DiskFileItemFactory() {
+  @Override
+  public FileItem createItem(final String fieldName, final String contentType, final boolean isFormField, final String fileName) {
+    return new DiskFileItem(fieldName, contentType, isFormField, fileName, getSizeThreshold(), getRepository()) {
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      protected File getTempFile() {
+        File tempFile = super.getTempFile();
+        try {
+          tempFile.createNewFile();
+        }
+        catch (final IOException e) {
+          //Handle appropriately
+          ...
+        }
+        return tempFile;
+      }
+    };
+  }
+};
+
+ServletFileUpload upload = new ServletFileUpload(factory);
+{code}",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-11-11 20:42:35.053,,,false,,,,,,,,,,,,9223372036854775807,,,Tue Feb 05 14:11:46 UTC 2019,,,,,,0|i201iv:,9223372036854775807,,,,,,,,,"11/Nov/14 20:42;tn;The getStoreLocation() method wrongly returned a File object in case the FileItem was stored in memory. The javadoc was stating that it should return null in this case.
+
+Fixed this in r1638377.
+
+You can also use the method isInMemory() to determine if the file is stored on disk or solely in memory.
+
+btw. the problem you describe can also happen for file smaller than the sizeThreshold for the DiskFileItemFactory.",05/Feb/19 14:11;chtompki;1.4 Released,,,,
+Fix Javadoc 1.8 errors,FILEUPLOAD-257,12724387,Bug,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Minor,Fixed,,scop,scop,30/Jun/14 07:51,05/Feb/19 14:11,02/Jun/19 17:37,11/Nov/14 17:36,Nightly Builds,,1.4,,,0,patch,,"Javadoc build fails with Java 1.8, fix attached.",,,,,,,,,,,30/Jun/14 07:52;scop;0001-Fix-Javadoc-1.8-errors.patch;https://issues.apache.org/jira/secure/attachment/12653109/0001-Fix-Javadoc-1.8-errors.patch,1.0,,,,,,,,,,,,,,,,,,,2014-11-11 17:36:42.922,,,false,,,,,,,,,,,,402570,,,Tue Feb 05 14:11:40 UTC 2019,,,,,,0|i1xahz:,402637,,,,,,,,,"11/Nov/14 17:36;tn;Partially applied the patch in r1638222 as one problem has already been fixed before.
+
+Thanks for the report and patch!",05/Feb/19 14:11;chtompki;1.4 Released,,,,
+DiskFileItem#write can lose original IO error,FILEUPLOAD-252,12695602,Bug,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Major,Fixed,,sebb,sebb,17/Feb/14 23:16,05/Feb/19 14:11,02/Jun/19 17:45,11/Nov/14 20:45,,,1.4,,,0,,,"The method DiskFileItem#write has the following code:
+
+{code}
+FileOutputStream fout = null;
+try {
+    fout = new FileOutputStream(file);
+    fout.write(get());
+} finally {
+    if (fout != null) {
+        fout.close();
+    }
+}
+{code}
+
+If the write fails and then the close fails, the write failure will be masked by the close error. It might be better to write the code as:
+
+{code}
+FileOutputStream fout = null;
+try {
+    fout = new FileOutputStream(file);
+    fout.write(get());
+    fout.close();
+} finally {
+    IOUtils.closeQuietly(fout);
+}
+{code}
+
+This would ensure that the first error was reported.",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-11-11 20:45:28.592,,,false,,,,,,,,,,,,374110,,,Tue Feb 05 14:11:46 UTC 2019,,,,,,0|i1sgwv:,374410,,,,,,,,,11/Nov/14 20:45;tn;Fixed in r1638380.,"09/Dec/14 13:40;sebb;And
+
+ http://svn.apache.org/r1643123",05/Feb/19 14:11;chtompki;1.4 Released,,,
+DiskFileItem#getTempFile() is broken,FILEUPLOAD-251,12695433,Bug,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Major,Fixed,,sebb,sebb,17/Feb/14 00:53,05/Feb/19 14:11,02/Jun/19 17:45,17/Feb/14 02:22,1.3.1,,1.4,,,0,,,"DiskFileItem#getTempFile() looks wrong.
+
+Presumably the intention of providing the protected method was to allow the generation of the path name to be overwritten. This can indeed be done. 
+
+However, if this is done, the tempFile variable will not be set up, so the path name won't be cached - unless the overriding method also caches the name.
+
+The file name needs to agree with the DeferredFileOutputStream that is created. This is implied in the Javadoc, but is not currently enforced.
+
+The protected method needs to implement the name generation part only.",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2019-02-05 14:11:41.184,,,false,,,,,,,,,,,,373941,,,Tue Feb 05 14:11:41 UTC 2019,,,,,,0|i1sfvj:,374241,,,,,,,,,"17/Feb/14 02:10;sebb;On second thoughts, I don't think it is possible to fix this without potentially breaking subclasses.
+
+Subclasses that override the method must ensure that the same File is returned each time.
+This needs to be documented.","17/Feb/14 02:22;sebb;URL: http://svn.apache.org/r1568874
+Log:
+FILEUPLOAD-251 DiskFileItem#getTempFile() is broken
+
+Modified:
+    commons/proper/fileupload/trunk/src/changes/changes.xml
+    commons/proper/fileupload/trunk/src/main/java/org/apache/commons/fileupload/disk/DiskFileItem.java
+",05/Feb/19 14:11;chtompki;1.4 Released,,,
+FileUploadBase - potential resource leak - InputStream not closed on exception,FILEUPLOAD-250,12695428,Bug,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Major,Fixed,,sebb,sebb,16/Feb/14 23:55,05/Feb/19 14:11,02/Jun/19 17:45,17/Feb/14 00:17,1.3.1,,1.4,,,0,,,"FileUploadBase has several instances where the InputStream ""input"" is not closed when an Exception is throw. This can potentially be a resource leak and is best avoided.
+
+The first case is easy to deal with, as the InputStream does not need to be created until after the SizeLimitExceededException has been thrown.
+
+The next case occurs if the boundary is not found.
+This check could be moved to before the size check, however that would change the behaviour slightly, as FileUploadException would be thrown instead of SizeLimitExceededException if both boundary and size are wrong.
+
+The last case is where InvalidContentTypeException is thrown. This cannot easily be avoided.",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2019-02-05 14:11:42.478,,,false,,,,,,,,,,,,373936,,,Tue Feb 05 14:11:42 UTC 2019,,,,,,0|i1sfuf:,374236,,,,,,,,,"17/Feb/14 00:17;sebb;URL: http://svn.apache.org/r1568866
+Log:
+FILEUPLOAD-250 FileUploadBase - potential resource leak - InputStream not closed on exception
+
+Modified:
+    commons/proper/fileupload/trunk/src/changes/changes.xml
+    commons/proper/fileupload/trunk/src/main/java/org/apache/commons/fileupload/FileUploadBase.java
+",05/Feb/19 14:11;chtompki;1.4 Released,,,,
+[DISK] Unsafe file move operation (possibly swallowing write errors),FILEUPLOAD-248,12695383,Bug,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Major,Fixed,b.eckenfels,b.eckenfels,b.eckenfels,15/Feb/14 22:43,05/Feb/19 14:11,02/Jun/19 17:45,19/May/14 22:34,1.4,,1.4,,,0,,,"Because of a fix for FILEUPLOAD-246 I noticed that there is a fileRenameOrCopy function which swallows exceptions on the OutputStream#close() method. This is unsafe since a lot of filesystem operations can fail in exactly this step.
+
+There is also a Commons IO Utility which does rename or copy, so the whole code block could be removed.
+
+Problem is here in Line 416: http://svn.apache.org/viewvc/commons/proper/fileupload/trunk/src/main/java/org/apache/commons/fileupload/disk/DiskFileItem.java?revision=1568691&view=markup
+
+Besides using FileUtil.move() another option would be to add a out.close() before the catch.
+",Source,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-02-16 00:37:46.454,,,false,,,,,,,,,,,,373891,,,Tue Feb 05 14:11:41 UTC 2019,,,,,,0|i1sfkf:,374191,,,,,,,,,16/Feb/14 00:37;sebb;Agreed it would make more sense to use the method from Commons IO.,"19/May/14 22:34;b.eckenfels;[FILEUPLOAD-248] DiskFileItem might suppress critical IOExceptions on rename - use FileUtil.move instead.
+Also: close input stream silently to make delete more probable. Remove unneeded BufferedInputStream indirection for readFully().
+
+http://svn.apache.org/viewvc?view=revision&revision=1596086",05/Feb/19 14:11;chtompki;1.4 Released,,,
+FileUpload should use IOUtils.closeQuietly where relevant,FILEUPLOAD-246,12695378,Bug,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Major,Fixed,,sebb,sebb,15/Feb/14 21:25,05/Feb/19 14:11,02/Jun/19 17:45,15/Feb/14 21:31,,,1.4,,,0,,,"FileUpload already depends on Common IO, so it makes sense to simplify the code by using the method IOUtils#closeQuietly instead of code such as
+
+{code}
+if (out != null) {
+    try {
+        out.close();
+    } catch (IOException e) {
+        // ignore
+    }
+}
+{code}",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2019-02-05 14:11:38.508,,,false,,,,,,,,,,,,373886,,,Tue Feb 05 14:11:38 UTC 2019,,,,,,0|i1sfjb:,374186,,,,,,,,,"15/Feb/14 21:31;sebb;URL: http://svn.apache.org/r1568683
+Log:
+FILEUPLOAD-246 FileUpload should use IOUtils.closeQuietly where relevant
+
+Modified:
+    commons/proper/fileupload/trunk/src/changes/changes.xml
+    commons/proper/fileupload/trunk/src/main/java/org/apache/commons/fileupload/disk/DiskFileItem.java
+",05/Feb/19 14:11;chtompki;1.4 Released,,,,
+DiskFileItem.get() may not fully read the data,FILEUPLOAD-245,12695375,Bug,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Major,Fixed,,sebb,sebb,15/Feb/14 21:12,28/Dec/16 22:26,02/Jun/19 17:45,15/Feb/14 21:19,1.3.1,,1.4,,,0,,,"DiskFileItem.get() invokes InputStream#read, and appears to assume that it will always read all available data. However that is not necessarily the case.
+
+It would be safer to use the Commons IO method IOUtils#readFully
+
+[The component already depends on CommonsIO]",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2016-12-28 12:54:48.637,,,false,,,,,,,,,,,,373883,,,Wed Dec 28 22:26:20 UTC 2016,,,,,,0|i1sfin:,374183,,,,,,,,,"15/Feb/14 21:19;sebb;URL: http://svn.apache.org/r1568678
+Log:
+FILEUPLOAD-245 DiskFileItem.get() may not fully read the data
+
+Modified:
+    commons/proper/fileupload/trunk/src/changes/changes.xml
+    commons/proper/fileupload/trunk/src/main/java/org/apache/commons/fileupload/disk/DiskFileItem.java
+","28/Dec/16 12:54;blueskyufo;Hi Sebb,
+
+Please attach your test case to show when DiskFileItem.get() can not fully read the data.
+I'm using 1.3.1 version and facing a problem which may relate to this ticket.
+Thank you.","28/Dec/16 22:26;sebb;There is no test case, but the Javadoc makes it clear that InputStream#read does not necessarily read to EOF.",,,
+.DiskFileItem.readObject fails to close FileInputStream,FILEUPLOAD-244,12695369,Bug,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Major,Fixed,,sebb,sebb,15/Feb/14 18:30,05/Feb/19 14:11,02/Jun/19 17:45,15/Feb/14 22:04,,,1.4,,,0,,,Eclipse reports that .DiskFileItem.readObject fails to close FileInputStream,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2019-02-05 14:11:39.585,,,false,,,,,,,,,,,,373877,,,Tue Feb 05 14:11:39 UTC 2019,,,,,,0|i1sfhb:,374177,,,,,,,,,"15/Feb/14 22:04;sebb;URL: http://svn.apache.org/r1568691
+Log:
+FILEUPLOAD-244 DiskFileItem.readObject fails to close FileInputStream
+
+Modified:
+    commons/proper/fileupload/trunk/src/changes/changes.xml
+    commons/proper/fileupload/trunk/src/main/java/org/apache/commons/fileupload/disk/DiskFileItem.java",05/Feb/19 14:11;chtompki;1.4 Released,,,,
+Make some MultipartStream private fields final,FILEUPLOAD-243,12694464,Improvement,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Minor,Fixed,,scop,scop,11/Feb/14 10:58,05/Feb/19 14:11,02/Jun/19 17:45,15/Feb/14 18:14,1.3.1,,1.4,,,0,patch,,,,,,,,,,,,,11/Feb/14 10:58;scop;0001-Make-some-MultipartStream-private-fields-final.patch;https://issues.apache.org/jira/secure/attachment/12628182/0001-Make-some-MultipartStream-private-fields-final.patch,1.0,,,,,,,,,,,,,,,,,,,2014-02-15 18:14:10.027,,,false,,,,,,,,,,,,372972,,,Tue Feb 05 14:11:45 UTC 2019,,,,,,0|i1s9xj:,373274,,,,,,,,,"15/Feb/14 18:14;sebb;URL: http://svn.apache.org/r1568655
+Log:
+FILEUPLOAD-243 Make some MultipartStream private fields final
+
+Modified:
+    commons/proper/fileupload/trunk/src/changes/changes.xml
+    commons/proper/fileupload/trunk/src/main/java/org/apache/commons/fileupload/MultipartStream.java
+",05/Feb/19 14:11;chtompki;1.4 Released,,,,
+Should not catch and ignore Throwable,FILEUPLOAD-242,12693542,Bug,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Major,Fixed,,sebb,sebb,06/Feb/14 12:18,05/Feb/19 14:11,02/Jun/19 17:45,11/Nov/14 20:09,,,1.4,,,0,,,"Code should never catch & ignore all Throwables.
+
+For example, ThreadDeath may be caught, but must be rethrown.
+VirtualMachineError must also never be swallowed.
+
+See also
+
+https://issues.apache.org/bugzilla/show_bug.cgi?id=48644
+and
+org/apache/tomcat/util/ExceptionUtils#handleThrowable()
+https://svn.apache.org/repos/asf/tomcat/trunk/java/org/apache/tomcat/util/ExceptionUtils.java",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-11-11 20:09:48.454,,,false,,,,,,,,,,,,372127,,,Tue Feb 05 14:11:40 UTC 2019,,,,,,0|i1s4rr:,372432,,,,,,,,,11/Nov/14 20:09;tn;Fixed in r1638340.,"03/Dec/14 12:43;sebb;Followup:
+
+URL: http://svn.apache.org/r1643019
+Log:
+[FILEUPLOAD-242] Do not silently swallow all Throwables.
+Instead swallow only Exceptions
+
+Modified:
+    commons/proper/fileupload/trunk/src/main/java/org/apache/commons/fileupload/FileUploadBase.java
+",05/Feb/19 14:11;chtompki;1.4 Released,,,
+Update Documenation for Streaming,FILEUPLOAD-237,12661894,Improvement,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Trivial,Fixed,,z666,z666,05/Aug/13 14:30,05/Feb/19 14:11,02/Jun/19 17:37,10/Nov/14 22:02,,,1.4,,,0,,,"I THINK the documentation is wrong when it says to use item.openStream()
+
+http://commons.apache.org/proper/commons-fileupload/streaming.html
+
+I relooked a the API for FileItem documentation.
+http://commons.apache.org/proper/commons-fileupload/apidocs/org/apache/commons/fileupload/FileItem.html
+
+The API says to use: item.getInputStream() which is the correct way
+
+That fixed the issue my issue.",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-11-10 22:02:28.804,,,false,,,,,,,,,,,,341898,,,Tue Feb 05 14:11:38 UTC 2019,,,,,,0|i1myq7:,342204,,,,,,,,,"10/Nov/14 22:02;tn;Fixed in r1637988.
+
+Thanks for the report.",05/Feb/19 14:11;chtompki;1.4 Released,,,,
+"Bug in docs: tmp file delete conditions in ""Resource Cleanup"" section of ""using.html""",FILEUPLOAD-234,12652619,Bug,Closed,FILEUPLOAD,Commons FileUpload,software,issues@commons.apache.org,,http://commons.apache.org/fileupload/,Minor,Fixed,,egphilippov,egphilippov,13/Jun/13 11:39,05/Feb/19 14:11,02/Jun/19 17:45,11/Nov/14 15:06,1.3,,1.4,,,0,,,"The guide at http://commons.apache.org/proper/commons-fileupload/using.html incorrectly writes: ""Such temporary files are deleted automatically, if they are no longer used (more precisely, if the corresponding instance of java.io.File is garbage collected."".
+
+(The following affects maven version: http://search.maven.org/#artifactdetails|commons-fileupload|commons-fileupload|1.2.2|jar )
+
+However, the code for org.apache.commons.io.FileCleaningTracker.Tracker.Tracker(...) passes org.apache.commons.fileupload.disk.DiskFileItemFactory.this specified by org.apache.commons.fileupload.disk.DiskFileItemFactory.createItem(String, String, boolean, String) in tracker.track(result.getTempFile(), this), and not java.io.File. I.e. the ""using.html"" guide must be corrected.
+
+The correct (fixed) phrasing is: 
+
+""Such temporary files are deleted automatically, if they are no longer used (more precisely, if the corresponding instance of org.apache.commons.fileupload.disk.DiskFileItemFactory is garbage collected."".
+
+(The following affects maven version: http://search.maven.org/#artifactdetails|commons-fileupload|commons-fileupload|1.3|jar )
+
+However, the code for org.apache.commons.io.FileCleaningTracker.Tracker.Tracker(...) passes DiskFileItem.this specified by org.apache.commons.fileupload.disk.DiskFileItemFactory.createItem(String, String, boolean, String) in DiskFileItem result=[...]; [...]; tracker.track(result.getTempFile(), result), and not java.io.File. I.e. the ""using.html"" guide must be corrected.
+
+The correct (fixed) phrasing is: 
+
+""Such temporary files are deleted automatically, if they are no longer used (more precisely, if the corresponding instance of org.apache.commons.fileupload.disk.DiskFileItem is garbage collected."".
+
+(The following holds for both versions 1.2.2 and 1.3)
+
+The correct (fixed) phrasing is: 
+
+""Such temporary files are deleted automatically, if they are no longer used (more precisely, if the corresponding instance of org.apache.commons.fileupload.disk.DiskFileItem (for commons-fileupload v.1.3) and instance of org.apache.commons.fileupload.disk.DiskFileItemFactory (for commons-fileupload v.1.2.2) is garbage collected."".
+",,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-11-11 15:06:08.088,,,false,,,,,,,,,,,,332943,,,Tue Feb 05 14:11:44 UTC 2019,,,,,,0|i1lfon:,333271,,,,,,,,,"11/Nov/14 15:06;tn;Fixed in r1638131.
+
+Thanks for the report.","19/Aug/15 17:29;jonenst;The section also has
+""
+Disabling cleanup of temporary files
+
+To disable tracking of temporary files, you may set the FileCleaningTracker to null. Consequently, created files will no longer be tracked. In particular, they will no longer be deleted automatically.
+""
+But disabling the tracking is not enough to prevent the file associated with DiskFileItem to be deleted because DiskFileItem also has a finalize method which gets called by the garbage collector at some point anyway.
+
+So I would add in the intro
+""
+This is done silently either by the org.apache.commons.io.FileCleaner class, which starts a reaper thread, or by the finalize() method of DiskFileItem, whichever is called first. Using the reaper thread is optional. To use the reaper thread, see below. Usually, using the reaper thread allows to remove the files earlier and more deterministically than waiting for the garbage collector to call the finalize() method. It is not possible to disable the cleanup of temporary files when DiskFileItem is garbage collected.
+""
+ and remove the ""Disabling cleanup of temporary files"" section:
+
+Jon Harper",05/Feb/19 14:11;chtompki;1.4 Released,,,
