@@ -19,7 +19,7 @@ Here we perform various different coverage tests for developing test cases so th
 
 #### Directory layout
     .
-    ├── Projects                           # Data Collection for different metrics
+    ├── Projects                           # Data Analysis and Data Collection for different metrics
     ├── DataAnalysisNoteBook               # Scripts for finding Correlations     
     ├── Project Source Code                # latest version of project
     ├── Docs                               # Documentation files (alternatively `doc`)
