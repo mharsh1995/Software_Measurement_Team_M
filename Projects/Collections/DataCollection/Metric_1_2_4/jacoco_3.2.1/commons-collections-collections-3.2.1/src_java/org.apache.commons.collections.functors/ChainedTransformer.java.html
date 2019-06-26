@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ChainedTransformer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.functors</a> &gt; <span class="el_source">ChainedTransformer.java</span></div><h1>ChainedTransformer.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.functors;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
+
+import org.apache.commons.collections.Transformer;
+
+/**
+ * Transformer implementation that chains the specified transformers together.
+ * &lt;p&gt;
+ * The input object is passed to the first transformer. The transformed result
+ * is passed to the second transformer and so on.
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ *
+ * @author Stephen Colebourne
+ */
+public class ChainedTransformer implements Transformer, Serializable {
+
+    /** Serial version UID */
+    private static final long serialVersionUID = 3514945074733160196L;
+
+    /** The transformers to call in turn */
+    private final Transformer[] iTransformers;
+
+    /**
+     * Factory method that performs validation and copies the parameter array.
+     * 
+     * @param transformers  the transformers to chain, copied, no nulls
+     * @return the &lt;code&gt;chained&lt;/code&gt; transformer
+     * @throws IllegalArgumentException if the transformers array is null
+     * @throws IllegalArgumentException if any transformer in the array is null
+     */
+    public static Transformer getInstance(Transformer[] transformers) {
+<span class="fc" id="L53">        FunctorUtils.validate(transformers);</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (transformers.length == 0) {</span>
+<span class="fc" id="L55">            return NOPTransformer.INSTANCE;</span>
+        }
+<span class="fc" id="L57">        transformers = FunctorUtils.copy(transformers);</span>
+<span class="fc" id="L58">        return new ChainedTransformer(transformers);</span>
+    }
+    
+    /**
+     * Create a new Transformer that calls each transformer in turn, passing the 
+     * result into the next transformer. The ordering is that of the iterator()
+     * method on the collection.
+     * 
+     * @param transformers  a collection of transformers to chain
+     * @return the &lt;code&gt;chained&lt;/code&gt; transformer
+     * @throws IllegalArgumentException if the transformers collection is null
+     * @throws IllegalArgumentException if any transformer in the collection is null
+     */
+    public static Transformer getInstance(Collection transformers) {
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (transformers == null) {</span>
+<span class="fc" id="L73">            throw new IllegalArgumentException(&quot;Transformer collection must not be null&quot;);</span>
+        }
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (transformers.size() == 0) {</span>
+<span class="fc" id="L76">            return NOPTransformer.INSTANCE;</span>
+        }
+        // convert to array like this to guarantee iterator() ordering
+<span class="fc" id="L79">        Transformer[] cmds = new Transformer[transformers.size()];</span>
+<span class="fc" id="L80">        int i = 0;</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        for (Iterator it = transformers.iterator(); it.hasNext();) {</span>
+<span class="fc" id="L82">            cmds[i++] = (Transformer) it.next();</span>
+        }
+<span class="fc" id="L84">        FunctorUtils.validate(cmds);</span>
+<span class="fc" id="L85">        return new ChainedTransformer(cmds);</span>
+    }
+
+    /**
+     * Factory method that performs validation.
+     * 
+     * @param transformer1  the first transformer, not null
+     * @param transformer2  the second transformer, not null
+     * @return the &lt;code&gt;chained&lt;/code&gt; transformer
+     * @throws IllegalArgumentException if either transformer is null
+     */
+    public static Transformer getInstance(Transformer transformer1, Transformer transformer2) {
+<span class="pc bpc" id="L97" title="1 of 4 branches missed.">        if (transformer1 == null || transformer2 == null) {</span>
+<span class="fc" id="L98">            throw new IllegalArgumentException(&quot;Transformers must not be null&quot;);</span>
+        }
+<span class="fc" id="L100">        Transformer[] transformers = new Transformer[] { transformer1, transformer2 };</span>
+<span class="fc" id="L101">        return new ChainedTransformer(transformers);</span>
+    }
+
+    /**
+     * Constructor that performs no validation.
+     * Use &lt;code&gt;getInstance&lt;/code&gt; if you want that.
+     * 
+     * @param transformers  the transformers to chain, not copied, no nulls
+     */
+    public ChainedTransformer(Transformer[] transformers) {
+<span class="fc" id="L111">        super();</span>
+<span class="fc" id="L112">        iTransformers = transformers;</span>
+<span class="fc" id="L113">    }</span>
+
+    /**
+     * Transforms the input to result via each decorated transformer
+     * 
+     * @param object  the input object passed to the first transformer
+     * @return the transformed result
+     */
+    public Object transform(Object object) {
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        for (int i = 0; i &lt; iTransformers.length; i++) {</span>
+<span class="fc" id="L123">            object = iTransformers[i].transform(object);</span>
+        }
+<span class="fc" id="L125">        return object;</span>
+    }
+
+    /**
+     * Gets the transformers, do not modify the array.
+     * @return the transformers
+     * @since Commons Collections 3.1
+     */
+    public Transformer[] getTransformers() {
+<span class="nc" id="L134">        return iTransformers;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

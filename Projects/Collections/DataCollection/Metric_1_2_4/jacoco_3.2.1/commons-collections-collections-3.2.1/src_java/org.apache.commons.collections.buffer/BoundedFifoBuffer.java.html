@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BoundedFifoBuffer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.buffer</a> &gt; <span class="el_source">BoundedFifoBuffer.java</span></div><h1>BoundedFifoBuffer.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.buffer;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.AbstractCollection;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import org.apache.commons.collections.BoundedCollection;
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.BufferOverflowException;
+import org.apache.commons.collections.BufferUnderflowException;
+
+/**
+ * The BoundedFifoBuffer is a very efficient implementation of
+ * &lt;code&gt;Buffer&lt;/code&gt; that is of a fixed size.
+ * &lt;p&gt;
+ * The removal order of a &lt;code&gt;BoundedFifoBuffer&lt;/code&gt; is based on the 
+ * insertion order; elements are removed in the same order in which they
+ * were added.  The iteration order is the same as the removal order.
+ * &lt;p&gt;
+ * The {@link #add(Object)}, {@link #remove()} and {@link #get()} operations
+ * all perform in constant time.  All other operations perform in linear
+ * time or worse.
+ * &lt;p&gt;
+ * Note that this implementation is not synchronized.  The following can be
+ * used to provide synchronized access to your &lt;code&gt;BoundedFifoBuffer&lt;/code&gt;:
+ * &lt;pre&gt;
+ *   Buffer fifo = BufferUtils.synchronizedBuffer(new BoundedFifoBuffer());
+ * &lt;/pre&gt;
+ * &lt;p&gt;
+ * This buffer prevents null objects from being added.
+ * &lt;p&gt;
+ * This class is Serializable from Commons Collections 3.1.
+ *
+ * @since Commons Collections 3.0 (previously in main package v2.1)
+ * @version $Revision$ $Date$
+ * 
+ * @author Avalon
+ * @author Berin Loritsch
+ * @author Paul Jack
+ * @author Stephen Colebourne
+ * @author Herve Quiroz
+ */
+public class BoundedFifoBuffer extends AbstractCollection
+        implements Buffer, BoundedCollection, Serializable {
+
+    /** Serialization version */
+    private static final long serialVersionUID = 5603722811189451017L;
+
+    /** Underlying storage array */
+    private transient Object[] elements;
+    
+    /** Array index of first (oldest) buffer element */
+<span class="fc" id="L75">    private transient int start = 0;</span>
+    
+    /** 
+     * Index mod maxElements of the array position following the last buffer
+     * element.  Buffer elements start at elements[start] and &quot;wrap around&quot;
+     * elements[maxElements-1], ending at elements[decrement(end)].  
+     * For example, elements = {c,a,b}, start=1, end=1 corresponds to 
+     * the buffer [a,b,c].
+     */
+<span class="fc" id="L84">    private transient int end = 0;</span>
+    
+    /** Flag to indicate if the buffer is currently full. */
+<span class="fc" id="L87">    private transient boolean full = false;</span>
+    
+    /** Capacity of the buffer */
+    private final int maxElements;
+
+    /**
+     * Constructs a new &lt;code&gt;BoundedFifoBuffer&lt;/code&gt; big enough to hold
+     * 32 elements.
+     */
+    public BoundedFifoBuffer() {
+<span class="nc" id="L97">        this(32);</span>
+<span class="nc" id="L98">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;BoundedFifoBuffer&lt;/code&gt; big enough to hold
+     * the specified number of elements.
+     *
+     * @param size  the maximum number of elements for this fifo
+     * @throws IllegalArgumentException  if the size is less than 1
+     */
+<span class="fc" id="L107">    public BoundedFifoBuffer(int size) {</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        if (size &lt;= 0) {</span>
+<span class="fc" id="L109">            throw new IllegalArgumentException(&quot;The size must be greater than 0&quot;);</span>
+        }
+<span class="fc" id="L111">        elements = new Object[size];</span>
+<span class="fc" id="L112">        maxElements = elements.length;</span>
+<span class="fc" id="L113">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;BoundedFifoBuffer&lt;/code&gt; big enough to hold all
+     * of the elements in the specified collection. That collection's
+     * elements will also be added to the buffer.
+     *
+     * @param coll  the collection whose elements to add, may not be null
+     * @throws NullPointerException if the collection is null
+     */
+    public BoundedFifoBuffer(Collection coll) {
+<span class="fc" id="L124">        this(coll.size());</span>
+<span class="fc" id="L125">        addAll(coll);</span>
+<span class="fc" id="L126">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Write the buffer out using a custom routine.
+     * 
+     * @param out  the output stream
+     * @throws IOException
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+<span class="fc" id="L136">        out.defaultWriteObject();</span>
+<span class="fc" id="L137">        out.writeInt(size());</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        for (Iterator it = iterator(); it.hasNext();) {</span>
+<span class="fc" id="L139">            out.writeObject(it.next());</span>
+        }
+<span class="fc" id="L141">    }</span>
+
+    /**
+     * Read the buffer in using a custom routine.
+     * 
+     * @param in  the input stream
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L151">        in.defaultReadObject();</span>
+<span class="fc" id="L152">        elements = new Object[maxElements];</span>
+<span class="fc" id="L153">        int size = in.readInt();</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L155">            elements[i] = in.readObject();</span>
+        }
+<span class="fc" id="L157">        start = 0;</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        full = (size == maxElements);</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        if (full) {</span>
+<span class="fc" id="L160">            end = 0;</span>
+<span class="fc" id="L161">        } else {</span>
+<span class="fc" id="L162">            end = size;</span>
+        }
+<span class="fc" id="L164">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Returns the number of elements stored in the buffer.
+     *
+     * @return this buffer's size
+     */
+    public int size() {
+<span class="fc" id="L173">        int size = 0;</span>
+
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        if (end &lt; start) {</span>
+<span class="fc" id="L176">            size = maxElements - start + end;</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        } else if (end == start) {</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">            size = (full ? maxElements : 0);</span>
+<span class="fc" id="L179">        } else {</span>
+<span class="fc" id="L180">            size = end - start;</span>
+        }
+
+<span class="fc" id="L183">        return size;</span>
+    }
+
+    /**
+     * Returns true if this buffer is empty; false otherwise.
+     *
+     * @return true if this buffer is empty
+     */
+    public boolean isEmpty() {
+<span class="fc bfc" id="L192" title="All 2 branches covered.">        return size() == 0;</span>
+    }
+
+    /**
+     * Returns true if this collection is full and no new elements can be added.
+     *
+     * @return &lt;code&gt;true&lt;/code&gt; if the collection is full
+     */
+    public boolean isFull() {
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        return size() == maxElements;</span>
+    }
+    
+    /**
+     * Gets the maximum size of the collection (the bound).
+     *
+     * @return the maximum number of elements the collection can hold
+     */
+    public int maxSize() {
+<span class="fc" id="L210">        return maxElements;</span>
+    }
+    
+    /**
+     * Clears this buffer.
+     */
+    public void clear() {
+<span class="fc" id="L217">        full = false;</span>
+<span class="fc" id="L218">        start = 0;</span>
+<span class="fc" id="L219">        end = 0;</span>
+<span class="fc" id="L220">        Arrays.fill(elements, null);</span>
+<span class="fc" id="L221">    }</span>
+
+    /**
+     * Adds the given element to this buffer.
+     *
+     * @param element  the element to add
+     * @return true, always
+     * @throws NullPointerException  if the given element is null
+     * @throws BufferOverflowException  if this buffer is full
+     */
+    public boolean add(Object element) {
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">        if (null == element) {</span>
+<span class="nc" id="L233">            throw new NullPointerException(&quot;Attempted to add null object to buffer&quot;);</span>
+        }
+
+<span class="fc bfc" id="L236" title="All 2 branches covered.">        if (full) {</span>
+<span class="fc" id="L237">            throw new BufferOverflowException(&quot;The buffer cannot hold more than &quot; + maxElements + &quot; objects.&quot;);</span>
+        }
+
+<span class="fc" id="L240">        elements[end++] = element;</span>
+
+<span class="fc bfc" id="L242" title="All 2 branches covered.">        if (end &gt;= maxElements) {</span>
+<span class="fc" id="L243">            end = 0;</span>
+        }
+
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        if (end == start) {</span>
+<span class="fc" id="L247">            full = true;</span>
+        }
+
+<span class="fc" id="L250">        return true;</span>
+    }
+
+    /**
+     * Returns the least recently inserted element in this buffer.
+     *
+     * @return the least recently inserted element
+     * @throws BufferUnderflowException  if the buffer is empty
+     */
+    public Object get() {
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">        if (isEmpty()) {</span>
+<span class="nc" id="L261">            throw new BufferUnderflowException(&quot;The buffer is already empty&quot;);</span>
+        }
+
+<span class="fc" id="L264">        return elements[start];</span>
+    }
+
+    /**
+     * Removes the least recently inserted element from this buffer.
+     *
+     * @return the least recently inserted element
+     * @throws BufferUnderflowException  if the buffer is empty
+     */
+    public Object remove() {
+<span class="fc bfc" id="L274" title="All 2 branches covered.">        if (isEmpty()) {</span>
+<span class="fc" id="L275">            throw new BufferUnderflowException(&quot;The buffer is already empty&quot;);</span>
+        }
+
+<span class="fc" id="L278">        Object element = elements[start];</span>
+
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">        if (null != element) {</span>
+<span class="fc" id="L281">            elements[start++] = null;</span>
+
+<span class="fc bfc" id="L283" title="All 2 branches covered.">            if (start &gt;= maxElements) {</span>
+<span class="fc" id="L284">                start = 0;</span>
+            }
+
+<span class="fc" id="L287">            full = false;</span>
+        }
+
+<span class="fc" id="L290">        return element;</span>
+    }
+
+    /**
+     * Increments the internal index.
+     * 
+     * @param index  the index to increment
+     * @return the updated index
+     */
+    private int increment(int index) {
+<span class="fc" id="L300">        index++; </span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">        if (index &gt;= maxElements) {</span>
+<span class="fc" id="L302">            index = 0;</span>
+        }
+<span class="fc" id="L304">        return index;</span>
+    }
+
+    /**
+     * Decrements the internal index.
+     * 
+     * @param index  the index to decrement
+     * @return the updated index
+     */
+    private int decrement(int index) {
+<span class="fc" id="L314">        index--;</span>
+<span class="fc bfc" id="L315" title="All 2 branches covered.">        if (index &lt; 0) {</span>
+<span class="fc" id="L316">            index = maxElements - 1;</span>
+        }
+<span class="fc" id="L318">        return index;</span>
+    }
+
+    /**
+     * Returns an iterator over this buffer's elements.
+     *
+     * @return an iterator over this buffer's elements
+     */
+    public Iterator iterator() {
+<span class="fc" id="L327">        return new Iterator() {</span>
+
+<span class="fc" id="L329">            private int index = start;</span>
+<span class="fc" id="L330">            private int lastReturnedIndex = -1;</span>
+<span class="fc" id="L331">            private boolean isFirst = full;</span>
+
+            public boolean hasNext() {
+<span class="fc bfc" id="L334" title="All 4 branches covered.">                return isFirst || (index != end);</span>
+                
+            }
+
+            public Object next() {
+<span class="fc bfc" id="L339" title="All 2 branches covered.">                if (!hasNext()) {</span>
+<span class="fc" id="L340">                    throw new NoSuchElementException();</span>
+                }
+<span class="fc" id="L342">                isFirst = false;</span>
+<span class="fc" id="L343">                lastReturnedIndex = index;</span>
+<span class="fc" id="L344">                index = increment(index);</span>
+<span class="fc" id="L345">                return elements[lastReturnedIndex];</span>
+            }
+
+            public void remove() {
+<span class="fc bfc" id="L349" title="All 2 branches covered.">                if (lastReturnedIndex == -1) {</span>
+<span class="fc" id="L350">                    throw new IllegalStateException();</span>
+                }
+
+                // First element can be removed quickly
+<span class="fc bfc" id="L354" title="All 2 branches covered.">                if (lastReturnedIndex == start) {</span>
+<span class="fc" id="L355">                    BoundedFifoBuffer.this.remove();</span>
+<span class="fc" id="L356">                    lastReturnedIndex = -1;</span>
+<span class="fc" id="L357">                    return;</span>
+                }
+
+<span class="fc" id="L360">                int pos = lastReturnedIndex + 1;</span>
+<span class="fc bfc" id="L361" title="All 4 branches covered.">                if (start &lt; lastReturnedIndex &amp;&amp; pos &lt; end) {</span>
+                    // shift in one part
+<span class="fc" id="L363">                    System.arraycopy(elements, pos, elements,</span>
+<span class="fc" id="L364">                            lastReturnedIndex, end - pos);</span>
+<span class="fc" id="L365">                } else {</span>
+                    // Other elements require us to shift the subsequent elements
+<span class="fc bfc" id="L367" title="All 2 branches covered.">                    while (pos != end) {</span>
+<span class="fc bfc" id="L368" title="All 2 branches covered.">                        if (pos &gt;= maxElements) {</span>
+<span class="fc" id="L369">                            elements[pos - 1] = elements[0];</span>
+<span class="fc" id="L370">                            pos = 0;</span>
+<span class="fc" id="L371">                        } else {</span>
+<span class="fc" id="L372">                            elements[decrement(pos)] = elements[pos];</span>
+<span class="fc" id="L373">                            pos = increment(pos);</span>
+                        }
+                    }
+                }
+
+<span class="fc" id="L378">                lastReturnedIndex = -1;</span>
+<span class="fc" id="L379">                end = decrement(end);</span>
+<span class="fc" id="L380">                elements[end] = null;</span>
+<span class="fc" id="L381">                full = false;</span>
+<span class="fc" id="L382">                index = decrement(index);</span>
+<span class="fc" id="L383">            }</span>
+
+        };
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

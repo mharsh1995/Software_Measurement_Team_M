@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UnmodifiableOrderedMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">UnmodifiableOrderedMap.java</span></div><h1>UnmodifiableOrderedMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.OrderedMap;
+import org.apache.commons.collections.OrderedMapIterator;
+import org.apache.commons.collections.Unmodifiable;
+import org.apache.commons.collections.collection.UnmodifiableCollection;
+import org.apache.commons.collections.iterators.UnmodifiableMapIterator;
+import org.apache.commons.collections.iterators.UnmodifiableOrderedMapIterator;
+import org.apache.commons.collections.set.UnmodifiableSet;
+
+/**
+ * Decorates another &lt;code&gt;OrderedMap&lt;/code&gt; to ensure it can't be altered.
+ * &lt;p&gt;
+ * This class is Serializable from Commons Collections 3.1.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public final class UnmodifiableOrderedMap
+        extends AbstractOrderedMapDecorator
+        implements Unmodifiable, Serializable {
+
+    /** Serialization version */
+    private static final long serialVersionUID = 8136428161720526266L;
+
+    /**
+     * Factory method to create an unmodifiable sorted map.
+     * 
+     * @param map  the map to decorate, must not be null
+     * @throws IllegalArgumentException if map is null
+     */
+    public static OrderedMap decorate(OrderedMap map) {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (map instanceof Unmodifiable) {</span>
+<span class="fc" id="L61">            return map;</span>
+        }
+<span class="fc" id="L63">        return new UnmodifiableOrderedMap(map);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Constructor that wraps (not copies).
+     * 
+     * @param map  the map to decorate, must not be null
+     * @throws IllegalArgumentException if map is null
+     */
+    private UnmodifiableOrderedMap(OrderedMap map) {
+<span class="fc" id="L74">        super(map);</span>
+<span class="fc" id="L75">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Write the map out using a custom routine.
+     * 
+     * @param out  the output stream
+     * @throws IOException
+     * @since Commons Collections 3.1
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+<span class="fc" id="L86">        out.defaultWriteObject();</span>
+<span class="fc" id="L87">        out.writeObject(map);</span>
+<span class="fc" id="L88">    }</span>
+
+    /**
+     * Read the map in using a custom routine.
+     * 
+     * @param in  the input stream
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @since Commons Collections 3.1
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L99">        in.defaultReadObject();</span>
+<span class="fc" id="L100">        map = (Map) in.readObject();</span>
+<span class="fc" id="L101">    }</span>
+
+    //-----------------------------------------------------------------------
+    public MapIterator mapIterator() {
+<span class="fc" id="L105">        MapIterator it = getOrderedMap().mapIterator();</span>
+<span class="fc" id="L106">        return UnmodifiableMapIterator.decorate(it);</span>
+    }
+
+    public OrderedMapIterator orderedMapIterator() {
+<span class="fc" id="L110">        OrderedMapIterator it = getOrderedMap().orderedMapIterator();</span>
+<span class="fc" id="L111">        return UnmodifiableOrderedMapIterator.decorate(it);</span>
+    }
+
+    public void clear() {
+<span class="fc" id="L115">        throw new UnsupportedOperationException();</span>
+    }
+
+    public Object put(Object key, Object value) {
+<span class="fc" id="L119">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void putAll(Map mapToCopy) {
+<span class="fc" id="L123">        throw new UnsupportedOperationException();</span>
+    }
+
+    public Object remove(Object key) {
+<span class="fc" id="L127">        throw new UnsupportedOperationException();</span>
+    }
+
+    public Set entrySet() {
+<span class="fc" id="L131">        Set set = super.entrySet();</span>
+<span class="fc" id="L132">        return UnmodifiableEntrySet.decorate(set);</span>
+    }
+
+    public Set keySet() {
+<span class="fc" id="L136">        Set set = super.keySet();</span>
+<span class="fc" id="L137">        return UnmodifiableSet.decorate(set);</span>
+    }
+
+    public Collection values() {
+<span class="fc" id="L141">        Collection coll = super.values();</span>
+<span class="fc" id="L142">        return UnmodifiableCollection.decorate(coll);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

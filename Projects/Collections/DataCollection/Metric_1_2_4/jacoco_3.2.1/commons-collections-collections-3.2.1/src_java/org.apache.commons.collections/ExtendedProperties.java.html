@@ -1,0 +1,1687 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ExtendedProperties.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">ExtendedProperties.java</span></div><h1>ExtendedProperties.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+/**
+ * This class extends normal Java properties by adding the possibility
+ * to use the same key many times concatenating the value strings
+ * instead of overwriting them.
+ * &lt;p&gt;
+ * &lt;b&gt;Please consider using the &lt;code&gt;PropertiesConfiguration&lt;/code&gt; class in
+ * Commons-Configuration as soon as it is released.&lt;/b&gt;
+ * &lt;p&gt;
+ * The Extended Properties syntax is explained here:
+ *
+ * &lt;ul&gt;
+ *  &lt;li&gt;
+ *   Each property has the syntax &lt;code&gt;key = value&lt;/code&gt;
+ *  &lt;/li&gt;
+ *  &lt;li&gt;
+ *   The &lt;i&gt;key&lt;/i&gt; may use any character but the equal sign '='.
+ *  &lt;/li&gt;
+ *  &lt;li&gt;
+ *   &lt;i&gt;value&lt;/i&gt; may be separated on different lines if a backslash
+ *   is placed at the end of the line that continues below.
+ *  &lt;/li&gt;
+ *  &lt;li&gt;
+ *   If &lt;i&gt;value&lt;/i&gt; is a list of strings, each token is separated
+ *   by a comma ','.
+ *  &lt;/li&gt;
+ *  &lt;li&gt;
+ *   Commas in each token are escaped placing a backslash right before
+ *   the comma.
+ *  &lt;/li&gt;
+ *  &lt;li&gt;
+ *   Backslashes are escaped by using two consecutive backslashes i.e. \\
+ *  &lt;/li&gt;
+ *  &lt;li&gt;
+ *   If a &lt;i&gt;key&lt;/i&gt; is used more than once, the values are appended
+ *   as if they were on the same line separated with commas.
+ *  &lt;/li&gt;
+ *  &lt;li&gt;
+ *   Blank lines and lines starting with character '#' are skipped.
+ *  &lt;/li&gt;
+ *  &lt;li&gt;
+ *   If a property is named &quot;include&quot; (or whatever is defined by
+ *   setInclude() and getInclude() and the value of that property is
+ *   the full path to a file on disk, that file will be included into
+ *   the ConfigurationsRepository. You can also pull in files relative
+ *   to the parent configuration file. So if you have something
+ *   like the following:
+ *
+ *   include = additional.properties
+ *
+ *   Then &quot;additional.properties&quot; is expected to be in the same
+ *   directory as the parent configuration file.
+ * 
+ *   Duplicate name values will be replaced, so be careful.
+ *
+ *  &lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;Here is an example of a valid extended properties file:
+ *
+ * &lt;p&gt;&lt;pre&gt;
+ *      # lines starting with # are comments
+ *
+ *      # This is the simplest property
+ *      key = value
+ *
+ *      # A long property may be separated on multiple lines
+ *      longvalue = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \
+ *                  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+ *
+ *      # This is a property with many tokens
+ *      tokens_on_a_line = first token, second token
+ *
+ *      # This sequence generates exactly the same result
+ *      tokens_on_multiple_lines = first token
+ *      tokens_on_multiple_lines = second token
+ *
+ *      # commas may be escaped in tokens
+ *      commas.escaped = Hi\, what'up?
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;&lt;b&gt;NOTE&lt;/b&gt;: this class has &lt;b&gt;not&lt;/b&gt; been written for
+ * performance nor low memory usage.  In fact, it's way slower than it
+ * could be and generates too much memory garbage.  But since
+ * performance is not an issue during intialization (and there is not
+ * much time to improve it), I wrote it this way.  If you don't like
+ * it, go ahead and tune it up!
+ *
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ * 
+ * @author &lt;a href=&quot;mailto:stefano@apache.org&quot;&gt;Stefano Mazzocchi&lt;/a&gt;
+ * @author &lt;a href=&quot;mailto:jon@latchkey.com&quot;&gt;Jon S. Stevens&lt;/a&gt;
+ * @author &lt;a href=&quot;mailto:daveb@miceda-data&quot;&gt;Dave Bryson&lt;/a&gt;
+ * @author &lt;a href=&quot;mailto:jvanzyl@periapt.com&quot;&gt;Jason van Zyl&lt;/a&gt;
+ * @author &lt;a href=&quot;mailto:geirm@optonline.net&quot;&gt;Geir Magnusson Jr.&lt;/a&gt;
+ * @author &lt;a href=&quot;mailto:leon@opticode.co.za&quot;&gt;Leon Messerschmidt&lt;/a&gt;
+ * @author &lt;a href=&quot;mailto:kjohnson@transparent.com&quot;&gt;Kent Johnson&lt;/a&gt;
+ * @author &lt;a href=&quot;mailto:dlr@finemaltcoding.com&quot;&gt;Daniel Rall&lt;/a&gt;
+ * @author &lt;a href=&quot;mailto:ipriha@surfeu.fi&quot;&gt;Ilkka Priha&lt;/a&gt;
+ * @author Janek Bogucki
+ * @author Mohan Kishore
+ * @author Stephen Colebourne
+ * @author Shinobu Kawai
+ * @author &lt;a href=&quot;mailto:hps@intermeta.de&quot;&gt;Henning P. Schmiedehausen&lt;/a&gt;
+ */
+public class ExtendedProperties extends Hashtable {
+    
+    /**
+     * Default configurations repository.
+     */
+    private ExtendedProperties defaults;
+
+    /**
+     * The file connected to this repository (holding comments and
+     * such).
+     *
+     * @serial
+     */
+    protected String file;
+
+    /**
+     * Base path of the configuration file used to create
+     * this ExtendedProperties object.
+     */
+    protected String basePath;
+
+    /**
+     * File separator.
+     */
+<span class="pc" id="L168">    protected String fileSeparator = System.getProperty(&quot;file.separator&quot;);</span>
+
+    /**
+     * Has this configuration been intialized.
+     */
+<span class="pc" id="L173">    protected boolean isInitialized = false;</span>
+
+    /**
+     * This is the name of the property that can point to other
+     * properties file for including other properties files.
+     */
+<span class="fc" id="L179">    protected static String include = &quot;include&quot;;</span>
+
+    /**
+     * These are the keys in the order they listed
+     * in the configuration file. This is useful when
+     * you wish to perform operations with configuration
+     * information in a particular order.
+     */
+<span class="pc" id="L187">    protected ArrayList keysAsListed = new ArrayList();</span>
+
+    protected final static String START_TOKEN=&quot;${&quot;;
+<span class="fc" id="L190">    protected final static String END_TOKEN=&quot;}&quot;;</span>
+
+
+    /**
+     * Interpolate key names to handle ${key} stuff
+     *
+     * @param base string to interpolate
+     * @return returns the key name with the ${key} substituted
+     */
+    protected String interpolate(String base) {
+        // COPIED from [configuration] 2003-12-29
+<span class="fc" id="L201">        return (interpolateHelper(base, null));</span>
+    }
+
+    /**
+     * Recursive handler for multiple levels of interpolation.
+     *
+     * When called the first time, priorVariables should be null.
+     *
+     * @param base string with the ${key} variables
+     * @param priorVariables serves two purposes: to allow checking for
+     * loops, and creating a meaningful exception message should a loop
+     * occur.  It's 0'th element will be set to the value of base from
+     * the first call.  All subsequent interpolated variables are added
+     * afterward.
+     *
+     * @return the string with the interpolation taken care of
+     */
+    protected String interpolateHelper(String base, List priorVariables) {
+        // COPIED from [configuration] 2003-12-29
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">        if (base == null) {</span>
+<span class="nc" id="L221">            return null;</span>
+        }
+
+        // on the first call initialize priorVariables
+        // and add base as the first element
+<span class="fc bfc" id="L226" title="All 2 branches covered.">        if (priorVariables == null) {</span>
+<span class="fc" id="L227">            priorVariables = new ArrayList();</span>
+<span class="fc" id="L228">            priorVariables.add(base);</span>
+        }
+
+<span class="fc" id="L231">        int begin = -1;</span>
+<span class="fc" id="L232">        int end = -1;</span>
+<span class="fc" id="L233">        int prec = 0 - END_TOKEN.length();</span>
+<span class="fc" id="L234">        String variable = null;</span>
+<span class="fc" id="L235">        StringBuffer result = new StringBuffer();</span>
+
+        // FIXME: we should probably allow the escaping of the start token
+<span class="pc bpc" id="L238" title="1 of 4 branches missed.">        while (((begin = base.indexOf(START_TOKEN, prec + END_TOKEN.length())) &gt; -1)</span>
+<span class="fc" id="L239">            &amp;&amp; ((end = base.indexOf(END_TOKEN, begin)) &gt; -1)) {</span>
+<span class="fc" id="L240">            result.append(base.substring(prec + END_TOKEN.length(), begin));</span>
+<span class="fc" id="L241">            variable = base.substring(begin + START_TOKEN.length(), end);</span>
+
+            // if we've got a loop, create a useful exception message and throw
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">            if (priorVariables.contains(variable)) {</span>
+<span class="nc" id="L245">                String initialBase = priorVariables.remove(0).toString();</span>
+<span class="nc" id="L246">                priorVariables.add(variable);</span>
+<span class="nc" id="L247">                StringBuffer priorVariableSb = new StringBuffer();</span>
+
+                // create a nice trace of interpolated variables like so:
+                // var1-&gt;var2-&gt;var3
+<span class="nc bnc" id="L251" title="All 2 branches missed.">                for (Iterator it = priorVariables.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L252">                    priorVariableSb.append(it.next());</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">                    if (it.hasNext()) {</span>
+<span class="nc" id="L254">                        priorVariableSb.append(&quot;-&gt;&quot;);</span>
+                    }
+                }
+
+<span class="nc" id="L258">                throw new IllegalStateException(</span>
+<span class="nc" id="L259">                    &quot;infinite loop in property interpolation of &quot; + initialBase + &quot;: &quot; + priorVariableSb.toString());</span>
+            }
+            // otherwise, add this variable to the interpolation list.
+            else {
+<span class="fc" id="L263">                priorVariables.add(variable);</span>
+            }
+
+            //QUESTION: getProperty or getPropertyDirect
+<span class="fc" id="L267">            Object value = getProperty(variable);</span>
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">            if (value != null) {</span>
+<span class="fc" id="L269">                result.append(interpolateHelper(value.toString(), priorVariables));</span>
+
+                // pop the interpolated variable off the stack
+                // this maintains priorVariables correctness for
+                // properties with multiple interpolations, e.g.
+                // prop.name=${some.other.prop1}/blahblah/${some.other.prop2}
+<span class="fc" id="L275">                priorVariables.remove(priorVariables.size() - 1);</span>
+<span class="pc bnc" id="L276" title="All 4 branches missed.">            } else if (defaults != null &amp;&amp; defaults.getString(variable, null) != null) {</span>
+<span class="nc" id="L277">                result.append(defaults.getString(variable));</span>
+<span class="nc" id="L278">            } else {</span>
+                //variable not defined - so put it back in the value
+<span class="nc" id="L280">                result.append(START_TOKEN).append(variable).append(END_TOKEN);</span>
+            }
+<span class="fc" id="L282">            prec = end;</span>
+        }
+<span class="fc" id="L284">        result.append(base.substring(prec + END_TOKEN.length(), base.length()));</span>
+
+<span class="fc" id="L286">        return result.toString();</span>
+    }
+    
+    /**
+     * Inserts a backslash before every comma and backslash. 
+     */
+    private static String escape(String s) {
+<span class="fc" id="L293">        StringBuffer buf = new StringBuffer(s);</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">        for (int i = 0; i &lt; buf.length(); i++) {</span>
+<span class="fc" id="L295">            char c = buf.charAt(i);</span>
+<span class="fc bfc" id="L296" title="All 4 branches covered.">            if (c == ',' || c == '\\') {</span>
+<span class="fc" id="L297">                buf.insert(i, '\\');</span>
+<span class="fc" id="L298">                i++;</span>
+            }
+        }
+<span class="fc" id="L301">        return buf.toString();</span>
+    }
+    
+    /**
+     * Removes a backslash from every pair of backslashes. 
+     */
+    private static String unescape(String s) {
+<span class="fc" id="L308">        StringBuffer buf = new StringBuffer(s);</span>
+<span class="fc bfc" id="L309" title="All 2 branches covered.">        for (int i = 0; i &lt; buf.length() - 1; i++) {</span>
+<span class="fc" id="L310">            char c1 = buf.charAt(i);</span>
+<span class="fc" id="L311">            char c2 = buf.charAt(i + 1);</span>
+<span class="fc bfc" id="L312" title="All 4 branches covered.">            if (c1 == '\\' &amp;&amp; c2 == '\\') {</span>
+<span class="fc" id="L313">                buf.deleteCharAt(i);</span>
+            }
+        }
+<span class="fc" id="L316">        return buf.toString();</span>
+    }
+
+    /**
+     * Counts the number of successive times 'ch' appears in the
+     * 'line' before the position indicated by the 'index'.
+     */
+    private static int countPreceding(String line, int index, char ch) {
+        int i;
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">        for (i = index - 1; i &gt;= 0; i--) {</span>
+<span class="fc bfc" id="L326" title="All 2 branches covered.">            if (line.charAt(i) != ch) {</span>
+<span class="fc" id="L327">                break;</span>
+            }
+        }
+<span class="fc" id="L330">        return index - 1 - i;</span>
+    }
+
+    /**
+     * Checks if the line ends with odd number of backslashes 
+     */
+    private static boolean endsWithSlash(String line) {
+<span class="fc bfc" id="L337" title="All 2 branches covered.">        if (!line.endsWith(&quot;\\&quot;)) {</span>
+<span class="fc" id="L338">            return false;</span>
+        }
+<span class="fc bfc" id="L340" title="All 2 branches covered.">        return (countPreceding(line, line.length() - 1, '\\') % 2 == 0);</span>
+    }
+
+    /**
+     * This class is used to read properties lines.  These lines do
+     * not terminate with new-line chars but rather when there is no
+     * backslash sign a the end of the line.  This is used to
+     * concatenate multiple lines for readability.
+     */
+    static class PropertiesReader extends LineNumberReader {
+        /**
+         * Constructor.
+         *
+         * @param reader A Reader.
+         */
+        public PropertiesReader(Reader reader) {
+<span class="fc" id="L356">            super(reader);</span>
+<span class="fc" id="L357">        }</span>
+
+        /**
+         * Read a property.
+         *
+         * @return a String property
+         * @throws IOException if there is difficulty reading the source.
+         */
+        public String readProperty() throws IOException {
+<span class="fc" id="L366">            StringBuffer buffer = new StringBuffer();</span>
+<span class="fc" id="L367">            String line = readLine();</span>
+<span class="fc bfc" id="L368" title="All 2 branches covered.">            while (line != null) {</span>
+<span class="fc" id="L369">                line = line.trim();</span>
+<span class="pc bpc" id="L370" title="1 of 4 branches missed.">                if ((line.length() != 0) &amp;&amp; (line.charAt(0) != '#')) {</span>
+<span class="pc bpc" id="L371" title="1 of 2 branches missed.">                    if (endsWithSlash(line)) {</span>
+<span class="nc" id="L372">                        line = line.substring(0, line.length() - 1);</span>
+<span class="nc" id="L373">                        buffer.append(line);</span>
+<span class="nc" id="L374">                    } else {</span>
+<span class="fc" id="L375">                        buffer.append(line);</span>
+<span class="fc" id="L376">                        return buffer.toString();  // normal method end</span>
+                    }
+                }
+<span class="fc" id="L379">                line = readLine();</span>
+            }
+<span class="fc" id="L381">            return null;  // EOF reached</span>
+        }
+    }
+
+    /**
+     * This class divides into tokens a property value.  Token
+     * separator is &quot;,&quot; but commas into the property value are escaped
+     * using the backslash in front.
+     */
+    static class PropertiesTokenizer extends StringTokenizer {
+        /**
+         * The property delimiter used while parsing (a comma).
+         */
+        static final String DELIMITER = &quot;,&quot;;
+
+        /**
+         * Constructor.
+         *
+         * @param string A String.
+         */
+        public PropertiesTokenizer(String string) {
+<span class="fc" id="L402">            super(string, DELIMITER);</span>
+<span class="fc" id="L403">        }</span>
+
+        /**
+         * Check whether the object has more tokens.
+         *
+         * @return True if the object has more tokens.
+         */
+        public boolean hasMoreTokens() {
+<span class="fc" id="L411">            return super.hasMoreTokens();</span>
+        }
+
+        /**
+         * Get next token.
+         *
+         * @return A String.
+         */
+        public String nextToken() {
+<span class="fc" id="L420">            StringBuffer buffer = new StringBuffer();</span>
+
+<span class="pc bpc" id="L422" title="1 of 2 branches missed.">            while (hasMoreTokens()) {</span>
+<span class="fc" id="L423">                String token = super.nextToken();</span>
+<span class="fc bfc" id="L424" title="All 2 branches covered.">                if (endsWithSlash(token)) {</span>
+<span class="fc" id="L425">                    buffer.append(token.substring(0, token.length() - 1));</span>
+<span class="fc" id="L426">                    buffer.append(DELIMITER);</span>
+<span class="fc" id="L427">                } else {</span>
+<span class="fc" id="L428">                    buffer.append(token);</span>
+<span class="fc" id="L429">                    break;</span>
+                }
+            }
+
+<span class="fc" id="L433">            return buffer.toString().trim();</span>
+        }
+    }
+
+    /**
+     * Creates an empty extended properties object.
+     */
+    public ExtendedProperties() {
+<span class="fc" id="L441">        super();</span>
+<span class="fc" id="L442">    }</span>
+
+    /**
+     * Creates and loads the extended properties from the specified file.
+     *
+     * @param file  the filename to load
+     * @throws IOException if a file error occurs
+     */
+    public ExtendedProperties(String file) throws IOException {
+<span class="nc" id="L451">        this(file, null);</span>
+<span class="nc" id="L452">    }</span>
+
+    /**
+     * Creates and loads the extended properties from the specified file.
+     *
+     * @param file  the filename to load
+     * @param defaultFile  a second filename to load default values from
+     * @throws IOException if a file error occurs
+     */
+<span class="nc" id="L461">    public ExtendedProperties(String file, String defaultFile) throws IOException {</span>
+<span class="nc" id="L462">        this.file = file;</span>
+
+<span class="nc" id="L464">        basePath = new File(file).getAbsolutePath();</span>
+<span class="nc" id="L465">        basePath = basePath.substring(0, basePath.lastIndexOf(fileSeparator) + 1);</span>
+
+<span class="nc" id="L467">        FileInputStream in = null;</span>
+        try {
+<span class="nc" id="L469">            in = new FileInputStream(file);</span>
+<span class="nc" id="L470">            this.load(in);</span>
+<span class="nc" id="L471">        } finally {</span>
+            try {
+<span class="nc bnc" id="L473" title="All 2 branches missed.">                if (in != null) {</span>
+<span class="nc" id="L474">                    in.close();</span>
+                }
+<span class="nc" id="L476">            } catch (IOException ex) {}</span>
+        }
+
+<span class="nc bnc" id="L479" title="All 2 branches missed.">        if (defaultFile != null) {</span>
+<span class="nc" id="L480">            defaults = new ExtendedProperties(defaultFile);</span>
+        }
+<span class="nc" id="L482">    }</span>
+
+    /**
+     * Indicate to client code whether property
+     * resources have been initialized or not.
+     */
+    public boolean isInitialized() {
+<span class="nc" id="L489">        return isInitialized;</span>
+    }
+
+    /**
+     * Gets the property value for including other properties files.
+     * By default it is &quot;include&quot;.
+     *
+     * @return A String.
+     */
+    public String getInclude() {
+<span class="fc" id="L499">        return include;</span>
+    }
+
+    /**
+     * Sets the property value for including other properties files.
+     * By default it is &quot;include&quot;.
+     *
+     * @param inc A String.
+     */
+    public void setInclude(String inc) {
+<span class="nc" id="L509">        include = inc;</span>
+<span class="nc" id="L510">    }</span>
+
+    /**
+     * Load the properties from the given input stream.
+     *
+     * @param input  the InputStream to load from
+     * @throws IOException if an IO error occurs
+     */
+    public void load(InputStream input) throws IOException {
+<span class="fc" id="L519">        load(input, null);</span>
+<span class="fc" id="L520">    }</span>
+
+    /**
+     * Load the properties from the given input stream
+     * and using the specified encoding.
+     *
+     * @param input  the InputStream to load from
+     * @param enc  the encoding to use
+     * @throws IOException if an IO error occurs
+     */
+    public synchronized void load(InputStream input, String enc) throws IOException {
+<span class="fc" id="L531">        PropertiesReader reader = null;</span>
+<span class="pc bpc" id="L532" title="1 of 2 branches missed.">        if (enc != null) {</span>
+            try {
+<span class="nc" id="L534">                reader = new PropertiesReader(new InputStreamReader(input, enc));</span>
+                
+<span class="nc" id="L536">            } catch (UnsupportedEncodingException ex) {</span>
+                // Another try coming up....
+            }
+        }
+        
+<span class="pc bpc" id="L541" title="1 of 2 branches missed.">        if (reader == null) {</span>
+            try {
+<span class="fc" id="L543">                reader = new PropertiesReader(new InputStreamReader(input, &quot;8859_1&quot;));</span>
+                
+<span class="pc" id="L545">            } catch (UnsupportedEncodingException ex) {</span>
+                // ISO8859-1 support is required on java platforms but....
+                // If it's not supported, use the system default encoding
+<span class="nc" id="L548">                reader = new PropertiesReader(new InputStreamReader(input));</span>
+            }
+        }
+
+        try {
+<span class="fc" id="L553">            while (true) {</span>
+<span class="fc" id="L554">                String line = reader.readProperty();</span>
+<span class="fc bfc" id="L555" title="All 2 branches covered.">                if (line == null) {</span>
+<span class="fc" id="L556">                    return;  // EOF</span>
+                }
+<span class="fc" id="L558">                int equalSign = line.indexOf('=');</span>
+
+<span class="pc bpc" id="L560" title="1 of 2 branches missed.">                if (equalSign &gt; 0) {</span>
+<span class="fc" id="L561">                    String key = line.substring(0, equalSign).trim();</span>
+<span class="fc" id="L562">                    String value = line.substring(equalSign + 1).trim();</span>
+
+                    // Configure produces lines like this ... just ignore them
+<span class="pc bpc" id="L565" title="1 of 2 branches missed.">                    if (&quot;&quot;.equals(value)) {</span>
+<span class="nc" id="L566">                        continue;</span>
+                    }
+
+<span class="pc bpc" id="L569" title="2 of 4 branches missed.">                    if (getInclude() != null &amp;&amp; key.equalsIgnoreCase(getInclude())) {</span>
+                        // Recursively load properties files.
+<span class="nc" id="L571">                        File file = null;</span>
+
+<span class="nc bnc" id="L573" title="All 2 branches missed.">                        if (value.startsWith(fileSeparator)) {</span>
+                            // We have an absolute path so we'll use this
+<span class="nc" id="L575">                            file = new File(value);</span>
+                            
+<span class="nc" id="L577">                        } else {</span>
+                            // We have a relative path, and we have two 
+                            // possible forms here. If we have the &quot;./&quot; form
+                            // then just strip that off first before continuing.
+<span class="nc bnc" id="L581" title="All 2 branches missed.">                            if (value.startsWith(&quot;.&quot; + fileSeparator)) {</span>
+<span class="nc" id="L582">                                value = value.substring(2);</span>
+                            }
+
+<span class="nc" id="L585">                            file = new File(basePath + value);</span>
+                        }
+
+<span class="nc bnc" id="L588" title="All 6 branches missed.">                        if (file != null &amp;&amp; file.exists() &amp;&amp; file.canRead()) {</span>
+<span class="nc" id="L589">                            load(new FileInputStream(file));</span>
+                        }
+<span class="nc" id="L591">                    } else {</span>
+<span class="fc" id="L592">                        addProperty(key, value);</span>
+                    }
+                }
+            }
+        } finally {
+            // Loading is initializing
+<span class="fc" id="L598">            isInitialized = true;</span>
+        }
+    }
+
+    /**
+     * Gets a property from the configuration.
+     *
+     * @param key property to retrieve
+     * @return value as object. Will return user value if exists,
+     *        if not then default value if exists, otherwise null
+     */
+    public Object getProperty(String key) {
+        // first, try to get from the 'user value' store
+<span class="fc" id="L611">        Object obj = this.get(key);</span>
+
+<span class="fc bfc" id="L613" title="All 2 branches covered.">        if (obj == null) {</span>
+            // if there isn't a value there, get it from the
+            // defaults if we have them
+<span class="pc bpc" id="L616" title="1 of 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L617">                obj = defaults.get(key);</span>
+            }
+        }
+
+<span class="fc" id="L621">        return obj;</span>
+    }
+    
+    /**
+     * Add a property to the configuration. If it already
+     * exists then the value stated here will be added
+     * to the configuration entry. For example, if
+     *
+     * &lt;code&gt;resource.loader = file&lt;/code&gt;
+     *
+     * is already present in the configuration and you
+     *
+     * &lt;code&gt;addProperty(&quot;resource.loader&quot;, &quot;classpath&quot;)&lt;/code&gt;
+     *
+     * Then you will end up with a Vector like the
+     * following:
+     *
+     * &lt;code&gt;[&quot;file&quot;, &quot;classpath&quot;]&lt;/code&gt;
+     *
+     * @param key  the key to add
+     * @param value  the value to add
+     */
+    public void addProperty(String key, Object value) {
+<span class="fc bfc" id="L644" title="All 2 branches covered.">        if (value instanceof String) {</span>
+<span class="fc" id="L645">            String str = (String) value;</span>
+<span class="fc bfc" id="L646" title="All 2 branches covered.">            if (str.indexOf(PropertiesTokenizer.DELIMITER) &gt; 0) {</span>
+                // token contains commas, so must be split apart then added
+<span class="fc" id="L648">                PropertiesTokenizer tokenizer = new PropertiesTokenizer(str);</span>
+<span class="fc bfc" id="L649" title="All 2 branches covered.">                while (tokenizer.hasMoreTokens()) {</span>
+<span class="fc" id="L650">                    String token = tokenizer.nextToken();</span>
+<span class="fc" id="L651">                    addPropertyInternal(key, unescape(token));</span>
+                }
+<span class="fc" id="L653">            } else {</span>
+                // token contains no commas, so can be simply added
+<span class="fc" id="L655">                addPropertyInternal(key, unescape(str));</span>
+            }
+<span class="fc" id="L657">        } else {</span>
+<span class="fc" id="L658">            addPropertyInternal(key, value);</span>
+        }
+
+        // Adding a property connotes initialization
+<span class="fc" id="L662">        isInitialized = true;</span>
+<span class="fc" id="L663">    }</span>
+
+    /**
+     * Adds a key/value pair to the map.  This routine does
+     * no magic morphing.  It ensures the keylist is maintained
+     *
+     * @param key  the key to store at
+     * @param value  the decoded object to store
+     */
+    private void addPropertyDirect(String key, Object value) {
+        // safety check
+<span class="fc bfc" id="L674" title="All 2 branches covered.">        if (!containsKey(key)) {</span>
+<span class="fc" id="L675">            keysAsListed.add(key);</span>
+        }
+<span class="fc" id="L677">        put(key, value);</span>
+<span class="fc" id="L678">    }</span>
+
+    /**
+     * Adds a decoded property to the map w/o checking for commas - used
+     * internally when a property has been broken up into
+     * strings that could contain escaped commas to prevent
+     * the inadvertent vectorization.
+     * &lt;p&gt;
+     * Thanks to Leon Messerschmidt for this one.
+     *
+     * @param key  the key to store at
+     * @param value  the decoded object to store
+     */
+    private void addPropertyInternal(String key, Object value) {
+<span class="fc" id="L692">        Object current = this.get(key);</span>
+
+<span class="fc bfc" id="L694" title="All 2 branches covered.">        if (current instanceof String) {</span>
+            // one object already in map - convert it to a vector
+<span class="fc" id="L696">            List values = new Vector(2);</span>
+<span class="fc" id="L697">            values.add(current);</span>
+<span class="fc" id="L698">            values.add(value);</span>
+<span class="fc" id="L699">            put(key, values);</span>
+            
+<span class="fc bfc" id="L701" title="All 2 branches covered.">        } else if (current instanceof List) {</span>
+            // already a list - just add the new token
+<span class="fc" id="L703">            ((List) current).add(value);</span>
+            
+<span class="fc" id="L705">        } else {</span>
+            // brand new key - store in keysAsListed to retain order
+<span class="pc bpc" id="L707" title="1 of 2 branches missed.">            if (!containsKey(key)) {</span>
+<span class="fc" id="L708">                keysAsListed.add(key);</span>
+            }
+<span class="fc" id="L710">            put(key, value);</span>
+        }
+<span class="fc" id="L712">    }</span>
+
+    /**
+     * Set a property, this will replace any previously
+     * set values. Set values is implicitly a call
+     * to clearProperty(key), addProperty(key,value).
+     *
+     * @param key  the key to set
+     * @param value  the value to set
+     */
+    public void setProperty(String key, Object value) {
+<span class="fc" id="L723">        clearProperty(key);</span>
+<span class="fc" id="L724">        addProperty(key, value);</span>
+<span class="fc" id="L725">    }</span>
+    
+    /**
+     * Save the properties to the given output stream.
+     * &lt;p&gt;
+     * The stream is not closed, but it is flushed.
+     *
+     * @param output  an OutputStream, may be null
+     * @param header  a textual comment to act as a file header
+     * @throws IOException if an IO error occurs
+     */
+    public synchronized void save(OutputStream output, String header) throws IOException {
+<span class="pc bpc" id="L737" title="1 of 2 branches missed.">        if (output == null) {</span>
+<span class="nc" id="L738">            return;</span>
+        }
+<span class="fc" id="L740">        PrintWriter theWrtr = new PrintWriter(output);</span>
+<span class="pc bpc" id="L741" title="1 of 2 branches missed.">        if (header != null) {</span>
+<span class="nc" id="L742">            theWrtr.println(header);</span>
+        }
+        
+<span class="fc" id="L745">        Enumeration theKeys = keys();</span>
+<span class="fc bfc" id="L746" title="All 2 branches covered.">        while (theKeys.hasMoreElements()) {</span>
+<span class="fc" id="L747">            String key = (String) theKeys.nextElement();</span>
+<span class="fc" id="L748">            Object value = get(key);</span>
+<span class="pc bpc" id="L749" title="1 of 2 branches missed.">            if (value != null) {</span>
+<span class="fc bfc" id="L750" title="All 2 branches covered.">                if (value instanceof String) {</span>
+<span class="fc" id="L751">                    StringBuffer currentOutput = new StringBuffer();</span>
+<span class="fc" id="L752">                    currentOutput.append(key);</span>
+<span class="fc" id="L753">                    currentOutput.append(&quot;=&quot;);</span>
+<span class="fc" id="L754">                    currentOutput.append(escape((String) value));</span>
+<span class="fc" id="L755">                    theWrtr.println(currentOutput.toString());</span>
+                    
+<span class="pc bpc" id="L757" title="1 of 2 branches missed.">                } else if (value instanceof List) {</span>
+<span class="fc" id="L758">                    List values = (List) value;</span>
+<span class="fc bfc" id="L759" title="All 2 branches covered.">                    for (Iterator it = values.iterator(); it.hasNext(); ) {</span>
+<span class="fc" id="L760">                        String currentElement = (String) it.next();</span>
+<span class="fc" id="L761">                        StringBuffer currentOutput = new StringBuffer();</span>
+<span class="fc" id="L762">                        currentOutput.append(key);</span>
+<span class="fc" id="L763">                        currentOutput.append(&quot;=&quot;);</span>
+<span class="fc" id="L764">                        currentOutput.append(escape(currentElement));</span>
+<span class="fc" id="L765">                        theWrtr.println(currentOutput.toString());</span>
+                    }
+                }
+            }
+<span class="fc" id="L769">            theWrtr.println();</span>
+<span class="fc" id="L770">            theWrtr.flush();</span>
+        }
+<span class="fc" id="L772">    }</span>
+
+    /**
+     * Combines an existing Hashtable with this Hashtable.
+     * &lt;p&gt;
+     * Warning: It will overwrite previous entries without warning.
+     *
+     * @param props  the properties to combine
+     */
+    public void combine(ExtendedProperties props) {
+<span class="nc bnc" id="L782" title="All 2 branches missed.">        for (Iterator it = props.getKeys(); it.hasNext();) {</span>
+<span class="nc" id="L783">            String key = (String) it.next();</span>
+<span class="nc" id="L784">            setProperty(key, props.get(key));</span>
+        }
+<span class="nc" id="L786">    }</span>
+    
+    /**
+     * Clear a property in the configuration.
+     *
+     * @param key  the property key to remove along with corresponding value
+     */
+    public void clearProperty(String key) {
+<span class="pc bpc" id="L794" title="1 of 2 branches missed.">        if (containsKey(key)) {</span>
+            // we also need to rebuild the keysAsListed or else
+            // things get *very* confusing
+<span class="nc bnc" id="L797" title="All 2 branches missed.">            for (int i = 0; i &lt; keysAsListed.size(); i++) {</span>
+<span class="nc bnc" id="L798" title="All 2 branches missed.">                if (( keysAsListed.get(i)).equals(key)) {</span>
+<span class="nc" id="L799">                    keysAsListed.remove(i);</span>
+<span class="nc" id="L800">                    break;</span>
+                }
+            }
+<span class="nc" id="L803">            remove(key);</span>
+        }
+<span class="fc" id="L805">    }</span>
+
+    /**
+     * Get the list of the keys contained in the configuration
+     * repository.
+     *
+     * @return an Iterator over the keys
+     */
+    public Iterator getKeys() {
+<span class="fc" id="L814">        return keysAsListed.iterator();</span>
+    }
+
+    /**
+     * Get the list of the keys contained in the configuration
+     * repository that match the specified prefix.
+     *
+     * @param prefix  the prefix to match
+     * @return an Iterator of keys that match the prefix
+     */
+    public Iterator getKeys(String prefix) {
+<span class="nc" id="L825">        Iterator keys = getKeys();</span>
+<span class="nc" id="L826">        ArrayList matchingKeys = new ArrayList();</span>
+
+<span class="nc bnc" id="L828" title="All 2 branches missed.">        while (keys.hasNext()) {</span>
+<span class="nc" id="L829">            Object key = keys.next();</span>
+
+<span class="nc bnc" id="L831" title="All 4 branches missed.">            if (key instanceof String &amp;&amp; ((String) key).startsWith(prefix)) {</span>
+<span class="nc" id="L832">                matchingKeys.add(key);</span>
+            }
+        }
+<span class="nc" id="L835">        return matchingKeys.iterator();</span>
+    }
+
+    /**
+     * Create an ExtendedProperties object that is a subset
+     * of this one. Take into account duplicate keys
+     * by using the setProperty() in ExtendedProperties.
+     *
+     * @param prefix  the prefix to get a subset for
+     * @return a new independent ExtendedProperties
+     */
+    public ExtendedProperties subset(String prefix) {
+<span class="fc" id="L847">        ExtendedProperties c = new ExtendedProperties();</span>
+<span class="fc" id="L848">        Iterator keys = getKeys();</span>
+<span class="fc" id="L849">        boolean validSubset = false;</span>
+
+<span class="fc bfc" id="L851" title="All 2 branches covered.">        while (keys.hasNext()) {</span>
+<span class="fc" id="L852">            Object key = keys.next();</span>
+
+<span class="pc bpc" id="L854" title="1 of 4 branches missed.">            if (key instanceof String &amp;&amp; ((String) key).startsWith(prefix)) {</span>
+<span class="fc bfc" id="L855" title="All 2 branches covered.">                if (!validSubset) {</span>
+<span class="fc" id="L856">                    validSubset = true;</span>
+                }
+
+                /*
+                 * Check to make sure that c.subset(prefix) doesn't
+                 * blow up when there is only a single property
+                 * with the key prefix. This is not a useful
+                 * subset but it is a valid subset.
+                 */
+<span class="fc" id="L865">                String newKey = null;</span>
+<span class="pc bpc" id="L866" title="1 of 2 branches missed.">                if (((String) key).length() == prefix.length()) {</span>
+<span class="nc" id="L867">                    newKey = prefix;</span>
+<span class="nc" id="L868">                } else {</span>
+<span class="fc" id="L869">                    newKey = ((String) key).substring(prefix.length() + 1);</span>
+                }
+
+                /*
+                 *  use addPropertyDirect() - this will plug the data as 
+                 *  is into the Map, but will also do the right thing
+                 *  re key accounting
+                 */
+<span class="fc" id="L877">                c.addPropertyDirect(newKey, get(key));</span>
+            }
+        }
+
+<span class="pc bpc" id="L881" title="1 of 2 branches missed.">        if (validSubset) {</span>
+<span class="fc" id="L882">            return c;</span>
+        } else {
+<span class="nc" id="L884">            return null;</span>
+        }
+    }
+
+    /**
+     * Display the configuration for debugging purposes to System.out.
+     */
+    public void display() {
+<span class="nc" id="L892">        Iterator i = getKeys();</span>
+
+<span class="nc bnc" id="L894" title="All 2 branches missed.">        while (i.hasNext()) {</span>
+<span class="nc" id="L895">            String key = (String) i.next();</span>
+<span class="nc" id="L896">            Object value = get(key);</span>
+<span class="nc" id="L897">            System.out.println(key + &quot; =&gt; &quot; + value);</span>
+        }
+<span class="nc" id="L899">    }</span>
+
+    /**
+     * Get a string associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @return The associated string.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a String.
+     */
+    public String getString(String key) {
+<span class="fc" id="L910">        return getString(key, null);</span>
+    }
+
+    /**
+     * Get a string associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated string if key is found,
+     * default value otherwise.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a String.
+     */
+    public String getString(String key, String defaultValue) {
+<span class="fc" id="L924">        Object value = get(key);</span>
+
+<span class="fc bfc" id="L926" title="All 2 branches covered.">        if (value instanceof String) {</span>
+<span class="fc" id="L927">            return interpolate((String) value);</span>
+            
+<span class="pc bpc" id="L929" title="1 of 2 branches missed.">        } else if (value == null) {</span>
+<span class="nc bnc" id="L930" title="All 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L931">                return interpolate(defaults.getString(key, defaultValue));</span>
+            } else {
+<span class="nc" id="L933">                return interpolate(defaultValue);</span>
+            }
+<span class="pc bpc" id="L935" title="1 of 2 branches missed.">        } else if (value instanceof List) {</span>
+<span class="fc" id="L936">            return interpolate((String) ((List) value).get(0));</span>
+        } else {
+<span class="nc" id="L938">            throw new ClassCastException('\'' + key + &quot;' doesn't map to a String object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a list of properties associated with the given
+     * configuration key.
+     *
+     * @param key The configuration key.
+     * @return The associated properties if key is found.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a String/List.
+     * @throws IllegalArgumentException if one of the tokens is
+     * malformed (does not contain an equals sign).
+     */
+    public Properties getProperties(String key) {
+<span class="nc" id="L954">        return getProperties(key, new Properties());</span>
+    }
+
+    /**
+     * Get a list of properties associated with the given
+     * configuration key.
+     *
+     * @param key The configuration key.
+     * @return The associated properties if key is found.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a String/List.
+     * @throws IllegalArgumentException if one of the tokens is
+     * malformed (does not contain an equals sign).
+     */
+    public Properties getProperties(String key, Properties defaults) {
+        /*
+         * Grab an array of the tokens for this key.
+         */
+<span class="nc" id="L972">        String[] tokens = getStringArray(key);</span>
+
+        // Each token is of the form 'key=value'.
+<span class="nc" id="L975">        Properties props = new Properties(defaults);</span>
+<span class="nc bnc" id="L976" title="All 2 branches missed.">        for (int i = 0; i &lt; tokens.length; i++) {</span>
+<span class="nc" id="L977">            String token = tokens[i];</span>
+<span class="nc" id="L978">            int equalSign = token.indexOf('=');</span>
+<span class="nc bnc" id="L979" title="All 2 branches missed.">            if (equalSign &gt; 0) {</span>
+<span class="nc" id="L980">                String pkey = token.substring(0, equalSign).trim();</span>
+<span class="nc" id="L981">                String pvalue = token.substring(equalSign + 1).trim();</span>
+<span class="nc" id="L982">                props.put(pkey, pvalue);</span>
+<span class="nc" id="L983">            } else {</span>
+<span class="nc" id="L984">                throw new IllegalArgumentException('\'' + token + &quot;' does not contain &quot; + &quot;an equals sign&quot;);</span>
+            }
+        }
+<span class="nc" id="L987">        return props;</span>
+    }
+
+    /**
+     * Get an array of strings associated with the given configuration
+     * key.
+     *
+     * @param key The configuration key.
+     * @return The associated string array if key is found.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a String/List.
+     */
+    public String[] getStringArray(String key) {
+<span class="nc" id="L1000">        Object value = get(key);</span>
+
+        List values;
+<span class="nc bnc" id="L1003" title="All 2 branches missed.">        if (value instanceof String) {</span>
+<span class="nc" id="L1004">            values = new Vector(1);</span>
+<span class="nc" id="L1005">            values.add(value);</span>
+            
+<span class="nc bnc" id="L1007" title="All 2 branches missed.">        } else if (value instanceof List) {</span>
+<span class="nc" id="L1008">            values = (List) value;</span>
+            
+<span class="nc bnc" id="L1010" title="All 2 branches missed.">        } else if (value == null) {</span>
+<span class="nc bnc" id="L1011" title="All 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L1012">                return defaults.getStringArray(key);</span>
+            } else {
+<span class="nc" id="L1014">                return new String[0];</span>
+            }
+        } else {
+<span class="nc" id="L1017">            throw new ClassCastException('\'' + key + &quot;' doesn't map to a String/List object&quot;);</span>
+        }
+
+<span class="nc" id="L1020">        String[] tokens = new String[values.size()];</span>
+<span class="nc bnc" id="L1021" title="All 2 branches missed.">        for (int i = 0; i &lt; tokens.length; i++) {</span>
+<span class="nc" id="L1022">            tokens[i] = (String) values.get(i);</span>
+        }
+
+<span class="nc" id="L1025">        return tokens;</span>
+    }
+
+    /**
+     * Get a Vector of strings associated with the given configuration
+     * key.
+     *
+     * @param key The configuration key.
+     * @return The associated Vector.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Vector.
+     */
+    public Vector getVector(String key) {
+<span class="fc" id="L1038">        return getVector(key, null);</span>
+    }
+
+    /**
+     * Get a Vector of strings associated with the given configuration key.
+     * &lt;p&gt;
+     * The list is a copy of the internal data of this object, and as
+     * such you may alter it freely.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated Vector.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Vector.
+     */
+    public Vector getVector(String key, Vector defaultValue) {
+<span class="fc" id="L1054">        Object value = get(key);</span>
+
+<span class="fc bfc" id="L1056" title="All 2 branches covered.">        if (value instanceof List) {</span>
+<span class="fc" id="L1057">            return new Vector((List) value);</span>
+            
+<span class="pc bpc" id="L1059" title="1 of 2 branches missed.">        } else if (value instanceof String) {</span>
+<span class="fc" id="L1060">            Vector values = new Vector(1);</span>
+<span class="fc" id="L1061">            values.add(value);</span>
+<span class="fc" id="L1062">            put(key, values);</span>
+<span class="fc" id="L1063">            return values;</span>
+            
+<span class="nc bnc" id="L1065" title="All 2 branches missed.">        } else if (value == null) {</span>
+<span class="nc bnc" id="L1066" title="All 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L1067">                return defaults.getVector(key, defaultValue);</span>
+            } else {
+<span class="nc bnc" id="L1069" title="All 2 branches missed.">                return ((defaultValue == null) ? new Vector() : defaultValue);</span>
+            }
+        } else {
+<span class="nc" id="L1072">            throw new ClassCastException('\'' + key + &quot;' doesn't map to a Vector object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a List of strings associated with the given configuration key.
+     * &lt;p&gt;
+     * The list is a copy of the internal data of this object, and as
+     * such you may alter it freely.
+     *
+     * @param key The configuration key.
+     * @return The associated List object.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a List.
+     * @since Commons Collections 3.2
+     */
+    public List getList(String key) {
+<span class="fc" id="L1089">        return getList(key, null);</span>
+    }
+
+    /**
+     * Get a List of strings associated with the given configuration key.
+     * &lt;p&gt;
+     * The list is a copy of the internal data of this object, and as
+     * such you may alter it freely.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated List.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a List.
+     * @since Commons Collections 3.2
+     */
+    public List getList(String key, List defaultValue) {
+<span class="fc" id="L1106">        Object value = get(key);</span>
+
+<span class="pc bpc" id="L1108" title="1 of 2 branches missed.">        if (value instanceof List) {</span>
+<span class="fc" id="L1109">            return new ArrayList((List) value);</span>
+            
+<span class="nc bnc" id="L1111" title="All 2 branches missed.">        } else if (value instanceof String) {</span>
+<span class="nc" id="L1112">            List values = new ArrayList(1);</span>
+<span class="nc" id="L1113">            values.add(value);</span>
+<span class="nc" id="L1114">            put(key, values);</span>
+<span class="nc" id="L1115">            return values;</span>
+            
+<span class="nc bnc" id="L1117" title="All 2 branches missed.">        } else if (value == null) {</span>
+<span class="nc bnc" id="L1118" title="All 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L1119">                return defaults.getList(key, defaultValue);</span>
+            } else {
+<span class="nc bnc" id="L1121" title="All 2 branches missed.">                return ((defaultValue == null) ? new ArrayList() : defaultValue);</span>
+            }
+        } else {
+<span class="nc" id="L1124">            throw new ClassCastException('\'' + key + &quot;' doesn't map to a List object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a boolean associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @return The associated boolean.
+     * @throws NoSuchElementException is thrown if the key doesn't
+     * map to an existing object.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Boolean.
+     */
+    public boolean getBoolean(String key) {
+<span class="nc" id="L1139">        Boolean b = getBoolean(key, null);</span>
+<span class="nc bnc" id="L1140" title="All 2 branches missed.">        if (b != null) {</span>
+<span class="nc" id="L1141">            return b.booleanValue();</span>
+        } else {
+<span class="nc" id="L1143">            throw new NoSuchElementException('\'' + key + &quot;' doesn't map to an existing object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a boolean associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated boolean.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Boolean.
+     */
+    public boolean getBoolean(String key, boolean defaultValue) {
+<span class="nc" id="L1157">        return getBoolean(key, new Boolean(defaultValue)).booleanValue();</span>
+    }
+
+    /**
+     * Get a boolean associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated boolean if key is found and has valid
+     * format, default value otherwise.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Boolean.
+     */
+    public Boolean getBoolean(String key, Boolean defaultValue) {
+
+<span class="nc" id="L1172">        Object value = get(key);</span>
+
+<span class="nc bnc" id="L1174" title="All 2 branches missed.">        if (value instanceof Boolean) {</span>
+<span class="nc" id="L1175">            return (Boolean) value;</span>
+            
+<span class="nc bnc" id="L1177" title="All 2 branches missed.">        } else if (value instanceof String) {</span>
+<span class="nc" id="L1178">            String s = testBoolean((String) value);</span>
+<span class="nc" id="L1179">            Boolean b = new Boolean(s);</span>
+<span class="nc" id="L1180">            put(key, b);</span>
+<span class="nc" id="L1181">            return b;</span>
+            
+<span class="nc bnc" id="L1183" title="All 2 branches missed.">        } else if (value == null) {</span>
+<span class="nc bnc" id="L1184" title="All 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L1185">                return defaults.getBoolean(key, defaultValue);</span>
+            } else {
+<span class="nc" id="L1187">                return defaultValue;</span>
+            }
+        } else {
+<span class="nc" id="L1190">            throw new ClassCastException('\'' + key + &quot;' doesn't map to a Boolean object&quot;);</span>
+        }
+    }
+
+    /**
+     * Test whether the string represent by value maps to a boolean
+     * value or not. We will allow &lt;code&gt;true&lt;/code&gt;, &lt;code&gt;on&lt;/code&gt;,
+     * and &lt;code&gt;yes&lt;/code&gt; for a &lt;code&gt;true&lt;/code&gt; boolean value, and
+     * &lt;code&gt;false&lt;/code&gt;, &lt;code&gt;off&lt;/code&gt;, and &lt;code&gt;no&lt;/code&gt; for
+     * &lt;code&gt;false&lt;/code&gt; boolean values.  Case of value to test for
+     * boolean status is ignored.
+     *
+     * @param value  the value to test for boolean state
+     * @return &lt;code&gt;true&lt;/code&gt; or &lt;code&gt;false&lt;/code&gt; if the supplied
+     * text maps to a boolean value, or &lt;code&gt;null&lt;/code&gt; otherwise.
+     */
+    public String testBoolean(String value) {
+<span class="nc" id="L1207">        String s = value.toLowerCase();</span>
+
+<span class="nc bnc" id="L1209" title="All 6 branches missed.">        if (s.equals(&quot;true&quot;) || s.equals(&quot;on&quot;) || s.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L1210">            return &quot;true&quot;;</span>
+<span class="nc bnc" id="L1211" title="All 6 branches missed.">        } else if (s.equals(&quot;false&quot;) || s.equals(&quot;off&quot;) || s.equals(&quot;no&quot;)) {</span>
+<span class="nc" id="L1212">            return &quot;false&quot;;</span>
+        } else {
+<span class="nc" id="L1214">            return null;</span>
+        }
+    }
+
+    /**
+     * Get a byte associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @return The associated byte.
+     * @throws NoSuchElementException is thrown if the key doesn't
+     * map to an existing object.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Byte.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public byte getByte(String key) {
+<span class="nc" id="L1231">        Byte b = getByte(key, null);</span>
+<span class="nc bnc" id="L1232" title="All 2 branches missed.">        if (b != null) {</span>
+<span class="nc" id="L1233">            return b.byteValue();</span>
+        } else {
+<span class="nc" id="L1235">            throw new NoSuchElementException('\'' + key + &quot; doesn't map to an existing object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a byte associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated byte.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Byte.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public byte getByte(String key, byte defaultValue) {
+<span class="nc" id="L1251">        return getByte(key, new Byte(defaultValue)).byteValue();</span>
+    }
+
+    /**
+     * Get a byte associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated byte if key is found and has valid
+     * format, default value otherwise.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Byte.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public Byte getByte(String key, Byte defaultValue) {
+<span class="nc" id="L1267">        Object value = get(key);</span>
+
+<span class="nc bnc" id="L1269" title="All 2 branches missed.">        if (value instanceof Byte) {</span>
+<span class="nc" id="L1270">            return (Byte) value;</span>
+            
+<span class="nc bnc" id="L1272" title="All 2 branches missed.">        } else if (value instanceof String) {</span>
+<span class="nc" id="L1273">            Byte b = new Byte((String) value);</span>
+<span class="nc" id="L1274">            put(key, b);</span>
+<span class="nc" id="L1275">            return b;</span>
+            
+<span class="nc bnc" id="L1277" title="All 2 branches missed.">        } else if (value == null) {</span>
+<span class="nc bnc" id="L1278" title="All 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L1279">                return defaults.getByte(key, defaultValue);</span>
+            } else {
+<span class="nc" id="L1281">                return defaultValue;</span>
+            }
+        } else {
+<span class="nc" id="L1284">            throw new ClassCastException('\'' + key + &quot;' doesn't map to a Byte object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a short associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @return The associated short.
+     * @throws NoSuchElementException is thrown if the key doesn't
+     * map to an existing object.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Short.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public short getShort(String key) {
+<span class="nc" id="L1301">        Short s = getShort(key, null);</span>
+<span class="nc bnc" id="L1302" title="All 2 branches missed.">        if (s != null) {</span>
+<span class="nc" id="L1303">            return s.shortValue();</span>
+        } else {
+<span class="nc" id="L1305">            throw new NoSuchElementException('\'' + key + &quot;' doesn't map to an existing object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a short associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated short.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Short.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public short getShort(String key, short defaultValue) {
+<span class="nc" id="L1321">        return getShort(key, new Short(defaultValue)).shortValue();</span>
+    }
+
+    /**
+     * Get a short associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated short if key is found and has valid
+     * format, default value otherwise.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Short.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public Short getShort(String key, Short defaultValue) {
+<span class="nc" id="L1337">        Object value = get(key);</span>
+
+<span class="nc bnc" id="L1339" title="All 2 branches missed.">        if (value instanceof Short) {</span>
+<span class="nc" id="L1340">            return (Short) value;</span>
+            
+<span class="nc bnc" id="L1342" title="All 2 branches missed.">        } else if (value instanceof String) {</span>
+<span class="nc" id="L1343">            Short s = new Short((String) value);</span>
+<span class="nc" id="L1344">            put(key, s);</span>
+<span class="nc" id="L1345">            return s;</span>
+            
+<span class="nc bnc" id="L1347" title="All 2 branches missed.">        } else if (value == null) {</span>
+<span class="nc bnc" id="L1348" title="All 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L1349">                return defaults.getShort(key, defaultValue);</span>
+            } else {
+<span class="nc" id="L1351">                return defaultValue;</span>
+            }
+        } else {
+<span class="nc" id="L1354">            throw new ClassCastException('\'' + key + &quot;' doesn't map to a Short object&quot;);</span>
+        }
+    }
+
+    /**
+     * The purpose of this method is to get the configuration resource
+     * with the given name as an integer.
+     *
+     * @param name The resource name.
+     * @return The value of the resource as an integer.
+     */
+    public int getInt(String name) {
+<span class="nc" id="L1366">        return getInteger(name);</span>
+    }
+
+    /**
+     * The purpose of this method is to get the configuration resource
+     * with the given name as an integer, or a default value.
+     *
+     * @param name The resource name
+     * @param def The default value of the resource.
+     * @return The value of the resource as an integer.
+     */
+    public int getInt(String name, int def) {
+<span class="nc" id="L1378">        return getInteger(name, def);</span>
+    }
+
+    /**
+     * Get a int associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @return The associated int.
+     * @throws NoSuchElementException is thrown if the key doesn't
+     * map to an existing object.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Integer.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public int getInteger(String key) {
+<span class="nc" id="L1394">        Integer i = getInteger(key, null);</span>
+<span class="nc bnc" id="L1395" title="All 2 branches missed.">        if (i != null) {</span>
+<span class="nc" id="L1396">            return i.intValue();</span>
+        } else {
+<span class="nc" id="L1398">            throw new NoSuchElementException('\'' + key + &quot;' doesn't map to an existing object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a int associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated int.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Integer.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public int getInteger(String key, int defaultValue) {
+<span class="nc" id="L1414">        Integer i = getInteger(key, null);</span>
+
+<span class="nc bnc" id="L1416" title="All 2 branches missed.">        if (i == null) {</span>
+<span class="nc" id="L1417">            return defaultValue;</span>
+        }
+<span class="nc" id="L1419">        return i.intValue();</span>
+    }
+
+    /**
+     * Get a int associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated int if key is found and has valid
+     * format, default value otherwise.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Integer.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public Integer getInteger(String key, Integer defaultValue) {
+<span class="nc" id="L1435">        Object value = get(key);</span>
+
+<span class="nc bnc" id="L1437" title="All 2 branches missed.">        if (value instanceof Integer) {</span>
+<span class="nc" id="L1438">            return (Integer) value;</span>
+            
+<span class="nc bnc" id="L1440" title="All 2 branches missed.">        } else if (value instanceof String) {</span>
+<span class="nc" id="L1441">            Integer i = new Integer((String) value);</span>
+<span class="nc" id="L1442">            put(key, i);</span>
+<span class="nc" id="L1443">            return i;</span>
+            
+<span class="nc bnc" id="L1445" title="All 2 branches missed.">        } else if (value == null) {</span>
+<span class="nc bnc" id="L1446" title="All 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L1447">                return defaults.getInteger(key, defaultValue);</span>
+            } else {
+<span class="nc" id="L1449">                return defaultValue;</span>
+            }
+        } else {
+<span class="nc" id="L1452">            throw new ClassCastException('\'' + key + &quot;' doesn't map to a Integer object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a long associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @return The associated long.
+     * @throws NoSuchElementException is thrown if the key doesn't
+     * map to an existing object.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Long.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public long getLong(String key) {
+<span class="nc" id="L1469">        Long l = getLong(key, null);</span>
+<span class="nc bnc" id="L1470" title="All 2 branches missed.">        if (l != null) {</span>
+<span class="nc" id="L1471">            return l.longValue();</span>
+        } else {
+<span class="nc" id="L1473">            throw new NoSuchElementException('\'' + key + &quot;' doesn't map to an existing object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a long associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated long.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Long.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public long getLong(String key, long defaultValue) {
+<span class="nc" id="L1489">        return getLong(key, new Long(defaultValue)).longValue();</span>
+    }
+
+    /**
+     * Get a long associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated long if key is found and has valid
+     * format, default value otherwise.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Long.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public Long getLong(String key, Long defaultValue) {
+<span class="nc" id="L1505">        Object value = get(key);</span>
+
+<span class="nc bnc" id="L1507" title="All 2 branches missed.">        if (value instanceof Long) {</span>
+<span class="nc" id="L1508">            return (Long) value;</span>
+            
+<span class="nc bnc" id="L1510" title="All 2 branches missed.">        } else if (value instanceof String) {</span>
+<span class="nc" id="L1511">            Long l = new Long((String) value);</span>
+<span class="nc" id="L1512">            put(key, l);</span>
+<span class="nc" id="L1513">            return l;</span>
+            
+<span class="nc bnc" id="L1515" title="All 2 branches missed.">        } else if (value == null) {</span>
+<span class="nc bnc" id="L1516" title="All 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L1517">                return defaults.getLong(key, defaultValue);</span>
+            } else {
+<span class="nc" id="L1519">                return defaultValue;</span>
+            }
+        } else {
+<span class="nc" id="L1522">            throw new ClassCastException('\'' + key + &quot;' doesn't map to a Long object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a float associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @return The associated float.
+     * @throws NoSuchElementException is thrown if the key doesn't
+     * map to an existing object.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Float.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public float getFloat(String key) {
+<span class="nc" id="L1539">        Float f = getFloat(key, null);</span>
+<span class="nc bnc" id="L1540" title="All 2 branches missed.">        if (f != null) {</span>
+<span class="nc" id="L1541">            return f.floatValue();</span>
+        } else {
+<span class="nc" id="L1543">            throw new NoSuchElementException('\'' + key + &quot;' doesn't map to an existing object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a float associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated float.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Float.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public float getFloat(String key, float defaultValue) {
+<span class="nc" id="L1559">        return getFloat(key, new Float(defaultValue)).floatValue();</span>
+    }
+
+    /**
+     * Get a float associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated float if key is found and has valid
+     * format, default value otherwise.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Float.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public Float getFloat(String key, Float defaultValue) {
+<span class="nc" id="L1575">        Object value = get(key);</span>
+
+<span class="nc bnc" id="L1577" title="All 2 branches missed.">        if (value instanceof Float) {</span>
+<span class="nc" id="L1578">            return (Float) value;</span>
+            
+<span class="nc bnc" id="L1580" title="All 2 branches missed.">        } else if (value instanceof String) {</span>
+<span class="nc" id="L1581">            Float f = new Float((String) value);</span>
+<span class="nc" id="L1582">            put(key, f);</span>
+<span class="nc" id="L1583">            return f;</span>
+            
+<span class="nc bnc" id="L1585" title="All 2 branches missed.">        } else if (value == null) {</span>
+<span class="nc bnc" id="L1586" title="All 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L1587">                return defaults.getFloat(key, defaultValue);</span>
+            } else {
+<span class="nc" id="L1589">                return defaultValue;</span>
+            }
+        } else {
+<span class="nc" id="L1592">            throw new ClassCastException('\'' + key + &quot;' doesn't map to a Float object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a double associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @return The associated double.
+     * @throws NoSuchElementException is thrown if the key doesn't
+     * map to an existing object.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Double.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public double getDouble(String key) {
+<span class="nc" id="L1609">        Double d = getDouble(key, null);</span>
+<span class="nc bnc" id="L1610" title="All 2 branches missed.">        if (d != null) {</span>
+<span class="nc" id="L1611">            return d.doubleValue();</span>
+        } else {
+<span class="nc" id="L1613">            throw new NoSuchElementException('\'' + key + &quot;' doesn't map to an existing object&quot;);</span>
+        }
+    }
+
+    /**
+     * Get a double associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated double.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Double.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public double getDouble(String key, double defaultValue) {
+<span class="nc" id="L1629">        return getDouble(key, new Double(defaultValue)).doubleValue();</span>
+    }
+
+    /**
+     * Get a double associated with the given configuration key.
+     *
+     * @param key The configuration key.
+     * @param defaultValue The default value.
+     * @return The associated double if key is found and has valid
+     * format, default value otherwise.
+     * @throws ClassCastException is thrown if the key maps to an
+     * object that is not a Double.
+     * @throws NumberFormatException is thrown if the value mapped
+     * by the key has not a valid number format.
+     */
+    public Double getDouble(String key, Double defaultValue) {
+<span class="nc" id="L1645">        Object value = get(key);</span>
+
+<span class="nc bnc" id="L1647" title="All 2 branches missed.">        if (value instanceof Double) {</span>
+<span class="nc" id="L1648">            return (Double) value;</span>
+            
+<span class="nc bnc" id="L1650" title="All 2 branches missed.">        } else if (value instanceof String) {</span>
+<span class="nc" id="L1651">            Double d = new Double((String) value);</span>
+<span class="nc" id="L1652">            put(key, d);</span>
+<span class="nc" id="L1653">            return d;</span>
+            
+<span class="nc bnc" id="L1655" title="All 2 branches missed.">        } else if (value == null) {</span>
+<span class="nc bnc" id="L1656" title="All 2 branches missed.">            if (defaults != null) {</span>
+<span class="nc" id="L1657">                return defaults.getDouble(key, defaultValue);</span>
+            } else {
+<span class="nc" id="L1659">                return defaultValue;</span>
+            }
+        } else {
+<span class="nc" id="L1662">            throw new ClassCastException('\'' + key + &quot;' doesn't map to a Double object&quot;);</span>
+        }
+    }
+
+    /**
+     * Convert a standard properties class into a configuration class.
+     * &lt;p&gt;
+     * NOTE: From Commons Collections 3.2 this method will pick up
+     * any default parent Properties of the specified input object.
+     *
+     * @param props  the properties object to convert
+     * @return new ExtendedProperties created from props
+     */
+    public static ExtendedProperties convertProperties(Properties props) {
+<span class="fc" id="L1676">        ExtendedProperties c = new ExtendedProperties();</span>
+
+<span class="fc bfc" id="L1678" title="All 2 branches covered.">        for (Enumeration e = props.propertyNames(); e.hasMoreElements();) {</span>
+<span class="fc" id="L1679">            String s = (String) e.nextElement();</span>
+<span class="fc" id="L1680">            c.setProperty(s, props.getProperty(s));</span>
+        }
+
+<span class="fc" id="L1683">        return c;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

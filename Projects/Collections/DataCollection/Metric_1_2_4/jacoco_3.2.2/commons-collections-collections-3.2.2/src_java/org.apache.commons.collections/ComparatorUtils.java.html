@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ComparatorUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">ComparatorUtils.java</span></div><h1>ComparatorUtils.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.Collection;
+import java.util.Comparator;
+
+import org.apache.commons.collections.comparators.BooleanComparator;
+import org.apache.commons.collections.comparators.ComparableComparator;
+import org.apache.commons.collections.comparators.ComparatorChain;
+import org.apache.commons.collections.comparators.NullComparator;
+import org.apache.commons.collections.comparators.ReverseComparator;
+import org.apache.commons.collections.comparators.TransformingComparator;
+
+/**
+ * Provides convenient static utility methods for &lt;Code&gt;Comparator&lt;/Code&gt;
+ * objects.
+ * &lt;p&gt;
+ * Most of the functionality in this class can also be found in the 
+ * &lt;code&gt;comparators&lt;/code&gt; package. This class merely provides a 
+ * convenient central place if you have use for more than one class
+ * in the &lt;code&gt;comparators&lt;/code&gt; subpackage.
+ *
+ * @since Commons Collections 2.1
+ * @version $Revision$ $Date$
+ * 
+ * @author Paul Jack
+ * @author Stephen Colebourne
+ */
+public class ComparatorUtils {
+
+    /**
+     * ComparatorUtils should not normally be instantiated.
+     */
+<span class="nc" id="L49">    public ComparatorUtils() {</span>
+<span class="nc" id="L50">    }</span>
+
+    /**
+     * Comparator for natural sort order.
+     *
+     * @see ComparableComparator#getInstance
+     */
+<span class="fc" id="L57">    public static final Comparator NATURAL_COMPARATOR = ComparableComparator.getInstance();</span>
+
+    /**
+     * Gets a comparator that uses the natural order of the objects.
+     *
+     * @return  a comparator which uses natural order
+     */
+    public static Comparator naturalComparator() {
+<span class="fc" id="L65">        return NATURAL_COMPARATOR;</span>
+    }
+
+    /**
+     * Gets a comparator that compares using two {@link Comparator}s.
+     * &lt;p&gt;
+     * The second comparator is used if the first comparator returns equal.
+     *
+     * @param comparator1  the first comparator to use, not null
+     * @param comparator2  the first comparator to use, not null
+     * @return a {@link ComparatorChain} formed from the two comparators
+     * @throws NullPointerException if either comparator is null
+     * @see ComparatorChain
+     */
+    public static Comparator chainedComparator(Comparator comparator1, Comparator comparator2) {
+<span class="nc" id="L80">        return chainedComparator(new Comparator[] {comparator1, comparator2});</span>
+    }
+
+    /**
+     * Gets a comparator that compares using an array of {@link Comparator}s, applied
+     * in sequence until one returns not equal or the array is exhausted.
+     *
+     * @param comparators  the comparators to use, not null or empty or containing nulls
+     * @return a {@link ComparatorChain} formed from the input comparators
+     * @throws NullPointerException if comparators array is null or contains a null
+     * @see ComparatorChain
+     */
+    public static Comparator chainedComparator(Comparator[] comparators) {
+<span class="nc" id="L93">        ComparatorChain chain = new ComparatorChain();</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        for (int i = 0; i &lt; comparators.length; i++) {</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">            if (comparators[i] == null) {</span>
+<span class="nc" id="L96">                throw new NullPointerException(&quot;Comparator cannot be null&quot;);</span>
+            }
+<span class="nc" id="L98">            chain.addComparator(comparators[i]);</span>
+        }
+<span class="nc" id="L100">        return chain;</span>
+    }
+
+    /**
+     * Gets a comparator that compares using a collection of {@link Comparator}s,
+     * applied in (default iterator) sequence until one returns not equal or the 
+     * collection is exhausted.
+     *
+     * @param comparators  the comparators to use, not null or empty or containing nulls
+     * @return a {@link ComparatorChain} formed from the input comparators
+     * @throws NullPointerException if comparators collection is null or contains a null
+     * @throws ClassCastException if the comparators collection contains the wrong object type
+     * @see ComparatorChain
+     */
+    public static Comparator chainedComparator(Collection comparators) {
+<span class="nc" id="L115">        return chainedComparator(</span>
+<span class="nc" id="L116">            (Comparator[]) comparators.toArray(new Comparator[comparators.size()])</span>
+        );
+    }
+
+    /**
+     * Gets a comparator that reverses the order of the given comparator.
+     *
+     * @param comparator  the comparator to reverse
+     * @return  a comparator that reverses the order of the input comparator
+     * @see ReverseComparator
+     */
+    public static Comparator reversedComparator(Comparator comparator) {
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (comparator == null) {</span>
+<span class="nc" id="L129">            comparator = NATURAL_COMPARATOR;</span>
+        }
+<span class="nc" id="L131">        return new ReverseComparator(comparator);</span>
+    }
+
+    /**
+     * Gets a Comparator that can sort Boolean objects.
+     * &lt;p&gt;
+     * The parameter specifies whether true or false is sorted first.
+     * &lt;p&gt;
+     * The comparator throws NullPointerException if a null value is compared.
+     * 
+     * @param trueFirst  when &lt;code&gt;true&lt;/code&gt;, sort 
+     *        &lt;code&gt;true&lt;/code&gt; {@link Boolean}s before
+     *        &lt;code&gt;false&lt;/code&gt; {@link Boolean}s.
+     * @return  a comparator that sorts booleans
+     */
+    public static Comparator booleanComparator(boolean trueFirst) {
+<span class="nc" id="L147">        return BooleanComparator.getBooleanComparator(trueFirst);</span>
+    }
+    
+    /**
+     * Gets a Comparator that controls the comparison of &lt;code&gt;null&lt;/code&gt; values.
+     * &lt;p&gt;
+     * The returned comparator will consider a null value to be less than
+     * any nonnull value, and equal to any other null value.  Two nonnull
+     * values will be evaluated with the given comparator.
+     *
+     * @param comparator the comparator that wants to allow nulls
+     * @return  a version of that comparator that allows nulls
+     * @see NullComparator
+     */
+    public static Comparator nullLowComparator(Comparator comparator) {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (comparator == null) {</span>
+<span class="nc" id="L163">            comparator = NATURAL_COMPARATOR;</span>
+        }
+<span class="nc" id="L165">        return new NullComparator(comparator, false);</span>
+    }
+
+    /**
+     * Gets a Comparator that controls the comparison of &lt;code&gt;null&lt;/code&gt; values.
+     * &lt;p&gt;
+     * The returned comparator will consider a null value to be greater than
+     * any nonnull value, and equal to any other null value.  Two nonnull
+     * values will be evaluated with the given comparator.
+     *
+     * @param comparator the comparator that wants to allow nulls
+     * @return  a version of that comparator that allows nulls
+     * @see NullComparator
+     */
+    public static Comparator nullHighComparator(Comparator comparator) {
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (comparator == null) {</span>
+<span class="nc" id="L181">            comparator = NATURAL_COMPARATOR;</span>
+        }
+<span class="nc" id="L183">        return new NullComparator(comparator, true);</span>
+    }
+
+    /**
+     * Gets a Comparator that passes transformed objects to the given comparator.
+     * &lt;p&gt;
+     * Objects passed to the returned comparator will first be transformed
+     * by the given transformer before they are compared by the given
+     * comparator.
+     *
+     * @param comparator  the sort order to use
+     * @param transformer  the transformer to use
+     * @return  a comparator that transforms its input objects before comparing them
+     * @see  TransformingComparator
+     */
+    public static Comparator transformedComparator(Comparator comparator, Transformer transformer) {
+<span class="nc bnc" id="L199" title="All 2 branches missed.">        if (comparator == null) {</span>
+<span class="nc" id="L200">            comparator = NATURAL_COMPARATOR;</span>
+        }
+<span class="nc" id="L202">        return new TransformingComparator(transformer, comparator);</span>
+    }
+
+    /**
+     *  Returns the smaller of the given objects according to the given 
+     *  comparator, returning the second object if the comparator
+     *  returns equal.
+     * 
+     *  @param o1  the first object to compare
+     *  @param o2  the second object to compare
+     *  @param comparator  the sort order to use
+     *  @return  the smaller of the two objects
+     */
+    public static Object min(Object o1, Object o2, Comparator comparator) {
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (comparator == null) {</span>
+<span class="nc" id="L217">            comparator = NATURAL_COMPARATOR;</span>
+        }
+<span class="nc" id="L219">        int c = comparator.compare(o1, o2);</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">        return (c &lt; 0) ? o1 : o2;</span>
+    }
+
+    /**
+     *  Returns the larger of the given objects according to the given 
+     *  comparator, returning the second object if the comparator 
+     *  returns equal.
+     * 
+     *  @param o1  the first object to compare
+     *  @param o2  the second object to compare
+     *  @param comparator  the sort order to use
+     *  @return  the larger of the two objects
+     */
+    public static Object max(Object o1, Object o2, Comparator comparator) {
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (comparator == null) {</span>
+<span class="nc" id="L235">            comparator = NATURAL_COMPARATOR;</span>
+        }
+<span class="nc" id="L237">        int c = comparator.compare(o1, o2);</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">        return (c &gt; 0) ? o1 : o2;</span>
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

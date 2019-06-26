@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestPredicatedSortedSet.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.set</a> &gt; <span class="el_source">TestPredicatedSortedSet.java</span></div><h1>TestPredicatedSortedSet.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.set;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.BulkTest;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
+import org.apache.commons.collections.map.TestPredicatedSortedMap;
+
+/**
+ * Extension of {@link AbstractTestSortedSet} for exercising the 
+ * {@link PredicatedSortedSet} implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Phil Steitz
+ */
+public class TestPredicatedSortedSet extends AbstractTestSortedSet{
+    
+    public TestPredicatedSortedSet(String testName) {
+<span class="fc" id="L44">        super(testName);</span>
+<span class="fc" id="L45">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L48" title="All 2 branches covered.">        return BulkTest.makeSuite(TestPredicatedSortedSet.class);</span>
+    }
+    
+    public static void main(String args[]) {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        String[] testCaseName = { TestPredicatedSortedMap.class.getName()};</span>
+<span class="nc" id="L53">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L54">    }</span>
+    
+ //-------------------------------------------------------------------    
+    
+<span class="fc" id="L58">    protected Predicate truePredicate = PredicateUtils.truePredicate();</span>
+    
+    public Set makeEmptySet() {
+<span class="fc" id="L61">        return PredicatedSortedSet.decorate(new TreeSet(), truePredicate);</span>
+    }
+    
+    public Set makeFullSet() {
+<span class="fc" id="L65">        TreeSet set = new TreeSet();</span>
+<span class="fc" id="L66">        set.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L67">        return PredicatedSortedSet.decorate(set, truePredicate);</span>
+    }
+   
+    
+//--------------------------------------------------------------------   
+<span class="fc" id="L72">    protected Predicate testPredicate =  </span>
+<span class="fc" id="L73">        new Predicate() {</span>
+            public boolean evaluate(Object o) {
+<span class="pc bpc" id="L75" title="1 of 4 branches missed.">                return (o instanceof String) &amp;&amp; (((String) o).startsWith(&quot;A&quot;));</span>
+            }
+        };      
+     
+    
+    protected SortedSet makeTestSet() {
+<span class="fc" id="L81">        return PredicatedSortedSet.decorate(new TreeSet(), testPredicate);</span>
+    }
+    
+    public void testGetSet() {
+<span class="fc" id="L85">        SortedSet set = makeTestSet();</span>
+<span class="fc" id="L86">        assertTrue(&quot;returned set should not be null&quot;,</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">            ((PredicatedSortedSet) set).getSet() != null);</span>
+<span class="fc" id="L88">    }</span>
+    
+    public void testIllegalAdd() {
+<span class="fc" id="L91">        SortedSet set = makeTestSet();</span>
+<span class="fc" id="L92">        String testString = &quot;B&quot;;</span>
+        try {
+<span class="nc" id="L94">            set.add(testString);</span>
+<span class="nc" id="L95">            fail(&quot;Should fail string predicate.&quot;);</span>
+<span class="pc" id="L96">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+<span class="fc" id="L99">        assertTrue(&quot;Collection shouldn't contain illegal element&quot;, </span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">         !set.contains(testString));   </span>
+<span class="fc" id="L101">    }</span>
+
+    public void testIllegalAddAll() {
+<span class="fc" id="L104">        SortedSet set = makeTestSet();</span>
+<span class="fc" id="L105">        Set elements = new TreeSet();</span>
+<span class="fc" id="L106">        elements.add(&quot;Aone&quot;);</span>
+<span class="fc" id="L107">        elements.add(&quot;Atwo&quot;);</span>
+<span class="fc" id="L108">        elements.add(&quot;Bthree&quot;);</span>
+<span class="fc" id="L109">        elements.add(&quot;Afour&quot;);</span>
+        try {
+<span class="nc" id="L111">            set.addAll(elements);</span>
+<span class="nc" id="L112">            fail(&quot;Should fail string predicate.&quot;);</span>
+<span class="pc" id="L113">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+<span class="fc" id="L116">        assertTrue(&quot;Set shouldn't contain illegal element&quot;, </span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">         !set.contains(&quot;Aone&quot;));   </span>
+<span class="fc" id="L118">        assertTrue(&quot;Set shouldn't contain illegal element&quot;, </span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">         !set.contains(&quot;Atwo&quot;));   </span>
+<span class="fc" id="L120">        assertTrue(&quot;Set shouldn't contain illegal element&quot;, </span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">         !set.contains(&quot;Bthree&quot;));   </span>
+<span class="fc" id="L122">        assertTrue(&quot;Set shouldn't contain illegal element&quot;, </span>
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">         !set.contains(&quot;Afour&quot;));   </span>
+<span class="fc" id="L124">    }</span>
+    
+    public void testComparator() {
+<span class="fc" id="L127">        SortedSet set = makeTestSet();</span>
+<span class="fc" id="L128">        Comparator c = set.comparator();</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        assertTrue(&quot;natural order, so comparator should be null&quot;, c == null);</span>
+<span class="fc" id="L130">    }</span>
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L133">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/PredicatedSortedSet.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/PredicatedSortedSet.fullCollection.version3.1.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

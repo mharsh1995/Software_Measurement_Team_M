@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SetUtilsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-commons-collections-4.2 (25-Jun-2019 5:24:54 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-commons-collections-4.2</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4</a> &gt; <span class="el_source">SetUtilsTest.java</span></div><h1>SetUtilsTest.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.collections4.SetUtils.SetView;
+import org.apache.commons.collections4.set.PredicatedSet;
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+ * Tests for SetUtils.
+ *
+ */
+<span class="fc" id="L39">public class SetUtilsTest {</span>
+
+    private Set&lt;Integer&gt; setA;
+    private Set&lt;Integer&gt; setB;
+
+    @Before
+    public void setUp() {
+<span class="fc" id="L46">        setA = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L47">        setA.add(1);</span>
+<span class="fc" id="L48">        setA.add(2);</span>
+<span class="fc" id="L49">        setA.add(3);</span>
+<span class="fc" id="L50">        setA.add(4);</span>
+<span class="fc" id="L51">        setA.add(5);</span>
+
+<span class="fc" id="L53">        setB = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L54">        setB.add(3);</span>
+<span class="fc" id="L55">        setB.add(4);</span>
+<span class="fc" id="L56">        setB.add(5);</span>
+<span class="fc" id="L57">        setB.add(6);</span>
+<span class="fc" id="L58">        setB.add(7);</span>
+<span class="fc" id="L59">    }</span>
+
+    //-----------------------------------------------------------------------
+
+    @Test
+    public void testpredicatedSet() {
+<span class="fc" id="L65">        final Predicate&lt;Object&gt; predicate = new Predicate&lt;Object&gt;() {</span>
+            @Override
+            public boolean evaluate(final Object o) {
+<span class="nc" id="L68">                return o instanceof String;</span>
+            }
+        };
+<span class="fc" id="L71">        final Set&lt;Object&gt; set = SetUtils.predicatedSet(new HashSet&lt;&gt;(), predicate);</span>
+<span class="fc" id="L72">        assertTrue(&quot;returned object should be a PredicatedSet&quot;, set instanceof PredicatedSet);</span>
+        try {
+<span class="nc" id="L74">            SetUtils.predicatedSet(new HashSet&lt;&gt;(), null);</span>
+<span class="nc" id="L75">            fail(&quot;Expecting NullPointerException for null predicate.&quot;);</span>
+<span class="pc" id="L76">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L80">            SetUtils.predicatedSet(null, predicate);</span>
+<span class="nc" id="L81">            fail(&quot;Expecting NullPointerException for null set.&quot;);</span>
+<span class="pc" id="L82">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L85">    }</span>
+
+    @Test
+    public void testEmptyIfNull() {
+<span class="fc" id="L89">        assertTrue(SetUtils.emptyIfNull(null).isEmpty());</span>
+
+<span class="fc" id="L91">        final Set&lt;Long&gt; set = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L92">        assertSame(set, SetUtils.emptyIfNull(set));</span>
+<span class="fc" id="L93">    }</span>
+
+    @Test
+    public void testEquals() {
+<span class="fc" id="L97">        final Collection&lt;String&gt; data = Arrays.asList(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;);</span>
+
+<span class="fc" id="L99">        final Set&lt;String&gt; a = new HashSet&lt;&gt;(data);</span>
+<span class="fc" id="L100">        final Set&lt;String&gt; b = new HashSet&lt;&gt;(data);</span>
+
+<span class="fc" id="L102">        assertEquals(true, a.equals(b));</span>
+<span class="fc" id="L103">        assertEquals(true, SetUtils.isEqualSet(a, b));</span>
+<span class="fc" id="L104">        a.clear();</span>
+<span class="fc" id="L105">        assertEquals(false, SetUtils.isEqualSet(a, b));</span>
+<span class="fc" id="L106">        assertEquals(false, SetUtils.isEqualSet(a, null));</span>
+<span class="fc" id="L107">        assertEquals(false, SetUtils.isEqualSet(null, b));</span>
+<span class="fc" id="L108">        assertEquals(true, SetUtils.isEqualSet(null, null));</span>
+<span class="fc" id="L109">    }</span>
+
+    @Test
+    public void testHashCode() {
+<span class="fc" id="L113">        final Collection&lt;String&gt; data = Arrays.asList(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;);</span>
+
+<span class="fc" id="L115">        final Set&lt;String&gt; a = new HashSet&lt;&gt;(data);</span>
+<span class="fc" id="L116">        final Set&lt;String&gt; b = new HashSet&lt;&gt;(data);</span>
+
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        assertEquals(true, a.hashCode() == b.hashCode());</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        assertEquals(true, a.hashCode() == SetUtils.hashCodeForSet(a));</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        assertEquals(true, b.hashCode() == SetUtils.hashCodeForSet(b));</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        assertEquals(true, SetUtils.hashCodeForSet(a) == SetUtils.hashCodeForSet(b));</span>
+<span class="fc" id="L122">        a.clear();</span>
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">        assertEquals(false, SetUtils.hashCodeForSet(a) == SetUtils.hashCodeForSet(b));</span>
+<span class="fc" id="L124">        assertEquals(0, SetUtils.hashCodeForSet(null));</span>
+<span class="fc" id="L125">    }</span>
+
+    @Test
+    public void testNewIdentityHashSet() {
+<span class="fc" id="L129">        final Set&lt;String&gt; set = SetUtils.newIdentityHashSet();</span>
+<span class="fc" id="L130">        final String a = new String(&quot;a&quot;);</span>
+<span class="fc" id="L131">        set.add(a);</span>
+<span class="fc" id="L132">        set.add(new String(&quot;b&quot;));</span>
+<span class="fc" id="L133">        set.add(a);</span>
+
+<span class="fc" id="L135">        assertEquals(2, set.size());</span>
+
+<span class="fc" id="L137">        set.add(new String(&quot;a&quot;));</span>
+<span class="fc" id="L138">        assertEquals(3, set.size());</span>
+
+<span class="fc" id="L140">        set.remove(a);</span>
+<span class="fc" id="L141">        assertEquals(2, set.size());</span>
+<span class="fc" id="L142">    }</span>
+
+    @Test
+    public void union() {
+<span class="fc" id="L146">        final SetView&lt;Integer&gt; set = SetUtils.union(setA, setB);</span>
+<span class="fc" id="L147">        assertEquals(7, set.size());</span>
+<span class="fc" id="L148">        assertTrue(set.containsAll(setA));</span>
+<span class="fc" id="L149">        assertTrue(set.containsAll(setB));</span>
+
+<span class="fc" id="L151">        final Set&lt;Integer&gt; set2 = SetUtils.union(setA, SetUtils.&lt;Integer&gt;emptySet());</span>
+<span class="fc" id="L152">        assertEquals(setA, set2);</span>
+
+        try {
+<span class="nc" id="L155">            SetUtils.union(setA, null);</span>
+<span class="nc" id="L156">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L157">        } catch (final NullPointerException npe) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L162">            SetUtils.union(null, setA);</span>
+<span class="nc" id="L163">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L164">        } catch (final NullPointerException npe) {</span>
+            // expected
+        }
+<span class="fc" id="L167">    }</span>
+
+    @Test
+    public void difference() {
+<span class="fc" id="L171">        final SetView&lt;Integer&gt; set = SetUtils.difference(setA, setB);</span>
+<span class="fc" id="L172">        assertEquals(2, set.size());</span>
+<span class="fc" id="L173">        assertTrue(set.contains(1));</span>
+<span class="fc" id="L174">        assertTrue(set.contains(2));</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        for (final Integer i : setB) {</span>
+<span class="fc" id="L176">            assertFalse(set.contains(i));</span>
+        }
+
+<span class="fc" id="L179">        final Set&lt;Integer&gt; set2 = SetUtils.difference(setA, SetUtils.&lt;Integer&gt;emptySet());</span>
+<span class="fc" id="L180">        assertEquals(setA, set2);</span>
+
+        try {
+<span class="nc" id="L183">            SetUtils.difference(setA, null);</span>
+<span class="nc" id="L184">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L185">        } catch (final NullPointerException npe) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L190">            SetUtils.difference(null, setA);</span>
+<span class="nc" id="L191">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L192">        } catch (final NullPointerException npe) {</span>
+            // expected
+        }
+<span class="fc" id="L195">    }</span>
+
+    @Test
+    public void intersection() {
+<span class="fc" id="L199">        final SetView&lt;Integer&gt; set = SetUtils.intersection(setA, setB);</span>
+<span class="fc" id="L200">        assertEquals(3, set.size());</span>
+<span class="fc" id="L201">        assertTrue(set.contains(3));</span>
+<span class="fc" id="L202">        assertTrue(set.contains(4));</span>
+<span class="fc" id="L203">        assertTrue(set.contains(5));</span>
+<span class="fc" id="L204">        assertFalse(set.contains(1));</span>
+<span class="fc" id="L205">        assertFalse(set.contains(2));</span>
+<span class="fc" id="L206">        assertFalse(set.contains(6));</span>
+<span class="fc" id="L207">        assertFalse(set.contains(7));</span>
+
+<span class="fc" id="L209">        final Set&lt;Integer&gt; set2 = SetUtils.intersection(setA, SetUtils.&lt;Integer&gt;emptySet());</span>
+<span class="fc" id="L210">        assertEquals(SetUtils.&lt;Integer&gt;emptySet(), set2);</span>
+
+        try {
+<span class="nc" id="L213">            SetUtils.intersection(setA, null);</span>
+<span class="nc" id="L214">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L215">        } catch (final NullPointerException npe) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L220">            SetUtils.intersection(null, setA);</span>
+<span class="nc" id="L221">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L222">        } catch (final NullPointerException npe) {</span>
+            // expected
+        }
+<span class="fc" id="L225">    }</span>
+
+    @Test
+    public void disjunction() {
+<span class="fc" id="L229">        final SetView&lt;Integer&gt; set = SetUtils.disjunction(setA, setB);</span>
+<span class="fc" id="L230">        assertEquals(4, set.size());</span>
+<span class="fc" id="L231">        assertTrue(set.contains(1));</span>
+<span class="fc" id="L232">        assertTrue(set.contains(2));</span>
+<span class="fc" id="L233">        assertTrue(set.contains(6));</span>
+<span class="fc" id="L234">        assertTrue(set.contains(7));</span>
+<span class="fc" id="L235">        assertFalse(set.contains(3));</span>
+<span class="fc" id="L236">        assertFalse(set.contains(4));</span>
+<span class="fc" id="L237">        assertFalse(set.contains(5));</span>
+
+<span class="fc" id="L239">        final Set&lt;Integer&gt; set2 = SetUtils.disjunction(setA, SetUtils.&lt;Integer&gt;emptySet());</span>
+<span class="fc" id="L240">        assertEquals(setA, set2);</span>
+
+        try {
+<span class="nc" id="L243">            SetUtils.disjunction(setA, null);</span>
+<span class="nc" id="L244">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L245">        } catch (final NullPointerException npe) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L250">            SetUtils.disjunction(null, setA);</span>
+<span class="nc" id="L251">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L252">        } catch (final NullPointerException npe) {</span>
+            // expected
+        }
+<span class="fc" id="L255">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-commons-collections-4.2 (25-Jun-2019 5:24:54 PM)</div></body></html>

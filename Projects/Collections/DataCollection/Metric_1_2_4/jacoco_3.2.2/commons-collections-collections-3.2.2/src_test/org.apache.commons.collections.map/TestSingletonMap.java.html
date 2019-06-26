@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestSingletonMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">TestSingletonMap.java</span></div><h1>TestSingletonMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.textui.TestRunner;
+
+import org.apache.commons.collections.BoundedMap;
+import org.apache.commons.collections.BulkTest;
+import org.apache.commons.collections.KeyValue;
+
+/**
+ * JUnit tests.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class TestSingletonMap extends AbstractTestOrderedMap {
+
+<span class="fc" id="L38">    private static final Integer ONE = new Integer(1);</span>
+<span class="fc" id="L39">    private static final Integer TWO = new Integer(2);</span>
+    private static final String TEN = &quot;10&quot;;
+<span class="fc" id="L41">    private static final String TWENTY = &quot;20&quot;;</span>
+        
+    public TestSingletonMap(String testName) {
+<span class="fc" id="L44">        super(testName);</span>
+<span class="fc" id="L45">    }</span>
+
+    public static void main(String[] args) {
+<span class="nc" id="L48">        TestRunner.run(suite());</span>
+<span class="nc" id="L49">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L52" title="All 2 branches covered.">        return BulkTest.makeSuite(TestSingletonMap.class);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public Map makeEmptyMap() {
+        // need an empty singleton map, but thats not possible
+        // use a ridiculous fake instead to make the tests pass
+<span class="fc" id="L59">        return UnmodifiableOrderedMap.decorate(ListOrderedMap.decorate(new HashMap()));</span>
+    }
+    
+    public String[] ignoredTests() {
+        // the ridiculous map above still doesn't pass these tests
+        // but its not relevant, so we ignore them
+<span class="fc" id="L65">        return new String[] {</span>
+<span class="fc" id="L66">            &quot;TestSingletonMap.bulkTestMapIterator.testEmptyMapIterator&quot;,</span>
+<span class="fc" id="L67">            &quot;TestSingletonMap.bulkTestOrderedMapIterator.testEmptyMapIterator&quot;,</span>
+        };
+    }
+
+
+    public Map makeFullMap() {
+<span class="fc" id="L73">        return new SingletonMap(ONE, TWO);</span>
+    }
+
+    public boolean isPutAddSupported() {
+<span class="fc" id="L77">        return false;</span>
+    }
+
+    public boolean isRemoveSupported() {
+<span class="fc" id="L81">        return false;</span>
+    }
+
+    public Object[] getSampleKeys() {
+<span class="fc" id="L85">        return new Object[] {ONE};</span>
+    }
+
+    public Object[] getSampleValues() {
+<span class="fc" id="L89">        return new Object[] {TWO};</span>
+    }
+
+    public Object[] getNewSampleValues() {
+<span class="fc" id="L93">        return new Object[] {TEN};</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testClone() {
+<span class="fc" id="L98">        SingletonMap map = new SingletonMap(ONE, TWO);</span>
+<span class="fc" id="L99">        assertEquals(1, map.size());</span>
+<span class="fc" id="L100">        SingletonMap cloned = (SingletonMap) map.clone();</span>
+<span class="fc" id="L101">        assertEquals(1, cloned.size());</span>
+<span class="fc" id="L102">        assertEquals(true, cloned.containsKey(ONE));</span>
+<span class="fc" id="L103">        assertEquals(true, cloned.containsValue(TWO));</span>
+<span class="fc" id="L104">    }</span>
+
+    public void testKeyValue() {
+<span class="fc" id="L107">        SingletonMap map = new SingletonMap(ONE, TWO);</span>
+<span class="fc" id="L108">        assertEquals(1, map.size());</span>
+<span class="fc" id="L109">        assertEquals(ONE, map.getKey());</span>
+<span class="fc" id="L110">        assertEquals(TWO, map.getValue());</span>
+<span class="fc" id="L111">        assertTrue(map instanceof KeyValue);</span>
+<span class="fc" id="L112">    }</span>
+
+    public void testBoundedMap() {
+<span class="fc" id="L115">        SingletonMap map = new SingletonMap(ONE, TWO);</span>
+<span class="fc" id="L116">        assertEquals(1, map.size());</span>
+<span class="fc" id="L117">        assertEquals(true, map.isFull());</span>
+<span class="fc" id="L118">        assertEquals(1, map.maxSize());</span>
+<span class="fc" id="L119">        assertTrue(map instanceof BoundedMap);</span>
+<span class="fc" id="L120">    }</span>
+
+    //-----------------------------------------------------------------------
+//    public BulkTest bulkTestMapIterator() {
+//        return new TestFlatMapIterator();
+//    }
+//    
+//    public class TestFlatMapIterator extends AbstractTestOrderedMapIterator {
+//        public TestFlatMapIterator() {
+//            super(&quot;TestFlatMapIterator&quot;);
+//        }
+//        
+//        public Object[] addSetValues() {
+//            return TestSingletonMap.this.getNewSampleValues();
+//        }
+//        
+//        public boolean supportsRemove() {
+//            return TestSingletonMap.this.isRemoveSupported();
+//        }
+//
+//        public boolean supportsSetValue() {
+//            return TestSingletonMap.this.isSetValueSupported();
+//        }
+//
+//        public MapIterator makeEmptyMapIterator() {
+//            resetEmpty();
+//            return ((Flat3Map) TestSingletonMap.this.map).mapIterator();
+//        }
+//
+//        public MapIterator makeFullMapIterator() {
+//            resetFull();
+//            return ((Flat3Map) TestSingletonMap.this.map).mapIterator();
+//        }
+//        
+//        public Map getMap() {
+//            // assumes makeFullMapIterator() called first
+//            return TestSingletonMap.this.map;
+//        }
+//        
+//        public Map getConfirmedMap() {
+//            // assumes makeFullMapIterator() called first
+//            return TestSingletonMap.this.confirmed;
+//        }
+//        
+//        public void verify() {
+//            super.verify();
+//            TestSingletonMap.this.verify();
+//        }
+//    }
+    
+    public String getCompatibilityVersion() {
+<span class="fc" id="L171">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/SingletonMap.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/SingletonMap.fullCollection.version3.1.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

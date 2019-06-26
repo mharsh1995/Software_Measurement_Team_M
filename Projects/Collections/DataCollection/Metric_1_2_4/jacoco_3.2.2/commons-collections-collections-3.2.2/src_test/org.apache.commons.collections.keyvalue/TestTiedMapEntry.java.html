@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestTiedMapEntry.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.keyvalue</a> &gt; <span class="el_source">TestTiedMapEntry.java</span></div><h1>TestTiedMapEntry.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.keyvalue;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+/**
+ * Test the TiedMapEntry class.
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class TestTiedMapEntry extends AbstractTestMapEntry {
+
+    public TestTiedMapEntry(String testName) {
+<span class="fc" id="L36">        super(testName);</span>
+
+<span class="fc" id="L38">    }</span>
+
+    public static void main(String[] args) {
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        junit.textui.TestRunner.run(TestTiedMapEntry.class);</span>
+<span class="nc" id="L42">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L45" title="All 2 branches covered.">        return new TestSuite(TestTiedMapEntry.class);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Gets the instance to test
+     */
+    public Map.Entry makeMapEntry(Object key, Object value) {
+<span class="fc" id="L53">        Map map = new HashMap();</span>
+<span class="fc" id="L54">        map.put(key, value);</span>
+<span class="fc" id="L55">        return new TiedMapEntry(map, key);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Tests the constructors.
+     */
+    public void testConstructors() {
+        // ignore
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * Tests the constructors.
+     */
+    public void testSetValue() {
+<span class="fc" id="L70">        Map map = new HashMap();</span>
+<span class="fc" id="L71">        map.put(&quot;A&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L72">        map.put(&quot;B&quot;, &quot;b&quot;);</span>
+<span class="fc" id="L73">        map.put(&quot;C&quot;, &quot;c&quot;);</span>
+<span class="fc" id="L74">        Map.Entry entry = new TiedMapEntry(map, &quot;A&quot;);</span>
+<span class="fc" id="L75">        assertSame(&quot;A&quot;, entry.getKey());</span>
+<span class="fc" id="L76">        assertSame(&quot;a&quot;, entry.getValue());</span>
+<span class="fc" id="L77">        assertSame(&quot;a&quot;, entry.setValue(&quot;x&quot;));</span>
+<span class="fc" id="L78">        assertSame(&quot;A&quot;, entry.getKey());</span>
+<span class="fc" id="L79">        assertSame(&quot;x&quot;, entry.getValue());</span>
+        
+<span class="fc" id="L81">        entry = new TiedMapEntry(map, &quot;B&quot;);</span>
+<span class="fc" id="L82">        assertSame(&quot;B&quot;, entry.getKey());</span>
+<span class="fc" id="L83">        assertSame(&quot;b&quot;, entry.getValue());</span>
+<span class="fc" id="L84">        assertSame(&quot;b&quot;, entry.setValue(&quot;y&quot;));</span>
+<span class="fc" id="L85">        assertSame(&quot;B&quot;, entry.getKey());</span>
+<span class="fc" id="L86">        assertSame(&quot;y&quot;, entry.getValue());</span>
+        
+<span class="fc" id="L88">        entry = new TiedMapEntry(map, &quot;C&quot;);</span>
+<span class="fc" id="L89">        assertSame(&quot;C&quot;, entry.getKey());</span>
+<span class="fc" id="L90">        assertSame(&quot;c&quot;, entry.getValue());</span>
+<span class="fc" id="L91">        assertSame(&quot;c&quot;, entry.setValue(&quot;z&quot;));</span>
+<span class="fc" id="L92">        assertSame(&quot;C&quot;, entry.getKey());</span>
+<span class="fc" id="L93">        assertSame(&quot;z&quot;, entry.getValue());</span>
+<span class="fc" id="L94">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

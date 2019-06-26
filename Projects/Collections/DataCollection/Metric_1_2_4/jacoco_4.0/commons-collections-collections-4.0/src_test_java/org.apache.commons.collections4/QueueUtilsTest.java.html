@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>QueueUtilsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4</a> &gt; <span class="el_source">QueueUtilsTest.java</span></div><h1>QueueUtilsTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections4.functors.TruePredicate;
+import org.apache.commons.collections4.queue.PredicatedQueue;
+import org.apache.commons.collections4.queue.TransformedQueue;
+import org.apache.commons.collections4.queue.UnmodifiableQueue;
+
+/**
+ * Tests for QueueUtils factory methods.
+ * 
+ * @version $Id$
+ */
+public class QueueUtilsTest extends BulkTest {
+
+    public QueueUtilsTest(final String name) {
+<span class="fc" id="L37">        super(name);</span>
+<span class="fc" id="L38">    }</span>
+
+    public static Test suite() {
+<span class="fc" id="L41">        return BulkTest.makeSuite(QueueUtilsTest.class);</span>
+    }
+
+    // ----------------------------------------------------------------------
+
+<span class="fc" id="L46">    protected Class&lt;?&gt; stringClass = this.getName().getClass();</span>
+<span class="fc" id="L47">    protected Predicate&lt;Object&gt; truePredicate = TruePredicate.truePredicate();</span>
+<span class="fc" id="L48">    protected Transformer&lt;Object, Object&gt; nopTransformer = TransformerUtils.nopTransformer();</span>
+
+    // ----------------------------------------------------------------------
+
+    public void testUnmodifiableQueue() {
+<span class="fc" id="L53">        Queue&lt;Object&gt; queue = QueueUtils.unmodifiableQueue(new LinkedList&lt;Object&gt;());</span>
+<span class="fc" id="L54">        assertTrue(&quot;Returned object should be an UnmodifiableQueue.&quot;, queue instanceof UnmodifiableQueue);</span>
+        try {
+<span class="nc" id="L56">            QueueUtils.unmodifiableQueue(null);</span>
+<span class="nc" id="L57">            fail(&quot;Expecting IllegalArgumentException for null queue.&quot;);</span>
+<span class="pc" id="L58">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+        
+<span class="fc" id="L62">        assertSame(&quot;UnmodifiableQueue shall not be decorated&quot;, queue, QueueUtils.unmodifiableQueue(queue));</span>
+<span class="fc" id="L63">    }</span>
+
+    public void testPredicatedQueue() {
+<span class="fc" id="L66">        Queue&lt;Object&gt; queue = QueueUtils.predicatedQueue(new LinkedList&lt;Object&gt;(), truePredicate);</span>
+<span class="fc" id="L67">        assertTrue(&quot;Returned object should be a PredicatedQueue.&quot;, queue instanceof PredicatedQueue);</span>
+        try {
+<span class="nc" id="L69">            QueueUtils.predicatedQueue(null, truePredicate);</span>
+<span class="nc" id="L70">            fail(&quot;Expecting IllegalArgumentException for null queue.&quot;);</span>
+<span class="pc" id="L71">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L75">            QueueUtils.predicatedQueue(new LinkedList&lt;Object&gt;(), null);</span>
+<span class="nc" id="L76">            fail(&quot;Expecting IllegalArgumentException for null predicate.&quot;);</span>
+<span class="pc" id="L77">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L80">    }</span>
+
+    public void testTransformedQueue() {
+<span class="fc" id="L83">        Queue&lt;Object&gt; queue = QueueUtils.transformingQueue(new LinkedList&lt;Object&gt;(), nopTransformer);</span>
+<span class="fc" id="L84">        assertTrue(&quot;Returned object should be an TransformedQueue.&quot;, queue instanceof TransformedQueue);</span>
+        try {
+<span class="nc" id="L86">            QueueUtils.transformingQueue(null, nopTransformer);</span>
+<span class="nc" id="L87">            fail(&quot;Expecting IllegalArgumentException for null queue.&quot;);</span>
+<span class="pc" id="L88">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L92">            QueueUtils.transformingQueue(new LinkedList&lt;Object&gt;(), null);</span>
+<span class="nc" id="L93">            fail(&quot;Expecting IllegalArgumentException for null transformer.&quot;);</span>
+<span class="pc" id="L94">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L97">    }</span>
+
+    public void testEmptyQueue() {
+<span class="fc" id="L100">        Queue&lt;Object&gt; queue = QueueUtils.emptyQueue();</span>
+<span class="fc" id="L101">        assertTrue(&quot;Returned object should be an UnmodifiableQueue.&quot;, queue instanceof UnmodifiableQueue);</span>
+<span class="fc" id="L102">        assertTrue(&quot;Returned queue is not empty.&quot;, queue.isEmpty());</span>
+
+        try {
+<span class="nc" id="L105">            queue.add(new Object());</span>
+<span class="nc" id="L106">            fail(&quot;Expecting UnsupportedOperationException for empty queue.&quot;);</span>
+<span class="pc" id="L107">        } catch (final UnsupportedOperationException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L110">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

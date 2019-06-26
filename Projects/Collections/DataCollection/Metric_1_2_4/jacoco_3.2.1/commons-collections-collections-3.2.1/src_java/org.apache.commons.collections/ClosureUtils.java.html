@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ClosureUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">ClosureUtils.java</span></div><h1>ClosureUtils.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.collections.functors.ChainedClosure;
+import org.apache.commons.collections.functors.EqualPredicate;
+import org.apache.commons.collections.functors.ExceptionClosure;
+import org.apache.commons.collections.functors.ForClosure;
+import org.apache.commons.collections.functors.IfClosure;
+import org.apache.commons.collections.functors.InvokerTransformer;
+import org.apache.commons.collections.functors.NOPClosure;
+import org.apache.commons.collections.functors.SwitchClosure;
+import org.apache.commons.collections.functors.TransformerClosure;
+import org.apache.commons.collections.functors.WhileClosure;
+
+/**
+ * &lt;code&gt;ClosureUtils&lt;/code&gt; provides reference implementations and utilities
+ * for the Closure functor interface. The supplied closures are:
+ * &lt;ul&gt;
+ * &lt;li&gt;Invoker - invokes a method on the input object
+ * &lt;li&gt;For - repeatedly calls a closure for a fixed number of times
+ * &lt;li&gt;While - repeatedly calls a closure while a predicate is true
+ * &lt;li&gt;DoWhile - repeatedly calls a closure while a predicate is true
+ * &lt;li&gt;Chained - chains two or more closures together
+ * &lt;li&gt;Switch - calls one closure based on one or more predicates
+ * &lt;li&gt;SwitchMap - calls one closure looked up from a Map
+ * &lt;li&gt;Transformer - wraps a Transformer as a Closure
+ * &lt;li&gt;NOP - does nothing
+ * &lt;li&gt;Exception - always throws an exception
+ * &lt;/ul&gt;
+ * All the supplied closures are Serializable.
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ *
+ * @author Stephen Colebourne
+ * @author Matt Benson
+ */
+public class ClosureUtils {
+
+    /**
+     * This class is not normally instantiated.
+     */
+    public ClosureUtils() {
+<span class="nc" id="L63">        super();</span>
+<span class="nc" id="L64">    }</span>
+
+    /**
+     * Gets a Closure that always throws an exception.
+     * This could be useful during testing as a placeholder.
+     *
+     * @see org.apache.commons.collections.functors.ExceptionClosure
+     * 
+     * @return the closure
+     */
+    public static Closure exceptionClosure() {
+<span class="fc" id="L75">        return ExceptionClosure.INSTANCE;</span>
+    }
+
+    /**
+     * Gets a Closure that will do nothing.
+     * This could be useful during testing as a placeholder.
+     *
+     * @see org.apache.commons.collections.functors.NOPClosure
+     * 
+     * @return the closure
+     */
+    public static Closure nopClosure() {
+<span class="fc" id="L87">        return NOPClosure.INSTANCE;</span>
+    }
+
+    /**
+     * Creates a Closure that calls a Transformer each time it is called.
+     * The transformer will be called using the closure's input object.
+     * The transformer's result will be ignored.
+     *
+     * @see org.apache.commons.collections.functors.TransformerClosure
+     * 
+     * @param transformer  the transformer to run each time in the closure, null means nop
+     * @return the closure
+     */
+    public static Closure asClosure(Transformer transformer) {
+<span class="fc" id="L101">        return TransformerClosure.getInstance(transformer);</span>
+    }
+
+    /**
+     * Creates a Closure that will call the closure &lt;code&gt;count&lt;/code&gt; times.
+     * &lt;p&gt;
+     * A null closure or zero count returns the &lt;code&gt;NOPClosure&lt;/code&gt;.
+     *
+     * @see org.apache.commons.collections.functors.ForClosure
+     * 
+     * @param count  the number of times to loop
+     * @param closure  the closure to call repeatedly
+     * @return the &lt;code&gt;for&lt;/code&gt; closure
+     */
+    public static Closure forClosure(int count, Closure closure) {
+<span class="fc" id="L116">        return ForClosure.getInstance(count, closure);</span>
+    }
+
+    /**
+     * Creates a Closure that will call the closure repeatedly until the 
+     * predicate returns false.
+     *
+     * @see org.apache.commons.collections.functors.WhileClosure
+     * 
+     * @param predicate  the predicate to use as an end of loop test, not null
+     * @param closure  the closure to call repeatedly, not null
+     * @return the &lt;code&gt;while&lt;/code&gt; closure
+     * @throws IllegalArgumentException if either argument is null
+     */
+    public static Closure whileClosure(Predicate predicate, Closure closure) {
+<span class="fc" id="L131">        return WhileClosure.getInstance(predicate, closure, false);</span>
+    }
+
+    /**
+     * Creates a Closure that will call the closure once and then repeatedly
+     * until the predicate returns false.
+     *
+     * @see org.apache.commons.collections.functors.WhileClosure
+     * 
+     * @param closure  the closure to call repeatedly, not null
+     * @param predicate  the predicate to use as an end of loop test, not null
+     * @return the &lt;code&gt;do-while&lt;/code&gt; closure
+     * @throws IllegalArgumentException if either argument is null
+     */
+    public static Closure doWhileClosure(Closure closure, Predicate predicate) {
+<span class="fc" id="L146">        return WhileClosure.getInstance(predicate, closure, true);</span>
+    }
+
+    /**
+     * Creates a Closure that will invoke a specific method on the closure's
+     * input object by reflection.
+     *
+     * @see org.apache.commons.collections.functors.InvokerTransformer
+     * @see org.apache.commons.collections.functors.TransformerClosure
+     * 
+     * @param methodName  the name of the method
+     * @return the &lt;code&gt;invoker&lt;/code&gt; closure
+     * @throws IllegalArgumentException if the method name is null
+     */
+    public static Closure invokerClosure(String methodName) {
+        // reuse transformer as it has caching - this is lazy really, should have inner class here
+<span class="fc" id="L162">        return asClosure(InvokerTransformer.getInstance(methodName));</span>
+    }
+
+    /**
+     * Creates a Closure that will invoke a specific method on the closure's
+     * input object by reflection.
+     *
+     * @see org.apache.commons.collections.functors.InvokerTransformer
+     * @see org.apache.commons.collections.functors.TransformerClosure
+     * 
+     * @param methodName  the name of the method
+     * @param paramTypes  the parameter types
+     * @param args  the arguments
+     * @return the &lt;code&gt;invoker&lt;/code&gt; closure
+     * @throws IllegalArgumentException if the method name is null
+     * @throws IllegalArgumentException if the paramTypes and args don't match
+     */
+    public static Closure invokerClosure(String methodName, Class[] paramTypes, Object[] args) {
+        // reuse transformer as it has caching - this is lazy really, should have inner class here
+<span class="fc" id="L181">        return asClosure(InvokerTransformer.getInstance(methodName, paramTypes, args));</span>
+    }
+
+    /**
+     * Create a new Closure that calls two Closures, passing the result of
+     * the first into the second.
+     * 
+     * @see org.apache.commons.collections.functors.ChainedClosure
+     * 
+     * @param closure1  the first closure
+     * @param closure2  the second closure
+     * @return the &lt;code&gt;chained&lt;/code&gt; closure
+     * @throws IllegalArgumentException if either closure is null
+     */
+    public static Closure chainedClosure(Closure closure1, Closure closure2) {
+<span class="fc" id="L196">        return ChainedClosure.getInstance(closure1, closure2);</span>
+    }
+
+    /**
+     * Create a new Closure that calls each closure in turn, passing the 
+     * result into the next closure.
+     * 
+     * @see org.apache.commons.collections.functors.ChainedClosure
+     * 
+     * @param closures  an array of closures to chain
+     * @return the &lt;code&gt;chained&lt;/code&gt; closure
+     * @throws IllegalArgumentException if the closures array is null
+     * @throws IllegalArgumentException if any closure in the array is null
+     */
+    public static Closure chainedClosure(Closure[] closures) {
+<span class="fc" id="L211">        return ChainedClosure.getInstance(closures);</span>
+    }
+
+    /**
+     * Create a new Closure that calls each closure in turn, passing the 
+     * result into the next closure. The ordering is that of the iterator()
+     * method on the collection.
+     * 
+     * @see org.apache.commons.collections.functors.ChainedClosure
+     * 
+     * @param closures  a collection of closures to chain
+     * @return the &lt;code&gt;chained&lt;/code&gt; closure
+     * @throws IllegalArgumentException if the closures collection is null
+     * @throws IllegalArgumentException if the closures collection is empty
+     * @throws IllegalArgumentException if any closure in the collection is null
+     */
+    public static Closure chainedClosure(Collection closures) {
+<span class="fc" id="L228">        return ChainedClosure.getInstance(closures);</span>
+    }
+
+    /**
+     * Create a new Closure that calls another closure based on the
+     * result of the specified predicate.
+     * 
+     * @see org.apache.commons.collections.functors.IfClosure
+     * 
+     * @param predicate  the validating predicate
+     * @param trueClosure  the closure called if the predicate is true
+     * @return the &lt;code&gt;if&lt;/code&gt; closure
+     * @throws IllegalArgumentException if the predicate is null
+     * @throws IllegalArgumentException if the closure is null
+     * @since Commons Collections 3.2
+     */
+    public static Closure ifClosure(Predicate predicate, Closure trueClosure) {
+<span class="fc" id="L245">        return IfClosure.getInstance(predicate, trueClosure);</span>
+    }
+
+    /**
+     * Create a new Closure that calls one of two closures depending 
+     * on the specified predicate.
+     * 
+     * @see org.apache.commons.collections.functors.IfClosure
+     * 
+     * @param predicate  the predicate to switch on
+     * @param trueClosure  the closure called if the predicate is true
+     * @param falseClosure  the closure called if the predicate is false
+     * @return the &lt;code&gt;switch&lt;/code&gt; closure
+     * @throws IllegalArgumentException if the predicate is null
+     * @throws IllegalArgumentException if either closure is null
+     */
+    public static Closure ifClosure(Predicate predicate, Closure trueClosure, Closure falseClosure) {
+<span class="fc" id="L262">        return IfClosure.getInstance(predicate, trueClosure, falseClosure);</span>
+    }
+
+    /**
+     * Create a new Closure that calls one of the closures depending 
+     * on the predicates.
+     * &lt;p&gt;
+     * The closure at array location 0 is called if the predicate at array 
+     * location 0 returned true. Each predicate is evaluated
+     * until one returns true.
+     * 
+     * @see org.apache.commons.collections.functors.SwitchClosure
+     * 
+     * @param predicates  an array of predicates to check, not null
+     * @param closures  an array of closures to call, not null
+     * @return the &lt;code&gt;switch&lt;/code&gt; closure
+     * @throws IllegalArgumentException if the either array is null
+     * @throws IllegalArgumentException if any element in the arrays is null
+     * @throws IllegalArgumentException if the arrays are different sizes
+     */
+    public static Closure switchClosure(Predicate[] predicates, Closure[] closures) {
+<span class="fc" id="L283">        return SwitchClosure.getInstance(predicates, closures, null);</span>
+    }
+
+    /**
+     * Create a new Closure that calls one of the closures depending 
+     * on the predicates.
+     * &lt;p&gt;
+     * The closure at array location 0 is called if the predicate at array
+     * location 0 returned true. Each predicate is evaluated
+     * until one returns true. If no predicates evaluate to true, the default
+     * closure is called.
+     * 
+     * @see org.apache.commons.collections.functors.SwitchClosure
+     * 
+     * @param predicates  an array of predicates to check, not null
+     * @param closures  an array of closures to call, not null
+     * @param defaultClosure  the default to call if no predicate matches
+     * @return the &lt;code&gt;switch&lt;/code&gt; closure
+     * @throws IllegalArgumentException if the either array is null
+     * @throws IllegalArgumentException if any element in the arrays is null
+     * @throws IllegalArgumentException if the arrays are different sizes
+     */
+    public static Closure switchClosure(Predicate[] predicates, Closure[] closures, Closure defaultClosure) {
+<span class="fc" id="L306">        return SwitchClosure.getInstance(predicates, closures, defaultClosure);</span>
+    }
+    
+    /**
+     * Create a new Closure that calls one of the closures depending 
+     * on the predicates. 
+     * &lt;p&gt;
+     * The Map consists of Predicate keys and Closure values. A closure 
+     * is called if its matching predicate returns true. Each predicate is evaluated
+     * until one returns true. If no predicates evaluate to true, the default
+     * closure is called. The default closure is set in the map with a 
+     * null key. The ordering is that of the iterator() method on the entryset 
+     * collection of the map.
+     * 
+     * @see org.apache.commons.collections.functors.SwitchClosure
+     * 
+     * @param predicatesAndClosures  a map of predicates to closures
+     * @return the &lt;code&gt;switch&lt;/code&gt; closure
+     * @throws IllegalArgumentException if the map is null
+     * @throws IllegalArgumentException if the map is empty
+     * @throws IllegalArgumentException if any closure in the map is null
+     * @throws ClassCastException  if the map elements are of the wrong type
+     */
+    public static Closure switchClosure(Map predicatesAndClosures) {
+<span class="fc" id="L330">        return SwitchClosure.getInstance(predicatesAndClosures);</span>
+    }
+
+    /**
+     * Create a new Closure that uses the input object as a key to find the
+     * closure to call. 
+     * &lt;p&gt;
+     * The Map consists of object keys and Closure values. A closure 
+     * is called if the input object equals the key. If there is no match, the
+     * default closure is called. The default closure is set in the map
+     * using a null key.
+     * 
+     * @see org.apache.commons.collections.functors.SwitchClosure
+     * 
+     * @param objectsAndClosures  a map of objects to closures
+     * @return the closure
+     * @throws IllegalArgumentException if the map is null
+     * @throws IllegalArgumentException if the map is empty
+     * @throws IllegalArgumentException if any closure in the map is null
+     */
+    public static Closure switchMapClosure(Map objectsAndClosures) {
+<span class="fc" id="L351">        Closure[] trs = null;</span>
+<span class="fc" id="L352">        Predicate[] preds = null;</span>
+<span class="fc bfc" id="L353" title="All 2 branches covered.">        if (objectsAndClosures == null) {</span>
+<span class="fc" id="L354">            throw new IllegalArgumentException(&quot;The object and closure map must not be null&quot;);</span>
+        }
+<span class="fc" id="L356">        Closure def = (Closure) objectsAndClosures.remove(null);</span>
+<span class="fc" id="L357">        int size = objectsAndClosures.size();</span>
+<span class="fc" id="L358">        trs = new Closure[size];</span>
+<span class="fc" id="L359">        preds = new Predicate[size];</span>
+<span class="fc" id="L360">        int i = 0;</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">        for (Iterator it = objectsAndClosures.entrySet().iterator(); it.hasNext();) {</span>
+<span class="fc" id="L362">            Map.Entry entry = (Map.Entry) it.next();</span>
+<span class="fc" id="L363">            preds[i] = EqualPredicate.getInstance(entry.getKey());</span>
+<span class="fc" id="L364">            trs[i] = (Closure) entry.getValue();</span>
+<span class="fc" id="L365">            i++;</span>
+        }
+<span class="fc" id="L367">        return switchClosure(preds, trs, def);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

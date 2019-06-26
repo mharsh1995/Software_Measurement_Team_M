@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UnmodifiableSortedBidiMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.bidimap</a> &gt; <span class="el_source">UnmodifiableSortedBidiMap.java</span></div><h1>UnmodifiableSortedBidiMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.bidimap;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+
+import org.apache.commons.collections.BidiMap;
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.OrderedBidiMap;
+import org.apache.commons.collections.OrderedMapIterator;
+import org.apache.commons.collections.SortedBidiMap;
+import org.apache.commons.collections.Unmodifiable;
+import org.apache.commons.collections.collection.UnmodifiableCollection;
+import org.apache.commons.collections.iterators.UnmodifiableOrderedMapIterator;
+import org.apache.commons.collections.map.UnmodifiableEntrySet;
+import org.apache.commons.collections.map.UnmodifiableSortedMap;
+import org.apache.commons.collections.set.UnmodifiableSet;
+
+/**
+ * Decorates another &lt;code&gt;SortedBidiMap&lt;/code&gt; to ensure it can't be altered.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public final class UnmodifiableSortedBidiMap
+        extends AbstractSortedBidiMapDecorator implements Unmodifiable {
+    
+    /** The inverse unmodifiable map */
+    private UnmodifiableSortedBidiMap inverse;
+
+    /**
+     * Factory method to create an unmodifiable map.
+     * &lt;p&gt;
+     * If the map passed in is already unmodifiable, it is returned.
+     * 
+     * @param map  the map to decorate, must not be null
+     * @return an unmodifiable SortedBidiMap
+     * @throws IllegalArgumentException if map is null
+     */
+    public static SortedBidiMap decorate(SortedBidiMap map) {
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (map instanceof Unmodifiable) {</span>
+<span class="nc" id="L61">            return map;</span>
+        }
+<span class="fc" id="L63">        return new UnmodifiableSortedBidiMap(map);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Constructor that wraps (not copies).
+     * 
+     * @param map  the map to decorate, must not be null
+     * @throws IllegalArgumentException if map is null
+     */
+    private UnmodifiableSortedBidiMap(SortedBidiMap map) {
+<span class="fc" id="L74">        super(map);</span>
+<span class="fc" id="L75">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void clear() {
+<span class="fc" id="L79">        throw new UnsupportedOperationException();</span>
+    }
+
+    public Object put(Object key, Object value) {
+<span class="fc" id="L83">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void putAll(Map mapToCopy) {
+<span class="fc" id="L87">        throw new UnsupportedOperationException();</span>
+    }
+
+    public Object remove(Object key) {
+<span class="fc" id="L91">        throw new UnsupportedOperationException();</span>
+    }
+
+    public Set entrySet() {
+<span class="fc" id="L95">        Set set = super.entrySet();</span>
+<span class="fc" id="L96">        return UnmodifiableEntrySet.decorate(set);</span>
+    }
+
+    public Set keySet() {
+<span class="fc" id="L100">        Set set = super.keySet();</span>
+<span class="fc" id="L101">        return UnmodifiableSet.decorate(set);</span>
+    }
+
+    public Collection values() {
+<span class="fc" id="L105">        Collection coll = super.values();</span>
+<span class="fc" id="L106">        return UnmodifiableCollection.decorate(coll);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public Object removeValue(Object value) {
+<span class="fc" id="L111">        throw new UnsupportedOperationException();</span>
+    }
+
+    public MapIterator mapIterator() {
+<span class="fc" id="L115">        return orderedMapIterator();</span>
+    }
+
+    public BidiMap inverseBidiMap() {
+<span class="fc" id="L119">        return inverseSortedBidiMap();</span>
+    }
+    
+    //-----------------------------------------------------------------------
+    public OrderedMapIterator orderedMapIterator() {
+<span class="fc" id="L124">        OrderedMapIterator it = getSortedBidiMap().orderedMapIterator();</span>
+<span class="fc" id="L125">        return UnmodifiableOrderedMapIterator.decorate(it);</span>
+    }
+
+    public OrderedBidiMap inverseOrderedBidiMap() {
+<span class="nc" id="L129">        return inverseSortedBidiMap();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public SortedBidiMap inverseSortedBidiMap() {
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (inverse == null) {</span>
+<span class="fc" id="L135">            inverse = new UnmodifiableSortedBidiMap(getSortedBidiMap().inverseSortedBidiMap());</span>
+<span class="fc" id="L136">            inverse.inverse = this;</span>
+        }
+<span class="fc" id="L138">        return inverse;</span>
+    }
+
+    public SortedMap subMap(Object fromKey, Object toKey) {
+<span class="fc" id="L142">        SortedMap sm = getSortedBidiMap().subMap(fromKey, toKey);</span>
+<span class="fc" id="L143">        return UnmodifiableSortedMap.decorate(sm);</span>
+    }
+
+    public SortedMap headMap(Object toKey) {
+<span class="fc" id="L147">        SortedMap sm = getSortedBidiMap().headMap(toKey);</span>
+<span class="fc" id="L148">        return UnmodifiableSortedMap.decorate(sm);</span>
+    }
+
+    public SortedMap tailMap(Object fromKey) {
+<span class="fc" id="L152">        SortedMap sm = getSortedBidiMap().tailMap(fromKey);</span>
+<span class="fc" id="L153">        return UnmodifiableSortedMap.decorate(sm);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

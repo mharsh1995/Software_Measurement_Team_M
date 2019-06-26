@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SplitMapUtilsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4</a> &gt; <span class="el_source">SplitMapUtilsTest.java</span></div><h1>SplitMapUtilsTest.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.collections4.functors.NOPTransformer;
+import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.collections4.splitmap.TransformedSplitMap;
+
+/**
+ * Tests for {@link TransformedSplitMap}
+ *
+ * @since 4.0
+ * @version $Id$
+ */
+@SuppressWarnings(&quot;boxing&quot;)
+public class SplitMapUtilsTest extends BulkTest {
+    private Map&lt;String, Integer&gt; backingMap;
+    private TransformedSplitMap&lt;String, String, String, Integer&gt; transformedMap;
+
+<span class="fc" id="L37">    private final Transformer&lt;String, Integer&gt; stringToInt = new Transformer&lt;String, Integer&gt;() {</span>
+        public Integer transform(final String input) {
+<span class="fc" id="L39">            return Integer.valueOf(input);</span>
+        }
+    };
+
+    public SplitMapUtilsTest(final String testName) {
+<span class="fc" id="L44">        super(testName);</span>
+<span class="fc" id="L45">    }</span>
+
+    @Override
+    protected void setUp() throws Exception {
+<span class="fc" id="L49">        super.setUp();</span>
+<span class="fc" id="L50">        backingMap = new HashMap&lt;String, Integer&gt;();</span>
+<span class="fc" id="L51">        transformedMap = TransformedSplitMap.transformingMap(backingMap, NOPTransformer.&lt;String&gt; nopTransformer(),</span>
+<span class="fc" id="L52">                stringToInt);</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L54">            transformedMap.put(String.valueOf(i), String.valueOf(i));</span>
+        }
+<span class="fc" id="L56">    }</span>
+
+    // -----------------------------------------------------------------------
+
+    public void testReadableMap() {
+<span class="fc" id="L61">        final IterableMap&lt;String, Integer&gt; map = SplitMapUtils.readableMap(transformedMap);</span>
+
+        // basic
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L65">            assertFalse(map.containsValue(String.valueOf(i)));</span>
+<span class="fc" id="L66">            assertEquals(i, map.get(String.valueOf(i)).intValue());</span>
+        }
+
+        // mapIterator
+<span class="fc" id="L70">        final MapIterator&lt;String, Integer&gt; it = map.mapIterator();</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L72">            final String k = it.next();</span>
+<span class="fc" id="L73">            assertEquals(k, it.getKey());</span>
+<span class="fc" id="L74">            assertEquals(Integer.valueOf(k), it.getValue());</span>
+        }
+
+        // unmodifiable
+<span class="fc" id="L78">        assertTrue(map instanceof Unmodifiable);</span>
+
+        // check individual operations
+<span class="fc" id="L81">        int sz = map.size();</span>
+
+<span class="fc" id="L83">        attemptPutOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L85">                map.clear();</span>
+<span class="nc" id="L86">            }</span>
+        });
+
+<span class="fc" id="L89">        assertEquals(sz, map.size());</span>
+
+<span class="fc" id="L91">        attemptPutOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L93">                map.put(&quot;foo&quot;, 100);</span>
+<span class="nc" id="L94">            }</span>
+        });
+
+<span class="fc" id="L97">        final HashMap&lt;String, Integer&gt; m = new HashMap&lt;String, Integer&gt;();</span>
+<span class="fc" id="L98">        m.put(&quot;foo&quot;, 100);</span>
+<span class="fc" id="L99">        m.put(&quot;bar&quot;, 200);</span>
+<span class="fc" id="L100">        m.put(&quot;baz&quot;, 300);</span>
+<span class="fc" id="L101">        attemptPutOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L103">                map.putAll(m);</span>
+<span class="nc" id="L104">            }</span>
+        });
+
+        // equals, hashcode
+<span class="fc" id="L108">        final IterableMap&lt;String, Integer&gt; other = SplitMapUtils.readableMap(transformedMap);</span>
+<span class="fc" id="L109">        assertEquals(other, map);</span>
+<span class="fc" id="L110">        assertEquals(other.hashCode(), map.hashCode());</span>
+
+        // remove
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L114">            assertEquals(i, map.remove(String.valueOf(i)).intValue());</span>
+<span class="fc" id="L115">            assertEquals(--sz, map.size());</span>
+        }
+<span class="fc" id="L117">        assertTrue(map.isEmpty());</span>
+<span class="fc" id="L118">        assertSame(map, SplitMapUtils.readableMap(map));</span>
+<span class="fc" id="L119">    }</span>
+
+    public void testAlreadyReadableMap() {
+<span class="fc" id="L122">        final HashedMap&lt;String, Integer&gt; hashedMap = new HashedMap&lt;String, Integer&gt;();</span>
+<span class="fc" id="L123">        assertSame(hashedMap, SplitMapUtils.readableMap(hashedMap));</span>
+<span class="fc" id="L124">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testWritableMap() {
+<span class="fc" id="L128">        final Map&lt;String, String&gt; map = SplitMapUtils.writableMap(transformedMap);</span>
+<span class="fc" id="L129">        attemptGetOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L131">                map.get(null);</span>
+<span class="nc" id="L132">            }</span>
+        });
+<span class="fc" id="L134">        attemptGetOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L136">                map.entrySet();</span>
+<span class="nc" id="L137">            }</span>
+        });
+<span class="fc" id="L139">        attemptGetOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L141">                map.keySet();</span>
+<span class="nc" id="L142">            }</span>
+        });
+<span class="fc" id="L144">        attemptGetOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L146">                map.values();</span>
+<span class="nc" id="L147">            }</span>
+        });
+<span class="fc" id="L149">        attemptGetOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L151">                map.size();</span>
+<span class="nc" id="L152">            }</span>
+        });
+<span class="fc" id="L154">        attemptGetOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L156">                map.isEmpty();</span>
+<span class="nc" id="L157">            }</span>
+        });
+<span class="fc" id="L159">        attemptGetOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L161">                map.containsKey(null);</span>
+<span class="nc" id="L162">            }</span>
+        });
+<span class="fc" id="L164">        attemptGetOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L166">                map.containsValue(null);</span>
+<span class="nc" id="L167">            }</span>
+        });
+<span class="fc" id="L169">        attemptGetOperation(new Runnable() {</span>
+            public void run() {
+<span class="nc" id="L171">                map.remove(null);</span>
+<span class="nc" id="L172">            }</span>
+        });
+
+        // equals, hashcode
+<span class="fc" id="L176">        final Map&lt;String, String&gt; other = SplitMapUtils.writableMap(transformedMap);</span>
+<span class="fc" id="L177">        assertEquals(other, map);</span>
+<span class="fc" id="L178">        assertEquals(other.hashCode(), map.hashCode());</span>
+
+        // put
+<span class="fc" id="L181">        int sz = backingMap.size();</span>
+<span class="fc" id="L182">        assertFalse(backingMap.containsKey(&quot;foo&quot;));</span>
+<span class="fc" id="L183">        map.put(&quot;new&quot;, &quot;66&quot;);</span>
+<span class="fc" id="L184">        assertEquals(++sz, backingMap.size());</span>
+
+        // putall
+<span class="fc" id="L187">        final Map&lt;String, String&gt; more = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L188">        more.put(&quot;foo&quot;, &quot;77&quot;);</span>
+<span class="fc" id="L189">        more.put(&quot;bar&quot;, &quot;88&quot;);</span>
+<span class="fc" id="L190">        more.put(&quot;baz&quot;, &quot;99&quot;);</span>
+<span class="fc" id="L191">        map.putAll(more);</span>
+<span class="fc" id="L192">        assertEquals(sz + more.size(), backingMap.size());</span>
+
+        // clear
+<span class="fc" id="L195">        map.clear();</span>
+<span class="fc" id="L196">        assertTrue(backingMap.isEmpty());</span>
+<span class="fc" id="L197">        assertSame(map, SplitMapUtils.writableMap((Put&lt;String, String&gt;) map));</span>
+<span class="fc" id="L198">    }</span>
+
+    public void testAlreadyWritableMap() {
+<span class="fc" id="L201">        final HashedMap&lt;String, String&gt; hashedMap = new HashedMap&lt;String, String&gt;();</span>
+<span class="fc" id="L202">        assertSame(hashedMap, SplitMapUtils.writableMap(hashedMap));</span>
+<span class="fc" id="L203">    }</span>
+
+    private void attemptGetOperation(final Runnable r) {
+<span class="fc" id="L206">        attemptMapOperation(&quot;Put exposed as writable Map must not allow Get operations&quot;, r);</span>
+<span class="fc" id="L207">    }</span>
+
+    private void attemptPutOperation(final Runnable r) {
+<span class="fc" id="L210">        attemptMapOperation(&quot;Get exposed as writable Map must not allow Put operations&quot;, r);</span>
+<span class="fc" id="L211">    }</span>
+
+    private void attemptMapOperation(final String s, final Runnable r) {
+        try {
+<span class="nc" id="L215">            r.run();</span>
+<span class="nc" id="L216">            fail(s);</span>
+<span class="pc" id="L217">        } catch (final UnsupportedOperationException e) {</span>
+        }
+<span class="fc" id="L219">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

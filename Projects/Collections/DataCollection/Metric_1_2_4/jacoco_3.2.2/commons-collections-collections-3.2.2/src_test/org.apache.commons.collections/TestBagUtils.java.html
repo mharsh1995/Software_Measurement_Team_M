@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestBagUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestBagUtils.java</span></div><h1>TestBagUtils.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.bag.HashBag;
+import org.apache.commons.collections.bag.PredicatedBag;
+import org.apache.commons.collections.bag.PredicatedSortedBag;
+import org.apache.commons.collections.bag.SynchronizedBag;
+import org.apache.commons.collections.bag.SynchronizedSortedBag;
+import org.apache.commons.collections.bag.TransformedBag;
+import org.apache.commons.collections.bag.TransformedSortedBag;
+import org.apache.commons.collections.bag.TreeBag;
+import org.apache.commons.collections.bag.UnmodifiableBag;
+import org.apache.commons.collections.bag.UnmodifiableSortedBag;
+
+/**
+ * Tests for BagUtils factory methods.
+ * 
+ * @version $Revision$ $Date$
+ *
+ * @author Phil Steitz
+ */
+public class TestBagUtils extends BulkTest {
+
+    public TestBagUtils(String name) {
+<span class="fc" id="L42">        super(name);</span>
+<span class="fc" id="L43">    }</span>
+
+
+    public static Test suite() {
+<span class="pc bfc" id="L47" title="All 2 branches covered.">        return BulkTest.makeSuite(TestBagUtils.class);</span>
+    }
+    
+    //----------------------------------------------------------------------
+
+<span class="fc" id="L52">    protected Class stringClass = this.getName().getClass();</span>
+<span class="fc" id="L53">    protected Predicate truePredicate = PredicateUtils.truePredicate();</span>
+<span class="fc" id="L54">    protected Transformer nopTransformer = TransformerUtils.nopTransformer();</span>
+    
+    //----------------------------------------------------------------------
+    
+    public void testSynchronizedBag() {
+<span class="fc" id="L59">        Bag bag = BagUtils.synchronizedBag(new HashBag());</span>
+<span class="fc" id="L60">        assertTrue(&quot;Returned object should be a SynchronizedBag.&quot;,</span>
+<span class="fc" id="L61">            bag instanceof SynchronizedBag);</span>
+        try {
+<span class="nc" id="L63">            bag = BagUtils.synchronizedBag(null);</span>
+<span class="nc" id="L64">            fail(&quot;Expecting IllegalArgumentException for null bag.&quot;);</span>
+<span class="pc" id="L65">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }  
+<span class="fc" id="L68">    }</span>
+    
+    public void testUnmodifiableBag() {
+<span class="fc" id="L71">        Bag bag = BagUtils.unmodifiableBag(new HashBag());</span>
+<span class="fc" id="L72">        assertTrue(&quot;Returned object should be an UnmodifiableBag.&quot;,</span>
+<span class="fc" id="L73">            bag instanceof UnmodifiableBag);</span>
+        try {
+<span class="nc" id="L75">            bag = BagUtils.unmodifiableBag(null);</span>
+<span class="nc" id="L76">            fail(&quot;Expecting IllegalArgumentException for null bag.&quot;);</span>
+<span class="pc" id="L77">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }  
+<span class="fc" id="L80">    }</span>
+    
+    public void testPredicatedBag() {
+<span class="fc" id="L83">        Bag bag = BagUtils.predicatedBag(new HashBag(), truePredicate);</span>
+<span class="fc" id="L84">        assertTrue(&quot;Returned object should be a PredicatedBag.&quot;,</span>
+<span class="fc" id="L85">            bag instanceof PredicatedBag);</span>
+        try {
+<span class="nc" id="L87">            bag = BagUtils.predicatedBag(null,truePredicate);</span>
+<span class="nc" id="L88">            fail(&quot;Expecting IllegalArgumentException for null bag.&quot;);</span>
+<span class="pc" id="L89">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        } 
+        try {
+<span class="nc" id="L93">            bag = BagUtils.predicatedBag(new HashBag(), null);</span>
+<span class="nc" id="L94">            fail(&quot;Expecting IllegalArgumentException for null predicate.&quot;);</span>
+<span class="pc" id="L95">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }  
+<span class="fc" id="L98">    }</span>
+    
+    public void testTypedBag() {
+<span class="fc" id="L101">        Bag bag = BagUtils.typedBag(new HashBag(), stringClass);      </span>
+<span class="fc" id="L102">        assertTrue(&quot;Returned object should be a TypedBag.&quot;,</span>
+<span class="fc" id="L103">            bag instanceof PredicatedBag);</span>
+        try {
+<span class="nc" id="L105">            bag = BagUtils.typedBag(null, stringClass);</span>
+<span class="nc" id="L106">            fail(&quot;Expecting IllegalArgumentException for null bag.&quot;);</span>
+<span class="pc" id="L107">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        } 
+        try {
+<span class="nc" id="L111">            bag = BagUtils.typedBag(new HashBag(), null);</span>
+<span class="nc" id="L112">            fail(&quot;Expecting IllegalArgumentException for null type.&quot;);</span>
+<span class="pc" id="L113">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }  
+<span class="fc" id="L116">    }</span>
+    
+     public void testTransformedBag() {
+<span class="fc" id="L119">        Bag bag = BagUtils.transformedBag(new HashBag(), nopTransformer);      </span>
+<span class="fc" id="L120">        assertTrue(&quot;Returned object should be an TransformedBag.&quot;,</span>
+<span class="fc" id="L121">            bag instanceof TransformedBag);</span>
+        try {
+<span class="nc" id="L123">            bag = BagUtils.transformedBag(null, nopTransformer);      </span>
+<span class="nc" id="L124">            fail(&quot;Expecting IllegalArgumentException for null bag.&quot;);</span>
+<span class="pc" id="L125">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        } 
+        try {
+<span class="nc" id="L129">            bag = BagUtils.transformedBag(new HashBag(), null);  </span>
+<span class="nc" id="L130">            fail(&quot;Expecting IllegalArgumentException for null transformer.&quot;);</span>
+<span class="pc" id="L131">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }  
+<span class="fc" id="L134">    }</span>
+     
+    public void testSynchronizedSortedBag() {
+<span class="fc" id="L137">        Bag bag = BagUtils.synchronizedSortedBag(new TreeBag());</span>
+<span class="fc" id="L138">        assertTrue(&quot;Returned object should be a SynchronizedSortedBag.&quot;,</span>
+<span class="fc" id="L139">            bag instanceof SynchronizedSortedBag);</span>
+        try {
+<span class="nc" id="L141">            bag = BagUtils.synchronizedSortedBag(null);</span>
+<span class="nc" id="L142">            fail(&quot;Expecting IllegalArgumentException for null bag.&quot;);</span>
+<span class="pc" id="L143">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }  
+<span class="fc" id="L146">    }</span>
+    
+    public void testUnmodifiableSortedBag() {
+<span class="fc" id="L149">        Bag bag = BagUtils.unmodifiableSortedBag(new TreeBag());</span>
+<span class="fc" id="L150">        assertTrue(&quot;Returned object should be an UnmodifiableSortedBag.&quot;,</span>
+<span class="fc" id="L151">            bag instanceof UnmodifiableSortedBag);</span>
+        try {
+<span class="nc" id="L153">            bag = BagUtils.unmodifiableSortedBag(null);</span>
+<span class="nc" id="L154">            fail(&quot;Expecting IllegalArgumentException for null bag.&quot;);</span>
+<span class="pc" id="L155">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }  
+<span class="fc" id="L158">    }</span>
+    
+    public void testPredicatedSortedBag() {
+<span class="fc" id="L161">        Bag bag = BagUtils.predicatedSortedBag(new TreeBag(), truePredicate);</span>
+<span class="fc" id="L162">        assertTrue(&quot;Returned object should be a PredicatedSortedBag.&quot;,</span>
+<span class="fc" id="L163">            bag instanceof PredicatedSortedBag);</span>
+        try {
+<span class="nc" id="L165">            bag = BagUtils.predicatedSortedBag(null, truePredicate);</span>
+<span class="nc" id="L166">            fail(&quot;Expecting IllegalArgumentException for null bag.&quot;);</span>
+<span class="pc" id="L167">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        } 
+        try {
+<span class="nc" id="L171">            bag = BagUtils.predicatedSortedBag(new TreeBag(), null);</span>
+<span class="nc" id="L172">            fail(&quot;Expecting IllegalArgumentException for null predicate.&quot;);</span>
+<span class="pc" id="L173">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }  
+<span class="fc" id="L176">    }</span>
+    
+    public void testTypedSortedBag() {
+<span class="fc" id="L179">        Bag bag = BagUtils.typedSortedBag(new TreeBag(), stringClass);      </span>
+<span class="fc" id="L180">        assertTrue(&quot;Returned object should be a TypedSortedBag.&quot;,</span>
+<span class="fc" id="L181">            bag instanceof PredicatedSortedBag);</span>
+        try {
+<span class="nc" id="L183">            bag = BagUtils.typedSortedBag(null, stringClass);</span>
+<span class="nc" id="L184">            fail(&quot;Expecting IllegalArgumentException for null bag.&quot;);</span>
+<span class="pc" id="L185">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        } 
+        try {
+<span class="nc" id="L189">            bag = BagUtils.typedSortedBag(new TreeBag(), null);</span>
+<span class="nc" id="L190">            fail(&quot;Expecting IllegalArgumentException for null type.&quot;);</span>
+<span class="pc" id="L191">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }  
+<span class="fc" id="L194">    }</span>
+    
+    public void testTransformedSortedBag() {
+<span class="fc" id="L197">        Bag bag = BagUtils.transformedSortedBag(new TreeBag(), nopTransformer);      </span>
+<span class="fc" id="L198">        assertTrue(&quot;Returned object should be an TransformedSortedBag&quot;,</span>
+<span class="fc" id="L199">            bag instanceof TransformedSortedBag);</span>
+        try {
+<span class="nc" id="L201">            bag = BagUtils.transformedSortedBag(null, nopTransformer);      </span>
+<span class="nc" id="L202">            fail(&quot;Expecting IllegalArgumentException for null bag.&quot;);</span>
+<span class="pc" id="L203">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        } 
+        try {
+<span class="nc" id="L207">            bag = BagUtils.transformedSortedBag(new TreeBag(), null);  </span>
+<span class="nc" id="L208">            fail(&quot;Expecting IllegalArgumentException for null transformer.&quot;);</span>
+<span class="pc" id="L209">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }  
+<span class="fc" id="L212">    }</span>
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

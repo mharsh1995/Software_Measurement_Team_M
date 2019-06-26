@@ -1,0 +1,809 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestMapUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestMapUtils.java</span></div><h1>TestMapUtils.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.ListResourceBundle;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeMap;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.keyvalue.DefaultKeyValue;
+import org.apache.commons.collections.keyvalue.DefaultMapEntry;
+import org.apache.commons.collections.map.LazyMap;
+import org.apache.commons.collections.map.PredicatedMap;
+import org.apache.commons.collections.map.TestPredicatedMap;
+
+/**
+ * Tests for MapUtils.
+ *
+ * @version $Revision$ $Date$
+ *
+ * @author Stephen Colebourne
+ * @author Arun Mammen Thomas
+ * @author Max Rydahl Andersen
+ * @author Janek Bogucki
+ * @author Neil O'Toole
+ */
+public class TestMapUtils extends BulkTest {
+
+    public TestMapUtils(String name) {
+<span class="fc" id="L52">        super(name);</span>
+<span class="fc" id="L53">    }</span>
+
+
+    public static Test suite() {
+<span class="pc bfc" id="L57" title="All 2 branches covered.">        return BulkTest.makeSuite(TestMapUtils.class);</span>
+    }
+
+    public Predicate getPredicate() {
+<span class="fc" id="L61">        return new Predicate() {</span>
+            public boolean evaluate(Object o) {
+<span class="nc" id="L63">                return o instanceof String;</span>
+            }
+        };
+    }
+
+    public void testPredicatedMap() {
+<span class="fc" id="L69">        Predicate p = getPredicate();</span>
+<span class="fc" id="L70">        Map map = MapUtils.predicatedMap(new HashMap(), p, p);</span>
+<span class="fc" id="L71">        assertTrue(&quot;returned object should be a PredicatedMap&quot;,</span>
+<span class="fc" id="L72">            map instanceof PredicatedMap);</span>
+        try {
+<span class="nc" id="L74">            map = MapUtils.predicatedMap(null, p, p);</span>
+<span class="nc" id="L75">            fail(&quot;Expecting IllegalArgumentException for null map.&quot;);</span>
+<span class="pc" id="L76">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+<span class="fc" id="L79">    }</span>
+
+    // Since a typed map is a predicated map, I copied the tests for predicated map
+    public void testTypedMapIllegalPut() {
+<span class="pc bpc" id="L83" title="1 of 4 branches missed.">        final Map map = MapUtils.typedMap(new HashMap(), String.class, String.class);</span>
+
+        try {
+<span class="nc" id="L86">            map.put(&quot;Hi&quot;, new Integer(3));</span>
+<span class="nc" id="L87">            fail(&quot;Illegal value should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L88">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L93">            map.put(new Integer(3), &quot;Hi&quot;);</span>
+<span class="nc" id="L94">            fail(&quot;Illegal key should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L95">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        assertTrue(!map.containsKey(new Integer(3)));</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        assertTrue(!map.containsValue(new Integer(3)));</span>
+
+<span class="fc" id="L102">        Map map2 = new HashMap();</span>
+<span class="fc" id="L103">        map2.put(&quot;A&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L104">        map2.put(&quot;B&quot;, &quot;b&quot;);</span>
+<span class="fc" id="L105">        map2.put(&quot;C&quot;, &quot;c&quot;);</span>
+<span class="fc" id="L106">        map2.put(&quot;c&quot;, new Integer(3));</span>
+
+        try {
+<span class="nc" id="L109">            map.putAll(map2);</span>
+<span class="nc" id="L110">            fail(&quot;Illegal value should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L111">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+
+<span class="fc" id="L115">        map.put(&quot;E&quot;, &quot;e&quot;);</span>
+<span class="fc" id="L116">        Iterator iterator = map.entrySet().iterator();</span>
+        try {
+<span class="fc" id="L118">            Map.Entry entry = (Map.Entry)iterator.next();</span>
+<span class="nc" id="L119">            entry.setValue(new Integer(3));</span>
+<span class="nc" id="L120">            fail(&quot;Illegal value should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L121">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+
+<span class="fc" id="L125">    }</span>
+
+    public BulkTest bulkTestTypedMap() {
+<span class="fc" id="L128">        return new TestPredicatedMap(&quot;&quot;) {</span>
+            public boolean isAllowNullKey() {
+<span class="fc" id="L130">                return false;</span>
+            }
+
+            public boolean isAllowNullValue() {
+<span class="fc" id="L134">                return false;</span>
+            }
+
+            public Map makeEmptyMap() {
+<span class="pc bpc" id="L138" title="2 of 4 branches missed.">                return MapUtils.typedMap(new HashMap(), String.class, String.class);</span>
+            }
+        };
+    }
+
+    public void testLazyMapFactory() {
+<span class="fc" id="L144">        Factory factory = FactoryUtils.constantFactory(new Integer(5));</span>
+<span class="fc" id="L145">        Map map = MapUtils.lazyMap(new HashMap(), factory);</span>
+<span class="fc" id="L146">        assertTrue(map instanceof LazyMap);</span>
+        try {
+<span class="nc" id="L148">            map = MapUtils.lazyMap(new HashMap(), (Factory) null);</span>
+<span class="nc" id="L149">            fail(&quot;Expecting IllegalArgumentException for null factory&quot;);</span>
+<span class="pc" id="L150">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L154">            map = MapUtils.lazyMap(null, factory);</span>
+<span class="nc" id="L155">            fail(&quot;Expecting IllegalArgumentException for null map&quot;);</span>
+<span class="pc" id="L156">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+<span class="fc" id="L159">        Transformer transformer = TransformerUtils.asTransformer(factory);</span>
+<span class="fc" id="L160">        map = MapUtils.lazyMap(new HashMap(), transformer);</span>
+<span class="fc" id="L161">        assertTrue(map instanceof LazyMap);</span>
+         try {
+<span class="nc" id="L163">            map = MapUtils.lazyMap(new HashMap(), (Transformer) null);</span>
+<span class="nc" id="L164">            fail(&quot;Expecting IllegalArgumentException for null transformer&quot;);</span>
+<span class="pc" id="L165">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L169">            map = MapUtils.lazyMap(null, transformer);</span>
+<span class="nc" id="L170">            fail(&quot;Expecting IllegalArgumentException for null map&quot;);</span>
+<span class="pc" id="L171">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+<span class="fc" id="L174">    }</span>
+
+    public void testLazyMapTransformer() {
+<span class="fc" id="L177">        Map map = MapUtils.lazyMap(new HashMap(), new Transformer() {</span>
+            public Object transform(Object mapKey) {
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">                if (mapKey instanceof String) {</span>
+<span class="fc" id="L180">                    return new Integer((String) mapKey);</span>
+                }
+<span class="nc" id="L182">                return null;</span>
+            }
+        });
+
+<span class="fc" id="L186">        assertEquals(0, map.size());</span>
+<span class="fc" id="L187">        Integer i1 = (Integer) map.get(&quot;5&quot;);</span>
+<span class="fc" id="L188">        assertEquals(new Integer(5), i1);</span>
+<span class="fc" id="L189">        assertEquals(1, map.size());</span>
+<span class="fc" id="L190">        Integer i2 = (Integer) map.get(new String(new char[] {'5'}));</span>
+<span class="fc" id="L191">        assertEquals(new Integer(5), i2);</span>
+<span class="fc" id="L192">        assertEquals(1, map.size());</span>
+<span class="fc" id="L193">        assertSame(i1, i2);</span>
+<span class="fc" id="L194">    }</span>
+
+    public void testInvertMap() {
+<span class="fc" id="L197">        final Map in = new HashMap( 5 , 1 );</span>
+<span class="fc" id="L198">        in.put( &quot;1&quot; , &quot;A&quot; );</span>
+<span class="fc" id="L199">        in.put( &quot;2&quot; , &quot;B&quot; );</span>
+<span class="fc" id="L200">        in.put( &quot;3&quot; , &quot;C&quot; );</span>
+<span class="fc" id="L201">        in.put( &quot;4&quot; , &quot;D&quot; );</span>
+<span class="fc" id="L202">        in.put( &quot;5&quot; , &quot;E&quot; );</span>
+
+<span class="fc" id="L204">        final Set inKeySet = new HashSet( in.keySet() );</span>
+<span class="fc" id="L205">        final Set inValSet = new HashSet( in.values() );</span>
+
+<span class="fc" id="L207">        final Map out =  MapUtils.invertMap(in);</span>
+
+<span class="fc" id="L209">        final Set outKeySet = new HashSet( out.keySet() );</span>
+<span class="fc" id="L210">        final Set outValSet = new HashSet( out.values() );</span>
+
+<span class="fc" id="L212">        assertTrue( inKeySet.equals( outValSet ));</span>
+<span class="fc" id="L213">        assertTrue( inValSet.equals( outKeySet ));</span>
+
+<span class="fc" id="L215">        assertEquals( out.get(&quot;A&quot;), &quot;1&quot; );</span>
+<span class="fc" id="L216">        assertEquals( out.get(&quot;B&quot;), &quot;2&quot; );</span>
+<span class="fc" id="L217">        assertEquals( out.get(&quot;C&quot;), &quot;3&quot; );</span>
+<span class="fc" id="L218">        assertEquals( out.get(&quot;D&quot;), &quot;4&quot; );</span>
+<span class="fc" id="L219">        assertEquals( out.get(&quot;E&quot;), &quot;5&quot; );</span>
+<span class="fc" id="L220">    }</span>
+
+    public void testPutAll_Map_array() {
+        try {
+<span class="nc" id="L224">            MapUtils.putAll(null, null);</span>
+<span class="nc" id="L225">            fail();</span>
+<span class="pc" id="L226">        } catch (NullPointerException ex) {}</span>
+        try {
+<span class="nc" id="L228">            MapUtils.putAll(null, new Object[0]);</span>
+<span class="nc" id="L229">            fail();</span>
+<span class="pc" id="L230">        } catch (NullPointerException ex) {}</span>
+
+<span class="fc" id="L232">        Map test = MapUtils.putAll(new HashMap(), new String[0]);</span>
+<span class="fc" id="L233">        assertEquals(0, test.size());</span>
+
+        // sub array
+<span class="fc" id="L236">        test = MapUtils.putAll(new HashMap(), new String[][] {</span>
+<span class="fc" id="L237">            {&quot;RED&quot;, &quot;#FF0000&quot;},</span>
+<span class="fc" id="L238">            {&quot;GREEN&quot;, &quot;#00FF00&quot;},</span>
+<span class="fc" id="L239">            {&quot;BLUE&quot;, &quot;#0000FF&quot;}</span>
+        });
+<span class="fc" id="L241">        assertEquals(true, test.containsKey(&quot;RED&quot;));</span>
+<span class="fc" id="L242">        assertEquals(&quot;#FF0000&quot;, test.get(&quot;RED&quot;));</span>
+<span class="fc" id="L243">        assertEquals(true, test.containsKey(&quot;GREEN&quot;));</span>
+<span class="fc" id="L244">        assertEquals(&quot;#00FF00&quot;, test.get(&quot;GREEN&quot;));</span>
+<span class="fc" id="L245">        assertEquals(true, test.containsKey(&quot;BLUE&quot;));</span>
+<span class="fc" id="L246">        assertEquals(&quot;#0000FF&quot;, test.get(&quot;BLUE&quot;));</span>
+<span class="fc" id="L247">        assertEquals(3, test.size());</span>
+
+        try {
+<span class="pc" id="L250">            MapUtils.putAll(new HashMap(), new String[][] {</span>
+<span class="fc" id="L251">                {&quot;RED&quot;, &quot;#FF0000&quot;},</span>
+                null,
+<span class="fc" id="L253">                {&quot;BLUE&quot;, &quot;#0000FF&quot;}</span>
+            });
+<span class="nc" id="L255">            fail();</span>
+<span class="pc" id="L256">        } catch (IllegalArgumentException ex) {}</span>
+
+        try {
+<span class="pc" id="L259">            MapUtils.putAll(new HashMap(), new String[][] {</span>
+<span class="fc" id="L260">                {&quot;RED&quot;, &quot;#FF0000&quot;},</span>
+<span class="fc" id="L261">                {&quot;GREEN&quot;},</span>
+<span class="fc" id="L262">                {&quot;BLUE&quot;, &quot;#0000FF&quot;}</span>
+            });
+<span class="nc" id="L264">            fail();</span>
+<span class="pc" id="L265">        } catch (IllegalArgumentException ex) {}</span>
+
+        try {
+<span class="pc" id="L268">            MapUtils.putAll(new HashMap(), new String[][] {</span>
+<span class="fc" id="L269">                {&quot;RED&quot;, &quot;#FF0000&quot;},</span>
+<span class="fc" id="L270">                {},</span>
+<span class="fc" id="L271">                {&quot;BLUE&quot;, &quot;#0000FF&quot;}</span>
+            });
+<span class="nc" id="L273">            fail();</span>
+<span class="pc" id="L274">        } catch (IllegalArgumentException ex) {}</span>
+
+        // flat array
+<span class="fc" id="L277">        test = MapUtils.putAll(new HashMap(), new String[] {</span>
+<span class="fc" id="L278">            &quot;RED&quot;, &quot;#FF0000&quot;,</span>
+<span class="fc" id="L279">            &quot;GREEN&quot;, &quot;#00FF00&quot;,</span>
+<span class="fc" id="L280">            &quot;BLUE&quot;, &quot;#0000FF&quot;</span>
+        });
+<span class="fc" id="L282">        assertEquals(true, test.containsKey(&quot;RED&quot;));</span>
+<span class="fc" id="L283">        assertEquals(&quot;#FF0000&quot;, test.get(&quot;RED&quot;));</span>
+<span class="fc" id="L284">        assertEquals(true, test.containsKey(&quot;GREEN&quot;));</span>
+<span class="fc" id="L285">        assertEquals(&quot;#00FF00&quot;, test.get(&quot;GREEN&quot;));</span>
+<span class="fc" id="L286">        assertEquals(true, test.containsKey(&quot;BLUE&quot;));</span>
+<span class="fc" id="L287">        assertEquals(&quot;#0000FF&quot;, test.get(&quot;BLUE&quot;));</span>
+<span class="fc" id="L288">        assertEquals(3, test.size());</span>
+
+<span class="fc" id="L290">        test = MapUtils.putAll(new HashMap(), new String[] {</span>
+<span class="fc" id="L291">            &quot;RED&quot;, &quot;#FF0000&quot;,</span>
+<span class="fc" id="L292">            &quot;GREEN&quot;, &quot;#00FF00&quot;,</span>
+<span class="fc" id="L293">            &quot;BLUE&quot;, &quot;#0000FF&quot;,</span>
+<span class="fc" id="L294">            &quot;PURPLE&quot; // ignored</span>
+        });
+<span class="fc" id="L296">        assertEquals(true, test.containsKey(&quot;RED&quot;));</span>
+<span class="fc" id="L297">        assertEquals(&quot;#FF0000&quot;, test.get(&quot;RED&quot;));</span>
+<span class="fc" id="L298">        assertEquals(true, test.containsKey(&quot;GREEN&quot;));</span>
+<span class="fc" id="L299">        assertEquals(&quot;#00FF00&quot;, test.get(&quot;GREEN&quot;));</span>
+<span class="fc" id="L300">        assertEquals(true, test.containsKey(&quot;BLUE&quot;));</span>
+<span class="fc" id="L301">        assertEquals(&quot;#0000FF&quot;, test.get(&quot;BLUE&quot;));</span>
+<span class="fc" id="L302">        assertEquals(3, test.size());</span>
+
+        // map entry
+<span class="fc" id="L305">        test = MapUtils.putAll(new HashMap(), new Object[] {</span>
+<span class="fc" id="L306">            new DefaultMapEntry(&quot;RED&quot;, &quot;#FF0000&quot;),</span>
+<span class="fc" id="L307">            new DefaultMapEntry(&quot;GREEN&quot;, &quot;#00FF00&quot;),</span>
+<span class="fc" id="L308">            new DefaultMapEntry(&quot;BLUE&quot;, &quot;#0000FF&quot;)</span>
+        });
+<span class="fc" id="L310">        assertEquals(true, test.containsKey(&quot;RED&quot;));</span>
+<span class="fc" id="L311">        assertEquals(&quot;#FF0000&quot;, test.get(&quot;RED&quot;));</span>
+<span class="fc" id="L312">        assertEquals(true, test.containsKey(&quot;GREEN&quot;));</span>
+<span class="fc" id="L313">        assertEquals(&quot;#00FF00&quot;, test.get(&quot;GREEN&quot;));</span>
+<span class="fc" id="L314">        assertEquals(true, test.containsKey(&quot;BLUE&quot;));</span>
+<span class="fc" id="L315">        assertEquals(&quot;#0000FF&quot;, test.get(&quot;BLUE&quot;));</span>
+<span class="fc" id="L316">        assertEquals(3, test.size());</span>
+
+        // key value
+<span class="fc" id="L319">        test = MapUtils.putAll(new HashMap(), new Object[] {</span>
+<span class="fc" id="L320">            new DefaultKeyValue(&quot;RED&quot;, &quot;#FF0000&quot;),</span>
+<span class="fc" id="L321">            new DefaultKeyValue(&quot;GREEN&quot;, &quot;#00FF00&quot;),</span>
+<span class="fc" id="L322">            new DefaultKeyValue(&quot;BLUE&quot;, &quot;#0000FF&quot;)</span>
+        });
+<span class="fc" id="L324">        assertEquals(true, test.containsKey(&quot;RED&quot;));</span>
+<span class="fc" id="L325">        assertEquals(&quot;#FF0000&quot;, test.get(&quot;RED&quot;));</span>
+<span class="fc" id="L326">        assertEquals(true, test.containsKey(&quot;GREEN&quot;));</span>
+<span class="fc" id="L327">        assertEquals(&quot;#00FF00&quot;, test.get(&quot;GREEN&quot;));</span>
+<span class="fc" id="L328">        assertEquals(true, test.containsKey(&quot;BLUE&quot;));</span>
+<span class="fc" id="L329">        assertEquals(&quot;#0000FF&quot;, test.get(&quot;BLUE&quot;));</span>
+<span class="fc" id="L330">        assertEquals(3, test.size());</span>
+<span class="fc" id="L331">    }</span>
+
+    public void testConvertResourceBundle() {
+<span class="fc" id="L334">        final Map in = new HashMap( 5 , 1 );</span>
+<span class="fc" id="L335">        in.put( &quot;1&quot; , &quot;A&quot; );</span>
+<span class="fc" id="L336">        in.put( &quot;2&quot; , &quot;B&quot; );</span>
+<span class="fc" id="L337">        in.put( &quot;3&quot; , &quot;C&quot; );</span>
+<span class="fc" id="L338">        in.put( &quot;4&quot; , &quot;D&quot; );</span>
+<span class="fc" id="L339">        in.put( &quot;5&quot; , &quot;E&quot; );</span>
+
+<span class="fc" id="L341">        ResourceBundle b = new ListResourceBundle() {</span>
+            public Object[][] getContents() {
+<span class="fc" id="L343">                final Object[][] contents = new Object[ in.size() ][2];</span>
+<span class="fc" id="L344">                final Iterator i = in.keySet().iterator();</span>
+<span class="fc" id="L345">                int n = 0;</span>
+<span class="fc bfc" id="L346" title="All 2 branches covered.">                while ( i.hasNext() ) {</span>
+<span class="fc" id="L347">                    final Object key = i.next();</span>
+<span class="fc" id="L348">                    final Object val = in.get( key );</span>
+<span class="fc" id="L349">                    contents[ n ][ 0 ] = key;</span>
+<span class="fc" id="L350">                    contents[ n ][ 1 ] = val;</span>
+<span class="fc" id="L351">                    ++n;</span>
+                }
+<span class="fc" id="L353">                return contents;</span>
+            }
+        };
+
+<span class="fc" id="L357">        final Map out = MapUtils.toMap(b);</span>
+
+<span class="fc" id="L359">        assertTrue( in.equals(out));</span>
+<span class="fc" id="L360">    }</span>
+
+    public void testDebugAndVerbosePrintCasting() {
+<span class="fc" id="L363">        final Map inner = new HashMap(2, 1);</span>
+<span class="fc" id="L364">        inner.put( new Integer(2) , &quot;B&quot; );</span>
+<span class="fc" id="L365">        inner.put( new Integer(3) , &quot;C&quot; );</span>
+
+<span class="fc" id="L367">        final Map outer = new HashMap(2, 1);</span>
+<span class="fc" id="L368">        outer.put( new Integer(0) , inner );</span>
+<span class="fc" id="L369">        outer.put( new Integer(1) , &quot;A&quot;);</span>
+
+
+<span class="fc" id="L372">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L373">        final PrintStream outPrint = new PrintStream(out);</span>
+
+        try {
+<span class="fc" id="L376">            MapUtils.debugPrint(outPrint, &quot;Print Map&quot;, outer);</span>
+<span class="pc" id="L377">        } catch (final ClassCastException e) {</span>
+<span class="nc" id="L378">            fail(&quot;No Casting should be occurring!&quot;);</span>
+        }
+<span class="fc" id="L380">    }</span>
+
+    public void testDebugAndVerbosePrintNullMap() {
+<span class="fc" id="L383">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L384">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L386">        final String LABEL = &quot;Print Map&quot;;</span>
+<span class="fc" id="L387">        outPrint.println(LABEL + &quot; = &quot; + String.valueOf((Object) null));</span>
+<span class="fc" id="L388">        final String EXPECTED_OUT = out.toString();</span>
+
+<span class="fc" id="L390">        out.reset();</span>
+
+<span class="fc" id="L392">        MapUtils.debugPrint(outPrint, LABEL, null);</span>
+<span class="fc" id="L393">        assertEquals(EXPECTED_OUT, out.toString());</span>
+
+<span class="fc" id="L395">        out.reset();</span>
+
+<span class="fc" id="L397">        MapUtils.verbosePrint(outPrint, LABEL, null);</span>
+<span class="fc" id="L398">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L399">    }</span>
+
+    public void testVerbosePrintNullLabel() {
+<span class="fc" id="L402">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L403">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L405">        final String INDENT = &quot;    &quot;;</span>
+
+<span class="fc" id="L407">        final Map map = new TreeMap();  // treeMap guarantees order across JDKs for test</span>
+<span class="fc" id="L408">        map.put( new Integer(2) , &quot;B&quot; );</span>
+<span class="fc" id="L409">        map.put( new Integer(3) , &quot;C&quot; );</span>
+<span class="fc" id="L410">        map.put( new Integer(4) , null );</span>
+
+<span class="fc" id="L412">        outPrint.println(&quot;{&quot;);</span>
+<span class="fc" id="L413">        outPrint.println(INDENT + &quot;2 = B&quot;);</span>
+<span class="fc" id="L414">        outPrint.println(INDENT + &quot;3 = C&quot;);</span>
+<span class="fc" id="L415">        outPrint.println(INDENT + &quot;4 = null&quot;);</span>
+<span class="fc" id="L416">        outPrint.println(&quot;}&quot;);</span>
+<span class="fc" id="L417">        final String EXPECTED_OUT = out.toString();</span>
+<span class="fc" id="L418">        out.reset();</span>
+
+<span class="fc" id="L420">        MapUtils.verbosePrint(outPrint, null, map);</span>
+<span class="fc" id="L421">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L422">    }</span>
+
+    public void testDebugPrintNullLabel() {
+<span class="fc" id="L425">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L426">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L428">        final String INDENT = &quot;    &quot;;</span>
+
+<span class="fc" id="L430">        final Map map = new TreeMap();  // treeMap guarantees order across JDKs for test</span>
+<span class="fc" id="L431">        map.put( new Integer(2) , &quot;B&quot; );</span>
+<span class="fc" id="L432">        map.put( new Integer(3) , &quot;C&quot; );</span>
+<span class="fc" id="L433">        map.put( new Integer(4) , null );</span>
+
+<span class="fc" id="L435">        outPrint.println(&quot;{&quot;);</span>
+<span class="pc bpc" id="L436" title="1 of 2 branches missed.">        outPrint.println(INDENT + &quot;2 = B &quot; + String.class.getName());</span>
+<span class="pc bpc" id="L437" title="1 of 2 branches missed.">        outPrint.println(INDENT + &quot;3 = C &quot; + String.class.getName());</span>
+<span class="fc" id="L438">        outPrint.println(INDENT + &quot;4 = null&quot;);</span>
+<span class="pc bfc" id="L439" title="All 2 branches covered.">        outPrint.println(&quot;} &quot; + TreeMap.class.getName());</span>
+<span class="fc" id="L440">        final String EXPECTED_OUT = out.toString();</span>
+<span class="fc" id="L441">        out.reset();</span>
+
+<span class="fc" id="L443">        MapUtils.debugPrint(outPrint, null, map);</span>
+<span class="fc" id="L444">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L445">    }</span>
+
+    public void testVerbosePrintNullLabelAndMap() {
+<span class="fc" id="L448">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L449">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L451">        outPrint.println(&quot;null&quot;);</span>
+<span class="fc" id="L452">        final String EXPECTED_OUT = out.toString();</span>
+<span class="fc" id="L453">        out.reset();</span>
+
+<span class="fc" id="L455">        MapUtils.verbosePrint(outPrint, null, null);</span>
+<span class="fc" id="L456">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L457">    }</span>
+
+    public void testDebugPrintNullLabelAndMap() {
+<span class="fc" id="L460">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L461">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L463">        outPrint.println(&quot;null&quot;);</span>
+<span class="fc" id="L464">        final String EXPECTED_OUT = out.toString();</span>
+<span class="fc" id="L465">        out.reset();</span>
+
+<span class="fc" id="L467">        MapUtils.debugPrint(outPrint, null, null);</span>
+<span class="fc" id="L468">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L469">    }</span>
+
+    public void testVerbosePrintNullStream() {
+        try {
+<span class="nc" id="L473">            MapUtils.verbosePrint(null, &quot;Map&quot;, new HashMap());</span>
+<span class="nc" id="L474">            fail(&quot;Should generate NullPointerException&quot;);</span>
+<span class="pc" id="L475">        } catch (NullPointerException expected) {</span>
+        }
+<span class="fc" id="L477">    }</span>
+
+    public void testDebugPrintNullStream() {
+        try {
+<span class="nc" id="L481">            MapUtils.debugPrint(null, &quot;Map&quot;, new HashMap());</span>
+<span class="nc" id="L482">            fail(&quot;Should generate NullPointerException&quot;);</span>
+<span class="pc" id="L483">        } catch (NullPointerException expected) {</span>
+        }
+<span class="fc" id="L485">    }</span>
+
+    public void testDebugPrintNullKey() {
+<span class="fc" id="L488">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L489">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L491">        final String INDENT = &quot;    &quot;;</span>
+
+<span class="fc" id="L493">        final Map map = new HashMap();</span>
+<span class="fc" id="L494">        map.put( null , &quot;A&quot; );</span>
+
+<span class="fc" id="L496">        outPrint.println(&quot;{&quot;);</span>
+<span class="pc bpc" id="L497" title="1 of 2 branches missed.">        outPrint.println(INDENT + &quot;null = A &quot; + String.class.getName());</span>
+<span class="pc bfc" id="L498" title="All 2 branches covered.">        outPrint.println(&quot;} &quot; + HashMap.class.getName());</span>
+<span class="fc" id="L499">        final String EXPECTED_OUT = out.toString();</span>
+<span class="fc" id="L500">        out.reset();</span>
+
+<span class="fc" id="L502">        MapUtils.debugPrint(outPrint, null, map);</span>
+<span class="fc" id="L503">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L504">    }</span>
+
+    public void testVerbosePrintNullKey() {
+<span class="fc" id="L507">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L508">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L510">        final String INDENT = &quot;    &quot;;</span>
+
+<span class="fc" id="L512">        final Map map = new HashMap();</span>
+<span class="fc" id="L513">        map.put( null , &quot;A&quot; );</span>
+
+<span class="fc" id="L515">        outPrint.println(&quot;{&quot;);</span>
+<span class="fc" id="L516">        outPrint.println(INDENT + &quot;null = A&quot;);</span>
+<span class="fc" id="L517">        outPrint.println(&quot;}&quot;);</span>
+<span class="fc" id="L518">        final String EXPECTED_OUT = out.toString();</span>
+<span class="fc" id="L519">        out.reset();</span>
+
+<span class="fc" id="L521">        MapUtils.verbosePrint(outPrint, null, map);</span>
+<span class="fc" id="L522">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L523">    }</span>
+
+    public void testDebugPrintNullKeyToMap1() {
+<span class="fc" id="L526">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L527">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L529">        final String INDENT = &quot;    &quot;;</span>
+
+<span class="fc" id="L531">        final Map map = new HashMap();</span>
+<span class="fc" id="L532">        map.put( null , map );</span>
+
+<span class="fc" id="L534">        outPrint.println(&quot;{&quot;);</span>
+<span class="pc bpc" id="L535" title="1 of 2 branches missed.">        outPrint.println(INDENT + &quot;null = (this Map) &quot; + HashMap.class.getName());</span>
+<span class="pc bpc" id="L536" title="1 of 2 branches missed.">        outPrint.println(&quot;} &quot; + HashMap.class.getName());</span>
+<span class="fc" id="L537">        final String EXPECTED_OUT = out.toString();</span>
+<span class="fc" id="L538">        out.reset();</span>
+
+<span class="fc" id="L540">        MapUtils.debugPrint(outPrint, null, map);</span>
+<span class="fc" id="L541">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L542">    }</span>
+
+    public void testVerbosePrintNullKeyToMap1() {
+<span class="fc" id="L545">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L546">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L548">        final String INDENT = &quot;    &quot;;</span>
+
+<span class="fc" id="L550">        final Map map = new HashMap();</span>
+<span class="fc" id="L551">        map.put( null , map );</span>
+
+<span class="fc" id="L553">        outPrint.println(&quot;{&quot;);</span>
+<span class="fc" id="L554">        outPrint.println(INDENT + &quot;null = (this Map)&quot;);</span>
+<span class="fc" id="L555">        outPrint.println(&quot;}&quot;);</span>
+<span class="fc" id="L556">        final String EXPECTED_OUT = out.toString();</span>
+<span class="fc" id="L557">        out.reset();</span>
+
+<span class="fc" id="L559">        MapUtils.verbosePrint(outPrint, null, map);</span>
+<span class="fc" id="L560">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L561">    }</span>
+
+    public void testDebugPrintNullKeyToMap2() {
+<span class="fc" id="L564">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L565">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L567">        final String INDENT = &quot;    &quot;;</span>
+
+<span class="fc" id="L569">        final Map map = new HashMap();</span>
+<span class="fc" id="L570">        final Map map2= new HashMap();</span>
+<span class="fc" id="L571">        map.put( null , map2 );</span>
+<span class="fc" id="L572">        map2.put( &quot;2&quot;, &quot;B&quot; );</span>
+
+<span class="fc" id="L574">        outPrint.println(&quot;{&quot;);</span>
+<span class="fc" id="L575">        outPrint.println(INDENT + &quot;null = &quot;);</span>
+<span class="fc" id="L576">        outPrint.println(INDENT + &quot;{&quot;);</span>
+<span class="pc bpc" id="L577" title="1 of 2 branches missed.">        outPrint.println(INDENT + INDENT + &quot;2 = B &quot; + String.class.getName());</span>
+<span class="pc bpc" id="L578" title="1 of 2 branches missed.">        outPrint.println(INDENT + &quot;} &quot; + HashMap.class.getName());</span>
+<span class="pc bpc" id="L579" title="1 of 2 branches missed.">        outPrint.println(&quot;} &quot; + HashMap.class.getName());</span>
+<span class="fc" id="L580">        final String EXPECTED_OUT = out.toString();</span>
+<span class="fc" id="L581">        out.reset();</span>
+
+<span class="fc" id="L583">        MapUtils.debugPrint(outPrint, null, map);</span>
+<span class="fc" id="L584">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L585">    }</span>
+
+    public void testVerbosePrintNullKeyToMap2() {
+<span class="fc" id="L588">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L589">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L591">        final String INDENT = &quot;    &quot;;</span>
+
+<span class="fc" id="L593">        final Map map = new HashMap();</span>
+<span class="fc" id="L594">        final Map map2= new HashMap();</span>
+<span class="fc" id="L595">        map.put( null , map2 );</span>
+<span class="fc" id="L596">        map2.put( &quot;2&quot;, &quot;B&quot; );</span>
+
+<span class="fc" id="L598">        outPrint.println(&quot;{&quot;);</span>
+<span class="fc" id="L599">        outPrint.println(INDENT + &quot;null = &quot;);</span>
+<span class="fc" id="L600">        outPrint.println(INDENT + &quot;{&quot;);</span>
+<span class="fc" id="L601">        outPrint.println(INDENT + INDENT + &quot;2 = B&quot;);</span>
+<span class="fc" id="L602">        outPrint.println(INDENT + &quot;}&quot;);</span>
+<span class="fc" id="L603">        outPrint.println(&quot;}&quot;);</span>
+<span class="fc" id="L604">        final String EXPECTED_OUT = out.toString();</span>
+<span class="fc" id="L605">        out.reset();</span>
+
+<span class="fc" id="L607">        MapUtils.verbosePrint(outPrint, null, map);</span>
+<span class="fc" id="L608">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L609">    }</span>
+
+    public void testVerbosePrint() {
+<span class="fc" id="L612">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L613">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L615">        final String LABEL = &quot;Print Map&quot;;</span>
+<span class="fc" id="L616">        final String INDENT = &quot;    &quot;;</span>
+
+<span class="fc" id="L618">        outPrint.println(LABEL + &quot; = &quot;);</span>
+<span class="fc" id="L619">        outPrint.println(&quot;{&quot;);</span>
+<span class="fc" id="L620">        outPrint.println(INDENT + &quot;0 = A&quot;);</span>
+<span class="fc" id="L621">        outPrint.println(INDENT + &quot;1 = &quot;);</span>
+<span class="fc" id="L622">        outPrint.println(INDENT + &quot;{&quot;);</span>
+<span class="fc" id="L623">        outPrint.println(INDENT + INDENT + &quot;2 = B&quot;);</span>
+<span class="fc" id="L624">        outPrint.println(INDENT + INDENT + &quot;3 = C&quot;);</span>
+<span class="fc" id="L625">        outPrint.println(INDENT + &quot;}&quot;);</span>
+<span class="fc" id="L626">        outPrint.println(INDENT + &quot;7 = (this Map)&quot;);</span>
+<span class="fc" id="L627">        outPrint.println(&quot;}&quot;);</span>
+
+<span class="fc" id="L629">        final String EXPECTED_OUT = out.toString();</span>
+
+<span class="fc" id="L631">        out.reset();</span>
+
+<span class="fc" id="L633">        final Map inner = new TreeMap();  // treeMap guarantees order across JDKs for test</span>
+<span class="fc" id="L634">        inner.put( new Integer(2) , &quot;B&quot; );</span>
+<span class="fc" id="L635">        inner.put( new Integer(3) , &quot;C&quot; );</span>
+
+<span class="fc" id="L637">        final Map outer = new TreeMap();</span>
+<span class="fc" id="L638">        outer.put( new Integer(1) , inner );</span>
+<span class="fc" id="L639">        outer.put( new Integer(0) , &quot;A&quot;);</span>
+<span class="fc" id="L640">        outer.put( new Integer(7) , outer);</span>
+
+<span class="fc" id="L642">        MapUtils.verbosePrint(outPrint, &quot;Print Map&quot;, outer);</span>
+<span class="fc" id="L643">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L644">    }</span>
+
+    public void testDebugPrint() {
+<span class="fc" id="L647">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L648">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L650">        final String LABEL = &quot;Print Map&quot;;</span>
+<span class="fc" id="L651">        final String INDENT = &quot;    &quot;;</span>
+
+<span class="fc" id="L653">        outPrint.println(LABEL + &quot; = &quot;);</span>
+<span class="fc" id="L654">        outPrint.println(&quot;{&quot;);</span>
+<span class="pc bpc" id="L655" title="1 of 2 branches missed.">        outPrint.println(INDENT + &quot;0 = A &quot; + String.class.getName());</span>
+<span class="fc" id="L656">        outPrint.println(INDENT + &quot;1 = &quot;);</span>
+<span class="fc" id="L657">        outPrint.println(INDENT + &quot;{&quot;);</span>
+<span class="pc bpc" id="L658" title="1 of 2 branches missed.">        outPrint.println(INDENT + INDENT + &quot;2 = B &quot; + String.class.getName());</span>
+<span class="pc bpc" id="L659" title="1 of 2 branches missed.">        outPrint.println(INDENT + INDENT + &quot;3 = C &quot; + String.class.getName());</span>
+<span class="pc bpc" id="L660" title="1 of 2 branches missed.">        outPrint.println(INDENT + &quot;} &quot; + TreeMap.class.getName());</span>
+<span class="pc bpc" id="L661" title="1 of 2 branches missed.">        outPrint.println(INDENT + &quot;7 = (this Map) &quot; + TreeMap.class.getName());</span>
+<span class="pc bpc" id="L662" title="1 of 2 branches missed.">        outPrint.println(&quot;} &quot; + TreeMap.class.getName());</span>
+
+<span class="fc" id="L664">        final String EXPECTED_OUT = out.toString();</span>
+
+<span class="fc" id="L666">        out.reset();</span>
+
+<span class="fc" id="L668">        final Map inner = new TreeMap();  // treeMap guarantees order across JDKs for test</span>
+<span class="fc" id="L669">        inner.put( new Integer(2) , &quot;B&quot; );</span>
+<span class="fc" id="L670">        inner.put( new Integer(3) , &quot;C&quot; );</span>
+
+<span class="fc" id="L672">        final Map outer = new TreeMap();</span>
+<span class="fc" id="L673">        outer.put( new Integer(1) , inner );</span>
+<span class="fc" id="L674">        outer.put( new Integer(0) , &quot;A&quot;);</span>
+<span class="fc" id="L675">        outer.put( new Integer(7) , outer);</span>
+
+<span class="fc" id="L677">        MapUtils.debugPrint(outPrint, &quot;Print Map&quot;, outer);</span>
+<span class="fc" id="L678">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L679">    }</span>
+
+    public void testVerbosePrintSelfReference() {
+<span class="fc" id="L682">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L683">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L685">        final String LABEL = &quot;Print Map&quot;;</span>
+<span class="fc" id="L686">        final String INDENT = &quot;    &quot;;</span>
+
+
+<span class="fc" id="L689">        final Map grandfather = new TreeMap();// treeMap guarantees order across JDKs for test</span>
+<span class="fc" id="L690">        final Map father = new TreeMap();</span>
+<span class="fc" id="L691">        final Map son    = new TreeMap();</span>
+
+<span class="fc" id="L693">        grandfather.put( new Integer(0), &quot;A&quot; );</span>
+<span class="fc" id="L694">        grandfather.put( new Integer(1), father );</span>
+
+<span class="fc" id="L696">        father.put( new Integer(2), &quot;B&quot; );</span>
+<span class="fc" id="L697">        father.put( new Integer(3), grandfather);</span>
+<span class="fc" id="L698">        father.put( new Integer(4), son);</span>
+
+<span class="fc" id="L700">        son.put( new Integer(5), &quot;C&quot;);</span>
+<span class="fc" id="L701">        son.put( new Integer(6), grandfather);</span>
+<span class="fc" id="L702">        son.put( new Integer(7), father);</span>
+
+<span class="fc" id="L704">        outPrint.println(LABEL + &quot; = &quot;);</span>
+<span class="fc" id="L705">        outPrint.println(&quot;{&quot;);</span>
+<span class="fc" id="L706">        outPrint.println(INDENT + &quot;0 = A&quot;);</span>
+<span class="fc" id="L707">        outPrint.println(INDENT + &quot;1 = &quot;);</span>
+<span class="fc" id="L708">        outPrint.println(INDENT + &quot;{&quot;);</span>
+<span class="fc" id="L709">        outPrint.println(INDENT + INDENT + &quot;2 = B&quot;);</span>
+<span class="fc" id="L710">        outPrint.println(INDENT + INDENT + &quot;3 = (ancestor[0] Map)&quot;);</span>
+<span class="fc" id="L711">        outPrint.println(INDENT + INDENT + &quot;4 = &quot;);</span>
+<span class="fc" id="L712">        outPrint.println(INDENT + INDENT + &quot;{&quot;);</span>
+<span class="fc" id="L713">        outPrint.println(INDENT + INDENT + INDENT + &quot;5 = C&quot;);</span>
+<span class="fc" id="L714">        outPrint.println(INDENT + INDENT + INDENT + &quot;6 = (ancestor[1] Map)&quot;);</span>
+<span class="fc" id="L715">        outPrint.println(INDENT + INDENT + INDENT + &quot;7 = (ancestor[0] Map)&quot;);</span>
+<span class="fc" id="L716">        outPrint.println(INDENT + INDENT + &quot;}&quot;);</span>
+<span class="fc" id="L717">        outPrint.println(INDENT + &quot;}&quot;);</span>
+<span class="fc" id="L718">        outPrint.println(&quot;}&quot;);</span>
+
+<span class="fc" id="L720">        final String EXPECTED_OUT = out.toString();</span>
+
+<span class="fc" id="L722">        out.reset();</span>
+<span class="fc" id="L723">        MapUtils.verbosePrint(outPrint, &quot;Print Map&quot;, grandfather);</span>
+
+<span class="fc" id="L725">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L726">    }</span>
+
+    public void testDebugPrintSelfReference() {
+<span class="fc" id="L729">        final ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L730">        final PrintStream outPrint = new PrintStream(out);</span>
+
+<span class="fc" id="L732">        final String LABEL = &quot;Print Map&quot;;</span>
+<span class="fc" id="L733">        final String INDENT = &quot;    &quot;;</span>
+
+
+<span class="fc" id="L736">        final Map grandfather = new TreeMap();// treeMap guarantees order across JDKs for test</span>
+<span class="fc" id="L737">        final Map father = new TreeMap();</span>
+<span class="fc" id="L738">        final Map son    = new TreeMap();</span>
+
+<span class="fc" id="L740">        grandfather.put( new Integer(0), &quot;A&quot; );</span>
+<span class="fc" id="L741">        grandfather.put( new Integer(1), father );</span>
+
+<span class="fc" id="L743">        father.put( new Integer(2), &quot;B&quot; );</span>
+<span class="fc" id="L744">        father.put( new Integer(3), grandfather);</span>
+<span class="fc" id="L745">        father.put( new Integer(4), son);</span>
+
+<span class="fc" id="L747">        son.put( new Integer(5), &quot;C&quot;);</span>
+<span class="fc" id="L748">        son.put( new Integer(6), grandfather);</span>
+<span class="fc" id="L749">        son.put( new Integer(7), father);</span>
+
+<span class="fc" id="L751">        outPrint.println(LABEL + &quot; = &quot;);</span>
+<span class="fc" id="L752">        outPrint.println(&quot;{&quot;);</span>
+<span class="pc bpc" id="L753" title="1 of 2 branches missed.">        outPrint.println(INDENT + &quot;0 = A &quot; + String.class.getName());</span>
+<span class="fc" id="L754">        outPrint.println(INDENT + &quot;1 = &quot;);</span>
+<span class="fc" id="L755">        outPrint.println(INDENT + &quot;{&quot;);</span>
+<span class="pc bpc" id="L756" title="1 of 2 branches missed.">        outPrint.println(INDENT + INDENT + &quot;2 = B &quot; + String.class.getName());</span>
+<span class="pc bpc" id="L757" title="1 of 2 branches missed.">        outPrint.println(INDENT + INDENT + &quot;3 = (ancestor[0] Map) &quot; + TreeMap.class.getName());</span>
+<span class="fc" id="L758">        outPrint.println(INDENT + INDENT + &quot;4 = &quot;);</span>
+<span class="fc" id="L759">        outPrint.println(INDENT + INDENT + &quot;{&quot;);</span>
+<span class="pc bpc" id="L760" title="1 of 2 branches missed.">        outPrint.println(INDENT + INDENT + INDENT + &quot;5 = C &quot; + String.class.getName());</span>
+<span class="pc bpc" id="L761" title="1 of 2 branches missed.">        outPrint.println(INDENT + INDENT + INDENT + &quot;6 = (ancestor[1] Map) &quot; + TreeMap.class.getName());</span>
+<span class="pc bpc" id="L762" title="1 of 2 branches missed.">        outPrint.println(INDENT + INDENT + INDENT + &quot;7 = (ancestor[0] Map) &quot; + TreeMap.class.getName());</span>
+<span class="pc bpc" id="L763" title="1 of 2 branches missed.">        outPrint.println(INDENT + INDENT + &quot;} &quot; + TreeMap.class.getName());</span>
+<span class="pc bpc" id="L764" title="1 of 2 branches missed.">        outPrint.println(INDENT + &quot;} &quot; + TreeMap.class.getName());</span>
+<span class="pc bpc" id="L765" title="1 of 2 branches missed.">        outPrint.println(&quot;} &quot; + TreeMap.class.getName());</span>
+
+<span class="fc" id="L767">        final String EXPECTED_OUT = out.toString();</span>
+
+<span class="fc" id="L769">        out.reset();</span>
+<span class="fc" id="L770">        MapUtils.debugPrint(outPrint, &quot;Print Map&quot;, grandfather);</span>
+
+<span class="fc" id="L772">        assertEquals(EXPECTED_OUT, out.toString());</span>
+<span class="fc" id="L773">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testIsEmptyWithEmptyMap() {
+<span class="fc" id="L777">        Map map = new HashMap();</span>
+<span class="fc" id="L778">        assertEquals(true, MapUtils.isEmpty(map));</span>
+<span class="fc" id="L779">    }</span>
+
+    public void testIsEmptyWithNonEmptyMap() {
+<span class="fc" id="L782">        Map map = new HashMap();</span>
+<span class="fc" id="L783">        map.put(&quot;item&quot;, &quot;value&quot;);</span>
+<span class="fc" id="L784">        assertEquals(false, MapUtils.isEmpty(map));</span>
+<span class="fc" id="L785">    }</span>
+
+    public void testIsEmptyWithNull() {
+<span class="fc" id="L788">        Map map = null;</span>
+<span class="fc" id="L789">        assertEquals(true, MapUtils.isEmpty(map));</span>
+<span class="fc" id="L790">    }</span>
+
+    public void testIsNotEmptyWithEmptyMap() {
+<span class="fc" id="L793">        Map map = new HashMap();</span>
+<span class="fc" id="L794">        assertEquals(false, MapUtils.isNotEmpty(map));</span>
+<span class="fc" id="L795">    }</span>
+
+    public void testIsNotEmptyWithNonEmptyMap() {
+<span class="fc" id="L798">        Map map = new HashMap();</span>
+<span class="fc" id="L799">        map.put(&quot;item&quot;, &quot;value&quot;);</span>
+<span class="fc" id="L800">        assertEquals(true, MapUtils.isNotEmpty(map));</span>
+<span class="fc" id="L801">    }</span>
+
+    public void testIsNotEmptyWithNull() {
+<span class="fc" id="L804">        Map map = null;</span>
+<span class="fc" id="L805">        assertEquals(false, MapUtils.isNotEmpty(map));</span>
+<span class="fc" id="L806">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

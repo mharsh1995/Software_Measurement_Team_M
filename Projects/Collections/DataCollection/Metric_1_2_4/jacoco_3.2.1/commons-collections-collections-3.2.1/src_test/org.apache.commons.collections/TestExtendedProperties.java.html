@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestExtendedProperties.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestExtendedProperties.java</span></div><h1>TestExtendedProperties.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+/**
+ * Tests some basic functions of the ExtendedProperties class.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Geir Magnusson Jr.
+ * @author Mohan Kishore
+ * @author Stephen Colebourne
+ * @author Shinobu Kawai
+ * @author &lt;a href=&quot;mailto:hps@intermeta.de&quot;&gt;Henning P. Schmiedehausen&lt;/a&gt;
+ */
+public class TestExtendedProperties extends TestCase {
+    
+<span class="fc" id="L41">    protected ExtendedProperties eprop = new ExtendedProperties();</span>
+
+    public TestExtendedProperties(String testName) {
+<span class="fc" id="L44">        super(testName);</span>
+<span class="fc" id="L45">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L48" title="All 2 branches covered.">        return new TestSuite(TestExtendedProperties.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        String[] testCaseName = { TestExtendedProperties.class.getName()};</span>
+<span class="nc" id="L53">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L54">    }</span>
+
+    public void testRetrieve() {
+        /*
+         * should be empty and return null
+         */
+<span class="fc" id="L60">        assertEquals(&quot;This returns null&quot;, eprop.getProperty(&quot;foo&quot;), null);</span>
+
+        /*
+         *  add a real value, and get it two different ways
+         */
+<span class="fc" id="L65">        eprop.setProperty(&quot;number&quot;, &quot;1&quot;);</span>
+<span class="fc" id="L66">        assertEquals(&quot;This returns '1'&quot;, eprop.getProperty(&quot;number&quot;), &quot;1&quot;);</span>
+<span class="fc" id="L67">        assertEquals(&quot;This returns '1'&quot;, eprop.getString(&quot;number&quot;), &quot;1&quot;);</span>
+
+        /*
+         * now add another and get a Vector/list
+         */
+<span class="fc" id="L72">        eprop.addProperty(&quot;number&quot;, &quot;2&quot;);</span>
+<span class="fc" id="L73">        assertTrue(&quot;This returns array&quot;, (eprop.getVector(&quot;number&quot;) instanceof java.util.Vector));</span>
+<span class="fc" id="L74">        assertTrue(&quot;This returns array&quot;, (eprop.getList(&quot;number&quot;) instanceof java.util.List));</span>
+
+        /*
+         *  now test dan's new fix where we get the first scalar 
+         *  when we access a vector/list valued
+         *  property
+         */
+<span class="fc" id="L81">        assertTrue(&quot;This returns scalar&quot;, (eprop.getString(&quot;number&quot;) instanceof String));</span>
+
+        /*
+         * test comma separated string properties
+         */
+<span class="fc" id="L86">        String prop = &quot;hey, that's a test&quot;;</span>
+<span class="fc" id="L87">        eprop.setProperty(&quot;prop.string&quot;, prop);</span>
+<span class="fc" id="L88">        assertTrue(&quot;This returns vector&quot;, (eprop.getVector(&quot;prop.string&quot;) instanceof java.util.Vector));</span>
+<span class="fc" id="L89">        assertTrue(&quot;This returns list&quot;, (eprop.getList(&quot;prop.string&quot;) instanceof java.util.List));</span>
+
+<span class="fc" id="L91">        String prop2 = &quot;hey\\, that's a test&quot;;</span>
+<span class="fc" id="L92">        eprop.remove(&quot;prop.string&quot;);</span>
+<span class="fc" id="L93">        eprop.setProperty(&quot;prop.string&quot;, prop2);</span>
+<span class="fc" id="L94">        assertTrue(&quot;This returns array&quot;, (eprop.getString(&quot;prop.string&quot;) instanceof java.lang.String));</span>
+
+        /*
+         * test subset : we want to make sure that the EP doesn't reprocess the data 
+         *  elements when generating the subset
+         */
+
+<span class="fc" id="L101">        ExtendedProperties subEprop = eprop.subset(&quot;prop&quot;);</span>
+
+<span class="fc" id="L103">        assertTrue(&quot;Returns the full string&quot;, subEprop.getString(&quot;string&quot;).equals(prop));</span>
+<span class="fc" id="L104">        assertTrue(&quot;This returns string for subset&quot;, (subEprop.getString(&quot;string&quot;) instanceof java.lang.String));</span>
+<span class="fc" id="L105">        assertTrue(&quot;This returns array for subset&quot;, (subEprop.getVector(&quot;string&quot;) instanceof java.util.Vector));</span>
+<span class="fc" id="L106">        assertTrue(&quot;This returns array for subset&quot;, (subEprop.getList(&quot;string&quot;) instanceof java.util.List));</span>
+
+<span class="fc" id="L108">    }</span>
+
+    public void testInterpolation() {
+<span class="fc" id="L111">        eprop.setProperty(&quot;applicationRoot&quot;, &quot;/home/applicationRoot&quot;);</span>
+<span class="fc" id="L112">        eprop.setProperty(&quot;db&quot;, &quot;${applicationRoot}/db/hypersonic&quot;);</span>
+<span class="fc" id="L113">        String dbProp = &quot;/home/applicationRoot/db/hypersonic&quot;;</span>
+<span class="fc" id="L114">        assertTrue(&quot;Checking interpolated variable&quot;, eprop.getString(&quot;db&quot;).equals(dbProp));</span>
+<span class="fc" id="L115">    }</span>
+
+    public void testSaveAndLoad() {
+<span class="fc" id="L118">        ExtendedProperties ep1 = new ExtendedProperties();</span>
+<span class="fc" id="L119">        ExtendedProperties ep2 = new ExtendedProperties();</span>
+
+        try {
+            /* initialize value:
+            one=Hello\World
+            two=Hello\,World
+            three=Hello,World
+            */
+<span class="fc" id="L127">            String s1 = &quot;one=Hello\\World\ntwo=Hello\\,World\nthree=Hello,World&quot;;</span>
+<span class="fc" id="L128">            byte[] bytes = s1.getBytes();</span>
+<span class="fc" id="L129">            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);</span>
+<span class="fc" id="L130">            ep1.load(bais);</span>
+<span class="fc" id="L131">            assertEquals(&quot;Back-slashes not interpreted properly&quot;, </span>
+<span class="fc" id="L132">                    &quot;Hello\\World&quot;, ep1.getString(&quot;one&quot;));</span>
+<span class="fc" id="L133">            assertEquals(&quot;Escaped commas not interpreted properly&quot;, </span>
+<span class="fc" id="L134">                    &quot;Hello,World&quot;, ep1.getString(&quot;two&quot;));</span>
+<span class="fc" id="L135">            assertEquals(&quot;Commas not interpreted properly&quot;, </span>
+<span class="fc" id="L136">                    2, ep1.getVector(&quot;three&quot;).size());</span>
+<span class="fc" id="L137">            assertEquals(&quot;Commas not interpreted properly&quot;, </span>
+<span class="fc" id="L138">                    &quot;Hello&quot;, ep1.getVector(&quot;three&quot;).get(0));</span>
+<span class="fc" id="L139">            assertEquals(&quot;Commas not interpreted properly&quot;, </span>
+<span class="fc" id="L140">                    &quot;World&quot;, ep1.getVector(&quot;three&quot;).get(1));</span>
+
+<span class="fc" id="L142">            assertEquals(&quot;Commas not interpreted properly&quot;, </span>
+<span class="fc" id="L143">                    2, ep1.getList(&quot;three&quot;).size());</span>
+<span class="fc" id="L144">            assertEquals(&quot;Commas not interpreted properly&quot;, </span>
+<span class="fc" id="L145">                    &quot;Hello&quot;, ep1.getList(&quot;three&quot;).get(0));</span>
+<span class="fc" id="L146">            assertEquals(&quot;Commas not interpreted properly&quot;, </span>
+<span class="fc" id="L147">                    &quot;World&quot;, ep1.getList(&quot;three&quot;).get(1));</span>
+                    
+<span class="fc" id="L149">            ByteArrayOutputStream baos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L150">            ep1.save(baos, null);</span>
+<span class="fc" id="L151">            bytes = baos.toByteArray();</span>
+<span class="fc" id="L152">            bais = new ByteArrayInputStream(bytes);</span>
+<span class="fc" id="L153">            ep2.load(bais);</span>
+<span class="fc" id="L154">            assertEquals(&quot;Back-slash not same after being saved and loaded&quot;,</span>
+<span class="fc" id="L155">                    ep1.getString(&quot;one&quot;), ep2.getString(&quot;one&quot;));</span>
+<span class="fc" id="L156">            assertEquals(&quot;Escaped comma not same after being saved and loaded&quot;,</span>
+<span class="fc" id="L157">                    ep1.getString(&quot;two&quot;), ep2.getString(&quot;two&quot;));</span>
+<span class="fc" id="L158">            assertEquals(&quot;Comma not same after being saved and loaded&quot;,</span>
+<span class="fc" id="L159">                    ep1.getString(&quot;three&quot;), ep2.getString(&quot;three&quot;));</span>
+<span class="pc" id="L160">        } catch (IOException ioe) {</span>
+<span class="nc" id="L161">            fail(&quot;There was an exception saving and loading the EP&quot;);</span>
+        }
+<span class="fc" id="L163">    }</span>
+
+    public void testTrailingBackSlash() {
+<span class="fc" id="L166">        ExtendedProperties ep1 = new ExtendedProperties();</span>
+
+        try {
+            /*
+            initialize using:
+            one=ONE
+            two=TWO \\
+            three=THREE
+            */
+<span class="fc" id="L175">            String s1 = &quot;one=ONE\ntwo=TWO \\\\\nthree=THREE&quot;;</span>
+<span class="fc" id="L176">            byte[] bytes = s1.getBytes();</span>
+<span class="fc" id="L177">            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);</span>
+<span class="fc" id="L178">            ep1.load(bais);</span>
+<span class="fc" id="L179">            assertEquals(&quot;Trailing back-slashes not interpreted properly&quot;, </span>
+<span class="fc" id="L180">                    3, ep1.size());</span>
+<span class="fc" id="L181">            assertEquals(&quot;Back-slash not escaped properly&quot;, </span>
+<span class="fc" id="L182">                    &quot;TWO \\&quot;, ep1.getString(&quot;two&quot;));</span>
+<span class="pc" id="L183">        } catch (IOException ioe) {</span>
+<span class="nc" id="L184">            fail(&quot;There was an exception loading the EP&quot;);</span>
+        }
+<span class="fc" id="L186">    }</span>
+    
+    public void testMultipleSameKey1() throws Exception {
+<span class="fc" id="L189">        ExtendedProperties ep1 = new ExtendedProperties();</span>
+
+        /*
+        initialize using:
+        one=a
+        one=b,c
+        */
+<span class="fc" id="L196">        String s1 = &quot;one=a\none=b,c\n&quot;;</span>
+<span class="fc" id="L197">        byte[] bytes = s1.getBytes();</span>
+<span class="fc" id="L198">        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);</span>
+<span class="fc" id="L199">        ep1.load(bais);</span>
+<span class="fc" id="L200">        assertEquals(1, ep1.size());</span>
+
+<span class="fc" id="L202">        assertEquals(3, ep1.getVector(&quot;one&quot;).size());</span>
+<span class="fc" id="L203">        assertEquals(&quot;a&quot;, ep1.getVector(&quot;one&quot;).get(0));</span>
+<span class="fc" id="L204">        assertEquals(&quot;b&quot;, ep1.getVector(&quot;one&quot;).get(1));</span>
+<span class="fc" id="L205">        assertEquals(&quot;c&quot;, ep1.getVector(&quot;one&quot;).get(2));</span>
+
+<span class="fc" id="L207">        assertEquals(3, ep1.getList(&quot;one&quot;).size());</span>
+<span class="fc" id="L208">        assertEquals(&quot;a&quot;, ep1.getList(&quot;one&quot;).get(0));</span>
+<span class="fc" id="L209">        assertEquals(&quot;b&quot;, ep1.getList(&quot;one&quot;).get(1));</span>
+<span class="fc" id="L210">        assertEquals(&quot;c&quot;, ep1.getList(&quot;one&quot;).get(2));</span>
+<span class="fc" id="L211">    }</span>
+    
+    public void testMultipleSameKey2() throws Exception {
+<span class="fc" id="L214">        ExtendedProperties ep1 = new ExtendedProperties();</span>
+
+        /*
+        initialize using:
+        one=a,b
+        one=c,d
+        */
+<span class="fc" id="L221">        String s1 = &quot;one=a,b\none=c,d\n&quot;;</span>
+<span class="fc" id="L222">        byte[] bytes = s1.getBytes();</span>
+<span class="fc" id="L223">        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);</span>
+<span class="fc" id="L224">        ep1.load(bais);</span>
+<span class="fc" id="L225">        assertEquals(1, ep1.size());</span>
+
+<span class="fc" id="L227">        assertEquals(4, ep1.getVector(&quot;one&quot;).size());</span>
+<span class="fc" id="L228">        assertEquals(&quot;a&quot;, ep1.getVector(&quot;one&quot;).get(0));</span>
+<span class="fc" id="L229">        assertEquals(&quot;b&quot;, ep1.getVector(&quot;one&quot;).get(1));</span>
+<span class="fc" id="L230">        assertEquals(&quot;c&quot;, ep1.getVector(&quot;one&quot;).get(2));</span>
+<span class="fc" id="L231">        assertEquals(&quot;d&quot;, ep1.getVector(&quot;one&quot;).get(3));</span>
+
+<span class="fc" id="L233">        assertEquals(4, ep1.getList(&quot;one&quot;).size());</span>
+<span class="fc" id="L234">        assertEquals(&quot;a&quot;, ep1.getList(&quot;one&quot;).get(0));</span>
+<span class="fc" id="L235">        assertEquals(&quot;b&quot;, ep1.getList(&quot;one&quot;).get(1));</span>
+<span class="fc" id="L236">        assertEquals(&quot;c&quot;, ep1.getList(&quot;one&quot;).get(2));</span>
+<span class="fc" id="L237">        assertEquals(&quot;d&quot;, ep1.getList(&quot;one&quot;).get(3));</span>
+<span class="fc" id="L238">    }</span>
+    
+    public void testMultipleSameKey3() throws Exception {
+<span class="fc" id="L241">        ExtendedProperties ep1 = new ExtendedProperties();</span>
+
+        /*
+        initialize using:
+        one=a,b
+        one=c
+        */
+<span class="fc" id="L248">        String s1 = &quot;one=a,b\none=c\n&quot;;</span>
+<span class="fc" id="L249">        byte[] bytes = s1.getBytes();</span>
+<span class="fc" id="L250">        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);</span>
+<span class="fc" id="L251">        ep1.load(bais);</span>
+<span class="fc" id="L252">        assertEquals(1, ep1.size());</span>
+
+<span class="fc" id="L254">        assertEquals(3, ep1.getVector(&quot;one&quot;).size());</span>
+<span class="fc" id="L255">        assertEquals(&quot;a&quot;, ep1.getVector(&quot;one&quot;).get(0));</span>
+<span class="fc" id="L256">        assertEquals(&quot;b&quot;, ep1.getVector(&quot;one&quot;).get(1));</span>
+<span class="fc" id="L257">        assertEquals(&quot;c&quot;, ep1.getVector(&quot;one&quot;).get(2));</span>
+
+<span class="fc" id="L259">        assertEquals(3, ep1.getList(&quot;one&quot;).size());</span>
+<span class="fc" id="L260">        assertEquals(&quot;a&quot;, ep1.getList(&quot;one&quot;).get(0));</span>
+<span class="fc" id="L261">        assertEquals(&quot;b&quot;, ep1.getList(&quot;one&quot;).get(1));</span>
+<span class="fc" id="L262">        assertEquals(&quot;c&quot;, ep1.getList(&quot;one&quot;).get(2));</span>
+<span class="fc" id="L263">    }</span>
+    
+    public void testMultipleSameKeyByCode() throws Exception {
+<span class="fc" id="L266">        ExtendedProperties ep1 = new ExtendedProperties();</span>
+
+<span class="fc" id="L268">        ep1.addProperty(&quot;one&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L269">        assertEquals(1, ep1.size());</span>
+
+<span class="fc" id="L271">        assertEquals(1, ep1.getVector(&quot;one&quot;).size());</span>
+<span class="fc" id="L272">        assertEquals(&quot;a&quot;, ep1.getVector(&quot;one&quot;).get(0));</span>
+
+<span class="fc" id="L274">        assertEquals(1, ep1.getList(&quot;one&quot;).size());</span>
+<span class="fc" id="L275">        assertEquals(&quot;a&quot;, ep1.getList(&quot;one&quot;).get(0));</span>
+        
+<span class="fc" id="L277">        ep1.addProperty(&quot;one&quot;, Boolean.TRUE);</span>
+<span class="fc" id="L278">        assertEquals(1, ep1.size());</span>
+
+<span class="fc" id="L280">        assertEquals(2, ep1.getVector(&quot;one&quot;).size());</span>
+<span class="fc" id="L281">        assertEquals(&quot;a&quot;, ep1.getVector(&quot;one&quot;).get(0));</span>
+<span class="fc" id="L282">        assertEquals(Boolean.TRUE, ep1.getVector(&quot;one&quot;).get(1));</span>
+
+<span class="fc" id="L284">        assertEquals(2, ep1.getList(&quot;one&quot;).size());</span>
+<span class="fc" id="L285">        assertEquals(&quot;a&quot;, ep1.getList(&quot;one&quot;).get(0));</span>
+<span class="fc" id="L286">        assertEquals(Boolean.TRUE, ep1.getList(&quot;one&quot;).get(1));</span>
+        
+<span class="fc" id="L288">        ep1.addProperty(&quot;one&quot;, &quot;c,d&quot;);</span>
+<span class="fc" id="L289">        assertEquals(1, ep1.size());</span>
+
+<span class="fc" id="L291">        assertEquals(4, ep1.getVector(&quot;one&quot;).size());</span>
+<span class="fc" id="L292">        assertEquals(&quot;a&quot;, ep1.getVector(&quot;one&quot;).get(0));</span>
+<span class="fc" id="L293">        assertEquals(Boolean.TRUE, ep1.getVector(&quot;one&quot;).get(1));</span>
+<span class="fc" id="L294">        assertEquals(&quot;c&quot;, ep1.getVector(&quot;one&quot;).get(2));</span>
+<span class="fc" id="L295">        assertEquals(&quot;d&quot;, ep1.getVector(&quot;one&quot;).get(3));</span>
+
+<span class="fc" id="L297">        assertEquals(4, ep1.getList(&quot;one&quot;).size());</span>
+<span class="fc" id="L298">        assertEquals(&quot;a&quot;, ep1.getList(&quot;one&quot;).get(0));</span>
+<span class="fc" id="L299">        assertEquals(Boolean.TRUE, ep1.getList(&quot;one&quot;).get(1));</span>
+<span class="fc" id="L300">        assertEquals(&quot;c&quot;, ep1.getList(&quot;one&quot;).get(2));</span>
+<span class="fc" id="L301">        assertEquals(&quot;d&quot;, ep1.getList(&quot;one&quot;).get(3));</span>
+<span class="fc" id="L302">    }</span>
+
+    public void testInheritDefaultProperties() {
+<span class="fc" id="L305">        Properties defaults = new Properties();</span>
+<span class="fc" id="L306">        defaults.setProperty(&quot;resource.loader&quot;, &quot;class&quot;);</span>
+
+<span class="fc" id="L308">        Properties properties = new Properties(defaults);</span>
+<span class="fc" id="L309">        properties.setProperty(&quot;test&quot;, &quot;foo&quot;);</span>
+
+<span class="fc" id="L311">        ExtendedProperties extended = ExtendedProperties.convertProperties(properties);</span>
+
+<span class="fc" id="L313">        assertEquals(&quot;foo&quot;, extended.getString(&quot;test&quot;));</span>
+<span class="fc" id="L314">        assertEquals(&quot;class&quot;, extended.getString(&quot;resource.loader&quot;));</span>
+<span class="fc" id="L315">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

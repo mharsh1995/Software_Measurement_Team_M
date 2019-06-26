@@ -1,0 +1,1469 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CursorableLinkedList.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">CursorableLinkedList.java</span></div><h1>CursorableLinkedList.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+import java.lang.ref.WeakReference;
+
+/**
+ * A doubly-linked list implementation of the {@link List} interface,
+ * supporting a {@link ListIterator} that allows concurrent modifications
+ * to the underlying list.
+ * &lt;p&gt;
+ * Implements all of the optional {@link List} operations, the
+ * stack/queue/dequeue operations available in {@link java.util.LinkedList}
+ * and supports a {@link ListIterator} that allows concurrent modifications
+ * to the underlying list (see {@link #cursor}).
+ * &lt;p&gt;
+ * &lt;b&gt;Note that this implementation is not synchronized.&lt;/b&gt;
+ *
+ * @deprecated Use new version in list subpackage, which has been rewritten
+ *  and now returns the cursor from the listIterator method. Will be removed in v4.0
+ * @see java.util.LinkedList
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Rodney Waldhoff
+ * @author Janek Bogucki
+ * @author Simon Kitching
+ */
+<span class="fc" id="L55">public class CursorableLinkedList implements List, Serializable {</span>
+    /** Ensure serialization compatibility */    
+    private static final long serialVersionUID = 8836393098519411393L;
+
+    //--- public methods ---------------------------------------------
+
+    /**
+     * Appends the specified element to the end of this list.
+     *
+     * @param o element to be appended to this list.
+     * @return &lt;tt&gt;true&lt;/tt&gt;
+     */
+    public boolean add(Object o) {
+<span class="fc" id="L68">        insertListable(_head.prev(),null,o);</span>
+<span class="fc" id="L69">        return true;</span>
+    }
+
+    /**
+     * Inserts the specified element at the specified position in this list.
+     * Shifts the element currently at that position (if any) and any subsequent
+     *  elements to the right (adds one to their indices).
+     *
+     * @param index index at which the specified element is to be inserted.
+     * @param element element to be inserted.
+     *
+     * @throws ClassCastException if the class of the specified element
+     *           prevents it from being added to this list.
+     * @throws IllegalArgumentException if some aspect of the specified
+     *             element prevents it from being added to this list.
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *             (index &amp;lt; 0 || index &amp;gt; size()).
+     */
+    public void add(int index, Object element) {
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if(index == _size) {</span>
+<span class="fc" id="L89">            add(element);</span>
+<span class="fc" id="L90">        } else {</span>
+<span class="fc bfc" id="L91" title="All 4 branches covered.">            if(index &lt; 0 || index &gt; _size) {</span>
+<span class="fc" id="L92">                throw new IndexOutOfBoundsException(String.valueOf(index) + &quot; &lt; 0 or &quot; + String.valueOf(index) + &quot; &gt; &quot; + _size);</span>
+            }
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">            Listable succ = (isEmpty() ? null : getListableAt(index));</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            Listable pred = (null == succ ? null : succ.prev());</span>
+<span class="fc" id="L96">            insertListable(pred,succ,element);</span>
+        }
+<span class="fc" id="L98">    }</span>
+
+    /**
+     * Appends all of the elements in the specified collection to the end of
+     * this list, in the order that they are returned by the specified
+     * {@link Collection}'s {@link Iterator}.  The behavior of this operation is
+     * unspecified if the specified collection is modified while
+     * the operation is in progress.  (Note that this will occur if the
+     * specified collection is this list, and it's nonempty.)
+     *
+     * @param c collection whose elements are to be added to this list.
+     * @return &lt;tt&gt;true&lt;/tt&gt; if this list changed as a result of the call.
+     *
+     * @throws ClassCastException if the class of an element in the specified
+     *          collection prevents it from being added to this list.
+     * @throws IllegalArgumentException if some aspect of an element in the
+     *         specified collection prevents it from being added to this
+     *         list.
+     */
+    public boolean addAll(Collection c) {
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        if(c.isEmpty()) {</span>
+<span class="nc" id="L119">            return false;</span>
+        }
+<span class="fc" id="L121">        Iterator it = c.iterator();</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        while(it.hasNext()) {</span>
+<span class="fc" id="L123">            insertListable(_head.prev(),null,it.next());</span>
+        }
+<span class="fc" id="L125">        return true;</span>
+    }
+
+    /**
+     * Inserts all of the elements in the specified collection into this
+     * list at the specified position.  Shifts the element currently at
+     * that position (if any) and any subsequent elements to the right
+     * (increases their indices).  The new elements will appear in this
+     * list in the order that they are returned by the specified
+     * {@link Collection}'s {@link Iterator}.  The behavior of this operation is
+     * unspecified if the specified collection is modified while the
+     * operation is in progress.  (Note that this will occur if the specified
+     * collection is this list, and it's nonempty.)
+     *
+     * @param index index at which to insert first element from the specified
+     *                collection.
+     * @param c elements to be inserted into this list.
+     * @return &lt;tt&gt;true&lt;/tt&gt; if this list changed as a result of the call.
+     *
+     * @throws ClassCastException if the class of one of elements of the
+     *            specified collection prevents it from being added to this
+     *            list.
+     * @throws IllegalArgumentException if some aspect of one of elements of
+     *         the specified collection prevents it from being added to
+     *         this list.
+     * @throws IndexOutOfBoundsException if the index is out of range (index
+     *          &amp;lt; 0 || index &amp;gt; size()).
+     */
+    public boolean addAll(int index, Collection c) {
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if(c.isEmpty()) {</span>
+<span class="nc" id="L155">            return false;</span>
+<span class="pc bpc" id="L156" title="2 of 4 branches missed.">        } else if(_size == index || _size == 0) {</span>
+<span class="nc" id="L157">            return addAll(c);</span>
+        } else {
+<span class="fc" id="L159">            Listable succ = getListableAt(index);</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">            Listable pred = (null == succ) ? null : succ.prev();</span>
+<span class="fc" id="L161">            Iterator it = c.iterator();</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">            while(it.hasNext()) {</span>
+<span class="fc" id="L163">                pred = insertListable(pred,succ,it.next());</span>
+            }
+<span class="fc" id="L165">            return true;</span>
+        }
+    }
+
+    /**
+     * Inserts the specified element at the beginning of this list.
+     * (Equivalent to {@link #add(int,java.lang.Object) &lt;tt&gt;add(0,o)&lt;/tt&gt;}).
+     *
+     * @param o element to be prepended to this list.
+     * @return &lt;tt&gt;true&lt;/tt&gt;
+     */
+    public boolean addFirst(Object o) {
+<span class="fc" id="L177">        insertListable(null,_head.next(),o);</span>
+<span class="fc" id="L178">        return true;</span>
+    }
+
+    /**
+     * Inserts the specified element at the end of this list.
+     * (Equivalent to {@link #add(java.lang.Object)}).
+     *
+     * @param o element to be appended to this list.
+     * @return &lt;tt&gt;true&lt;/tt&gt;
+     */
+    public boolean addLast(Object o) {
+<span class="fc" id="L189">        insertListable(_head.prev(),null,o);</span>
+<span class="fc" id="L190">        return true;</span>
+    }
+
+    /**
+     * Removes all of the elements from this list.  This
+     * list will be empty after this call returns (unless
+     * it throws an exception).
+     */
+    public void clear() {
+        /*
+        // this is the quick way, but would force us
+        // to break all the cursors
+        _modCount++;
+        _head.setNext(null);
+        _head.setPrev(null);
+        _size = 0;
+        */
+<span class="fc" id="L207">        Iterator it = iterator();</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">        while(it.hasNext()) {</span>
+<span class="fc" id="L209">            it.next();</span>
+<span class="fc" id="L210">            it.remove();</span>
+        }
+<span class="fc" id="L212">    }</span>
+
+    /**
+     * Returns &lt;tt&gt;true&lt;/tt&gt; if this list contains the specified element.
+     * More formally, returns &lt;tt&gt;true&lt;/tt&gt; if and only if this list contains
+     * at least one element &lt;tt&gt;e&lt;/tt&gt; such that
+     * &lt;tt&gt;(o==null&amp;nbsp;?&amp;nbsp;e==null&amp;nbsp;:&amp;nbsp;o.equals(e))&lt;/tt&gt;.
+     *
+     * @param o element whose presence in this list is to be tested.
+     * @return &lt;tt&gt;true&lt;/tt&gt; if this list contains the specified element.
+     */
+    public boolean contains(Object o) {
+<span class="fc bfc" id="L224" title="All 4 branches covered.">        for(Listable elt = _head.next(), past = null; null != elt &amp;&amp; past != _head.prev(); elt = (past = elt).next()) {</span>
+<span class="fc bfc" id="L225" title="All 4 branches covered.">            if((null == o &amp;&amp; null == elt.value()) || </span>
+<span class="fc bfc" id="L226" title="All 4 branches covered.">               (o != null &amp;&amp; o.equals(elt.value()))) {</span>
+<span class="fc" id="L227">                return true;</span>
+            }
+        }
+<span class="fc" id="L230">        return false;</span>
+    }
+
+    /**
+     * Returns &lt;tt&gt;true&lt;/tt&gt; if this list contains all of the elements of the
+     * specified collection.
+     *
+     * @param c collection to be checked for containment in this list.
+     * @return &lt;tt&gt;true&lt;/tt&gt; if this list contains all of the elements of the
+     *         specified collection.
+     */
+    public boolean containsAll(Collection c) {
+<span class="fc" id="L242">        Iterator it = c.iterator();</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">        while(it.hasNext()) {</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">            if(!this.contains(it.next())) {</span>
+<span class="fc" id="L245">                return false;</span>
+            }
+        }
+<span class="fc" id="L248">        return true;</span>
+    }
+
+    /**
+     * Returns a {@link ListIterator} for iterating through the
+     * elements of this list. Unlike {@link #iterator}, a cursor
+     * is not bothered by concurrent modifications to the
+     * underlying list.
+     * &lt;p&gt;
+     * Specifically, when elements are added to the list before or
+     * after the cursor, the cursor simply picks them up automatically.
+     * When the &quot;current&quot; (i.e., last returned by {@link ListIterator#next}
+     * or {@link ListIterator#previous}) element of the list is removed,
+     * the cursor automatically adjusts to the change (invalidating the
+     * last returned value--i.e., it cannot be removed).
+     * &lt;p&gt;
+     * Note that the returned {@link ListIterator} does not support the
+     * {@link ListIterator#nextIndex} and {@link ListIterator#previousIndex}
+     * methods (they throw {@link UnsupportedOperationException} when invoked.
+     * &lt;p&gt;
+     * Historical Note: In previous versions of this class, the object 
+     * returned from this method was required to be explicitly closed. This 
+     * is no longer necessary.
+     *
+     * @see #cursor(int)
+     * @see #listIterator
+     * @see CursorableLinkedList.Cursor
+     */
+    public CursorableLinkedList.Cursor cursor() {
+<span class="fc" id="L277">        return new Cursor(0);</span>
+    }
+
+    /**
+     * Returns a {@link ListIterator} for iterating through the
+     * elements of this list, initialized such that
+     * {@link ListIterator#next} will return the element at
+     * the specified index (if any) and {@link ListIterator#previous}
+     * will return the element immediately preceding it (if any).
+     * Unlike {@link #iterator}, a cursor
+     * is not bothered by concurrent modifications to the
+     * underlying list.
+     *
+     * @see #cursor
+     * @see #listIterator(int)
+     * @see CursorableLinkedList.Cursor
+     * @throws IndexOutOfBoundsException if the index is out of range (index
+     *            &amp;lt; 0 || index &amp;gt; size()).
+     */
+    public CursorableLinkedList.Cursor cursor(int i) {
+<span class="nc" id="L297">        return new Cursor(i);</span>
+    }
+
+    /**
+     * Compares the specified object with this list for equality.  Returns
+     * &lt;tt&gt;true&lt;/tt&gt; if and only if the specified object is also a list, both
+     * lists have the same size, and all corresponding pairs of elements in
+     * the two lists are &lt;i&gt;equal&lt;/i&gt;.  (Two elements &lt;tt&gt;e1&lt;/tt&gt; and
+     * &lt;tt&gt;e2&lt;/tt&gt; are &lt;i&gt;equal&lt;/i&gt; if &lt;tt&gt;(e1==null ? e2==null :
+     * e1.equals(e2))&lt;/tt&gt;.)  In other words, two lists are defined to be
+     * equal if they contain the same elements in the same order.  This
+     * definition ensures that the equals method works properly across
+     * different implementations of the &lt;tt&gt;List&lt;/tt&gt; interface.
+     *
+     * @param o the object to be compared for equality with this list.
+     * @return &lt;tt&gt;true&lt;/tt&gt; if the specified object is equal to this list.
+     */
+    public boolean equals(Object o) {
+<span class="fc bfc" id="L315" title="All 2 branches covered.">        if(o == this) {</span>
+<span class="fc" id="L316">            return true;</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">        } else if(!(o instanceof List)) {</span>
+<span class="fc" id="L318">            return false;</span>
+        }
+<span class="fc" id="L320">        Iterator it = ((List)o).listIterator();</span>
+<span class="fc bfc" id="L321" title="All 4 branches covered.">        for(Listable elt = _head.next(), past = null; null != elt &amp;&amp; past != _head.prev(); elt = (past = elt).next()) {</span>
+<span class="pc bpc" id="L322" title="1 of 8 branches missed.">            if(!it.hasNext() || (null == elt.value() ? null != it.next() : !(elt.value().equals(it.next()))) ) {</span>
+<span class="fc" id="L323">                return false;</span>
+            }
+        }
+<span class="fc bfc" id="L326" title="All 2 branches covered.">        return !it.hasNext();</span>
+    }
+
+    /**
+     * Returns the element at the specified position in this list.
+     *
+     * @param index index of element to return.
+     * @return the element at the specified position in this list.
+     *
+     * @throws IndexOutOfBoundsException if the index is out of range (index
+     *           &amp;lt; 0 || index &amp;gt;= size()).
+     */
+    public Object get(int index) {
+<span class="fc" id="L339">        return getListableAt(index).value();</span>
+    }
+
+    /**
+     * Returns the element at the beginning of this list.
+     */
+    public Object getFirst() {
+        try {
+<span class="nc" id="L347">            return _head.next().value();</span>
+<span class="nc" id="L348">        } catch(NullPointerException e) {</span>
+<span class="nc" id="L349">            throw new NoSuchElementException();</span>
+        }
+    }
+
+    /**
+     * Returns the element at the end of this list.
+     */
+    public Object getLast() {
+        try {
+<span class="nc" id="L358">            return _head.prev().value();</span>
+<span class="nc" id="L359">        } catch(NullPointerException e) {</span>
+<span class="nc" id="L360">            throw new NoSuchElementException();</span>
+        }
+    }
+
+    /**
+     * Returns the hash code value for this list.  The hash code of a list
+     * is defined to be the result of the following calculation:
+     * &lt;pre&gt;
+     *  hashCode = 1;
+     *  Iterator i = list.iterator();
+     *  while (i.hasNext()) {
+     *      Object obj = i.next();
+     *      hashCode = 31*hashCode + (obj==null ? 0 : obj.hashCode());
+     *  }
+     * &lt;/pre&gt;
+     * This ensures that &lt;tt&gt;list1.equals(list2)&lt;/tt&gt; implies that
+     * &lt;tt&gt;list1.hashCode()==list2.hashCode()&lt;/tt&gt; for any two lists,
+     * &lt;tt&gt;list1&lt;/tt&gt; and &lt;tt&gt;list2&lt;/tt&gt;, as required by the general
+     * contract of &lt;tt&gt;Object.hashCode&lt;/tt&gt;.
+     *
+     * @return the hash code value for this list.
+     * @see Object#hashCode()
+     * @see Object#equals(Object)
+     * @see #equals(Object)
+     */
+    public int hashCode() {
+<span class="fc" id="L386">        int hash = 1;</span>
+<span class="fc bfc" id="L387" title="All 4 branches covered.">        for(Listable elt = _head.next(), past = null; null != elt &amp;&amp; past != _head.prev(); elt = (past = elt).next()) {</span>
+<span class="fc bfc" id="L388" title="All 2 branches covered.">            hash = 31*hash + (null == elt.value() ? 0 : elt.value().hashCode());</span>
+        }
+<span class="fc" id="L390">        return hash;</span>
+    }
+
+    /**
+     * Returns the index in this list of the first occurrence of the specified
+     * element, or -1 if this list does not contain this element.
+     * More formally, returns the lowest index &lt;tt&gt;i&lt;/tt&gt; such that
+     * &lt;tt&gt;(o==null ? get(i)==null : o.equals(get(i)))&lt;/tt&gt;,
+     * or -1 if there is no such index.
+     *
+     * @param o element to search for.
+     * @return the index in this list of the first occurrence of the specified
+     *         element, or -1 if this list does not contain this element.
+     */
+    public int indexOf(Object o) {
+<span class="fc" id="L405">        int ndx = 0;</span>
+
+        // perform the null check outside of the loop to save checking every
+        // single time through the loop.
+<span class="fc bfc" id="L409" title="All 2 branches covered.">        if (null == o) {</span>
+<span class="pc bpc" id="L410" title="2 of 4 branches missed.">            for(Listable elt = _head.next(), past = null; null != elt &amp;&amp; past != _head.prev(); elt = (past = elt).next()) {</span>
+<span class="fc bfc" id="L411" title="All 2 branches covered.">                if (null == elt.value()) {</span>
+<span class="fc" id="L412">                    return ndx;</span>
+                }
+<span class="fc" id="L414">                ndx++;</span>
+            }
+<span class="nc" id="L416">        } else {</span>
+
+<span class="fc bfc" id="L418" title="All 4 branches covered.">            for(Listable elt = _head.next(), past = null; null != elt &amp;&amp; past != _head.prev(); elt = (past = elt).next()) {</span>
+<span class="fc bfc" id="L419" title="All 2 branches covered.">                if (o.equals(elt.value())) {</span>
+<span class="fc" id="L420">                    return ndx;</span>
+                }
+<span class="fc" id="L422">                ndx++;</span>
+            }
+        }
+<span class="fc" id="L425">        return -1;</span>
+    }
+
+    /**
+     * Returns &lt;tt&gt;true&lt;/tt&gt; if this list contains no elements.
+     * @return &lt;tt&gt;true&lt;/tt&gt; if this list contains no elements.
+     */
+    public boolean isEmpty() {
+<span class="fc bfc" id="L433" title="All 2 branches covered.">        return(0 == _size);</span>
+    }
+
+    /**
+     * Returns a fail-fast iterator.
+     * @see List#iterator
+     */
+    public Iterator iterator() {
+<span class="fc" id="L441">        return listIterator(0);</span>
+    }
+
+    /**
+     * Returns the index in this list of the last occurrence of the specified
+     * element, or -1 if this list does not contain this element.
+     * More formally, returns the highest index &lt;tt&gt;i&lt;/tt&gt; such that
+     * &lt;tt&gt;(o==null ? get(i)==null : o.equals(get(i)))&lt;/tt&gt;,
+     * or -1 if there is no such index.
+     *
+     * @param o element to search for.
+     * @return the index in this list of the last occurrence of the specified
+     *            element, or -1 if this list does not contain this element.
+     */
+    public int lastIndexOf(Object o) {
+<span class="fc" id="L456">        int ndx = _size-1;</span>
+
+        // perform the null check outside of the loop to save checking every
+        // single time through the loop.
+<span class="fc bfc" id="L460" title="All 2 branches covered.">        if (null == o) {</span>
+<span class="pc bpc" id="L461" title="2 of 4 branches missed.">            for(Listable elt = _head.prev(), past = null; null != elt &amp;&amp; past != _head.next(); elt = (past = elt).prev()) {</span>
+<span class="fc bfc" id="L462" title="All 2 branches covered.">                if (null == elt.value()) {</span>
+<span class="fc" id="L463">                    return ndx;</span>
+                }
+<span class="fc" id="L465">                ndx--;</span>
+            }
+<span class="nc" id="L467">        } else {</span>
+<span class="fc bfc" id="L468" title="All 4 branches covered.">            for(Listable elt = _head.prev(), past = null; null != elt &amp;&amp; past != _head.next(); elt = (past = elt).prev()) {</span>
+<span class="fc bfc" id="L469" title="All 2 branches covered.">                if (o.equals(elt.value())) {</span>
+<span class="fc" id="L470">                    return ndx;</span>
+                }
+<span class="fc" id="L472">                ndx--;</span>
+            }
+        }
+<span class="fc" id="L475">        return -1;</span>
+    }
+
+    /**
+     * Returns a fail-fast ListIterator.
+     * @see List#listIterator
+     */
+    public ListIterator listIterator() {
+<span class="fc" id="L483">        return listIterator(0);</span>
+    }
+
+    /**
+     * Returns a fail-fast ListIterator.
+     * @see List#listIterator(int)
+     */
+    public ListIterator listIterator(int index) {
+<span class="fc bfc" id="L491" title="All 4 branches covered.">        if(index&lt;0 || index &gt; _size) {</span>
+<span class="fc" id="L492">            throw new IndexOutOfBoundsException(index + &quot; &lt; 0 or &gt; &quot; + _size);</span>
+        }
+<span class="fc" id="L494">        return new ListIter(index);</span>
+    }
+
+    /**
+     * Removes the first occurrence in this list of the specified element.
+     * If this list does not contain the element, it is
+     * unchanged.  More formally, removes the element with the lowest index i
+     * such that &lt;tt&gt;(o==null ? get(i)==null : o.equals(get(i)))&lt;/tt&gt; (if
+     * such an element exists).
+     *
+     * @param o element to be removed from this list, if present.
+     * @return &lt;tt&gt;true&lt;/tt&gt; if this list contained the specified element.
+     */
+    public boolean remove(Object o) {
+<span class="fc bfc" id="L508" title="All 4 branches covered.">        for(Listable elt = _head.next(), past = null; null != elt &amp;&amp; past != _head.prev(); elt = (past = elt).next()) {</span>
+<span class="fc bfc" id="L509" title="All 4 branches covered.">            if(null == o &amp;&amp; null == elt.value()) {</span>
+<span class="fc" id="L510">                removeListable(elt);</span>
+<span class="fc" id="L511">                return true;</span>
+<span class="fc bfc" id="L512" title="All 4 branches covered.">            } else if(o != null &amp;&amp; o.equals(elt.value())) {</span>
+<span class="fc" id="L513">                removeListable(elt);</span>
+<span class="fc" id="L514">                return true;</span>
+            }
+        }
+<span class="fc" id="L517">        return false;</span>
+    }
+
+    /**
+     * Removes the element at the specified position in this list (optional
+     * operation).  Shifts any subsequent elements to the left (subtracts one
+     * from their indices).  Returns the element that was removed from the
+     * list.
+     *
+     * @param index the index of the element to removed.
+     * @return the element previously at the specified position.
+     *
+     * @throws IndexOutOfBoundsException if the index is out of range (index
+     *            &amp;lt; 0 || index &amp;gt;= size()).
+     */
+    public Object remove(int index) {
+<span class="fc" id="L533">        Listable elt = getListableAt(index);</span>
+<span class="fc" id="L534">        Object ret = elt.value();</span>
+<span class="fc" id="L535">        removeListable(elt);</span>
+<span class="fc" id="L536">        return ret;</span>
+    }
+
+    /**
+     * Removes from this list all the elements that are contained in the
+     * specified collection.
+     *
+     * @param c collection that defines which elements will be removed from
+     *          this list.
+     * @return &lt;tt&gt;true&lt;/tt&gt; if this list changed as a result of the call.
+     */
+    public boolean removeAll(Collection c) {
+<span class="pc bpc" id="L548" title="1 of 4 branches missed.">        if(0 == c.size() || 0 == _size) {</span>
+<span class="fc" id="L549">            return false;</span>
+        } else {
+<span class="fc" id="L551">            boolean changed = false;</span>
+<span class="fc" id="L552">            Iterator it = iterator();</span>
+<span class="fc bfc" id="L553" title="All 2 branches covered.">            while(it.hasNext()) {</span>
+<span class="fc bfc" id="L554" title="All 2 branches covered.">                if(c.contains(it.next())) {</span>
+<span class="fc" id="L555">                    it.remove();</span>
+<span class="fc" id="L556">                    changed = true;</span>
+                }
+            }
+<span class="fc" id="L559">            return changed;</span>
+        }
+    }
+
+    /**
+     * Removes the first element of this list, if any.
+     */
+    public Object removeFirst() {
+<span class="nc bnc" id="L567" title="All 2 branches missed.">        if(_head.next() != null) {</span>
+<span class="nc" id="L568">            Object val = _head.next().value();</span>
+<span class="nc" id="L569">            removeListable(_head.next());</span>
+<span class="nc" id="L570">            return val;</span>
+        } else {
+<span class="nc" id="L572">            throw new NoSuchElementException();</span>
+        }
+    }
+
+    /**
+     * Removes the last element of this list, if any.
+     */
+    public Object removeLast() {
+<span class="nc bnc" id="L580" title="All 2 branches missed.">        if(_head.prev() != null) {</span>
+<span class="nc" id="L581">            Object val = _head.prev().value();</span>
+<span class="nc" id="L582">            removeListable(_head.prev());</span>
+<span class="nc" id="L583">            return val;</span>
+        } else {
+<span class="nc" id="L585">            throw new NoSuchElementException();</span>
+        }
+    }
+
+    /**
+     * Retains only the elements in this list that are contained in the
+     * specified collection.  In other words, removes
+     * from this list all the elements that are not contained in the specified
+     * collection.
+     *
+     * @param c collection that defines which elements this set will retain.
+     *
+     * @return &lt;tt&gt;true&lt;/tt&gt; if this list changed as a result of the call.
+     */
+    public boolean retainAll(Collection c) {
+<span class="fc" id="L600">        boolean changed = false;</span>
+<span class="fc" id="L601">        Iterator it = iterator();</span>
+<span class="fc bfc" id="L602" title="All 2 branches covered.">        while(it.hasNext()) {</span>
+<span class="fc bfc" id="L603" title="All 2 branches covered.">            if(!c.contains(it.next())) {</span>
+<span class="fc" id="L604">                it.remove();</span>
+<span class="fc" id="L605">                changed = true;</span>
+            }
+        }
+<span class="fc" id="L608">        return changed;</span>
+    }
+
+    /**
+     * Replaces the element at the specified position in this list with the
+     * specified element.
+     *
+     * @param index index of element to replace.
+     * @param element element to be stored at the specified position.
+     * @return the element previously at the specified position.
+     *
+     * @throws ClassCastException if the class of the specified element
+     *           prevents it from being added to this list.
+     * @throws IllegalArgumentException if some aspect of the specified
+     *            element prevents it from being added to this list.
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *             (index &amp;lt; 0 || index &amp;gt;= size()).
+     */
+    public Object set(int index, Object element) {
+<span class="fc" id="L627">        Listable elt = getListableAt(index);</span>
+<span class="fc" id="L628">        Object val = elt.setValue(element);</span>
+<span class="fc" id="L629">        broadcastListableChanged(elt);</span>
+<span class="fc" id="L630">        return val;</span>
+    }
+
+    /**
+     * Returns the number of elements in this list.
+     * @return the number of elements in this list.
+     */
+    public int size() {
+<span class="fc" id="L638">        return _size;</span>
+    }
+
+    /**
+     * Returns an array containing all of the elements in this list in proper
+     * sequence.  Obeys the general contract of the {@link Collection#toArray} method.
+     *
+     * @return an array containing all of the elements in this list in proper
+     *         sequence.
+     */
+    public Object[] toArray() {
+<span class="fc" id="L649">        Object[] array = new Object[_size];</span>
+<span class="fc" id="L650">        int i = 0;</span>
+<span class="fc bfc" id="L651" title="All 4 branches covered.">        for(Listable elt = _head.next(), past = null; null != elt &amp;&amp; past != _head.prev(); elt = (past = elt).next()) {</span>
+<span class="fc" id="L652">            array[i++] = elt.value();</span>
+        }
+<span class="fc" id="L654">        return array;</span>
+    }
+
+    /**
+     * Returns an array containing all of the elements in this list in proper
+     * sequence; the runtime type of the returned array is that of the
+     * specified array. Obeys the general contract of the
+     * {@link Collection#toArray} method.
+     *
+     * @param a      the array into which the elements of this list are to
+     *               be stored, if it is big enough; otherwise, a new array of the
+     *               same runtime type is allocated for this purpose.
+     * @return an array containing the elements of this list.
+     * @exception ArrayStoreException
+     *                   if the runtime type of the specified array
+     *                   is not a supertype of the runtime type of every element in
+     *                   this list.
+     */
+    public Object[] toArray(Object a[]) {
+<span class="fc bfc" id="L673" title="All 2 branches covered.">        if(a.length &lt; _size) {</span>
+<span class="fc" id="L674">            a = (Object[])Array.newInstance(a.getClass().getComponentType(), _size);</span>
+        }
+<span class="fc" id="L676">        int i = 0;</span>
+<span class="fc bfc" id="L677" title="All 4 branches covered.">        for(Listable elt = _head.next(), past = null; null != elt &amp;&amp; past != _head.prev(); elt = (past = elt).next()) {</span>
+<span class="fc" id="L678">            a[i++] = elt.value();</span>
+        }
+<span class="fc bfc" id="L680" title="All 2 branches covered.">        if(a.length &gt; _size) {</span>
+<span class="fc" id="L681">            a[_size] = null; // should we null out the rest of the array also? java.util.LinkedList doesn't</span>
+        }
+<span class="fc" id="L683">        return a;</span>
+    }
+
+    /**
+     * Returns a {@link String} representation of this list, suitable for debugging.
+     * @return a {@link String} representation of this list, suitable for debugging.
+     */
+    public String toString() {
+<span class="fc" id="L691">        StringBuffer buf = new StringBuffer();</span>
+<span class="fc" id="L692">        buf.append(&quot;[&quot;);</span>
+<span class="fc bfc" id="L693" title="All 4 branches covered.">        for(Listable elt = _head.next(), past = null; null != elt &amp;&amp; past != _head.prev(); elt = (past = elt).next()) {</span>
+<span class="fc bfc" id="L694" title="All 2 branches covered.">            if(_head.next() != elt) {</span>
+<span class="fc" id="L695">                buf.append(&quot;, &quot;);</span>
+            }
+<span class="fc" id="L697">            buf.append(elt.value());</span>
+        }
+<span class="fc" id="L699">        buf.append(&quot;]&quot;);</span>
+<span class="fc" id="L700">        return buf.toString();</span>
+    }
+
+    /**
+     * Returns a fail-fast sublist.
+     * @see List#subList(int,int)
+     */
+    public List subList(int i, int j) {
+<span class="pc bpc" id="L708" title="3 of 6 branches missed.">        if(i &lt; 0 || j &gt; _size || i &gt; j) {</span>
+<span class="nc" id="L709">            throw new IndexOutOfBoundsException();</span>
+<span class="fc bfc" id="L710" title="All 4 branches covered.">        } else if(i == 0 &amp;&amp; j == _size) {</span>
+<span class="fc" id="L711">            return this;</span>
+        } else {
+<span class="fc" id="L713">            return new CursorableSubList(this,i,j);</span>
+        }
+    }
+
+    //--- protected methods ------------------------------------------
+
+    /**
+     * Inserts a new &lt;i&gt;value&lt;/i&gt; into my
+     * list, after the specified &lt;i&gt;before&lt;/i&gt; element, and before the
+     * specified &lt;i&gt;after&lt;/i&gt; element
+     *
+     * @return the newly created 
+     * {@link org.apache.commons.collections.CursorableLinkedList.Listable}
+     */
+    protected Listable insertListable(Listable before, Listable after, Object value) {
+<span class="fc" id="L728">        _modCount++;</span>
+<span class="fc" id="L729">        _size++;</span>
+<span class="fc" id="L730">        Listable elt = new Listable(before,after,value);</span>
+<span class="fc bfc" id="L731" title="All 2 branches covered.">        if(null != before) {</span>
+<span class="fc" id="L732">            before.setNext(elt);</span>
+<span class="fc" id="L733">        } else {</span>
+<span class="fc" id="L734">            _head.setNext(elt);</span>
+        }
+
+<span class="fc bfc" id="L737" title="All 2 branches covered.">        if(null != after) {</span>
+<span class="fc" id="L738">            after.setPrev(elt);</span>
+<span class="fc" id="L739">        } else {</span>
+<span class="fc" id="L740">            _head.setPrev(elt);</span>
+        }
+<span class="fc" id="L742">        broadcastListableInserted(elt);</span>
+<span class="fc" id="L743">        return elt;</span>
+    }
+
+    /**
+     * Removes the given 
+     * {@link org.apache.commons.collections.CursorableLinkedList.Listable} 
+     * from my list.
+     */
+    protected void removeListable(Listable elt) {
+<span class="fc" id="L752">        _modCount++;</span>
+<span class="fc" id="L753">        _size--;</span>
+<span class="fc bfc" id="L754" title="All 2 branches covered.">        if(_head.next() == elt) {</span>
+<span class="fc" id="L755">            _head.setNext(elt.next());</span>
+        }
+<span class="fc bfc" id="L757" title="All 2 branches covered.">        if(null != elt.next()) {</span>
+<span class="fc" id="L758">            elt.next().setPrev(elt.prev());</span>
+        }
+<span class="fc bfc" id="L760" title="All 2 branches covered.">        if(_head.prev() == elt) {</span>
+<span class="fc" id="L761">            _head.setPrev(elt.prev());</span>
+        }
+<span class="fc bfc" id="L763" title="All 2 branches covered.">        if(null != elt.prev()) {</span>
+<span class="fc" id="L764">            elt.prev().setNext(elt.next());</span>
+        }
+<span class="fc" id="L766">        broadcastListableRemoved(elt);</span>
+<span class="fc" id="L767">    }</span>
+
+    /**
+     * Returns the 
+     * {@link org.apache.commons.collections.CursorableLinkedList.Listable} 
+     * at the specified index.
+     *
+     * @throws IndexOutOfBoundsException if index is less than zero or
+     *         greater than or equal to the size of this list.
+     */
+    protected Listable getListableAt(int index) {
+<span class="fc bfc" id="L778" title="All 4 branches covered.">        if(index &lt; 0 || index &gt;= _size) {</span>
+<span class="fc" id="L779">            throw new IndexOutOfBoundsException(String.valueOf(index) + &quot; &lt; 0 or &quot; + String.valueOf(index) + &quot; &gt;= &quot; + _size);</span>
+        }
+<span class="fc bfc" id="L781" title="All 2 branches covered.">        if(index &lt;=_size/2) {</span>
+<span class="fc" id="L782">            Listable elt = _head.next();</span>
+<span class="fc bfc" id="L783" title="All 2 branches covered.">            for(int i = 0; i &lt; index; i++) {</span>
+<span class="fc" id="L784">                elt = elt.next();</span>
+            }
+<span class="fc" id="L786">            return elt;</span>
+        } else {
+<span class="fc" id="L788">            Listable elt = _head.prev();</span>
+<span class="fc bfc" id="L789" title="All 2 branches covered.">            for(int i = (_size-1); i &gt; index; i--) {</span>
+<span class="fc" id="L790">                elt = elt.prev();</span>
+            }
+<span class="fc" id="L792">            return elt;</span>
+        }
+    }
+
+    /**
+     * Registers a {@link CursorableLinkedList.Cursor} to be notified
+     * of changes to this list.
+     */
+    protected void registerCursor(Cursor cur) {
+        // We take this opportunity to clean the _cursors list
+        // of WeakReference objects to garbage-collected cursors.
+<span class="fc bfc" id="L803" title="All 2 branches covered.">        for (Iterator it = _cursors.iterator(); it.hasNext(); ) {</span>
+<span class="fc" id="L804">            WeakReference ref = (WeakReference) it.next();</span>
+<span class="pc bpc" id="L805" title="1 of 2 branches missed.">            if (ref.get() == null) {</span>
+<span class="nc" id="L806">                it.remove();</span>
+            }
+        }
+        
+<span class="fc" id="L810">        _cursors.add( new WeakReference(cur) );</span>
+<span class="fc" id="L811">    }</span>
+
+    /**
+     * Removes a {@link CursorableLinkedList.Cursor} from
+     * the set of cursors to be notified of changes to this list.
+     */
+    protected void unregisterCursor(Cursor cur) {
+<span class="pc bpc" id="L818" title="1 of 2 branches missed.">        for (Iterator it = _cursors.iterator(); it.hasNext(); ) {</span>
+<span class="fc" id="L819">            WeakReference ref = (WeakReference) it.next();</span>
+<span class="fc" id="L820">            Cursor cursor = (Cursor) ref.get();</span>
+<span class="pc bpc" id="L821" title="1 of 2 branches missed.">            if (cursor == null) {</span>
+                // some other unrelated cursor object has been 
+                // garbage-collected; let's take the opportunity to
+                // clean up the cursors list anyway..
+<span class="nc" id="L825">                it.remove();</span>
+                
+<span class="pc bpc" id="L827" title="1 of 2 branches missed.">            } else if (cursor == cur) {</span>
+<span class="fc" id="L828">                ref.clear();</span>
+<span class="fc" id="L829">                it.remove();</span>
+<span class="fc" id="L830">                break;</span>
+            }
+        }
+<span class="fc" id="L833">    }</span>
+
+    /**
+     * Informs all of my registered cursors that they are now
+     * invalid.
+     */
+    protected void invalidateCursors() {
+<span class="nc" id="L840">        Iterator it = _cursors.iterator();</span>
+<span class="nc bnc" id="L841" title="All 2 branches missed.">        while (it.hasNext()) {</span>
+<span class="nc" id="L842">            WeakReference ref = (WeakReference) it.next();</span>
+<span class="nc" id="L843">            Cursor cursor = (Cursor) ref.get();</span>
+<span class="nc bnc" id="L844" title="All 2 branches missed.">            if (cursor != null) {</span>
+                // cursor is null if object has been garbage-collected
+<span class="nc" id="L846">                cursor.invalidate();</span>
+<span class="nc" id="L847">                ref.clear();</span>
+            }
+<span class="nc" id="L849">            it.remove();</span>
+        }
+<span class="nc" id="L851">    }</span>
+
+    /**
+     * Informs all of my registered cursors that the specified
+     * element was changed.
+     * @see #set(int,java.lang.Object)
+     */
+    protected void broadcastListableChanged(Listable elt) {
+<span class="fc" id="L859">        Iterator it = _cursors.iterator();</span>
+<span class="pc bpc" id="L860" title="1 of 2 branches missed.">        while (it.hasNext()) {</span>
+<span class="nc" id="L861">            WeakReference ref = (WeakReference) it.next();</span>
+<span class="nc" id="L862">            Cursor cursor = (Cursor) ref.get();</span>
+<span class="nc bnc" id="L863" title="All 2 branches missed.">            if (cursor == null) {</span>
+<span class="nc" id="L864">                it.remove(); // clean up list</span>
+<span class="nc" id="L865">            } else {</span>
+<span class="nc" id="L866">                cursor.listableChanged(elt);</span>
+            }
+        }
+<span class="fc" id="L869">    }</span>
+
+    /**
+     * Informs all of my registered cursors that the specified
+     * element was just removed from my list.
+     */
+    protected void broadcastListableRemoved(Listable elt) {
+<span class="fc" id="L876">        Iterator it = _cursors.iterator();</span>
+<span class="fc bfc" id="L877" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L878">            WeakReference ref = (WeakReference) it.next();</span>
+<span class="fc" id="L879">            Cursor cursor = (Cursor) ref.get();</span>
+<span class="pc bpc" id="L880" title="1 of 2 branches missed.">            if (cursor == null) {</span>
+<span class="nc" id="L881">                it.remove(); // clean up list</span>
+<span class="nc" id="L882">            } else {</span>
+<span class="fc" id="L883">                cursor.listableRemoved(elt);</span>
+            }
+        }
+<span class="fc" id="L886">    }</span>
+
+    /**
+     * Informs all of my registered cursors that the specified
+     * element was just added to my list.
+     */
+    protected void broadcastListableInserted(Listable elt) {
+<span class="fc" id="L893">        Iterator it = _cursors.iterator();</span>
+<span class="fc bfc" id="L894" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L895">            WeakReference ref = (WeakReference) it.next();</span>
+<span class="fc" id="L896">            Cursor cursor = (Cursor) ref.get();</span>
+<span class="pc bpc" id="L897" title="1 of 2 branches missed.">            if (cursor == null) {</span>
+<span class="nc" id="L898">                it.remove();  // clean up list</span>
+<span class="nc" id="L899">            } else {</span>
+<span class="fc" id="L900">                cursor.listableInserted(elt);</span>
+            }
+        }
+<span class="fc" id="L903">    }</span>
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+<span class="fc" id="L906">        out.defaultWriteObject();</span>
+<span class="fc" id="L907">        out.writeInt(_size);</span>
+<span class="fc" id="L908">        Listable cur = _head.next();</span>
+<span class="fc bfc" id="L909" title="All 2 branches covered.">        while (cur != null) {</span>
+<span class="fc" id="L910">            out.writeObject(cur.value());</span>
+<span class="fc" id="L911">            cur = cur.next();</span>
+        }
+<span class="fc" id="L913">    }</span>
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L916">        in.defaultReadObject();</span>
+<span class="fc" id="L917">        _size = 0;</span>
+<span class="fc" id="L918">        _modCount = 0;</span>
+<span class="fc" id="L919">        _cursors = new ArrayList();</span>
+<span class="fc" id="L920">        _head = new Listable(null,null,null);</span>
+<span class="fc" id="L921">        int size = in.readInt();</span>
+<span class="fc bfc" id="L922" title="All 2 branches covered.">        for (int i=0;i&lt;size;i++) {</span>
+<span class="fc" id="L923">            this.add(in.readObject());</span>
+        }
+<span class="fc" id="L925">    }</span>
+
+    //--- protected attributes ---------------------------------------
+
+    /** The number of elements in me. */
+<span class="fc" id="L930">    protected transient int _size = 0;</span>
+
+    /**
+     * A sentry node.
+     * &lt;p&gt;
+     * &lt;tt&gt;_head.next()&lt;/tt&gt; points to the first element in the list,
+     * &lt;tt&gt;_head.prev()&lt;/tt&gt; to the last. Note that it is possible for
+     * &lt;tt&gt;_head.next().prev()&lt;/tt&gt; and &lt;tt&gt;_head.prev().next()&lt;/tt&gt; to be
+     * non-null, as when I am a sublist for some larger list.
+     * Use &lt;tt&gt;== _head.next()&lt;/tt&gt; and &lt;tt&gt;== _head.prev()&lt;/tt&gt; to determine
+     * if a given 
+     * {@link org.apache.commons.collections.CursorableLinkedList.Listable} 
+     * is the first or last element in the list.
+     */
+<span class="fc" id="L944">    protected transient Listable _head = new Listable(null,null,null);</span>
+
+    /** Tracks the number of structural modifications to me. */
+<span class="fc" id="L947">    protected transient int _modCount = 0;</span>
+
+    /**
+     * A list of the currently {@link CursorableLinkedList.Cursor}s currently
+     * open in this list.
+     */
+<span class="fc" id="L953">    protected transient List _cursors = new ArrayList();</span>
+
+    //--- inner classes ----------------------------------------------
+
+    static class Listable implements Serializable {
+<span class="fc" id="L958">        private Listable _prev = null;</span>
+<span class="fc" id="L959">        private Listable _next = null;</span>
+<span class="fc" id="L960">        private Object _val = null;</span>
+
+<span class="fc" id="L962">        Listable(Listable prev, Listable next, Object val) {</span>
+<span class="fc" id="L963">            _prev = prev;</span>
+<span class="fc" id="L964">            _next = next;</span>
+<span class="fc" id="L965">            _val = val;</span>
+<span class="fc" id="L966">        }</span>
+
+        Listable next() {
+<span class="fc" id="L969">            return _next;</span>
+        }
+
+        Listable prev() {
+<span class="fc" id="L973">            return _prev;</span>
+        }
+
+        Object value() {
+<span class="fc" id="L977">            return _val;</span>
+        }
+
+        void setNext(Listable next) {
+<span class="fc" id="L981">            _next = next;</span>
+<span class="fc" id="L982">        }</span>
+
+        void setPrev(Listable prev) {
+<span class="fc" id="L985">            _prev = prev;</span>
+<span class="fc" id="L986">        }</span>
+
+        Object setValue(Object val) {
+<span class="fc" id="L989">            Object temp = _val;</span>
+<span class="fc" id="L990">            _val = val;</span>
+<span class="fc" id="L991">            return temp;</span>
+        }
+    }
+
+    class ListIter implements ListIterator {
+<span class="fc" id="L996">        Listable _cur = null;</span>
+<span class="fc" id="L997">        Listable _lastReturned = null;</span>
+<span class="fc" id="L998">        int _expectedModCount = _modCount;</span>
+<span class="fc" id="L999">        int _nextIndex = 0;</span>
+
+<span class="fc" id="L1001">        ListIter(int index) {</span>
+<span class="fc bfc" id="L1002" title="All 2 branches covered.">            if(index == 0) {</span>
+<span class="fc" id="L1003">                _cur = new Listable(null,_head.next(),null);</span>
+<span class="fc" id="L1004">                _nextIndex = 0;</span>
+<span class="fc bfc" id="L1005" title="All 2 branches covered.">            } else if(index == _size) {</span>
+<span class="fc" id="L1006">                _cur = new Listable(_head.prev(),null,null);</span>
+<span class="fc" id="L1007">                _nextIndex = _size;</span>
+<span class="fc" id="L1008">            } else {</span>
+<span class="fc" id="L1009">                Listable temp = getListableAt(index);</span>
+<span class="fc" id="L1010">                _cur = new Listable(temp.prev(),temp,null);</span>
+<span class="fc" id="L1011">                _nextIndex = index;</span>
+            }
+<span class="fc" id="L1013">        }</span>
+
+        public Object previous() {
+<span class="fc" id="L1016">            checkForComod();</span>
+<span class="fc bfc" id="L1017" title="All 2 branches covered.">            if(!hasPrevious()) {</span>
+<span class="fc" id="L1018">                throw new NoSuchElementException();</span>
+            } else {
+<span class="fc" id="L1020">                Object ret = _cur.prev().value();</span>
+<span class="fc" id="L1021">                _lastReturned = _cur.prev();</span>
+<span class="fc" id="L1022">                _cur.setNext(_cur.prev());</span>
+<span class="fc" id="L1023">                _cur.setPrev(_cur.prev().prev());</span>
+<span class="fc" id="L1024">                _nextIndex--;</span>
+<span class="fc" id="L1025">                return ret;</span>
+            }
+        }
+
+        public boolean hasNext() {
+<span class="fc" id="L1030">            checkForComod();</span>
+<span class="fc bfc" id="L1031" title="All 4 branches covered.">            return(null != _cur.next() &amp;&amp; _cur.prev() != _head.prev());</span>
+        }
+
+        public Object next() {
+<span class="fc" id="L1035">            checkForComod();</span>
+<span class="fc bfc" id="L1036" title="All 2 branches covered.">            if(!hasNext()) {</span>
+<span class="fc" id="L1037">                throw new NoSuchElementException();</span>
+            } else {
+<span class="fc" id="L1039">                Object ret = _cur.next().value();</span>
+<span class="fc" id="L1040">                _lastReturned = _cur.next();</span>
+<span class="fc" id="L1041">                _cur.setPrev(_cur.next());</span>
+<span class="fc" id="L1042">                _cur.setNext(_cur.next().next());</span>
+<span class="fc" id="L1043">                _nextIndex++;</span>
+<span class="fc" id="L1044">                return ret;</span>
+            }
+        }
+
+        public int previousIndex() {
+<span class="fc" id="L1049">            checkForComod();</span>
+<span class="fc bfc" id="L1050" title="All 2 branches covered.">            if(!hasPrevious()) {</span>
+<span class="fc" id="L1051">                return -1;</span>
+            }
+<span class="fc" id="L1053">            return _nextIndex-1;</span>
+        }
+
+        public boolean hasPrevious() {
+<span class="fc" id="L1057">            checkForComod();</span>
+<span class="fc bfc" id="L1058" title="All 4 branches covered.">            return(null != _cur.prev() &amp;&amp; _cur.next() != _head.next());</span>
+        }
+
+        public void set(Object o) {
+<span class="fc" id="L1062">            checkForComod();</span>
+            try {
+<span class="fc" id="L1064">                _lastReturned.setValue(o);</span>
+<span class="fc" id="L1065">            } catch(NullPointerException e) {</span>
+<span class="fc" id="L1066">                throw new IllegalStateException();</span>
+            }
+<span class="fc" id="L1068">        }</span>
+
+        public int nextIndex() {
+<span class="fc" id="L1071">            checkForComod();</span>
+<span class="fc bfc" id="L1072" title="All 2 branches covered.">            if(!hasNext()) {</span>
+<span class="fc" id="L1073">                return size();</span>
+            }
+<span class="fc" id="L1075">            return _nextIndex;</span>
+        }
+
+        public void remove() {
+<span class="fc" id="L1079">            checkForComod();</span>
+<span class="fc bfc" id="L1080" title="All 2 branches covered.">            if(null == _lastReturned) {</span>
+<span class="fc" id="L1081">                throw new IllegalStateException();</span>
+            } else {
+<span class="fc bfc" id="L1083" title="All 2 branches covered.">                _cur.setNext(_lastReturned == _head.prev() ? null : _lastReturned.next());</span>
+<span class="fc bfc" id="L1084" title="All 2 branches covered.">                _cur.setPrev(_lastReturned == _head.next() ? null : _lastReturned.prev());</span>
+<span class="fc" id="L1085">                removeListable(_lastReturned);</span>
+<span class="fc" id="L1086">                _lastReturned = null;</span>
+<span class="fc" id="L1087">                _nextIndex--;</span>
+<span class="fc" id="L1088">                _expectedModCount++;</span>
+            }
+<span class="fc" id="L1090">        }</span>
+
+        public void add(Object o) {
+<span class="fc" id="L1093">            checkForComod();</span>
+<span class="fc" id="L1094">            _cur.setPrev(insertListable(_cur.prev(),_cur.next(),o));</span>
+<span class="fc" id="L1095">            _lastReturned = null;</span>
+<span class="fc" id="L1096">            _nextIndex++;</span>
+<span class="fc" id="L1097">            _expectedModCount++;</span>
+<span class="fc" id="L1098">        }</span>
+
+        protected void checkForComod() {
+<span class="fc bfc" id="L1101" title="All 2 branches covered.">            if(_expectedModCount != _modCount) {</span>
+<span class="fc" id="L1102">                throw new ConcurrentModificationException();</span>
+            }
+<span class="fc" id="L1104">        }</span>
+    }
+
+    public class Cursor extends ListIter implements ListIterator {
+<span class="fc" id="L1108">        boolean _valid = false;</span>
+
+        Cursor(int index) {
+<span class="fc" id="L1111">            super(index);</span>
+<span class="fc" id="L1112">            _valid = true;</span>
+<span class="fc" id="L1113">            registerCursor(this);</span>
+<span class="fc" id="L1114">        }</span>
+
+        public int previousIndex() {
+<span class="nc" id="L1117">            throw new UnsupportedOperationException();</span>
+        }
+
+        public int nextIndex() {
+<span class="nc" id="L1121">            throw new UnsupportedOperationException();</span>
+        }
+
+        public void add(Object o) {
+<span class="fc" id="L1125">            checkForComod();</span>
+<span class="fc" id="L1126">            Listable elt = insertListable(_cur.prev(),_cur.next(),o);</span>
+<span class="fc" id="L1127">            _cur.setPrev(elt);</span>
+<span class="fc" id="L1128">            _cur.setNext(elt.next());</span>
+<span class="fc" id="L1129">            _lastReturned = null;</span>
+<span class="fc" id="L1130">            _nextIndex++;</span>
+<span class="fc" id="L1131">            _expectedModCount++;</span>
+<span class="fc" id="L1132">        }</span>
+
+        protected void listableRemoved(Listable elt) {
+<span class="fc bfc" id="L1135" title="All 2 branches covered.">            if(null == _head.prev()) {</span>
+<span class="fc" id="L1136">                _cur.setNext(null);</span>
+<span class="fc bfc" id="L1137" title="All 2 branches covered.">            } else if(_cur.next() == elt) {</span>
+<span class="fc" id="L1138">                _cur.setNext(elt.next());</span>
+            }
+<span class="fc bfc" id="L1140" title="All 2 branches covered.">            if(null == _head.next()) {</span>
+<span class="fc" id="L1141">                _cur.setPrev(null);</span>
+<span class="pc bpc" id="L1142" title="1 of 2 branches missed.">            } else if(_cur.prev() == elt) {</span>
+<span class="nc" id="L1143">                _cur.setPrev(elt.prev());</span>
+            }
+<span class="fc bfc" id="L1145" title="All 2 branches covered.">            if(_lastReturned == elt) {</span>
+<span class="fc" id="L1146">                _lastReturned = null;</span>
+            }
+<span class="fc" id="L1148">        }</span>
+
+        protected void listableInserted(Listable elt) {
+<span class="fc bfc" id="L1151" title="All 4 branches covered.">            if(null == _cur.next() &amp;&amp; null == _cur.prev()) {</span>
+<span class="fc" id="L1152">                _cur.setNext(elt);</span>
+<span class="fc bfc" id="L1153" title="All 2 branches covered.">            } else if(_cur.prev() == elt.prev()) {</span>
+<span class="fc" id="L1154">                _cur.setNext(elt);</span>
+            }
+<span class="pc bpc" id="L1156" title="1 of 2 branches missed.">            if(_cur.next() == elt.next()) {</span>
+<span class="nc" id="L1157">                _cur.setPrev(elt);</span>
+            }
+<span class="pc bpc" id="L1159" title="1 of 2 branches missed.">            if(_lastReturned == elt) {</span>
+<span class="nc" id="L1160">                _lastReturned = null;</span>
+            }
+<span class="fc" id="L1162">        }</span>
+
+        protected void listableChanged(Listable elt) {
+<span class="nc bnc" id="L1165" title="All 2 branches missed.">            if(_lastReturned == elt) {</span>
+<span class="nc" id="L1166">                _lastReturned = null;</span>
+            }
+<span class="nc" id="L1168">        }</span>
+
+        protected void checkForComod() {
+<span class="pc bpc" id="L1171" title="1 of 2 branches missed.">            if(!_valid) {</span>
+<span class="nc" id="L1172">                throw new ConcurrentModificationException();</span>
+            }
+<span class="fc" id="L1174">        }</span>
+
+        protected void invalidate() {
+<span class="nc" id="L1177">            _valid = false;</span>
+<span class="nc" id="L1178">        }</span>
+
+        /**
+         * Mark this cursor as no longer being needed. Any resources
+         * associated with this cursor are immediately released.
+         * In previous versions of this class, it was mandatory to close
+         * all cursor objects to avoid memory leaks. It is &lt;i&gt;no longer&lt;/i&gt;
+         * necessary to call this close method; an instance of this class
+         * can now be treated exactly like a normal iterator.
+         */
+        public void close() {
+<span class="pc bpc" id="L1189" title="1 of 2 branches missed.">            if(_valid) {</span>
+<span class="fc" id="L1190">                _valid = false;</span>
+<span class="fc" id="L1191">                unregisterCursor(this);</span>
+            }
+<span class="fc" id="L1193">        }</span>
+    }
+
+}
+
+/**
+ * @deprecated Use new version in list subpackage, which has been rewritten
+ *  and now returns the cursor from the listIterator method. Will be removed in v4.0
+ */
+class CursorableSubList extends CursorableLinkedList implements List {
+
+    //--- constructors -----------------------------------------------
+
+<span class="fc" id="L1206">    CursorableSubList(CursorableLinkedList list, int from, int to) {</span>
+<span class="pc bpc" id="L1207" title="2 of 4 branches missed.">        if(0 &gt; from || list.size() &lt; to) {</span>
+<span class="nc" id="L1208">            throw new IndexOutOfBoundsException();</span>
+<span class="pc bpc" id="L1209" title="1 of 2 branches missed.">        } else if(from &gt; to) {</span>
+<span class="nc" id="L1210">            throw new IllegalArgumentException();</span>
+        }
+<span class="fc" id="L1212">        _list = list;</span>
+<span class="fc bfc" id="L1213" title="All 2 branches covered.">        if(from &lt; list.size()) {</span>
+<span class="fc" id="L1214">            _head.setNext(_list.getListableAt(from));</span>
+<span class="pc bpc" id="L1215" title="1 of 2 branches missed.">            _pre = (null == _head.next()) ? null : _head.next().prev();</span>
+<span class="fc" id="L1216">        } else {</span>
+<span class="fc" id="L1217">            _pre = _list.getListableAt(from-1);</span>
+        }
+<span class="fc bfc" id="L1219" title="All 2 branches covered.">        if(from == to) {</span>
+<span class="fc" id="L1220">            _head.setNext(null);</span>
+<span class="fc" id="L1221">            _head.setPrev(null);</span>
+<span class="fc bfc" id="L1222" title="All 2 branches covered.">            if(to &lt; list.size()) {</span>
+<span class="fc" id="L1223">                _post = _list.getListableAt(to);</span>
+<span class="fc" id="L1224">            } else {</span>
+<span class="fc" id="L1225">                _post = null;</span>
+            }
+<span class="fc" id="L1227">        } else {</span>
+<span class="fc" id="L1228">            _head.setPrev(_list.getListableAt(to-1));</span>
+<span class="fc" id="L1229">            _post = _head.prev().next();</span>
+        }
+<span class="fc" id="L1231">        _size = to - from;</span>
+<span class="fc" id="L1232">        _modCount = _list._modCount;</span>
+<span class="fc" id="L1233">    }</span>
+
+    //--- public methods ------------------------------------------
+
+    public void clear() {
+<span class="fc" id="L1238">        checkForComod();</span>
+<span class="fc" id="L1239">        Iterator it = iterator();</span>
+<span class="fc bfc" id="L1240" title="All 2 branches covered.">        while(it.hasNext()) {</span>
+<span class="fc" id="L1241">            it.next();</span>
+<span class="fc" id="L1242">            it.remove();</span>
+        }
+<span class="fc" id="L1244">    }</span>
+
+    public Iterator iterator() {
+<span class="fc" id="L1247">        checkForComod();</span>
+<span class="fc" id="L1248">        return super.iterator();</span>
+    }
+
+    public int size() {
+<span class="fc" id="L1252">        checkForComod();</span>
+<span class="fc" id="L1253">        return super.size();</span>
+    }
+
+    public boolean isEmpty() {
+<span class="fc" id="L1257">        checkForComod();</span>
+<span class="fc" id="L1258">        return super.isEmpty();</span>
+    }
+
+    public Object[] toArray() {
+<span class="fc" id="L1262">        checkForComod();</span>
+<span class="fc" id="L1263">        return super.toArray();</span>
+    }
+
+    public Object[] toArray(Object a[]) {
+<span class="fc" id="L1267">        checkForComod();</span>
+<span class="fc" id="L1268">        return super.toArray(a);</span>
+    }
+
+    public boolean contains(Object o) {
+<span class="fc" id="L1272">        checkForComod();</span>
+<span class="fc" id="L1273">        return super.contains(o);</span>
+    }
+
+    public boolean remove(Object o) {
+<span class="fc" id="L1277">        checkForComod();</span>
+<span class="fc" id="L1278">        return super.remove(o);</span>
+    }
+
+    public Object removeFirst() {
+<span class="nc" id="L1282">        checkForComod();</span>
+<span class="nc" id="L1283">        return super.removeFirst();</span>
+    }
+
+    public Object removeLast() {
+<span class="nc" id="L1287">        checkForComod();</span>
+<span class="nc" id="L1288">        return super.removeLast();</span>
+    }
+
+    public boolean addAll(Collection c) {
+<span class="fc" id="L1292">        checkForComod();</span>
+<span class="fc" id="L1293">        return super.addAll(c);</span>
+    }
+
+    public boolean add(Object o) {
+<span class="fc" id="L1297">        checkForComod();</span>
+<span class="fc" id="L1298">        return super.add(o);</span>
+    }
+
+    public boolean addFirst(Object o) {
+<span class="nc" id="L1302">        checkForComod();</span>
+<span class="nc" id="L1303">        return super.addFirst(o);</span>
+    }
+
+    public boolean addLast(Object o) {
+<span class="nc" id="L1307">        checkForComod();</span>
+<span class="nc" id="L1308">        return super.addLast(o);</span>
+    }
+
+    public boolean removeAll(Collection c) {
+<span class="fc" id="L1312">        checkForComod();</span>
+<span class="fc" id="L1313">        return super.removeAll(c);</span>
+    }
+
+    public boolean containsAll(Collection c) {
+<span class="fc" id="L1317">        checkForComod();</span>
+<span class="fc" id="L1318">        return super.containsAll(c);</span>
+    }
+
+    public boolean addAll(int index, Collection c) {
+<span class="nc" id="L1322">        checkForComod();</span>
+<span class="nc" id="L1323">        return super.addAll(index,c);</span>
+    }
+
+    public int hashCode() {
+<span class="fc" id="L1327">        checkForComod();</span>
+<span class="fc" id="L1328">        return super.hashCode();</span>
+    }
+
+    public boolean retainAll(Collection c) {
+<span class="fc" id="L1332">        checkForComod();</span>
+<span class="fc" id="L1333">        return super.retainAll(c);</span>
+    }
+
+    public Object set(int index, Object element) {
+<span class="fc" id="L1337">        checkForComod();</span>
+<span class="fc" id="L1338">        return super.set(index,element);</span>
+    }
+
+    public boolean equals(Object o) {
+<span class="fc" id="L1342">        checkForComod();</span>
+<span class="fc" id="L1343">        return super.equals(o);</span>
+    }
+
+    public Object get(int index) {
+<span class="fc" id="L1347">        checkForComod();</span>
+<span class="fc" id="L1348">        return super.get(index);</span>
+    }
+
+    public Object getFirst() {
+<span class="nc" id="L1352">        checkForComod();</span>
+<span class="nc" id="L1353">        return super.getFirst();</span>
+    }
+
+    public Object getLast() {
+<span class="nc" id="L1357">        checkForComod();</span>
+<span class="nc" id="L1358">        return super.getLast();</span>
+    }
+
+    public void add(int index, Object element) {
+<span class="fc" id="L1362">        checkForComod();</span>
+<span class="fc" id="L1363">        super.add(index,element);</span>
+<span class="fc" id="L1364">    }</span>
+
+    public ListIterator listIterator(int index) {
+<span class="fc" id="L1367">        checkForComod();</span>
+<span class="fc" id="L1368">        return super.listIterator(index);</span>
+    }
+
+    public Object remove(int index) {
+<span class="fc" id="L1372">        checkForComod();</span>
+<span class="fc" id="L1373">        return super.remove(index);</span>
+    }
+
+    public int indexOf(Object o) {
+<span class="fc" id="L1377">        checkForComod();</span>
+<span class="fc" id="L1378">        return super.indexOf(o);</span>
+    }
+
+    public int lastIndexOf(Object o) {
+<span class="fc" id="L1382">        checkForComod();</span>
+<span class="fc" id="L1383">        return super.lastIndexOf(o);</span>
+    }
+
+    public ListIterator listIterator() {
+<span class="fc" id="L1387">        checkForComod();</span>
+<span class="fc" id="L1388">        return super.listIterator();</span>
+    }
+
+    public List subList(int fromIndex, int toIndex) {
+<span class="nc" id="L1392">        checkForComod();</span>
+<span class="nc" id="L1393">        return super.subList(fromIndex,toIndex);</span>
+    }
+
+    //--- protected methods ------------------------------------------
+
+    /**
+     * Inserts a new &lt;i&gt;value&lt;/i&gt; into my
+     * list, after the specified &lt;i&gt;before&lt;/i&gt; element, and before the
+     * specified &lt;i&gt;after&lt;/i&gt; element
+     *
+     * @return the newly created {@link CursorableLinkedList.Listable}
+     */
+    protected Listable insertListable(Listable before, Listable after, Object value) {
+<span class="fc" id="L1406">        _modCount++;</span>
+<span class="fc" id="L1407">        _size++;</span>
+<span class="fc bfc" id="L1408" title="All 4 branches covered.">        Listable elt = _list.insertListable((null == before ? _pre : before), (null == after ? _post : after),value);</span>
+<span class="fc bfc" id="L1409" title="All 2 branches covered.">        if(null == _head.next()) {</span>
+<span class="fc" id="L1410">            _head.setNext(elt);</span>
+<span class="fc" id="L1411">            _head.setPrev(elt);</span>
+        }
+<span class="fc bfc" id="L1413" title="All 2 branches covered.">        if(before == _head.prev()) {</span>
+<span class="fc" id="L1414">            _head.setPrev(elt);</span>
+        }
+<span class="fc bfc" id="L1416" title="All 2 branches covered.">        if(after == _head.next()) {</span>
+<span class="fc" id="L1417">            _head.setNext(elt);</span>
+        }
+<span class="fc" id="L1419">        broadcastListableInserted(elt);</span>
+<span class="fc" id="L1420">        return elt;</span>
+    }
+
+    /**
+     * Removes the given {@link CursorableLinkedList.Listable} from my list.
+     */
+    protected void removeListable(Listable elt) {
+<span class="fc" id="L1427">        _modCount++;</span>
+<span class="fc" id="L1428">        _size--;</span>
+<span class="fc bfc" id="L1429" title="All 4 branches covered.">        if(_head.next() == elt &amp;&amp; _head.prev() == elt) {</span>
+<span class="fc" id="L1430">            _head.setNext(null);</span>
+<span class="fc" id="L1431">            _head.setPrev(null);</span>
+        }
+<span class="fc bfc" id="L1433" title="All 2 branches covered.">        if(_head.next() == elt) {</span>
+<span class="fc" id="L1434">            _head.setNext(elt.next());</span>
+        }
+<span class="fc bfc" id="L1436" title="All 2 branches covered.">        if(_head.prev() == elt) {</span>
+<span class="fc" id="L1437">            _head.setPrev(elt.prev());</span>
+        }
+<span class="fc" id="L1439">        _list.removeListable(elt);</span>
+<span class="fc" id="L1440">        broadcastListableRemoved(elt);</span>
+<span class="fc" id="L1441">    }</span>
+
+    /**
+     * Test to see if my underlying list has been modified
+     * by some other process.  If it has, throws a
+     * {@link ConcurrentModificationException}, otherwise
+     * quietly returns.
+     *
+     * @throws ConcurrentModificationException
+     */
+    protected void checkForComod() throws ConcurrentModificationException {
+<span class="pc bpc" id="L1452" title="1 of 2 branches missed.">        if(_modCount != _list._modCount) {</span>
+<span class="nc" id="L1453">            throw new ConcurrentModificationException();</span>
+        }
+<span class="fc" id="L1455">    }</span>
+
+    //--- protected attributes ---------------------------------------
+
+    /** My underlying list */
+<span class="fc" id="L1460">    protected CursorableLinkedList _list = null;</span>
+
+    /** The element in my underlying list preceding the first element in my list. */
+<span class="fc" id="L1463">    protected Listable _pre = null;</span>
+
+    /** The element in my underlying list following the last element in my list. */
+<span class="fc" id="L1466">    protected Listable _post = null;</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

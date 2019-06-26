@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BagUtilsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4</a> &gt; <span class="el_source">BagUtilsTest.java</span></div><h1>BagUtilsTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4;
+
+import static org.junit.Assert.*;
+
+import org.apache.commons.collections4.bag.HashBag;
+import org.apache.commons.collections4.bag.PredicatedBag;
+import org.apache.commons.collections4.bag.PredicatedSortedBag;
+import org.apache.commons.collections4.bag.SynchronizedBag;
+import org.apache.commons.collections4.bag.SynchronizedSortedBag;
+import org.apache.commons.collections4.bag.TransformedBag;
+import org.apache.commons.collections4.bag.TransformedSortedBag;
+import org.apache.commons.collections4.bag.TreeBag;
+import org.apache.commons.collections4.bag.UnmodifiableBag;
+import org.apache.commons.collections4.bag.UnmodifiableSortedBag;
+import org.apache.commons.collections4.functors.TruePredicate;
+import org.junit.Test;
+
+/**
+ * Tests for BagUtils factory methods.
+ *
+ * @version $Id$
+ */
+<span class="fc" id="L39">public class BagUtilsTest {</span>
+
+<span class="fc" id="L41">    protected Predicate&lt;Object&gt; truePredicate = TruePredicate.truePredicate();</span>
+<span class="fc" id="L42">    protected Transformer&lt;Object, Object&gt; nopTransformer = TransformerUtils.nopTransformer();</span>
+
+    //----------------------------------------------------------------------
+
+    @Test
+    public void testSynchronizedBag() {
+<span class="fc" id="L48">        Bag&lt;Object&gt; bag = BagUtils.synchronizedBag(new HashBag&lt;Object&gt;());</span>
+<span class="fc" id="L49">        assertTrue(&quot;Returned object should be a SynchronizedBag.&quot;,</span>
+<span class="fc" id="L50">            bag instanceof SynchronizedBag);</span>
+        try {
+<span class="nc" id="L52">            BagUtils.synchronizedBag(null);</span>
+<span class="nc" id="L53">            fail(&quot;Expecting NullPointerException for null bag.&quot;);</span>
+<span class="pc" id="L54">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L57">    }</span>
+
+    @Test
+    public void testUnmodifiableBag() {
+<span class="fc" id="L61">        Bag&lt;Object&gt; bag = BagUtils.unmodifiableBag(new HashBag&lt;Object&gt;());</span>
+<span class="fc" id="L62">        assertTrue(&quot;Returned object should be an UnmodifiableBag.&quot;,</span>
+<span class="fc" id="L63">            bag instanceof UnmodifiableBag);</span>
+        try {
+<span class="nc" id="L65">            BagUtils.unmodifiableBag(null);</span>
+<span class="nc" id="L66">            fail(&quot;Expecting NullPointerException for null bag.&quot;);</span>
+<span class="pc" id="L67">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+        
+<span class="fc" id="L71">        assertSame(&quot;UnmodifiableBag shall not be decorated&quot;, bag, BagUtils.unmodifiableBag(bag));</span>
+<span class="fc" id="L72">    }</span>
+
+    @Test
+    public void testPredicatedBag() {
+<span class="fc" id="L76">        Bag&lt;Object&gt; bag = BagUtils.predicatedBag(new HashBag&lt;Object&gt;(), truePredicate);</span>
+<span class="fc" id="L77">        assertTrue(&quot;Returned object should be a PredicatedBag.&quot;,</span>
+<span class="fc" id="L78">            bag instanceof PredicatedBag);</span>
+        try {
+<span class="nc" id="L80">            BagUtils.predicatedBag(null,truePredicate);</span>
+<span class="nc" id="L81">            fail(&quot;Expecting NullPointerException for null bag.&quot;);</span>
+<span class="pc" id="L82">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L86">            BagUtils.predicatedBag(new HashBag&lt;Object&gt;(), null);</span>
+<span class="nc" id="L87">            fail(&quot;Expecting NullPointerException for null predicate.&quot;);</span>
+<span class="pc" id="L88">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L91">    }</span>
+
+    @Test
+    public void testTransformedBag() {
+<span class="fc" id="L95">        Bag&lt;Object&gt; bag = BagUtils.transformingBag(new HashBag&lt;Object&gt;(), nopTransformer);</span>
+<span class="fc" id="L96">        assertTrue(&quot;Returned object should be an TransformedBag.&quot;,</span>
+<span class="fc" id="L97">            bag instanceof TransformedBag);</span>
+        try {
+<span class="nc" id="L99">            BagUtils.transformingBag(null, nopTransformer);</span>
+<span class="nc" id="L100">            fail(&quot;Expecting NullPointerException for null bag.&quot;);</span>
+<span class="pc" id="L101">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L105">            BagUtils.transformingBag(new HashBag&lt;Object&gt;(), null);</span>
+<span class="nc" id="L106">            fail(&quot;Expecting NullPointerException for null transformer.&quot;);</span>
+<span class="pc" id="L107">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L110">    }</span>
+
+    @Test
+    public void testSynchronizedSortedBag() {
+<span class="fc" id="L114">        Bag&lt;Object&gt; bag = BagUtils.synchronizedSortedBag(new TreeBag&lt;Object&gt;());</span>
+<span class="fc" id="L115">        assertTrue(&quot;Returned object should be a SynchronizedSortedBag.&quot;,</span>
+<span class="fc" id="L116">            bag instanceof SynchronizedSortedBag);</span>
+        try {
+<span class="nc" id="L118">            BagUtils.synchronizedSortedBag(null);</span>
+<span class="nc" id="L119">            fail(&quot;Expecting NullPointerException for null bag.&quot;);</span>
+<span class="pc" id="L120">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L123">    }</span>
+
+    @Test
+    public void testUnmodifiableSortedBag() {
+<span class="fc" id="L127">        SortedBag&lt;Object&gt; bag = BagUtils.unmodifiableSortedBag(new TreeBag&lt;Object&gt;());</span>
+<span class="fc" id="L128">        assertTrue(&quot;Returned object should be an UnmodifiableSortedBag.&quot;,</span>
+<span class="fc" id="L129">            bag instanceof UnmodifiableSortedBag);</span>
+        try {
+<span class="nc" id="L131">            BagUtils.unmodifiableSortedBag(null);</span>
+<span class="nc" id="L132">            fail(&quot;Expecting NullPointerException for null bag.&quot;);</span>
+<span class="pc" id="L133">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+        
+<span class="fc" id="L137">        assertSame(&quot;UnmodifiableSortedBag shall not be decorated&quot;, bag, BagUtils.unmodifiableSortedBag(bag));</span>
+<span class="fc" id="L138">    }</span>
+
+    @Test
+    public void testPredicatedSortedBag() {
+<span class="fc" id="L142">        Bag&lt;Object&gt; bag = BagUtils.predicatedSortedBag(new TreeBag&lt;Object&gt;(), truePredicate);</span>
+<span class="fc" id="L143">        assertTrue(&quot;Returned object should be a PredicatedSortedBag.&quot;,</span>
+<span class="fc" id="L144">            bag instanceof PredicatedSortedBag);</span>
+        try {
+<span class="nc" id="L146">            BagUtils.predicatedSortedBag(null, truePredicate);</span>
+<span class="nc" id="L147">            fail(&quot;Expecting NullPointerException for null bag.&quot;);</span>
+<span class="pc" id="L148">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L152">            BagUtils.predicatedSortedBag(new TreeBag&lt;Object&gt;(), null);</span>
+<span class="nc" id="L153">            fail(&quot;Expecting NullPointerException for null predicate.&quot;);</span>
+<span class="pc" id="L154">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L157">    }</span>
+
+    @Test
+    public void testTransformedSortedBag() {
+<span class="fc" id="L161">        Bag&lt;Object&gt; bag = BagUtils.transformingSortedBag(new TreeBag&lt;Object&gt;(), nopTransformer);</span>
+<span class="fc" id="L162">        assertTrue(&quot;Returned object should be an TransformedSortedBag&quot;,</span>
+<span class="fc" id="L163">            bag instanceof TransformedSortedBag);</span>
+        try {
+<span class="nc" id="L165">            BagUtils.transformingSortedBag(null, nopTransformer);</span>
+<span class="nc" id="L166">            fail(&quot;Expecting NullPointerException for null bag.&quot;);</span>
+<span class="pc" id="L167">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L171">            BagUtils.transformingSortedBag(new TreeBag&lt;Object&gt;(), null);</span>
+<span class="nc" id="L172">            fail(&quot;Expecting NullPointerException for null transformer.&quot;);</span>
+<span class="pc" id="L173">        } catch (final NullPointerException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L176">    }</span>
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestMultiKey.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.keyvalue</a> &gt; <span class="el_source">TestMultiKey.java</span></div><h1>TestMultiKey.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.keyvalue;
+
+import java.util.Arrays;
+
+import junit.framework.Assert;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+/**
+ * Unit tests for {@link org.apache.commons.collections.MultiKey}.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class TestMultiKey extends TestCase {
+
+<span class="fc" id="L35">    Integer ONE = new Integer(1);</span>
+<span class="fc" id="L36">    Integer TWO = new Integer(2);</span>
+<span class="fc" id="L37">    Integer THREE = new Integer(3);</span>
+<span class="fc" id="L38">    Integer FOUR = new Integer(4);</span>
+<span class="fc" id="L39">    Integer FIVE = new Integer(5);</span>
+    
+    public TestMultiKey(String name) {
+<span class="fc" id="L42">        super(name);</span>
+<span class="fc" id="L43">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L46" title="All 2 branches covered.">        return new TestSuite(TestMultiKey.class);</span>
+    }
+
+    public static void main(String[] args) {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        String[] testCaseName = { TestMultiKey.class.getName() };</span>
+<span class="nc" id="L51">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L52">    }</span>
+
+    public void setUp() throws Exception {
+<span class="fc" id="L55">        super.setUp();</span>
+<span class="fc" id="L56">    }</span>
+
+    protected void tearDown() throws Exception {
+<span class="fc" id="L59">        super.tearDown();</span>
+<span class="fc" id="L60">    }</span>
+    
+    //-----------------------------------------------------------------------
+    public void testConstructors() throws Exception {
+<span class="fc" id="L64">        MultiKey mk = null;</span>
+<span class="fc" id="L65">        mk = new MultiKey(ONE, TWO);</span>
+<span class="fc" id="L66">        Assert.assertTrue(Arrays.equals(new Object[] {ONE, TWO}, mk.getKeys()));</span>
+
+<span class="fc" id="L68">        mk = new MultiKey(ONE, TWO, THREE);</span>
+<span class="fc" id="L69">        Assert.assertTrue(Arrays.equals(new Object[] {ONE, TWO, THREE}, mk.getKeys()));</span>
+
+<span class="fc" id="L71">        mk = new MultiKey(ONE, TWO, THREE, FOUR);</span>
+<span class="fc" id="L72">        Assert.assertTrue(Arrays.equals(new Object[] {ONE, TWO, THREE, FOUR}, mk.getKeys()));</span>
+
+<span class="fc" id="L74">        mk = new MultiKey(ONE, TWO, THREE, FOUR, FIVE);</span>
+<span class="fc" id="L75">        Assert.assertTrue(Arrays.equals(new Object[] {ONE, TWO, THREE, FOUR, FIVE}, mk.getKeys()));</span>
+
+<span class="fc" id="L77">        mk = new MultiKey(new Object[] {THREE, FOUR, ONE, TWO}, false);</span>
+<span class="fc" id="L78">        Assert.assertTrue(Arrays.equals(new Object[] {THREE, FOUR, ONE, TWO}, mk.getKeys()));</span>
+<span class="fc" id="L79">    }</span>
+    
+    public void testConstructorsByArray() throws Exception {
+<span class="fc" id="L82">        MultiKey mk = null;</span>
+<span class="fc" id="L83">        Object[] keys = new Object[] {THREE, FOUR, ONE, TWO};</span>
+<span class="fc" id="L84">        mk = new MultiKey(keys);</span>
+<span class="fc" id="L85">        Assert.assertTrue(Arrays.equals(new Object[] {THREE, FOUR, ONE, TWO}, mk.getKeys()));</span>
+<span class="fc" id="L86">        keys[3] = FIVE;  // no effect</span>
+<span class="fc" id="L87">        Assert.assertTrue(Arrays.equals(new Object[] {THREE, FOUR, ONE, TWO}, mk.getKeys()));</span>
+
+<span class="fc" id="L89">        keys = new Object[] {};</span>
+<span class="fc" id="L90">        mk = new MultiKey(keys);</span>
+<span class="fc" id="L91">        Assert.assertTrue(Arrays.equals(new Object[] {}, mk.getKeys()));</span>
+
+<span class="fc" id="L93">        keys = new Object[] {THREE, FOUR, ONE, TWO};</span>
+<span class="fc" id="L94">        mk = new MultiKey(keys, true);</span>
+<span class="fc" id="L95">        Assert.assertTrue(Arrays.equals(new Object[] {THREE, FOUR, ONE, TWO}, mk.getKeys()));</span>
+<span class="fc" id="L96">        keys[3] = FIVE;  // no effect</span>
+<span class="fc" id="L97">        Assert.assertTrue(Arrays.equals(new Object[] {THREE, FOUR, ONE, TWO}, mk.getKeys()));</span>
+
+<span class="fc" id="L99">        keys = new Object[] {THREE, FOUR, ONE, TWO};</span>
+<span class="fc" id="L100">        mk = new MultiKey(keys, false);</span>
+<span class="fc" id="L101">        Assert.assertTrue(Arrays.equals(new Object[] {THREE, FOUR, ONE, TWO}, mk.getKeys()));</span>
+        // change key - don't do this!
+        // the hashcode of the MultiKey is now broken
+<span class="fc" id="L104">        keys[3] = FIVE;</span>
+<span class="fc" id="L105">        Assert.assertTrue(Arrays.equals(new Object[] {THREE, FOUR, ONE, FIVE}, mk.getKeys()));</span>
+<span class="fc" id="L106">    }        </span>
+    
+    public void testConstructorsByArrayNull() throws Exception {
+<span class="fc" id="L109">        Object[] keys = null;</span>
+        try {
+<span class="nc" id="L111">            new MultiKey(keys);</span>
+<span class="nc" id="L112">            fail();</span>
+<span class="pc" id="L113">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L115">            new MultiKey(keys, true);</span>
+<span class="nc" id="L116">            fail();</span>
+<span class="pc" id="L117">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L119">            new MultiKey(keys, false);</span>
+<span class="nc" id="L120">            fail();</span>
+<span class="pc" id="L121">        } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L122">    }</span>
+    
+    public void testSize() {
+<span class="fc" id="L125">        Assert.assertEquals(2, new MultiKey(ONE, TWO).size());</span>
+<span class="fc" id="L126">        Assert.assertEquals(2, new MultiKey(null, null).size());</span>
+<span class="fc" id="L127">        Assert.assertEquals(3, new MultiKey(ONE, TWO, THREE).size());</span>
+<span class="fc" id="L128">        Assert.assertEquals(3, new MultiKey(null, null, null).size());</span>
+<span class="fc" id="L129">        Assert.assertEquals(4, new MultiKey(ONE, TWO, THREE, FOUR).size());</span>
+<span class="fc" id="L130">        Assert.assertEquals(4, new MultiKey(null, null, null, null).size());</span>
+<span class="fc" id="L131">        Assert.assertEquals(5, new MultiKey(ONE, TWO, THREE, FOUR, FIVE).size());</span>
+<span class="fc" id="L132">        Assert.assertEquals(5, new MultiKey(null, null, null, null, null).size());</span>
+        
+<span class="fc" id="L134">        Assert.assertEquals(0, new MultiKey(new Object[] {}).size());</span>
+<span class="fc" id="L135">        Assert.assertEquals(1, new MultiKey(new Object[] {ONE}).size());</span>
+<span class="fc" id="L136">        Assert.assertEquals(2, new MultiKey(new Object[] {ONE, TWO}).size());</span>
+<span class="fc" id="L137">        Assert.assertEquals(7, new MultiKey(new Object[] {ONE, TWO, ONE, TWO, ONE, TWO, ONE}).size());</span>
+<span class="fc" id="L138">    }</span>
+    
+    public void testGetIndexed() {
+<span class="fc" id="L141">        MultiKey mk = new MultiKey(ONE, TWO);</span>
+<span class="fc" id="L142">        Assert.assertSame(ONE, mk.getKey(0));</span>
+<span class="fc" id="L143">        Assert.assertSame(TWO, mk.getKey(1));</span>
+        try {
+<span class="nc" id="L145">            mk.getKey(-1);</span>
+<span class="nc" id="L146">            fail();</span>
+<span class="pc" id="L147">        } catch (IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L149">            mk.getKey(2);</span>
+<span class="nc" id="L150">            fail();</span>
+<span class="pc" id="L151">        } catch (IndexOutOfBoundsException ex) {}</span>
+<span class="fc" id="L152">    }</span>
+    
+    public void testGetKeysSimpleConstructor() {
+<span class="fc" id="L155">        MultiKey mk = new MultiKey(ONE, TWO);</span>
+<span class="fc" id="L156">        Object[] array = mk.getKeys();</span>
+<span class="fc" id="L157">        Assert.assertSame(ONE, array[0]);</span>
+<span class="fc" id="L158">        Assert.assertSame(TWO, array[1]);</span>
+<span class="fc" id="L159">        Assert.assertEquals(2, array.length);</span>
+<span class="fc" id="L160">    }</span>
+    
+    public void testGetKeysArrayConstructorCloned() {
+<span class="fc" id="L163">        Object[] keys = new Object[] {ONE, TWO};</span>
+<span class="fc" id="L164">        MultiKey mk = new MultiKey(keys, true);</span>
+<span class="fc" id="L165">        Object[] array = mk.getKeys();</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        Assert.assertTrue(array != keys);</span>
+<span class="fc" id="L167">        Assert.assertTrue(Arrays.equals(array, keys));</span>
+<span class="fc" id="L168">        Assert.assertSame(ONE, array[0]);</span>
+<span class="fc" id="L169">        Assert.assertSame(TWO, array[1]);</span>
+<span class="fc" id="L170">        Assert.assertEquals(2, array.length);</span>
+<span class="fc" id="L171">    }</span>
+    
+    public void testGetKeysArrayConstructorNonCloned() {
+<span class="fc" id="L174">        Object[] keys = new Object[] {ONE, TWO};</span>
+<span class="fc" id="L175">        MultiKey mk = new MultiKey(keys, false);</span>
+<span class="fc" id="L176">        Object[] array = mk.getKeys();</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">        Assert.assertTrue(array != keys);  // still not equal</span>
+<span class="fc" id="L178">        Assert.assertTrue(Arrays.equals(array, keys));</span>
+<span class="fc" id="L179">        Assert.assertSame(ONE, array[0]);</span>
+<span class="fc" id="L180">        Assert.assertSame(TWO, array[1]);</span>
+<span class="fc" id="L181">        Assert.assertEquals(2, array.length);</span>
+<span class="fc" id="L182">    }</span>
+    
+    public void testHashCode() {
+<span class="fc" id="L185">        MultiKey mk1 = new MultiKey(ONE, TWO);</span>
+<span class="fc" id="L186">        MultiKey mk2 = new MultiKey(ONE, TWO);</span>
+<span class="fc" id="L187">        MultiKey mk3 = new MultiKey(ONE, &quot;TWO&quot;);</span>
+        
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">        Assert.assertTrue(mk1.hashCode() == mk1.hashCode());</span>
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">        Assert.assertTrue(mk1.hashCode() == mk2.hashCode());</span>
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">        Assert.assertTrue(mk1.hashCode() != mk3.hashCode());</span>
+        
+<span class="fc" id="L193">        int total = (0 ^ ONE.hashCode()) ^ TWO.hashCode();</span>
+<span class="fc" id="L194">        Assert.assertEquals(total, mk1.hashCode());</span>
+<span class="fc" id="L195">    }</span>
+    
+    public void testEquals() {
+<span class="fc" id="L198">        MultiKey mk1 = new MultiKey(ONE, TWO);</span>
+<span class="fc" id="L199">        MultiKey mk2 = new MultiKey(ONE, TWO);</span>
+<span class="fc" id="L200">        MultiKey mk3 = new MultiKey(ONE, &quot;TWO&quot;);</span>
+        
+<span class="fc" id="L202">        Assert.assertEquals(mk1, mk1);</span>
+<span class="fc" id="L203">        Assert.assertEquals(mk1, mk2);</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">        Assert.assertTrue(mk1.equals(mk3) == false);</span>
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        Assert.assertTrue(mk1.equals(&quot;&quot;) == false);</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">        Assert.assertTrue(mk1.equals(null) == false);</span>
+<span class="fc" id="L207">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

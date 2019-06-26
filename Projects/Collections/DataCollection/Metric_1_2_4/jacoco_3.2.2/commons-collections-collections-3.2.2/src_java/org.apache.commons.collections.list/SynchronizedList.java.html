@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SynchronizedList.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.list</a> &gt; <span class="el_source">SynchronizedList.java</span></div><h1>SynchronizedList.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.list;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.ListIterator;
+
+import org.apache.commons.collections.collection.SynchronizedCollection;
+
+/**
+ * Decorates another &lt;code&gt;List&lt;/code&gt; to synchronize its behaviour
+ * for a multi-threaded environment.
+ * &lt;p&gt;
+ * Methods are synchronized, then forwarded to the decorated list.
+ * &lt;p&gt;
+ * This class is Serializable from Commons Collections 3.1.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class SynchronizedList extends SynchronizedCollection implements List {
+
+    /** Serialization version */
+     private static final long serialVersionUID = -1403835447328619437L;
+
+    /**
+     * Factory method to create a synchronized list.
+     * 
+     * @param list  the list to decorate, must not be null
+     * @throws IllegalArgumentException if list is null
+     */
+    public static List decorate(List list) {
+<span class="fc" id="L50">        return new SynchronizedList(list);</span>
+    }
+    
+    //-----------------------------------------------------------------------
+    /**
+     * Constructor that wraps (not copies).
+     * 
+     * @param list  the list to decorate, must not be null
+     * @throws IllegalArgumentException if list is null
+     */
+    protected SynchronizedList(List list) {
+<span class="fc" id="L61">        super(list);</span>
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Constructor that wraps (not copies).
+     * 
+     * @param list  the list to decorate, must not be null
+     * @param lock  the lock to use, must not be null
+     * @throws IllegalArgumentException if list is null
+     */
+    protected SynchronizedList(List list, Object lock) {
+<span class="nc" id="L72">        super(list, lock);</span>
+<span class="nc" id="L73">    }</span>
+
+    /**
+     * Gets the decorated list.
+     * 
+     * @return the decorated list
+     */
+    protected List getList() {
+<span class="fc" id="L81">        return (List) collection;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void add(int index, Object object) {
+<span class="fc" id="L86">        synchronized (lock) {</span>
+<span class="fc" id="L87">            getList().add(index, object);</span>
+        }
+<span class="fc" id="L89">    }</span>
+
+    public boolean addAll(int index, Collection coll) {
+<span class="nc" id="L92">        synchronized (lock) {</span>
+<span class="nc" id="L93">            return getList().addAll(index, coll);</span>
+        }
+    }
+
+    public Object get(int index) {
+<span class="fc" id="L98">        synchronized (lock) {</span>
+<span class="fc" id="L99">            return getList().get(index);</span>
+        }
+    }
+
+    public int indexOf(Object object) {
+<span class="fc" id="L104">        synchronized (lock) {</span>
+<span class="fc" id="L105">            return getList().indexOf(object);</span>
+        }
+    }
+
+    public int lastIndexOf(Object object) {
+<span class="fc" id="L110">        synchronized (lock) {</span>
+<span class="fc" id="L111">            return getList().lastIndexOf(object);</span>
+        }
+    }
+
+    /**
+     * Iterators must be manually synchronized.
+     * &lt;pre&gt;
+     * synchronized (coll) {
+     *   ListIterator it = coll.listIterator();
+     *   // do stuff with iterator
+     * }
+     * 
+     * @return an iterator that must be manually synchronized on the collection
+     */
+    public ListIterator listIterator() {
+<span class="fc" id="L126">        return getList().listIterator();</span>
+    }
+
+    /**
+     * Iterators must be manually synchronized.
+     * &lt;pre&gt;
+     * synchronized (coll) {
+     *   ListIterator it = coll.listIterator(3);
+     *   // do stuff with iterator
+     * }
+     * 
+     * @return an iterator that must be manually synchronized on the collection
+     */
+    public ListIterator listIterator(int index) {
+<span class="fc" id="L140">        return getList().listIterator(index);</span>
+    }
+
+    public Object remove(int index) {
+<span class="fc" id="L144">        synchronized (lock) {</span>
+<span class="fc" id="L145">            return getList().remove(index);</span>
+        }
+    }
+
+    public Object set(int index, Object object) {
+<span class="fc" id="L150">        synchronized (lock) {</span>
+<span class="fc" id="L151">            return getList().set(index, object);</span>
+        }
+    }
+
+    public List subList(int fromIndex, int toIndex) {
+<span class="nc" id="L156">        synchronized (lock) {</span>
+<span class="nc" id="L157">            List list = getList().subList(fromIndex, toIndex);</span>
+            // the lock is passed into the constructor here to ensure that the sublist is
+            // synchronized on the same lock as the parent list
+<span class="nc" id="L160">            return new SynchronizedList(list, lock);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

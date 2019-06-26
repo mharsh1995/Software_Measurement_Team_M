@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractMapIteratorTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.iterators</a> &gt; <span class="el_source">AbstractMapIteratorTest.java</span></div><h1>AbstractMapIteratorTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.iterators;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.apache.commons.collections4.MapIterator;
+
+/**
+ * Abstract class for testing the MapIterator interface.
+ * &lt;p&gt;
+ * This class provides a framework for testing an implementation of MapIterator.
+ * Concrete subclasses must provide the list iterator to be tested.
+ * They must also specify certain details of how the list iterator operates by
+ * overriding the supportsXxx() methods if necessary.
+ *
+ * @since 3.0
+ * @version $Id$
+ */
+public abstract class AbstractMapIteratorTest&lt;K, V&gt; extends AbstractIteratorTest&lt;K&gt; {
+
+    /**
+     * JUnit constructor.
+     *
+     * @param testName  the test class name
+     */
+    public AbstractMapIteratorTest(final String testName) {
+<span class="fc" id="L45">        super(testName);</span>
+<span class="fc" id="L46">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Implement this method to return a map iterator over an empty map.
+     *
+     * @return an empty iterator
+     */
+    @Override
+    public abstract MapIterator&lt;K, V&gt; makeEmptyIterator();
+
+    /**
+     * Implement this method to return a map iterator over a map with elements.
+     *
+     * @return a full iterator
+     */
+    @Override
+    public abstract MapIterator&lt;K, V&gt; makeObject();
+
+    /**
+     * Implement this method to return the map which contains the same data as the
+     * iterator.
+     *
+     * @return a full map which can be updated
+     */
+    public abstract Map&lt;K, V&gt; getMap();
+
+    /**
+     * Implement this method to return the confirmed map which contains the same
+     * data as the iterator.
+     *
+     * @return a full map which can be updated
+     */
+    public abstract Map&lt;K, V&gt; getConfirmedMap();
+
+    /**
+     * Whether or not we are testing an iterator that supports setValue().
+     * Default is true.
+     *
+     * @return true if Iterator supports set
+     */
+    public boolean supportsSetValue() {
+<span class="nc" id="L88">        return true;</span>
+    }
+
+    /**
+     * Whether the get operation on the map structurally modifies the map,
+     * such as with LRUMap. Default is false.
+     *
+     * @return true if the get method structurally modifies the map
+     */
+    public boolean isGetStructuralModify() {
+<span class="fc" id="L98">        return false;</span>
+    }
+
+    /**
+     * The values to be used in the add and set tests.
+     * Default is two strings.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public V[] addSetValues() {
+<span class="fc" id="L107">        return (V[]) new Object[] { &quot;A&quot;, &quot;B&quot; };</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test that the empty list iterator contract is correct.
+     */
+    public void testEmptyMapIterator() {
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        if (!supportsEmptyIterator()) {</span>
+<span class="nc" id="L116">            return;</span>
+        }
+
+<span class="fc" id="L119">        final MapIterator&lt;K, V&gt; it = makeEmptyIterator();</span>
+<span class="fc" id="L120">        assertEquals(false, it.hasNext());</span>
+
+        // next() should throw a NoSuchElementException
+        try {
+<span class="nc" id="L124">            it.next();</span>
+<span class="nc" id="L125">            fail();</span>
+<span class="pc" id="L126">        } catch (final NoSuchElementException ex) {}</span>
+
+        // getKey() should throw an IllegalStateException
+        try {
+<span class="nc" id="L130">            it.getKey();</span>
+<span class="nc" id="L131">            fail();</span>
+<span class="pc" id="L132">        } catch (final IllegalStateException ex) {}</span>
+
+        // getValue() should throw an IllegalStateException
+        try {
+<span class="nc" id="L136">            it.getValue();</span>
+<span class="nc" id="L137">            fail();</span>
+<span class="pc" id="L138">        } catch (final IllegalStateException ex) {}</span>
+
+<span class="fc bfc" id="L140" title="All 2 branches covered.">        if (!supportsSetValue()) {</span>
+            // setValue() should throw an UnsupportedOperationException/IllegalStateException
+            try {
+<span class="nc" id="L143">                it.setValue(addSetValues()[0]);</span>
+<span class="nc" id="L144">                fail();</span>
+<span class="pc" id="L145">            } catch (final UnsupportedOperationException ex) {</span>
+<span class="fc" id="L146">            } catch (final IllegalStateException ex) {}</span>
+<span class="fc" id="L147">        } else {</span>
+            // setValue() should throw an IllegalStateException
+            try {
+<span class="nc" id="L150">                it.setValue(addSetValues()[0]);</span>
+<span class="nc" id="L151">                fail();</span>
+<span class="pc" id="L152">            } catch (final IllegalStateException ex) {}</span>
+        }
+<span class="fc" id="L154">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test that the full list iterator contract is correct.
+     */
+    public void testFullMapIterator() {
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">        if (!supportsFullIterator()) {</span>
+<span class="nc" id="L162">            return;</span>
+        }
+
+<span class="fc" id="L165">        final MapIterator&lt;K, V&gt; it = makeObject();</span>
+<span class="fc" id="L166">        final Map&lt;K, V&gt; map = getMap();</span>
+<span class="fc" id="L167">        assertEquals(true, it.hasNext());</span>
+
+<span class="fc" id="L169">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L170">        final Set&lt;K&gt; set = new HashSet&lt;K&gt;();</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+            // getKey
+<span class="fc" id="L173">            final K key = it.next();</span>
+<span class="fc" id="L174">            assertSame(&quot;it.next() should equals getKey()&quot;, key, it.getKey());</span>
+<span class="fc" id="L175">            assertTrue(&quot;Key must be in map&quot;,  map.containsKey(key));</span>
+<span class="fc" id="L176">            assertTrue(&quot;Key must be unique&quot;, set.add(key));</span>
+
+            // getValue
+<span class="fc" id="L179">            final V value = it.getValue();</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">            if (!isGetStructuralModify()) {</span>
+<span class="fc" id="L181">                assertSame(&quot;Value must be mapped to key&quot;, map.get(key), value);</span>
+            }
+<span class="fc" id="L183">            assertTrue(&quot;Value must be in map&quot;,  map.containsValue(value));</span>
+
+<span class="fc" id="L185">            verify();</span>
+        }
+<span class="fc" id="L187">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testMapIteratorSet() {
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">        if (!supportsFullIterator()) {</span>
+<span class="nc" id="L192">            return;</span>
+        }
+
+<span class="fc" id="L195">        final V newValue = addSetValues()[0];</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">        final V newValue2 = addSetValues().length == 1 ? addSetValues()[0] : addSetValues()[1];</span>
+<span class="fc" id="L197">        final MapIterator&lt;K, V&gt; it = makeObject();</span>
+<span class="fc" id="L198">        final Map&lt;K, V&gt; map = getMap();</span>
+<span class="fc" id="L199">        final Map&lt;K, V&gt; confirmed = getConfirmedMap();</span>
+<span class="fc" id="L200">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L201">        final K key = it.next();</span>
+<span class="fc" id="L202">        final V value = it.getValue();</span>
+
+<span class="fc bfc" id="L204" title="All 2 branches covered.">        if (!supportsSetValue()) {</span>
+            try {
+<span class="nc" id="L206">                it.setValue(newValue);</span>
+<span class="nc" id="L207">                fail();</span>
+<span class="pc" id="L208">            } catch (final UnsupportedOperationException ex) {}</span>
+<span class="fc" id="L209">            return;</span>
+        }
+<span class="fc" id="L211">        final V old = it.setValue(newValue);</span>
+<span class="fc" id="L212">        confirmed.put(key, newValue);</span>
+<span class="fc" id="L213">        assertSame(&quot;Key must not change after setValue&quot;, key, it.getKey());</span>
+<span class="fc" id="L214">        assertSame(&quot;Value must be changed after setValue&quot;, newValue, it.getValue());</span>
+<span class="fc" id="L215">        assertSame(&quot;setValue must return old value&quot;, value, old);</span>
+<span class="fc" id="L216">        assertEquals(&quot;Map must contain key&quot;, true, map.containsKey(key));</span>
+        // test against confirmed, as map may contain value twice
+<span class="fc" id="L218">        assertEquals(&quot;Map must not contain old value&quot;,</span>
+<span class="fc" id="L219">            confirmed.containsValue(old), map.containsValue(old));</span>
+<span class="fc" id="L220">        assertEquals(&quot;Map must contain new value&quot;, true, map.containsValue(newValue));</span>
+<span class="fc" id="L221">        verify();</span>
+
+<span class="fc" id="L223">        it.setValue(newValue);  // same value - should be OK</span>
+<span class="fc" id="L224">        confirmed.put(key, newValue);</span>
+<span class="fc" id="L225">        assertSame(&quot;Key must not change after setValue&quot;, key, it.getKey());</span>
+<span class="fc" id="L226">        assertSame(&quot;Value must be changed after setValue&quot;, newValue, it.getValue());</span>
+<span class="fc" id="L227">        verify();</span>
+
+<span class="fc" id="L229">        it.setValue(newValue2);  // new value</span>
+<span class="fc" id="L230">        confirmed.put(key, newValue2);</span>
+<span class="fc" id="L231">        assertSame(&quot;Key must not change after setValue&quot;, key, it.getKey());</span>
+<span class="fc" id="L232">        assertSame(&quot;Value must be changed after setValue&quot;, newValue2, it.getValue());</span>
+<span class="fc" id="L233">        verify();</span>
+<span class="fc" id="L234">    }</span>
+
+    //-----------------------------------------------------------------------
+    @Override
+    public void testRemove() { // override
+<span class="fc" id="L239">        final MapIterator&lt;K, V&gt; it = makeObject();</span>
+<span class="fc" id="L240">        final Map&lt;K, V&gt; map = getMap();</span>
+<span class="fc" id="L241">        final Map&lt;K, V&gt; confirmed = getConfirmedMap();</span>
+<span class="fc" id="L242">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L243">        final K key = it.next();</span>
+
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        if (!supportsRemove()) {</span>
+            try {
+<span class="nc" id="L247">                it.remove();</span>
+<span class="nc" id="L248">                fail();</span>
+<span class="pc" id="L249">            } catch (final UnsupportedOperationException ex) {</span>
+            }
+<span class="fc" id="L251">            return;</span>
+        }
+
+<span class="fc" id="L254">        it.remove();</span>
+<span class="fc" id="L255">        confirmed.remove(key);</span>
+<span class="fc" id="L256">        assertEquals(false, map.containsKey(key));</span>
+<span class="fc" id="L257">        verify();</span>
+
+        try {
+<span class="nc" id="L260">            it.remove();  // second remove fails</span>
+<span class="pc" id="L261">        } catch (final IllegalStateException ex) {</span>
+        }
+<span class="fc" id="L263">        verify();</span>
+<span class="fc" id="L264">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testMapIteratorSetRemoveSet() {
+<span class="fc bfc" id="L268" title="All 4 branches covered.">        if (!supportsSetValue() || !supportsRemove()) {</span>
+<span class="fc" id="L269">            return;</span>
+        }
+<span class="fc" id="L271">        final V newValue = addSetValues()[0];</span>
+<span class="fc" id="L272">        final MapIterator&lt;K, V&gt; it = makeObject();</span>
+<span class="fc" id="L273">        final Map&lt;K, V&gt; confirmed = getConfirmedMap();</span>
+
+<span class="fc" id="L275">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L276">        final K key = it.next();</span>
+
+<span class="fc" id="L278">        it.setValue(newValue);</span>
+<span class="fc" id="L279">        it.remove();</span>
+<span class="fc" id="L280">        confirmed.remove(key);</span>
+<span class="fc" id="L281">        verify();</span>
+
+        try {
+<span class="nc" id="L284">            it.setValue(newValue);</span>
+<span class="nc" id="L285">            fail();</span>
+<span class="pc" id="L286">        } catch (final IllegalStateException ex) {}</span>
+<span class="fc" id="L287">        verify();</span>
+<span class="fc" id="L288">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testMapIteratorRemoveGetKey() {
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        if (!supportsRemove()) {</span>
+<span class="fc" id="L293">            return;</span>
+        }
+<span class="fc" id="L295">        final MapIterator&lt;K, V&gt; it = makeObject();</span>
+<span class="fc" id="L296">        final Map&lt;K, V&gt; confirmed = getConfirmedMap();</span>
+
+<span class="fc" id="L298">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L299">        final K key = it.next();</span>
+
+<span class="fc" id="L301">        it.remove();</span>
+<span class="fc" id="L302">        confirmed.remove(key);</span>
+<span class="fc" id="L303">        verify();</span>
+
+        try {
+<span class="nc" id="L306">            it.getKey();</span>
+<span class="nc" id="L307">            fail();</span>
+<span class="pc" id="L308">        } catch (final IllegalStateException ex) {}</span>
+<span class="fc" id="L309">        verify();</span>
+<span class="fc" id="L310">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testMapIteratorRemoveGetValue() {
+<span class="fc bfc" id="L314" title="All 2 branches covered.">        if (!supportsRemove()) {</span>
+<span class="fc" id="L315">            return;</span>
+        }
+<span class="fc" id="L317">        final MapIterator&lt;K, V&gt; it = makeObject();</span>
+<span class="fc" id="L318">        final Map&lt;K, V&gt; confirmed = getConfirmedMap();</span>
+
+<span class="fc" id="L320">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L321">        final K key = it.next();</span>
+
+<span class="fc" id="L323">        it.remove();</span>
+<span class="fc" id="L324">        confirmed.remove(key);</span>
+<span class="fc" id="L325">        verify();</span>
+
+        try {
+<span class="nc" id="L328">            it.getValue();</span>
+<span class="nc" id="L329">            fail();</span>
+<span class="pc" id="L330">        } catch (final IllegalStateException ex) {}</span>
+<span class="fc" id="L331">        verify();</span>
+<span class="fc" id="L332">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

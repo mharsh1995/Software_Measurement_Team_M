@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestPredicatedBuffer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.buffer</a> &gt; <span class="el_source">TestPredicatedBuffer.java</span></div><h1>TestPredicatedBuffer.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.buffer;
+
+import java.util.Collection;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.ArrayStack;
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.BufferUnderflowException;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.collection.TestPredicatedCollection;
+
+/**
+ * Extension of {@link TestPredicatedCollection} for exercising the 
+ * {@link PredicatedBuffer} implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Phil Steitz
+ */
+public class TestPredicatedBuffer extends TestPredicatedCollection {
+    
+    public TestPredicatedBuffer(String testName) {
+<span class="fc" id="L42">        super(testName);</span>
+<span class="fc" id="L43">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L46" title="All 2 branches covered.">        return new TestSuite(TestPredicatedBuffer.class);</span>
+    }
+    
+    public static void main(String args[]) {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        String[] testCaseName = { TestPredicatedBuffer.class.getName()};</span>
+<span class="nc" id="L51">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L52">    }</span>
+    
+    //---------------------------------------------------------------
+    
+    protected Buffer decorateBuffer(Buffer buffer, Predicate predicate) {
+<span class="fc" id="L57">        return PredicatedBuffer.decorate(buffer, predicate);</span>
+    }
+    
+    public Collection makeCollection() {
+<span class="fc" id="L61">        return decorateBuffer(new ArrayStack(), truePredicate);</span>
+    }
+    
+    public Collection makeConfirmedCollection() {
+<span class="fc" id="L65">        return new ArrayStack();</span>
+    }
+    
+    public Collection makeConfirmedFullCollection() {
+<span class="fc" id="L69">        ArrayStack list = new ArrayStack();</span>
+<span class="fc" id="L70">        list.addAll(java.util.Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L71">        return list;</span>
+    }
+    
+    //------------------------------------------------------------
+    
+    public Buffer makeTestBuffer() {
+<span class="fc" id="L77">        return decorateBuffer(new ArrayStack(), testPredicate);</span>
+    }
+    
+    public void testGet() {
+<span class="fc" id="L81">        Buffer buffer = makeTestBuffer();</span>
+        try {
+<span class="nc" id="L83">            Object o = buffer.get();</span>
+<span class="nc" id="L84">            fail(&quot;Expecting BufferUnderflowException&quot;);</span>
+<span class="pc" id="L85">        } catch (BufferUnderflowException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L88">        buffer.add(&quot;one&quot;);</span>
+<span class="fc" id="L89">        buffer.add(&quot;two&quot;);</span>
+<span class="fc" id="L90">        buffer.add(&quot;three&quot;);</span>
+<span class="fc" id="L91">        assertEquals(&quot;Buffer get&quot;, buffer.get(), &quot;three&quot;);</span>
+<span class="fc" id="L92">    }</span>
+    
+    public void testRemove() {
+<span class="fc" id="L95">        Buffer buffer = makeTestBuffer();</span>
+<span class="fc" id="L96">        buffer.add(&quot;one&quot;);</span>
+<span class="fc" id="L97">        assertEquals(&quot;Buffer get&quot;, buffer.remove(), &quot;one&quot;);</span>
+        try {
+<span class="nc" id="L99">            buffer.remove();</span>
+<span class="nc" id="L100">            fail(&quot;Expecting BufferUnderflowException&quot;);</span>
+<span class="pc" id="L101">        } catch (BufferUnderflowException ex) {</span>
+            // expected
+        }      
+<span class="fc" id="L104">    }</span>
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L107">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/PredicatedBuffer.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/PredicatedBuffer.fullCollection.version3.1.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestSynchronizedSortedSet.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.set</a> &gt; <span class="el_source">TestSynchronizedSortedSet.java</span></div><h1>TestSynchronizedSortedSet.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.set;
+
+import java.util.Set;
+import java.util.TreeSet;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.BulkTest;
+
+/**
+ * Extension of {@link AbstractTestSet} for exercising the 
+ * {@link SynchronizedSortedSet} implementation.
+ *
+ * @since Commons Collections 3.1
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class TestSynchronizedSortedSet extends AbstractTestSortedSet{
+    
+    public TestSynchronizedSortedSet(String testName) {
+<span class="fc" id="L38">        super(testName);</span>
+<span class="fc" id="L39">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L42" title="All 2 branches covered.">        return BulkTest.makeSuite(TestSynchronizedSortedSet.class);</span>
+    }
+    
+    public static void main(String args[]) {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        String[] testCaseName = { TestSynchronizedSortedSet.class.getName()};</span>
+<span class="nc" id="L47">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L48">    }</span>
+    
+   //-------------------------------------------------------------------      
+    public Set makeEmptySet() {
+<span class="fc" id="L52">        return SynchronizedSortedSet.decorate(new TreeSet());</span>
+    }
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L56">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/SynchronizedSortedSet.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/SynchronizedSortedSet.fullCollection.version3.1.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

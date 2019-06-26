@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InstantiateFactory.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.functors</a> &gt; <span class="el_source">InstantiateFactory.java</span></div><h1>InstantiateFactory.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.functors;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.commons.collections.Factory;
+import org.apache.commons.collections.FunctorException;
+
+/**
+ * Factory implementation that creates a new object instance by reflection.
+ * &lt;p&gt;
+ * &lt;b&gt;WARNING:&lt;/b&gt; from v3.2.2 onwards this class will throw an
+ * {@link UnsupportedOperationException} when trying to serialize or
+ * de-serialize an instance to prevent potential remote code execution exploits.
+ * &lt;p&gt;
+ * In order to re-enable serialization support for {@code InstantiateTransformer}
+ * the following system property can be used (via -Dproperty=true):
+ * &lt;pre&gt;
+ * org.apache.commons.collections.enableUnsafeSerialization
+ * &lt;/pre&gt;
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ *
+ * @author Stephen Colebourne
+ */
+public class InstantiateFactory implements Factory, Serializable {
+
+    /** The serial version */
+    private static final long serialVersionUID = -7732226881069447957L;
+
+    /** The class to create */
+    private final Class iClassToInstantiate;
+    /** The constructor parameter types */
+    private final Class[] iParamTypes;
+    /** The constructor arguments */
+    private final Object[] iArgs;
+    /** The constructor */
+<span class="fc" id="L59">    private transient Constructor iConstructor = null;</span>
+
+    /**
+     * Factory method that performs validation.
+     * 
+     * @param classToInstantiate  the class to instantiate, not null
+     * @param paramTypes  the constructor parameter types
+     * @param args  the constructor arguments
+     * @return a new instantiate factory
+     */
+    public static Factory getInstance(Class classToInstantiate, Class[] paramTypes, Object[] args) {
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (classToInstantiate == null) {</span>
+<span class="fc" id="L71">            throw new IllegalArgumentException(&quot;Class to instantiate must not be null&quot;);</span>
+        }
+<span class="fc bfc" id="L73" title="All 4 branches covered.">        if (((paramTypes == null) &amp;&amp; (args != null))</span>
+<span class="pc bpc" id="L74" title="1 of 4 branches missed.">            || ((paramTypes != null) &amp;&amp; (args == null))</span>
+<span class="pc bpc" id="L75" title="2 of 6 branches missed.">            || ((paramTypes != null) &amp;&amp; (args != null) &amp;&amp; (paramTypes.length != args.length))) {</span>
+<span class="fc" id="L76">            throw new IllegalArgumentException(&quot;Parameter types must match the arguments&quot;);</span>
+        }
+
+<span class="pc bpc" id="L79" title="1 of 4 branches missed.">        if (paramTypes == null || paramTypes.length == 0) {</span>
+<span class="fc" id="L80">            return new InstantiateFactory(classToInstantiate);</span>
+        } else {
+<span class="fc" id="L82">            paramTypes = (Class[]) paramTypes.clone();</span>
+<span class="fc" id="L83">            args = (Object[]) args.clone();</span>
+<span class="fc" id="L84">            return new InstantiateFactory(classToInstantiate, paramTypes, args);</span>
+        }
+    }
+
+    /**
+     * Constructor that performs no validation.
+     * Use &lt;code&gt;getInstance&lt;/code&gt; if you want that.
+     * 
+     * @param classToInstantiate  the class to instantiate
+     */
+    public InstantiateFactory(Class classToInstantiate) {
+<span class="fc" id="L95">        super();</span>
+<span class="fc" id="L96">        iClassToInstantiate = classToInstantiate;</span>
+<span class="fc" id="L97">        iParamTypes = null;</span>
+<span class="fc" id="L98">        iArgs = null;</span>
+<span class="fc" id="L99">        findConstructor();</span>
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Constructor that performs no validation.
+     * Use &lt;code&gt;getInstance&lt;/code&gt; if you want that.
+     * 
+     * @param classToInstantiate  the class to instantiate
+     * @param paramTypes  the constructor parameter types, not cloned
+     * @param args  the constructor arguments, not cloned
+     */
+    public InstantiateFactory(Class classToInstantiate, Class[] paramTypes, Object[] args) {
+<span class="fc" id="L111">        super();</span>
+<span class="fc" id="L112">        iClassToInstantiate = classToInstantiate;</span>
+<span class="fc" id="L113">        iParamTypes = paramTypes;</span>
+<span class="fc" id="L114">        iArgs = args;</span>
+<span class="fc" id="L115">        findConstructor();</span>
+<span class="fc" id="L116">    }</span>
+
+    /**
+     * Find the Constructor for the class specified.
+     */
+    private void findConstructor() {
+        try {
+<span class="fc" id="L123">            iConstructor = iClassToInstantiate.getConstructor(iParamTypes);</span>
+
+<span class="fc" id="L125">        } catch (NoSuchMethodException ex) {</span>
+<span class="fc" id="L126">            throw new IllegalArgumentException(&quot;InstantiateFactory: The constructor must exist and be public &quot;);</span>
+        }
+<span class="fc" id="L128">    }</span>
+
+    /**
+     * Creates an object using the stored constructor.
+     * 
+     * @return the new object
+     */
+    public Object create() {
+        // needed for post-serialization
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        if (iConstructor == null) {</span>
+<span class="nc" id="L138">            findConstructor();</span>
+        }
+
+        try {
+<span class="fc" id="L142">            return iConstructor.newInstance(iArgs);</span>
+
+<span class="nc" id="L144">        } catch (InstantiationException ex) {</span>
+<span class="nc" id="L145">            throw new FunctorException(&quot;InstantiateFactory: InstantiationException&quot;, ex);</span>
+<span class="nc" id="L146">        } catch (IllegalAccessException ex) {</span>
+<span class="nc" id="L147">            throw new FunctorException(&quot;InstantiateFactory: Constructor must be public&quot;, ex);</span>
+<span class="nc" id="L148">        } catch (InvocationTargetException ex) {</span>
+<span class="nc" id="L149">            throw new FunctorException(&quot;InstantiateFactory: Constructor threw an exception&quot;, ex);</span>
+        }
+    }
+
+    /**
+     * Overrides the default writeObject implementation to prevent
+     * serialization (see COLLECTIONS-580).
+     */
+    private void writeObject(ObjectOutputStream os) throws IOException {
+<span class="pc bfc" id="L158" title="All 2 branches covered.">        FunctorUtils.checkUnsafeSerialization(InstantiateFactory.class);</span>
+<span class="fc" id="L159">        os.defaultWriteObject();</span>
+<span class="fc" id="L160">    }</span>
+
+    /**
+     * Overrides the default readObject implementation to prevent
+     * de-serialization (see COLLECTIONS-580).
+     */
+    private void readObject(ObjectInputStream is) throws ClassNotFoundException, IOException {
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">        FunctorUtils.checkUnsafeSerialization(InstantiateFactory.class);</span>
+<span class="fc" id="L168">        is.defaultReadObject();</span>
+<span class="fc" id="L169">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

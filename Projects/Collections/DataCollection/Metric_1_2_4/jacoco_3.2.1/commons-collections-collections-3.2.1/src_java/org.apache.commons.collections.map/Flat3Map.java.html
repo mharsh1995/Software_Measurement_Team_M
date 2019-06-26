@@ -1,0 +1,1134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Flat3Map.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">Flat3Map.java</span></div><h1>Flat3Map.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.AbstractCollection;
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.apache.commons.collections.IterableMap;
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.ResettableIterator;
+import org.apache.commons.collections.iterators.EmptyIterator;
+import org.apache.commons.collections.iterators.EmptyMapIterator;
+
+/**
+ * A &lt;code&gt;Map&lt;/code&gt; implementation that stores data in simple fields until
+ * the size is greater than 3.
+ * &lt;p&gt;
+ * This map is designed for performance and can outstrip HashMap.
+ * It also has good garbage collection characteristics.
+ * &lt;ul&gt;
+ * &lt;li&gt;Optimised for operation at size 3 or less.
+ * &lt;li&gt;Still works well once size 3 exceeded.
+ * &lt;li&gt;Gets at size 3 or less are about 0-10% faster than HashMap,
+ * &lt;li&gt;Puts at size 3 or less are over 4 times faster than HashMap.
+ * &lt;li&gt;Performance 5% slower than HashMap once size 3 exceeded once.
+ * &lt;/ul&gt;
+ * The design uses two distinct modes of operation - flat and delegate.
+ * While the map is size 3 or less, operations map straight onto fields using
+ * switch statements. Once size 4 is reached, the map switches to delegate mode
+ * and only switches back when cleared. In delegate mode, all operations are
+ * forwarded straight to a HashMap resulting in the 5% performance loss.
+ * &lt;p&gt;
+ * The performance gains on puts are due to not needing to create a Map Entry
+ * object. This is a large saving not only in performance but in garbage collection.
+ * &lt;p&gt;
+ * Whilst in flat mode this map is also easy for the garbage collector to dispatch.
+ * This is because it contains no complex objects or arrays which slow the progress.
+ * &lt;p&gt;
+ * Do not use &lt;code&gt;Flat3Map&lt;/code&gt; if the size is likely to grow beyond 3.
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that Flat3Map is not synchronized and is not thread-safe.&lt;/strong&gt;
+ * If you wish to use this map from multiple threads concurrently, you must use
+ * appropriate synchronization. The simplest approach is to wrap this map
+ * using {@link java.util.Collections#synchronizedMap(Map)}. This class may throw 
+ * exceptions when accessed by concurrent threads without synchronization.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ *
+ * @author Stephen Colebourne
+ */
+public class Flat3Map implements IterableMap, Serializable, Cloneable {
+
+    /** Serialization version */
+    private static final long serialVersionUID = -6701087419741928296L;
+
+    /** The size of the map, used while in flat mode */
+    private transient int size;
+    /** Hash, used while in flat mode */
+    private transient int hash1;
+    /** Hash, used while in flat mode */
+    private transient int hash2;
+    /** Hash, used while in flat mode */
+    private transient int hash3;
+    /** Key, used while in flat mode */
+    private transient Object key1;
+    /** Key, used while in flat mode */
+    private transient Object key2;
+    /** Key, used while in flat mode */
+    private transient Object key3;
+    /** Value, used while in flat mode */
+    private transient Object value1;
+    /** Value, used while in flat mode */
+    private transient Object value2;
+    /** Value, used while in flat mode */
+    private transient Object value3;
+    /** Map, used while in delegate mode */
+    private transient AbstractHashedMap delegateMap;
+
+    /**
+     * Constructor.
+     */
+    public Flat3Map() {
+<span class="fc" id="L107">        super();</span>
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * Constructor copying elements from another map.
+     *
+     * @param map  the map to copy
+     * @throws NullPointerException if the map is null
+     */
+    public Flat3Map(Map map) {
+<span class="nc" id="L117">        super();</span>
+<span class="nc" id="L118">        putAll(map);</span>
+<span class="nc" id="L119">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Gets the value mapped to the key specified.
+     * 
+     * @param key  the key
+     * @return the mapped value, null if no match
+     */
+    public Object get(Object key) {
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L130">            return delegateMap.get(key);</span>
+        }
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        if (key == null) {</span>
+<span class="pc bpc" id="L133" title="3 of 4 branches missed.">            switch (size) {</span>
+                // drop through
+                case 3:
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                    if (key3 == null) return value3;</span>
+                case 2:
+<span class="nc bnc" id="L138" title="All 2 branches missed.">                    if (key2 == null) return value2;</span>
+                case 1:
+<span class="nc bnc" id="L140" title="All 2 branches missed.">                    if (key1 == null) return value1;</span>
+            }
+<span class="fc" id="L142">        } else {</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">            if (size &gt; 0) {</span>
+<span class="fc" id="L144">                int hashCode = key.hashCode();</span>
+<span class="pc bpc" id="L145" title="3 of 4 branches missed.">                switch (size) {</span>
+                    // drop through
+                    case 3:
+<span class="nc bnc" id="L148" title="All 4 branches missed.">                        if (hash3 == hashCode &amp;&amp; key.equals(key3)) return value3;</span>
+                    case 2:
+<span class="pc bpc" id="L150" title="1 of 4 branches missed.">                        if (hash2 == hashCode &amp;&amp; key.equals(key2)) return value2;</span>
+                    case 1:
+<span class="pc bpc" id="L152" title="2 of 4 branches missed.">                        if (hash1 == hashCode &amp;&amp; key.equals(key1)) return value1;</span>
+                }
+            }
+        }
+<span class="fc" id="L156">        return null;</span>
+    }
+
+    /**
+     * Gets the size of the map.
+     * 
+     * @return the size
+     */
+    public int size() {
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L166">            return delegateMap.size();</span>
+        }
+<span class="fc" id="L168">        return size;</span>
+    }
+
+    /**
+     * Checks whether the map is currently empty.
+     * 
+     * @return true if the map is currently size zero
+     */
+    public boolean isEmpty() {
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        return (size() == 0);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Checks whether the map contains the specified key.
+     * 
+     * @param key  the key to search for
+     * @return true if the map contains the key
+     */
+    public boolean containsKey(Object key) {
+<span class="fc bfc" id="L188" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L189">            return delegateMap.containsKey(key);</span>
+        }
+<span class="fc bfc" id="L191" title="All 2 branches covered.">        if (key == null) {</span>
+<span class="pc bpc" id="L192" title="3 of 4 branches missed.">            switch (size) {  // drop through</span>
+                case 3:
+<span class="nc bnc" id="L194" title="All 2 branches missed.">                    if (key3 == null) return true;</span>
+                case 2:
+<span class="nc bnc" id="L196" title="All 2 branches missed.">                    if (key2 == null) return true;</span>
+                case 1:
+<span class="nc bnc" id="L198" title="All 2 branches missed.">                    if (key1 == null) return true;</span>
+            }
+<span class="fc" id="L200">        } else {</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">            if (size &gt; 0) {</span>
+<span class="fc" id="L202">                int hashCode = key.hashCode();</span>
+<span class="pc bpc" id="L203" title="1 of 4 branches missed.">                switch (size) {  // drop through</span>
+                    case 3:
+<span class="pc bpc" id="L205" title="1 of 4 branches missed.">                        if (hash3 == hashCode &amp;&amp; key.equals(key3)) return true;</span>
+                    case 2:
+<span class="pc bpc" id="L207" title="1 of 4 branches missed.">                        if (hash2 == hashCode &amp;&amp; key.equals(key2)) return true;</span>
+                    case 1:
+<span class="pc bpc" id="L209" title="1 of 4 branches missed.">                        if (hash1 == hashCode &amp;&amp; key.equals(key1)) return true;</span>
+                }
+            }
+        }
+<span class="fc" id="L213">        return false;</span>
+    }
+
+    /**
+     * Checks whether the map contains the specified value.
+     * 
+     * @param value  the value to search for
+     * @return true if the map contains the key
+     */
+    public boolean containsValue(Object value) {
+<span class="fc bfc" id="L223" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L224">            return delegateMap.containsValue(value);</span>
+        }
+<span class="fc bfc" id="L226" title="All 2 branches covered.">        if (value == null) {  // drop through</span>
+<span class="pc bpc" id="L227" title="3 of 4 branches missed.">            switch (size) {</span>
+                case 3:
+<span class="nc bnc" id="L229" title="All 2 branches missed.">                    if (value3 == null) return true;</span>
+                case 2:
+<span class="nc bnc" id="L231" title="All 2 branches missed.">                    if (value2 == null) return true;</span>
+                case 1:
+<span class="nc bnc" id="L233" title="All 2 branches missed.">                    if (value1 == null) return true;</span>
+            }
+<span class="fc" id="L235">        } else {</span>
+<span class="fc bfc" id="L236" title="All 4 branches covered.">            switch (size) {  // drop through</span>
+                case 3:
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">                    if (value.equals(value3)) return true;</span>
+                case 2:
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">                    if (value.equals(value2)) return true;</span>
+                case 1:
+<span class="pc bpc" id="L242" title="1 of 2 branches missed.">                    if (value.equals(value1)) return true;</span>
+            }
+        }
+<span class="fc" id="L245">        return false;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Puts a key-value mapping into this map.
+     * 
+     * @param key  the key to add
+     * @param value  the value to add
+     * @return the value previously mapped to this key, null if none
+     */
+    public Object put(Object key, Object value) {
+<span class="fc bfc" id="L257" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L258">            return delegateMap.put(key, value);</span>
+        }
+        // change existing mapping
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">        if (key == null) {</span>
+<span class="nc bnc" id="L262" title="All 4 branches missed.">            switch (size) {  // drop through</span>
+                case 3:
+<span class="nc bnc" id="L264" title="All 2 branches missed.">                    if (key3 == null) {</span>
+<span class="nc" id="L265">                        Object old = value3;</span>
+<span class="nc" id="L266">                        value3 = value;</span>
+<span class="nc" id="L267">                        return old;</span>
+                    }
+                case 2:
+<span class="nc bnc" id="L270" title="All 2 branches missed.">                    if (key2 == null) {</span>
+<span class="nc" id="L271">                        Object old = value2;</span>
+<span class="nc" id="L272">                        value2 = value;</span>
+<span class="nc" id="L273">                        return old;</span>
+                    }
+                case 1:
+<span class="nc bnc" id="L276" title="All 2 branches missed.">                    if (key1 == null) {</span>
+<span class="nc" id="L277">                        Object old = value1;</span>
+<span class="nc" id="L278">                        value1 = value;</span>
+<span class="nc" id="L279">                        return old;</span>
+                    }
+            }
+<span class="nc" id="L282">        } else {</span>
+<span class="fc bfc" id="L283" title="All 2 branches covered.">            if (size &gt; 0) {</span>
+<span class="fc" id="L284">                int hashCode = key.hashCode();</span>
+<span class="pc bpc" id="L285" title="1 of 4 branches missed.">                switch (size) {  // drop through</span>
+                    case 3:
+<span class="pc bpc" id="L287" title="3 of 4 branches missed.">                        if (hash3 == hashCode &amp;&amp; key.equals(key3)) {</span>
+<span class="nc" id="L288">                            Object old = value3;</span>
+<span class="nc" id="L289">                            value3 = value;</span>
+<span class="nc" id="L290">                            return old;</span>
+                        }
+                    case 2:
+<span class="pc bpc" id="L293" title="3 of 4 branches missed.">                        if (hash2 == hashCode &amp;&amp; key.equals(key2)) {</span>
+<span class="nc" id="L294">                            Object old = value2;</span>
+<span class="nc" id="L295">                            value2 = value;</span>
+<span class="nc" id="L296">                            return old;</span>
+                        }
+                    case 1:
+<span class="pc bpc" id="L299" title="3 of 4 branches missed.">                        if (hash1 == hashCode &amp;&amp; key.equals(key1)) {</span>
+<span class="nc" id="L300">                            Object old = value1;</span>
+<span class="nc" id="L301">                            value1 = value;</span>
+<span class="nc" id="L302">                            return old;</span>
+                        }
+                }
+            }
+        }
+        
+        // add new mapping
+<span class="fc bfc" id="L309" title="All 4 branches covered.">        switch (size) {</span>
+            default:
+<span class="fc" id="L311">                convertToMap();</span>
+<span class="fc" id="L312">                delegateMap.put(key, value);</span>
+<span class="fc" id="L313">                return null;</span>
+            case 2:
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">                hash3 = (key == null ? 0 : key.hashCode());</span>
+<span class="fc" id="L316">                key3 = key;</span>
+<span class="fc" id="L317">                value3 = value;</span>
+<span class="fc" id="L318">                break;</span>
+            case 1:
+<span class="pc bpc" id="L320" title="1 of 2 branches missed.">                hash2 = (key == null ? 0 : key.hashCode());</span>
+<span class="fc" id="L321">                key2 = key;</span>
+<span class="fc" id="L322">                value2 = value;</span>
+<span class="fc" id="L323">                break;</span>
+            case 0:
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">                hash1 = (key == null ? 0 : key.hashCode());</span>
+<span class="fc" id="L326">                key1 = key;</span>
+<span class="fc" id="L327">                value1 = value;</span>
+<span class="fc" id="L328">                break;</span>
+        }
+<span class="fc" id="L330">        size++;</span>
+<span class="fc" id="L331">        return null;</span>
+    }
+
+    /**
+     * Puts all the values from the specified map into this map.
+     * 
+     * @param map  the map to add
+     * @throws NullPointerException if the map is null
+     */
+    public void putAll(Map map) {
+<span class="fc" id="L341">        int size = map.size();</span>
+<span class="fc bfc" id="L342" title="All 2 branches covered.">        if (size == 0) {</span>
+<span class="fc" id="L343">            return;</span>
+        }
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">        if (delegateMap != null) {</span>
+<span class="nc" id="L346">            delegateMap.putAll(map);</span>
+<span class="nc" id="L347">            return;</span>
+        }
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">        if (size &lt; 4) {</span>
+<span class="nc bnc" id="L350" title="All 2 branches missed.">            for (Iterator it = map.entrySet().iterator(); it.hasNext();) {</span>
+<span class="nc" id="L351">                Map.Entry entry = (Map.Entry) it.next();</span>
+<span class="nc" id="L352">                put(entry.getKey(), entry.getValue());</span>
+            }
+<span class="nc" id="L354">        } else {</span>
+<span class="fc" id="L355">            convertToMap();</span>
+<span class="fc" id="L356">            delegateMap.putAll(map);</span>
+        }
+<span class="fc" id="L358">    }</span>
+
+    /**
+     * Converts the flat map data to a map.
+     */
+    private void convertToMap() {
+<span class="fc" id="L364">        delegateMap = createDelegateMap();</span>
+<span class="pc bpc" id="L365" title="1 of 4 branches missed.">        switch (size) {  // drop through</span>
+            case 3:
+<span class="fc" id="L367">                delegateMap.put(key3, value3);</span>
+            case 2:
+<span class="fc" id="L369">                delegateMap.put(key2, value2);</span>
+            case 1:
+<span class="fc" id="L371">                delegateMap.put(key1, value1);</span>
+        }
+        
+<span class="fc" id="L374">        size = 0;</span>
+<span class="fc" id="L375">        hash1 = hash2 = hash3 = 0;</span>
+<span class="fc" id="L376">        key1 = key2 = key3 = null;</span>
+<span class="fc" id="L377">        value1 = value2 = value3 = null;</span>
+<span class="fc" id="L378">    }</span>
+
+    /**
+     * Create an instance of the map used for storage when in delegation mode.
+     * &lt;p&gt;
+     * This can be overridden by subclasses to provide a different map implementation.
+     * Not every AbstractHashedMap is suitable, identity and reference based maps
+     * would be poor choices.
+     *
+     * @return a new AbstractHashedMap or subclass
+     * @since Commons Collections 3.1
+     */
+    protected AbstractHashedMap createDelegateMap() {
+<span class="fc" id="L391">        return new HashedMap();</span>
+    }
+
+    /**
+     * Removes the specified mapping from this map.
+     * 
+     * @param key  the mapping to remove
+     * @return the value mapped to the removed key, null if key not in map
+     */
+    public Object remove(Object key) {
+<span class="fc bfc" id="L401" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L402">            return delegateMap.remove(key);</span>
+        }
+<span class="pc bpc" id="L404" title="1 of 2 branches missed.">        if (size == 0) {</span>
+<span class="fc" id="L405">            return null;</span>
+        }
+<span class="nc bnc" id="L407" title="All 2 branches missed.">        if (key == null) {</span>
+<span class="nc bnc" id="L408" title="All 4 branches missed.">            switch (size) {  // drop through</span>
+                case 3:
+<span class="nc bnc" id="L410" title="All 2 branches missed.">                    if (key3 == null) {</span>
+<span class="nc" id="L411">                        Object old = value3;</span>
+<span class="nc" id="L412">                        hash3 = 0;</span>
+<span class="nc" id="L413">                        key3 = null;</span>
+<span class="nc" id="L414">                        value3 = null;</span>
+<span class="nc" id="L415">                        size = 2;</span>
+<span class="nc" id="L416">                        return old;</span>
+                    }
+<span class="nc bnc" id="L418" title="All 2 branches missed.">                    if (key2 == null) {</span>
+<span class="nc" id="L419">                        Object old = value3;</span>
+<span class="nc" id="L420">                        hash2 = hash3;</span>
+<span class="nc" id="L421">                        key2 = key3;</span>
+<span class="nc" id="L422">                        value2 = value3;</span>
+<span class="nc" id="L423">                        hash3 = 0;</span>
+<span class="nc" id="L424">                        key3 = null;</span>
+<span class="nc" id="L425">                        value3 = null;</span>
+<span class="nc" id="L426">                        size = 2;</span>
+<span class="nc" id="L427">                        return old;</span>
+                    }
+<span class="nc bnc" id="L429" title="All 2 branches missed.">                    if (key1 == null) {</span>
+<span class="nc" id="L430">                        Object old = value3;</span>
+<span class="nc" id="L431">                        hash1 = hash3;</span>
+<span class="nc" id="L432">                        key1 = key3;</span>
+<span class="nc" id="L433">                        value1 = value3;</span>
+<span class="nc" id="L434">                        hash3 = 0;</span>
+<span class="nc" id="L435">                        key3 = null;</span>
+<span class="nc" id="L436">                        value3 = null;</span>
+<span class="nc" id="L437">                        size = 2;</span>
+<span class="nc" id="L438">                        return old;</span>
+                    }
+<span class="nc" id="L440">                    return null;</span>
+                case 2:
+<span class="nc bnc" id="L442" title="All 2 branches missed.">                    if (key2 == null) {</span>
+<span class="nc" id="L443">                        Object old = value2;</span>
+<span class="nc" id="L444">                        hash2 = 0;</span>
+<span class="nc" id="L445">                        key2 = null;</span>
+<span class="nc" id="L446">                        value2 = null;</span>
+<span class="nc" id="L447">                        size = 1;</span>
+<span class="nc" id="L448">                        return old;</span>
+                    }
+<span class="nc bnc" id="L450" title="All 2 branches missed.">                    if (key1 == null) {</span>
+<span class="nc" id="L451">                        Object old = value2;</span>
+<span class="nc" id="L452">                        hash1 = hash2;</span>
+<span class="nc" id="L453">                        key1 = key2;</span>
+<span class="nc" id="L454">                        value1 = value2;</span>
+<span class="nc" id="L455">                        hash2 = 0;</span>
+<span class="nc" id="L456">                        key2 = null;</span>
+<span class="nc" id="L457">                        value2 = null;</span>
+<span class="nc" id="L458">                        size = 1;</span>
+<span class="nc" id="L459">                        return old;</span>
+                    }
+<span class="nc" id="L461">                    return null;</span>
+                case 1:
+<span class="nc bnc" id="L463" title="All 2 branches missed.">                    if (key1 == null) {</span>
+<span class="nc" id="L464">                        Object old = value1;</span>
+<span class="nc" id="L465">                        hash1 = 0;</span>
+<span class="nc" id="L466">                        key1 = null;</span>
+<span class="nc" id="L467">                        value1 = null;</span>
+<span class="nc" id="L468">                        size = 0;</span>
+<span class="nc" id="L469">                        return old;</span>
+                    }
+            }
+<span class="nc" id="L472">        } else {</span>
+<span class="nc bnc" id="L473" title="All 2 branches missed.">            if (size &gt; 0) {</span>
+<span class="nc" id="L474">                int hashCode = key.hashCode();</span>
+<span class="nc bnc" id="L475" title="All 4 branches missed.">                switch (size) {  // drop through</span>
+                    case 3:
+<span class="nc bnc" id="L477" title="All 4 branches missed.">                        if (hash3 == hashCode &amp;&amp; key.equals(key3)) {</span>
+<span class="nc" id="L478">                            Object old = value3;</span>
+<span class="nc" id="L479">                            hash3 = 0;</span>
+<span class="nc" id="L480">                            key3 = null;</span>
+<span class="nc" id="L481">                            value3 = null;</span>
+<span class="nc" id="L482">                            size = 2;</span>
+<span class="nc" id="L483">                            return old;</span>
+                        }
+<span class="nc bnc" id="L485" title="All 4 branches missed.">                        if (hash2 == hashCode &amp;&amp; key.equals(key2)) {</span>
+<span class="nc" id="L486">                            Object old = value3;</span>
+<span class="nc" id="L487">                            hash2 = hash3;</span>
+<span class="nc" id="L488">                            key2 = key3;</span>
+<span class="nc" id="L489">                            value2 = value3;</span>
+<span class="nc" id="L490">                            hash3 = 0;</span>
+<span class="nc" id="L491">                            key3 = null;</span>
+<span class="nc" id="L492">                            value3 = null;</span>
+<span class="nc" id="L493">                            size = 2;</span>
+<span class="nc" id="L494">                            return old;</span>
+                        }
+<span class="nc bnc" id="L496" title="All 4 branches missed.">                        if (hash1 == hashCode &amp;&amp; key.equals(key1)) {</span>
+<span class="nc" id="L497">                            Object old = value3;</span>
+<span class="nc" id="L498">                            hash1 = hash3;</span>
+<span class="nc" id="L499">                            key1 = key3;</span>
+<span class="nc" id="L500">                            value1 = value3;</span>
+<span class="nc" id="L501">                            hash3 = 0;</span>
+<span class="nc" id="L502">                            key3 = null;</span>
+<span class="nc" id="L503">                            value3 = null;</span>
+<span class="nc" id="L504">                            size = 2;</span>
+<span class="nc" id="L505">                            return old;</span>
+                        }
+<span class="nc" id="L507">                        return null;</span>
+                    case 2:
+<span class="nc bnc" id="L509" title="All 4 branches missed.">                        if (hash2 == hashCode &amp;&amp; key.equals(key2)) {</span>
+<span class="nc" id="L510">                            Object old = value2;</span>
+<span class="nc" id="L511">                            hash2 = 0;</span>
+<span class="nc" id="L512">                            key2 = null;</span>
+<span class="nc" id="L513">                            value2 = null;</span>
+<span class="nc" id="L514">                            size = 1;</span>
+<span class="nc" id="L515">                            return old;</span>
+                        }
+<span class="nc bnc" id="L517" title="All 4 branches missed.">                        if (hash1 == hashCode &amp;&amp; key.equals(key1)) {</span>
+<span class="nc" id="L518">                            Object old = value2;</span>
+<span class="nc" id="L519">                            hash1 = hash2;</span>
+<span class="nc" id="L520">                            key1 = key2;</span>
+<span class="nc" id="L521">                            value1 = value2;</span>
+<span class="nc" id="L522">                            hash2 = 0;</span>
+<span class="nc" id="L523">                            key2 = null;</span>
+<span class="nc" id="L524">                            value2 = null;</span>
+<span class="nc" id="L525">                            size = 1;</span>
+<span class="nc" id="L526">                            return old;</span>
+                        }
+<span class="nc" id="L528">                        return null;</span>
+                    case 1:
+<span class="nc bnc" id="L530" title="All 4 branches missed.">                        if (hash1 == hashCode &amp;&amp; key.equals(key1)) {</span>
+<span class="nc" id="L531">                            Object old = value1;</span>
+<span class="nc" id="L532">                            hash1 = 0;</span>
+<span class="nc" id="L533">                            key1 = null;</span>
+<span class="nc" id="L534">                            value1 = null;</span>
+<span class="nc" id="L535">                            size = 0;</span>
+<span class="nc" id="L536">                            return old;</span>
+                        }
+                }
+            }
+        }
+<span class="nc" id="L541">        return null;</span>
+    }
+
+    /**
+     * Clears the map, resetting the size to zero and nullifying references
+     * to avoid garbage collection issues.
+     */
+    public void clear() {
+<span class="fc bfc" id="L549" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L550">            delegateMap.clear();  // should aid gc</span>
+<span class="fc" id="L551">            delegateMap = null;  // switch back to flat mode</span>
+<span class="fc" id="L552">        } else {</span>
+<span class="fc" id="L553">            size = 0;</span>
+<span class="fc" id="L554">            hash1 = hash2 = hash3 = 0;</span>
+<span class="fc" id="L555">            key1 = key2 = key3 = null;</span>
+<span class="fc" id="L556">            value1 = value2 = value3 = null;</span>
+        }
+<span class="fc" id="L558">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Gets an iterator over the map.
+     * Changes made to the iterator affect this map.
+     * &lt;p&gt;
+     * A MapIterator returns the keys in the map. It also provides convenient
+     * methods to get the key and value, and set the value.
+     * It avoids the need to create an entrySet/keySet/values object.
+     * It also avoids creating the Map Entry object.
+     * 
+     * @return the map iterator
+     */
+    public MapIterator mapIterator() {
+<span class="fc bfc" id="L573" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L574">            return delegateMap.mapIterator();</span>
+        }
+<span class="fc bfc" id="L576" title="All 2 branches covered.">        if (size == 0) {</span>
+<span class="fc" id="L577">            return EmptyMapIterator.INSTANCE;</span>
+        }
+<span class="fc" id="L579">        return new FlatMapIterator(this);</span>
+    }
+
+    /**
+     * FlatMapIterator
+     */
+    static class FlatMapIterator implements MapIterator, ResettableIterator {
+        private final Flat3Map parent;
+<span class="fc" id="L587">        private int nextIndex = 0;</span>
+<span class="fc" id="L588">        private boolean canRemove = false;</span>
+        
+        FlatMapIterator(Flat3Map parent) {
+<span class="fc" id="L591">            super();</span>
+<span class="fc" id="L592">            this.parent = parent;</span>
+<span class="fc" id="L593">        }</span>
+
+        public boolean hasNext() {
+<span class="fc bfc" id="L596" title="All 2 branches covered.">            return (nextIndex &lt; parent.size);</span>
+        }
+
+        public Object next() {
+<span class="pc bpc" id="L600" title="1 of 2 branches missed.">            if (hasNext() == false) {</span>
+<span class="nc" id="L601">                throw new NoSuchElementException(AbstractHashedMap.NO_NEXT_ENTRY);</span>
+            }
+<span class="fc" id="L603">            canRemove = true;</span>
+<span class="fc" id="L604">            nextIndex++;</span>
+<span class="fc" id="L605">            return getKey();</span>
+        }
+
+        public void remove() {
+<span class="nc bnc" id="L609" title="All 2 branches missed.">            if (canRemove == false) {</span>
+<span class="nc" id="L610">                throw new IllegalStateException(AbstractHashedMap.REMOVE_INVALID);</span>
+            }
+<span class="nc" id="L612">            parent.remove(getKey());</span>
+<span class="nc" id="L613">            nextIndex--;</span>
+<span class="nc" id="L614">            canRemove = false;</span>
+<span class="nc" id="L615">        }</span>
+
+        public Object getKey() {
+<span class="pc bpc" id="L618" title="1 of 2 branches missed.">            if (canRemove == false) {</span>
+<span class="nc" id="L619">                throw new IllegalStateException(AbstractHashedMap.GETKEY_INVALID);</span>
+            }
+<span class="pc bpc" id="L621" title="2 of 4 branches missed.">            switch (nextIndex) {</span>
+                case 3:
+<span class="nc" id="L623">                    return parent.key3;</span>
+                case 2:
+<span class="fc" id="L625">                    return parent.key2;</span>
+                case 1:
+<span class="fc" id="L627">                    return parent.key1;</span>
+            }
+<span class="nc" id="L629">            throw new IllegalStateException(&quot;Invalid map index&quot;);</span>
+        }
+
+        public Object getValue() {
+<span class="pc bpc" id="L633" title="1 of 2 branches missed.">            if (canRemove == false) {</span>
+<span class="nc" id="L634">                throw new IllegalStateException(AbstractHashedMap.GETVALUE_INVALID);</span>
+            }
+<span class="pc bpc" id="L636" title="2 of 4 branches missed.">            switch (nextIndex) {</span>
+                case 3:
+<span class="nc" id="L638">                    return parent.value3;</span>
+                case 2:
+<span class="fc" id="L640">                    return parent.value2;</span>
+                case 1:
+<span class="fc" id="L642">                    return parent.value1;</span>
+            }
+<span class="nc" id="L644">            throw new IllegalStateException(&quot;Invalid map index&quot;);</span>
+        }
+
+        public Object setValue(Object value) {
+<span class="nc bnc" id="L648" title="All 2 branches missed.">            if (canRemove == false) {</span>
+<span class="nc" id="L649">                throw new IllegalStateException(AbstractHashedMap.SETVALUE_INVALID);</span>
+            }
+<span class="nc" id="L651">            Object old = getValue();</span>
+<span class="nc bnc" id="L652" title="All 4 branches missed.">            switch (nextIndex) {</span>
+                case 3: 
+<span class="nc" id="L654">                    parent.value3 = value;</span>
+                case 2:
+<span class="nc" id="L656">                    parent.value2 = value;</span>
+                case 1:
+<span class="nc" id="L658">                    parent.value1 = value;</span>
+            }
+<span class="nc" id="L660">            return old;</span>
+        }
+        
+        public void reset() {
+<span class="nc" id="L664">            nextIndex = 0;</span>
+<span class="nc" id="L665">            canRemove = false;</span>
+<span class="nc" id="L666">        }</span>
+        
+        public String toString() {
+<span class="nc bnc" id="L669" title="All 2 branches missed.">            if (canRemove) {</span>
+<span class="nc" id="L670">                return &quot;Iterator[&quot; + getKey() + &quot;=&quot; + getValue() + &quot;]&quot;;</span>
+            } else {
+<span class="nc" id="L672">                return &quot;Iterator[]&quot;;</span>
+            }
+        }
+    }
+    
+    /**
+     * Gets the entrySet view of the map.
+     * Changes made to the view affect this map.
+     * The Map Entry is not an independent object and changes as the 
+     * iterator progresses.
+     * To simply iterate through the entries, use {@link #mapIterator()}.
+     * 
+     * @return the entrySet view
+     */
+    public Set entrySet() {
+<span class="fc bfc" id="L687" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L688">            return delegateMap.entrySet();</span>
+        }
+<span class="fc" id="L690">        return new EntrySet(this);</span>
+    }
+    
+    /**
+     * EntrySet
+     */
+    static class EntrySet extends AbstractSet {
+        private final Flat3Map parent;
+        
+        EntrySet(Flat3Map parent) {
+<span class="fc" id="L700">            super();</span>
+<span class="fc" id="L701">            this.parent = parent;</span>
+<span class="fc" id="L702">        }</span>
+
+        public int size() {
+<span class="fc" id="L705">            return parent.size();</span>
+        }
+        
+        public void clear() {
+<span class="fc" id="L709">            parent.clear();</span>
+<span class="fc" id="L710">        }</span>
+        
+        public boolean remove(Object obj) {
+<span class="pc bpc" id="L713" title="1 of 2 branches missed.">            if (obj instanceof Map.Entry == false) {</span>
+<span class="nc" id="L714">                return false;</span>
+            }
+<span class="fc" id="L716">            Map.Entry entry = (Map.Entry) obj;</span>
+<span class="fc" id="L717">            Object key = entry.getKey();</span>
+<span class="fc" id="L718">            boolean result = parent.containsKey(key);</span>
+<span class="fc" id="L719">            parent.remove(key);</span>
+<span class="fc" id="L720">            return result;</span>
+        }
+
+        public Iterator iterator() {
+<span class="fc bfc" id="L724" title="All 2 branches covered.">            if (parent.delegateMap != null) {</span>
+<span class="fc" id="L725">                return parent.delegateMap.entrySet().iterator();</span>
+            }
+<span class="fc bfc" id="L727" title="All 2 branches covered.">            if (parent.size() == 0) {</span>
+<span class="fc" id="L728">                return EmptyIterator.INSTANCE;</span>
+            }
+<span class="fc" id="L730">            return new EntrySetIterator(parent);</span>
+        }
+    }
+
+    /**
+     * EntrySetIterator and MapEntry
+     */
+    static class EntrySetIterator implements Iterator, Map.Entry {
+        private final Flat3Map parent;
+<span class="fc" id="L739">        private int nextIndex = 0;</span>
+<span class="fc" id="L740">        private boolean canRemove = false;</span>
+        
+        EntrySetIterator(Flat3Map parent) {
+<span class="fc" id="L743">            super();</span>
+<span class="fc" id="L744">            this.parent = parent;</span>
+<span class="fc" id="L745">        }</span>
+
+        public boolean hasNext() {
+<span class="fc bfc" id="L748" title="All 2 branches covered.">            return (nextIndex &lt; parent.size);</span>
+        }
+
+        public Object next() {
+<span class="pc bpc" id="L752" title="1 of 2 branches missed.">            if (hasNext() == false) {</span>
+<span class="nc" id="L753">                throw new NoSuchElementException(AbstractHashedMap.NO_NEXT_ENTRY);</span>
+            }
+<span class="fc" id="L755">            canRemove = true;</span>
+<span class="fc" id="L756">            nextIndex++;</span>
+<span class="fc" id="L757">            return this;</span>
+        }
+
+        public void remove() {
+<span class="nc bnc" id="L761" title="All 2 branches missed.">            if (canRemove == false) {</span>
+<span class="nc" id="L762">                throw new IllegalStateException(AbstractHashedMap.REMOVE_INVALID);</span>
+            }
+<span class="nc" id="L764">            parent.remove(getKey());</span>
+<span class="nc" id="L765">            nextIndex--;</span>
+<span class="nc" id="L766">            canRemove = false;</span>
+<span class="nc" id="L767">        }</span>
+
+        public Object getKey() {
+<span class="pc bpc" id="L770" title="1 of 2 branches missed.">            if (canRemove == false) {</span>
+<span class="nc" id="L771">                throw new IllegalStateException(AbstractHashedMap.GETKEY_INVALID);</span>
+            }
+<span class="pc bpc" id="L773" title="1 of 4 branches missed.">            switch (nextIndex) {</span>
+                case 3:
+<span class="fc" id="L775">                    return parent.key3;</span>
+                case 2:
+<span class="fc" id="L777">                    return parent.key2;</span>
+                case 1:
+<span class="fc" id="L779">                    return parent.key1;</span>
+            }
+<span class="nc" id="L781">            throw new IllegalStateException(&quot;Invalid map index&quot;);</span>
+        }
+
+        public Object getValue() {
+<span class="pc bpc" id="L785" title="1 of 2 branches missed.">            if (canRemove == false) {</span>
+<span class="nc" id="L786">                throw new IllegalStateException(AbstractHashedMap.GETVALUE_INVALID);</span>
+            }
+<span class="pc bpc" id="L788" title="1 of 4 branches missed.">            switch (nextIndex) {</span>
+                case 3:
+<span class="fc" id="L790">                    return parent.value3;</span>
+                case 2:
+<span class="fc" id="L792">                    return parent.value2;</span>
+                case 1:
+<span class="fc" id="L794">                    return parent.value1;</span>
+            }
+<span class="nc" id="L796">            throw new IllegalStateException(&quot;Invalid map index&quot;);</span>
+        }
+
+        public Object setValue(Object value) {
+<span class="nc bnc" id="L800" title="All 2 branches missed.">            if (canRemove == false) {</span>
+<span class="nc" id="L801">                throw new IllegalStateException(AbstractHashedMap.SETVALUE_INVALID);</span>
+            }
+<span class="nc" id="L803">            Object old = getValue();</span>
+<span class="nc bnc" id="L804" title="All 4 branches missed.">            switch (nextIndex) {</span>
+                case 3: 
+<span class="nc" id="L806">                    parent.value3 = value;</span>
+                case 2:
+<span class="nc" id="L808">                    parent.value2 = value;</span>
+                case 1:
+<span class="nc" id="L810">                    parent.value1 = value;</span>
+            }
+<span class="nc" id="L812">            return old;</span>
+        }
+        
+        public boolean equals(Object obj) {
+<span class="nc bnc" id="L816" title="All 2 branches missed.">            if (canRemove == false) {</span>
+<span class="nc" id="L817">                return false;</span>
+            }
+<span class="nc bnc" id="L819" title="All 2 branches missed.">            if (obj instanceof Map.Entry == false) {</span>
+<span class="nc" id="L820">                return false;</span>
+            }
+<span class="nc" id="L822">            Map.Entry other = (Map.Entry) obj;</span>
+<span class="nc" id="L823">            Object key = getKey();</span>
+<span class="nc" id="L824">            Object value = getValue();</span>
+<span class="nc bnc" id="L825" title="All 6 branches missed.">            return (key == null ? other.getKey() == null : key.equals(other.getKey())) &amp;&amp;</span>
+<span class="nc bnc" id="L826" title="All 6 branches missed.">                   (value == null ? other.getValue() == null : value.equals(other.getValue()));</span>
+        }
+        
+        public int hashCode() {
+<span class="pc bpc" id="L830" title="1 of 2 branches missed.">            if (canRemove == false) {</span>
+<span class="nc" id="L831">                return 0;</span>
+            }
+<span class="fc" id="L833">            Object key = getKey();</span>
+<span class="fc" id="L834">            Object value = getValue();</span>
+<span class="pc bpc" id="L835" title="1 of 2 branches missed.">            return (key == null ? 0 : key.hashCode()) ^</span>
+<span class="pc bpc" id="L836" title="1 of 2 branches missed.">                   (value == null ? 0 : value.hashCode());</span>
+        }
+        
+        public String toString() {
+<span class="pc bpc" id="L840" title="1 of 2 branches missed.">            if (canRemove) {</span>
+<span class="fc" id="L841">                return getKey() + &quot;=&quot; + getValue();</span>
+            } else {
+<span class="nc" id="L843">                return &quot;&quot;;</span>
+            }
+        }
+    }
+    
+    /**
+     * Gets the keySet view of the map.
+     * Changes made to the view affect this map.
+     * To simply iterate through the keys, use {@link #mapIterator()}.
+     * 
+     * @return the keySet view
+     */
+    public Set keySet() {
+<span class="fc bfc" id="L856" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L857">            return delegateMap.keySet();</span>
+        }
+<span class="fc" id="L859">        return new KeySet(this);</span>
+    }
+
+    /**
+     * KeySet
+     */
+    static class KeySet extends AbstractSet {
+        private final Flat3Map parent;
+        
+        KeySet(Flat3Map parent) {
+<span class="fc" id="L869">            super();</span>
+<span class="fc" id="L870">            this.parent = parent;</span>
+<span class="fc" id="L871">        }</span>
+
+        public int size() {
+<span class="fc" id="L874">            return parent.size();</span>
+        }
+        
+        public void clear() {
+<span class="fc" id="L878">            parent.clear();</span>
+<span class="fc" id="L879">        }</span>
+        
+        public boolean contains(Object key) {
+<span class="fc" id="L882">            return parent.containsKey(key);</span>
+        }
+
+        public boolean remove(Object key) {
+<span class="fc" id="L886">            boolean result = parent.containsKey(key);</span>
+<span class="fc" id="L887">            parent.remove(key);</span>
+<span class="fc" id="L888">            return result;</span>
+        }
+
+        public Iterator iterator() {
+<span class="fc bfc" id="L892" title="All 2 branches covered.">            if (parent.delegateMap != null) {</span>
+<span class="fc" id="L893">                return parent.delegateMap.keySet().iterator();</span>
+            }
+<span class="fc bfc" id="L895" title="All 2 branches covered.">            if (parent.size() == 0) {</span>
+<span class="fc" id="L896">                return EmptyIterator.INSTANCE;</span>
+            }
+<span class="fc" id="L898">            return new KeySetIterator(parent);</span>
+        }
+    }
+
+    /**
+     * KeySetIterator
+     */
+    static class KeySetIterator extends EntrySetIterator {
+        
+        KeySetIterator(Flat3Map parent) {
+<span class="fc" id="L908">            super(parent);</span>
+<span class="fc" id="L909">        }</span>
+
+        public Object next() {
+<span class="fc" id="L912">            super.next();</span>
+<span class="fc" id="L913">            return getKey();</span>
+        }
+    }
+    
+    /**
+     * Gets the values view of the map.
+     * Changes made to the view affect this map.
+     * To simply iterate through the values, use {@link #mapIterator()}.
+     * 
+     * @return the values view
+     */
+    public Collection values() {
+<span class="fc bfc" id="L925" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L926">            return delegateMap.values();</span>
+        }
+<span class="fc" id="L928">        return new Values(this);</span>
+    }
+
+    /**
+     * Values
+     */
+    static class Values extends AbstractCollection {
+        private final Flat3Map parent;
+        
+        Values(Flat3Map parent) {
+<span class="fc" id="L938">            super();</span>
+<span class="fc" id="L939">            this.parent = parent;</span>
+<span class="fc" id="L940">        }</span>
+
+        public int size() {
+<span class="fc" id="L943">            return parent.size();</span>
+        }
+        
+        public void clear() {
+<span class="fc" id="L947">            parent.clear();</span>
+<span class="fc" id="L948">        }</span>
+        
+        public boolean contains(Object value) {
+<span class="fc" id="L951">            return parent.containsValue(value);</span>
+        }
+
+        public Iterator iterator() {
+<span class="fc bfc" id="L955" title="All 2 branches covered.">            if (parent.delegateMap != null) {</span>
+<span class="fc" id="L956">                return parent.delegateMap.values().iterator();</span>
+            }
+<span class="fc bfc" id="L958" title="All 2 branches covered.">            if (parent.size() == 0) {</span>
+<span class="fc" id="L959">                return EmptyIterator.INSTANCE;</span>
+            }
+<span class="fc" id="L961">            return new ValuesIterator(parent);</span>
+        }
+    }
+
+    /**
+     * ValuesIterator
+     */
+    static class ValuesIterator extends EntrySetIterator {
+        
+        ValuesIterator(Flat3Map parent) {
+<span class="fc" id="L971">            super(parent);</span>
+<span class="fc" id="L972">        }</span>
+
+        public Object next() {
+<span class="fc" id="L975">            super.next();</span>
+<span class="fc" id="L976">            return getValue();</span>
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Write the map out using a custom routine.
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+<span class="fc" id="L985">        out.defaultWriteObject();</span>
+<span class="fc" id="L986">        out.writeInt(size());</span>
+<span class="fc bfc" id="L987" title="All 2 branches covered.">        for (MapIterator it = mapIterator(); it.hasNext();) {</span>
+<span class="fc" id="L988">            out.writeObject(it.next());  // key</span>
+<span class="fc" id="L989">            out.writeObject(it.getValue());  // value</span>
+        }
+<span class="fc" id="L991">    }</span>
+
+    /**
+     * Read the map in using a custom routine.
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L997">        in.defaultReadObject();</span>
+<span class="fc" id="L998">        int count = in.readInt();</span>
+<span class="fc bfc" id="L999" title="All 2 branches covered.">        if (count &gt; 3) {</span>
+<span class="fc" id="L1000">            delegateMap = createDelegateMap();</span>
+        }
+<span class="fc bfc" id="L1002" title="All 2 branches covered.">        for (int i = count; i &gt; 0; i--) {</span>
+<span class="fc" id="L1003">            put(in.readObject(), in.readObject());</span>
+        }
+<span class="fc" id="L1005">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Clones the map without cloning the keys or values.
+     *
+     * @return a shallow clone
+     * @since Commons Collections 3.1
+     */
+    public Object clone() {
+        try {
+<span class="fc" id="L1016">            Flat3Map cloned = (Flat3Map) super.clone();</span>
+<span class="fc bfc" id="L1017" title="All 2 branches covered.">            if (cloned.delegateMap != null) {</span>
+<span class="fc" id="L1018">                cloned.delegateMap = (HashedMap) cloned.delegateMap.clone();</span>
+            }
+<span class="fc" id="L1020">            return cloned;</span>
+<span class="nc" id="L1021">        } catch (CloneNotSupportedException ex) {</span>
+<span class="nc" id="L1022">            throw new InternalError();</span>
+        }
+    }
+
+    /**
+     * Compares this map with another.
+     * 
+     * @param obj  the object to compare to
+     * @return true if equal
+     */
+    public boolean equals(Object obj) {
+<span class="fc bfc" id="L1033" title="All 2 branches covered.">        if (obj == this) {</span>
+<span class="fc" id="L1034">            return true;</span>
+        }
+<span class="fc bfc" id="L1036" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L1037">            return delegateMap.equals(obj);</span>
+        }
+<span class="fc bfc" id="L1039" title="All 2 branches covered.">        if (obj instanceof Map == false) {</span>
+<span class="fc" id="L1040">            return false;</span>
+        }
+<span class="fc" id="L1042">        Map other = (Map) obj;</span>
+<span class="pc bpc" id="L1043" title="1 of 2 branches missed.">        if (size != other.size()) {</span>
+<span class="nc" id="L1044">            return false;</span>
+        }
+<span class="fc bfc" id="L1046" title="All 2 branches covered.">        if (size &gt; 0) {</span>
+<span class="fc" id="L1047">            Object otherValue = null;</span>
+<span class="pc bpc" id="L1048" title="1 of 4 branches missed.">            switch (size) {  // drop through</span>
+                case 3:
+<span class="pc bpc" id="L1050" title="1 of 2 branches missed.">                    if (other.containsKey(key3) == false) {</span>
+<span class="nc" id="L1051">                        return false;</span>
+                    }
+<span class="fc" id="L1053">                    otherValue = other.get(key3);</span>
+<span class="pc bpc" id="L1054" title="4 of 6 branches missed.">                    if (value3 == null ? otherValue != null : !value3.equals(otherValue)) {</span>
+<span class="nc" id="L1055">                        return false;</span>
+                    }
+                case 2:
+<span class="fc bfc" id="L1058" title="All 2 branches covered.">                    if (other.containsKey(key2) == false) {</span>
+<span class="fc" id="L1059">                        return false;</span>
+                    }
+<span class="fc" id="L1061">                    otherValue = other.get(key2);</span>
+<span class="pc bpc" id="L1062" title="3 of 6 branches missed.">                    if (value2 == null ? otherValue != null : !value2.equals(otherValue)) {</span>
+<span class="fc" id="L1063">                        return false;</span>
+                    }
+                case 1:
+<span class="pc bpc" id="L1066" title="1 of 2 branches missed.">                    if (other.containsKey(key1) == false) {</span>
+<span class="nc" id="L1067">                        return false;</span>
+                    }
+<span class="fc" id="L1069">                    otherValue = other.get(key1);</span>
+<span class="pc bpc" id="L1070" title="4 of 6 branches missed.">                    if (value1 == null ? otherValue != null : !value1.equals(otherValue)) {</span>
+<span class="nc" id="L1071">                        return false;</span>
+                    }
+            }
+        }
+<span class="fc" id="L1075">        return true;</span>
+    }
+
+    /**
+     * Gets the standard Map hashCode.
+     * 
+     * @return the hash code defined in the Map interface
+     */
+    public int hashCode() {
+<span class="fc bfc" id="L1084" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L1085">            return delegateMap.hashCode();</span>
+        }
+<span class="fc" id="L1087">        int total = 0;</span>
+<span class="fc bfc" id="L1088" title="All 4 branches covered.">        switch (size) {  // drop through</span>
+            case 3:
+<span class="pc bpc" id="L1090" title="1 of 2 branches missed.">                total += (hash3 ^ (value3 == null ? 0 : value3.hashCode()));</span>
+            case 2:
+<span class="pc bpc" id="L1092" title="1 of 2 branches missed.">                total += (hash2 ^ (value2 == null ? 0 : value2.hashCode()));</span>
+            case 1:
+<span class="pc bpc" id="L1094" title="1 of 2 branches missed.">                total += (hash1 ^ (value1 == null ? 0 : value1.hashCode()));</span>
+        }
+<span class="fc" id="L1096">        return total;</span>
+    }
+
+    /**
+     * Gets the map as a String.
+     * 
+     * @return a string version of the map
+     */
+    public String toString() {
+<span class="fc bfc" id="L1105" title="All 2 branches covered.">        if (delegateMap != null) {</span>
+<span class="fc" id="L1106">            return delegateMap.toString();</span>
+        }
+<span class="pc bpc" id="L1108" title="1 of 2 branches missed.">        if (size == 0) {</span>
+<span class="fc" id="L1109">            return &quot;{}&quot;;</span>
+        }
+<span class="nc" id="L1111">        StringBuffer buf = new StringBuffer(128);</span>
+<span class="nc" id="L1112">        buf.append('{');</span>
+<span class="nc bnc" id="L1113" title="All 4 branches missed.">        switch (size) {  // drop through</span>
+            case 3:
+<span class="nc bnc" id="L1115" title="All 2 branches missed.">                buf.append((key3 == this ? &quot;(this Map)&quot; : key3));</span>
+<span class="nc" id="L1116">                buf.append('=');</span>
+<span class="nc bnc" id="L1117" title="All 2 branches missed.">                buf.append((value3 == this ? &quot;(this Map)&quot; : value3));</span>
+<span class="nc" id="L1118">                buf.append(',');</span>
+            case 2:
+<span class="nc bnc" id="L1120" title="All 2 branches missed.">                buf.append((key2 == this ? &quot;(this Map)&quot; : key2));</span>
+<span class="nc" id="L1121">                buf.append('=');</span>
+<span class="nc bnc" id="L1122" title="All 2 branches missed.">                buf.append((value2 == this ? &quot;(this Map)&quot; : value2));</span>
+<span class="nc" id="L1123">                buf.append(',');</span>
+            case 1:
+<span class="nc bnc" id="L1125" title="All 2 branches missed.">                buf.append((key1 == this ? &quot;(this Map)&quot; : key1));</span>
+<span class="nc" id="L1126">                buf.append('=');</span>
+<span class="nc bnc" id="L1127" title="All 2 branches missed.">                buf.append((value1 == this ? &quot;(this Map)&quot; : value1));</span>
+        }
+<span class="nc" id="L1129">        buf.append('}');</span>
+<span class="nc" id="L1130">        return buf.toString();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

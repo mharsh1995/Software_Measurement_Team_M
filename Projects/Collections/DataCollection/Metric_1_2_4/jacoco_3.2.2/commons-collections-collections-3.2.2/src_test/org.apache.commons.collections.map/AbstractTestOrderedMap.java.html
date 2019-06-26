@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestOrderedMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">AbstractTestOrderedMap.java</span></div><h1>AbstractTestOrderedMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.TreeMap;
+
+import org.apache.commons.collections.BulkTest;
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.OrderedMap;
+import org.apache.commons.collections.comparators.NullComparator;
+import org.apache.commons.collections.iterators.AbstractTestOrderedMapIterator;
+
+/**
+ * Abstract test class for {@link OrderedMap} methods and contracts.
+ *
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public abstract class AbstractTestOrderedMap extends AbstractTestIterableMap {
+
+    /**
+     * JUnit constructor.
+     * 
+     * @param testName  the test name
+     */
+    public AbstractTestOrderedMap(String testName) {
+<span class="fc" id="L49">        super(testName);</span>
+<span class="fc" id="L50">    }</span>
+    
+    //-----------------------------------------------------------------------
+    /**
+     * OrderedMap uses TreeMap as its known comparison.
+     * 
+     * @return a map that is known to be valid
+     */
+    public Map makeConfirmedMap() {
+<span class="fc" id="L59">        return new TreeMap(new NullComparator());</span>
+    }
+    
+    /**
+     * The only confirmed collection we have that is ordered is the sorted one.
+     * Thus, sort the keys.
+     */
+    public Object[] getSampleKeys() {
+<span class="fc" id="L67">        List list = new ArrayList(Arrays.asList(super.getSampleKeys()));</span>
+<span class="fc" id="L68">        Collections.sort(list, new NullComparator());</span>
+<span class="fc" id="L69">        return list.toArray();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testFirstKey() {
+<span class="fc" id="L74">        resetEmpty();</span>
+<span class="fc" id="L75">        OrderedMap ordered = (OrderedMap) map;</span>
+        try {
+<span class="nc" id="L77">            ordered.firstKey();</span>
+<span class="nc" id="L78">            fail();</span>
+<span class="pc" id="L79">        } catch (NoSuchElementException ex) {}</span>
+        
+<span class="fc" id="L81">        resetFull();</span>
+<span class="fc" id="L82">        ordered = (OrderedMap) map;</span>
+<span class="fc" id="L83">        Object confirmedFirst = confirmed.keySet().iterator().next();</span>
+<span class="fc" id="L84">        assertEquals(confirmedFirst, ordered.firstKey());</span>
+<span class="fc" id="L85">    }</span>
+    
+    public void testLastKey() {
+<span class="fc" id="L88">        resetEmpty();</span>
+<span class="fc" id="L89">        OrderedMap ordered = (OrderedMap) map;</span>
+        try {
+<span class="nc" id="L91">            ordered.lastKey();</span>
+<span class="nc" id="L92">            fail();</span>
+<span class="pc" id="L93">        } catch (NoSuchElementException ex) {}</span>
+        
+<span class="fc" id="L95">        resetFull();</span>
+<span class="fc" id="L96">        ordered = (OrderedMap) map;</span>
+<span class="fc" id="L97">        Object confirmedLast = null;</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        for (Iterator it = confirmed.keySet().iterator(); it.hasNext();) {</span>
+<span class="fc" id="L99">            confirmedLast = it.next();</span>
+        }
+<span class="fc" id="L101">        assertEquals(confirmedLast, ordered.lastKey());</span>
+<span class="fc" id="L102">    }</span>
+
+    //-----------------------------------------------------------------------    
+    public void testNextKey() {
+<span class="fc" id="L106">        resetEmpty();</span>
+<span class="fc" id="L107">        OrderedMap ordered = (OrderedMap) map;</span>
+<span class="fc" id="L108">        assertEquals(null, ordered.nextKey(getOtherKeys()[0]));</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (isAllowNullKey() == false) {</span>
+            try {
+<span class="nc" id="L111">                assertEquals(null, ordered.nextKey(null)); // this is allowed too</span>
+<span class="nc" id="L112">            } catch (NullPointerException ex) {}</span>
+<span class="nc" id="L113">        } else {</span>
+<span class="fc" id="L114">            assertEquals(null, ordered.nextKey(null));</span>
+        }
+        
+<span class="fc" id="L117">        resetFull();</span>
+<span class="fc" id="L118">        ordered = (OrderedMap) map;</span>
+<span class="fc" id="L119">        Iterator it = confirmed.keySet().iterator();</span>
+<span class="fc" id="L120">        Object confirmedLast = it.next();</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L122">            Object confirmedObject = it.next();</span>
+<span class="fc" id="L123">            assertEquals(confirmedObject, ordered.nextKey(confirmedLast));</span>
+<span class="fc" id="L124">            confirmedLast = confirmedObject;</span>
+        }
+<span class="fc" id="L126">        assertEquals(null, ordered.nextKey(confirmedLast));</span>
+        
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        if (isAllowNullKey() == false) {</span>
+            try {
+<span class="nc" id="L130">                ordered.nextKey(null);</span>
+<span class="nc" id="L131">                fail();</span>
+<span class="nc" id="L132">            } catch (NullPointerException ex) {}</span>
+<span class="nc" id="L133">        } else {</span>
+<span class="fc" id="L134">            assertEquals(null, ordered.nextKey(null));</span>
+        }
+<span class="fc" id="L136">    }</span>
+    
+    public void testPreviousKey() {
+<span class="fc" id="L139">        resetEmpty();</span>
+<span class="fc" id="L140">        OrderedMap ordered = (OrderedMap) map;</span>
+<span class="fc" id="L141">        assertEquals(null, ordered.previousKey(getOtherKeys()[0]));</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        if (isAllowNullKey() == false) {</span>
+            try {
+<span class="nc" id="L144">                assertEquals(null, ordered.previousKey(null)); // this is allowed too</span>
+<span class="nc" id="L145">            } catch (NullPointerException ex) {}</span>
+<span class="nc" id="L146">        } else {</span>
+<span class="fc" id="L147">            assertEquals(null, ordered.previousKey(null));</span>
+        }
+        
+<span class="fc" id="L150">        resetFull();</span>
+<span class="fc" id="L151">        ordered = (OrderedMap) map;</span>
+<span class="fc" id="L152">        List list = new ArrayList(confirmed.keySet());</span>
+<span class="fc" id="L153">        Collections.reverse(list);</span>
+<span class="fc" id="L154">        Iterator it = list.iterator();</span>
+<span class="fc" id="L155">        Object confirmedLast = it.next();</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L157">            Object confirmedObject = it.next();</span>
+<span class="fc" id="L158">            assertEquals(confirmedObject, ordered.previousKey(confirmedLast));</span>
+<span class="fc" id="L159">            confirmedLast = confirmedObject;</span>
+        }
+<span class="fc" id="L161">        assertEquals(null, ordered.previousKey(confirmedLast));</span>
+        
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (isAllowNullKey() == false) {</span>
+            try {
+<span class="nc" id="L165">                ordered.previousKey(null);</span>
+<span class="nc" id="L166">                fail();</span>
+<span class="nc" id="L167">            } catch (NullPointerException ex) {}</span>
+<span class="nc" id="L168">        } else {</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">            if (isAllowNullKey() == false) {</span>
+<span class="nc" id="L170">                assertEquals(null, ordered.previousKey(null));</span>
+            }
+        }
+<span class="fc" id="L173">    }</span>
+    
+    //-----------------------------------------------------------------------
+    public BulkTest bulkTestOrderedMapIterator() {
+<span class="fc" id="L177">        return new InnerTestOrderedMapIterator();</span>
+    }
+    
+    public class InnerTestOrderedMapIterator extends AbstractTestOrderedMapIterator {
+        public InnerTestOrderedMapIterator() {
+<span class="fc" id="L182">            super(&quot;InnerTestOrderedMapIterator&quot;);</span>
+<span class="fc" id="L183">        }</span>
+        
+        public boolean supportsRemove() {
+<span class="fc" id="L186">            return AbstractTestOrderedMap.this.isRemoveSupported();</span>
+        }
+
+        public boolean isGetStructuralModify() {
+<span class="fc" id="L190">            return AbstractTestOrderedMap.this.isGetStructuralModify();</span>
+        }
+        
+        public boolean supportsSetValue() {
+<span class="fc" id="L194">            return AbstractTestOrderedMap.this.isSetValueSupported();</span>
+        }
+
+        public MapIterator makeEmptyMapIterator() {
+<span class="fc" id="L198">            resetEmpty();</span>
+<span class="fc" id="L199">            return ((OrderedMap) AbstractTestOrderedMap.this.map).orderedMapIterator();</span>
+        }
+
+        public MapIterator makeFullMapIterator() {
+<span class="fc" id="L203">            resetFull();</span>
+<span class="fc" id="L204">            return ((OrderedMap) AbstractTestOrderedMap.this.map).orderedMapIterator();</span>
+        }
+        
+        public Map getMap() {
+            // assumes makeFullMapIterator() called first
+<span class="fc" id="L209">            return AbstractTestOrderedMap.this.map;</span>
+        }
+        
+        public Map getConfirmedMap() {
+            // assumes makeFullMapIterator() called first
+<span class="fc" id="L214">            return AbstractTestOrderedMap.this.confirmed;</span>
+        }
+        
+        public void verify() {
+<span class="fc" id="L218">            super.verify();</span>
+<span class="fc" id="L219">            AbstractTestOrderedMap.this.verify();</span>
+<span class="fc" id="L220">        }</span>
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>LinkedMapTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.map</a> &gt; <span class="el_source">LinkedMapTest.java</span></div><h1>LinkedMapTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.map;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections4.BulkTest;
+import org.apache.commons.collections4.MapIterator;
+import org.apache.commons.collections4.OrderedMap;
+import org.apache.commons.collections4.ResettableIterator;
+import org.apache.commons.collections4.list.AbstractListTest;
+
+/**
+ * JUnit tests.
+ *
+ * @version $Id$
+ */
+public class LinkedMapTest&lt;K, V&gt; extends AbstractOrderedMapTest&lt;K, V&gt; {
+
+    public LinkedMapTest(final String testName) {
+<span class="fc" id="L40">        super(testName);</span>
+<span class="fc" id="L41">    }</span>
+
+    public static Test suite() {
+<span class="fc" id="L44">        return BulkTest.makeSuite(LinkedMapTest.class);</span>
+    }
+
+    @Override
+    public LinkedMap&lt;K, V&gt; makeObject() {
+<span class="fc" id="L49">        return new LinkedMap&lt;K, V&gt;();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public LinkedMap&lt;K, V&gt; makeFullMap() {
+<span class="fc" id="L57">        return (LinkedMap&lt;K, V&gt;) super.makeFullMap();</span>
+    }
+
+    @Override
+    public String getCompatibilityVersion() {
+<span class="fc" id="L62">        return &quot;4&quot;;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testReset() {
+<span class="fc" id="L68">        resetEmpty();</span>
+<span class="fc" id="L69">        OrderedMap&lt;K, V&gt; ordered = getMap();</span>
+<span class="fc" id="L70">        ((ResettableIterator&lt;K&gt;) ordered.mapIterator()).reset();</span>
+
+<span class="fc" id="L72">        resetFull();</span>
+<span class="fc" id="L73">        ordered = getMap();</span>
+<span class="fc" id="L74">        final List&lt;K&gt; list = new ArrayList&lt;K&gt;(ordered.keySet());</span>
+<span class="fc" id="L75">        final ResettableIterator&lt;K&gt; it = (ResettableIterator&lt;K&gt;) ordered.mapIterator();</span>
+<span class="fc" id="L76">        assertSame(list.get(0), it.next());</span>
+<span class="fc" id="L77">        assertSame(list.get(1), it.next());</span>
+<span class="fc" id="L78">        it.reset();</span>
+<span class="fc" id="L79">        assertSame(list.get(0), it.next());</span>
+<span class="fc" id="L80">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testInsertionOrder() {
+<span class="pc bpc" id="L84" title="2 of 4 branches missed.">        if (!isPutAddSupported() || !isPutChangeSupported()) {</span>
+<span class="nc" id="L85">            return;</span>
+        }
+<span class="fc" id="L87">        final K[] keys = getSampleKeys();</span>
+<span class="fc" id="L88">        final V[] values = getSampleValues();</span>
+        Iterator&lt;K&gt; keyIter;
+        Iterator&lt;V&gt; valueIter;
+
+<span class="fc" id="L92">        resetEmpty();</span>
+<span class="fc" id="L93">        map.put(keys[0], values[0]);</span>
+<span class="fc" id="L94">        map.put(keys[1], values[1]);</span>
+<span class="fc" id="L95">        keyIter = map.keySet().iterator();</span>
+<span class="fc" id="L96">        assertSame(keys[0], keyIter.next());</span>
+<span class="fc" id="L97">        assertSame(keys[1], keyIter.next());</span>
+<span class="fc" id="L98">        valueIter = map.values().iterator();</span>
+<span class="fc" id="L99">        assertSame(values[0], valueIter.next());</span>
+<span class="fc" id="L100">        assertSame(values[1], valueIter.next());</span>
+
+        // no change to order
+<span class="fc" id="L103">        map.put(keys[1], values[1]);</span>
+<span class="fc" id="L104">        keyIter = map.keySet().iterator();</span>
+<span class="fc" id="L105">        assertSame(keys[0], keyIter.next());</span>
+<span class="fc" id="L106">        assertSame(keys[1], keyIter.next());</span>
+<span class="fc" id="L107">        valueIter = map.values().iterator();</span>
+<span class="fc" id="L108">        assertSame(values[0], valueIter.next());</span>
+<span class="fc" id="L109">        assertSame(values[1], valueIter.next());</span>
+
+        // no change to order
+<span class="fc" id="L112">        map.put(keys[1], values[2]);</span>
+<span class="fc" id="L113">        keyIter = map.keySet().iterator();</span>
+<span class="fc" id="L114">        assertSame(keys[0], keyIter.next());</span>
+<span class="fc" id="L115">        assertSame(keys[1], keyIter.next());</span>
+<span class="fc" id="L116">        valueIter = map.values().iterator();</span>
+<span class="fc" id="L117">        assertSame(values[0], valueIter.next());</span>
+<span class="fc" id="L118">        assertSame(values[2], valueIter.next());</span>
+
+        // no change to order
+<span class="fc" id="L121">        map.put(keys[0], values[3]);</span>
+<span class="fc" id="L122">        keyIter = map.keySet().iterator();</span>
+<span class="fc" id="L123">        assertSame(keys[0], keyIter.next());</span>
+<span class="fc" id="L124">        assertSame(keys[1], keyIter.next());</span>
+<span class="fc" id="L125">        valueIter = map.values().iterator();</span>
+<span class="fc" id="L126">        assertSame(values[3], valueIter.next());</span>
+<span class="fc" id="L127">        assertSame(values[2], valueIter.next());</span>
+<span class="fc" id="L128">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testGetByIndex() {
+<span class="fc" id="L132">        resetEmpty();</span>
+<span class="fc" id="L133">        LinkedMap&lt;K, V&gt; lm = getMap();</span>
+        try {
+<span class="nc" id="L135">            lm.get(0);</span>
+<span class="pc" id="L136">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L138">            lm.get(-1);</span>
+<span class="pc" id="L139">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L141">        resetFull();</span>
+<span class="fc" id="L142">        lm = getMap();</span>
+        try {
+<span class="nc" id="L144">            lm.get(-1);</span>
+<span class="pc" id="L145">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L147">            lm.get(lm.size());</span>
+<span class="pc" id="L148">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L150">        int i = 0;</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        for (final MapIterator&lt;K, V&gt; it = lm.mapIterator(); it.hasNext(); i++) {</span>
+<span class="fc" id="L152">            assertSame(it.next(), lm.get(i));</span>
+        }
+<span class="fc" id="L154">    }</span>
+
+    public void testGetValueByIndex() {
+<span class="fc" id="L157">        resetEmpty();</span>
+<span class="fc" id="L158">        LinkedMap&lt;K, V&gt; lm = getMap();</span>
+        try {
+<span class="nc" id="L160">            lm.getValue(0);</span>
+<span class="pc" id="L161">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L163">            lm.getValue(-1);</span>
+<span class="pc" id="L164">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L166">        resetFull();</span>
+<span class="fc" id="L167">        lm = getMap();</span>
+        try {
+<span class="nc" id="L169">            lm.getValue(-1);</span>
+<span class="pc" id="L170">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L172">            lm.getValue(lm.size());</span>
+<span class="pc" id="L173">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L175">        int i = 0;</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        for (final MapIterator&lt;K, V&gt; it = lm.mapIterator(); it.hasNext(); i++) {</span>
+<span class="fc" id="L177">            it.next();</span>
+<span class="fc" id="L178">            assertSame(it.getValue(), lm.getValue(i));</span>
+        }
+<span class="fc" id="L180">    }</span>
+
+    public void testIndexOf() {
+<span class="fc" id="L183">        resetEmpty();</span>
+<span class="fc" id="L184">        LinkedMap&lt;K, V&gt; lm = getMap();</span>
+<span class="fc" id="L185">        assertEquals(-1, lm.indexOf(getOtherKeys()));</span>
+
+<span class="fc" id="L187">        resetFull();</span>
+<span class="fc" id="L188">        lm = getMap();</span>
+<span class="fc" id="L189">        final List&lt;K&gt; list = new ArrayList&lt;K&gt;();</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        for (final MapIterator&lt;K, V&gt; it = lm.mapIterator(); it.hasNext();) {</span>
+<span class="fc" id="L191">            list.add(it.next());</span>
+        }
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        for (int i = 0; i &lt; list.size(); i++) {</span>
+<span class="fc" id="L194">            assertEquals(i, lm.indexOf(list.get(i)));</span>
+        }
+<span class="fc" id="L196">    }</span>
+
+    public void testRemoveByIndex() {
+<span class="fc" id="L199">        resetEmpty();</span>
+<span class="fc" id="L200">        LinkedMap&lt;K, V&gt; lm = getMap();</span>
+        try {
+<span class="nc" id="L202">            lm.remove(0);</span>
+<span class="pc" id="L203">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L205">            lm.remove(-1);</span>
+<span class="pc" id="L206">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L208">        resetFull();</span>
+<span class="fc" id="L209">        lm = getMap();</span>
+        try {
+<span class="nc" id="L211">            lm.remove(-1);</span>
+<span class="pc" id="L212">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L214">            lm.remove(lm.size());</span>
+<span class="pc" id="L215">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L217">        final List&lt;K&gt; list = new ArrayList&lt;K&gt;();</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">        for (final MapIterator&lt;K, V&gt; it = lm.mapIterator(); it.hasNext();) {</span>
+<span class="fc" id="L219">            list.add(it.next());</span>
+        }
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        for (int i = 0; i &lt; list.size(); i++) {</span>
+<span class="fc" id="L222">            final Object key = list.get(i);</span>
+<span class="fc" id="L223">            final Object value = lm.get(key);</span>
+<span class="fc" id="L224">            assertEquals(value, lm.remove(i));</span>
+<span class="fc" id="L225">            list.remove(i);</span>
+<span class="fc" id="L226">            assertEquals(false, lm.containsKey(key));</span>
+        }
+<span class="fc" id="L228">    }</span>
+
+    public BulkTest bulkTestListView() {
+<span class="fc" id="L231">        return new TestListView();</span>
+    }
+
+    public class TestListView extends AbstractListTest&lt;K&gt; {
+
+<span class="fc" id="L236">        TestListView() {</span>
+<span class="fc" id="L237">            super(&quot;TestListView&quot;);</span>
+<span class="fc" id="L238">        }</span>
+
+        @Override
+        public List&lt;K&gt; makeObject() {
+<span class="fc" id="L242">            return LinkedMapTest.this.makeObject().asList();</span>
+        }
+
+        @Override
+        public List&lt;K&gt; makeFullCollection() {
+<span class="fc" id="L247">            return LinkedMapTest.this.makeFullMap().asList();</span>
+        }
+
+        @Override
+        public K[] getFullElements() {
+<span class="fc" id="L252">            return LinkedMapTest.this.getSampleKeys();</span>
+        }
+        @Override
+        public boolean isAddSupported() {
+<span class="fc" id="L256">            return false;</span>
+        }
+        @Override
+        public boolean isRemoveSupported() {
+<span class="fc" id="L260">            return false;</span>
+        }
+        @Override
+        public boolean isSetSupported() {
+<span class="fc" id="L264">            return false;</span>
+        }
+        @Override
+        public boolean isNullSupported() {
+<span class="nc" id="L268">            return LinkedMapTest.this.isAllowNullKey();</span>
+        }
+        @Override
+        public boolean isTestSerialization() {
+<span class="fc" id="L272">            return false;</span>
+        }
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testClone() {
+<span class="fc" id="L278">        final LinkedMap&lt;K, V&gt; map = new LinkedMap&lt;K, V&gt;(10);</span>
+<span class="fc" id="L279">        map.put((K) &quot;1&quot;, (V) &quot;1&quot;);</span>
+<span class="fc" id="L280">        final Map&lt;K, V&gt; cloned = map.clone();</span>
+<span class="fc" id="L281">        assertEquals(map.size(), cloned.size());</span>
+<span class="fc" id="L282">        assertSame(map.get(&quot;1&quot;), cloned.get(&quot;1&quot;));</span>
+<span class="fc" id="L283">    }</span>
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) map, &quot;src/test/resources/data/test/LinkedMap.emptyCollection.version4.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) map, &quot;src/test/resources/data/test/LinkedMap.fullCollection.version4.obj&quot;);
+//    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public LinkedMap&lt;K, V&gt; getMap() {
+<span class="fc" id="L297">        return (LinkedMap&lt;K, V&gt;) super.getMap();</span>
+    }
+
+    /**
+     * Test for &lt;a href=&quot;https://issues.apache.org/jira/browse/COLLECTIONS-323&quot;&gt;COLLECTIONS-323&lt;/a&gt;.
+     */
+    public void testInitialCapacityZero() {
+<span class="fc" id="L304">        final LinkedMap&lt;String,String&gt; map = new LinkedMap&lt;String,String&gt;(0);</span>
+<span class="fc" id="L305">        assertEquals(1, map.data.length);</span>
+<span class="fc" id="L306">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

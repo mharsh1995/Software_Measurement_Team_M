@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestFilterIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">TestFilterIterator.java</span></div><h1>TestFilterIterator.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.functors.NotNullPredicate;
+import org.apache.commons.collections.functors.TruePredicate;
+
+/**
+ * Test the filter iterator.
+ *
+ * @version $Revision$ $Date$
+ * 
+ * @author Jan Sorensen
+ * @author Ralph Wagner
+ * @author Huw Roberts
+ */
+public class TestFilterIterator extends AbstractTestIterator {
+
+    /** Creates new TestFilterIterator */
+    public TestFilterIterator(String name) {
+<span class="fc" id="L46">        super(name);</span>
+<span class="fc" id="L47">    }</span>
+
+    private String[] array;
+    private List list;
+    private FilterIterator iterator;
+    /**
+     * Set up instance variables required by this test case.
+     */
+    public void setUp() {
+<span class="fc" id="L56">        array = new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; };</span>
+<span class="fc" id="L57">        initIterator();</span>
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * Tear down instance variables required by this test case.
+     */
+    public void tearDown() throws Exception {
+<span class="fc" id="L64">        iterator = null;</span>
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * Return the tests included in this test suite.
+     */
+    public static Test suite() {
+<span class="pc bfc" id="L71" title="All 2 branches covered.">        return (new TestSuite(TestFilterIterator.class));</span>
+    }
+
+    /**
+     * Returns an full iterator wrapped in a
+     * FilterIterator that blocks all the elements
+     * 
+     * @return &quot;empty&quot; FilterIterator
+     */
+    public Iterator makeEmptyIterator() {
+<span class="fc" id="L81">        return makeBlockAllFilter(new ArrayIterator(array));</span>
+    }
+
+    /**
+     * Returns an array with elements wrapped in a pass-through
+     * FilterIterator
+     * 
+     * @return 
+     */
+    public Iterator makeFullIterator() {
+<span class="fc" id="L91">        array = new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; };</span>
+<span class="fc" id="L92">        list = new ArrayList(Arrays.asList(array));</span>
+<span class="fc" id="L93">        return makePassThroughFilter(list.iterator());</span>
+    }
+
+    public void testRepeatedHasNext() {
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (int i = 0; i &lt;= array.length; i++) {</span>
+<span class="fc" id="L98">            assertTrue(iterator.hasNext());</span>
+        }
+<span class="fc" id="L100">    }</span>
+
+    public void testRepeatedNext() {
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        for (int i = 0; i &lt; array.length; i++)</span>
+<span class="fc" id="L104">            iterator.next();</span>
+<span class="fc" id="L105">        verifyNoMoreElements();</span>
+<span class="fc" id="L106">    }</span>
+
+    public void testReturnValues() {
+<span class="fc" id="L109">        verifyElementsInPredicate(new String[0]);</span>
+<span class="fc" id="L110">        verifyElementsInPredicate(new String[] { &quot;a&quot; });</span>
+<span class="fc" id="L111">        verifyElementsInPredicate(new String[] { &quot;b&quot; });</span>
+<span class="fc" id="L112">        verifyElementsInPredicate(new String[] { &quot;c&quot; });</span>
+<span class="fc" id="L113">        verifyElementsInPredicate(new String[] { &quot;a&quot;, &quot;b&quot; });</span>
+<span class="fc" id="L114">        verifyElementsInPredicate(new String[] { &quot;a&quot;, &quot;c&quot; });</span>
+<span class="fc" id="L115">        verifyElementsInPredicate(new String[] { &quot;b&quot;, &quot;c&quot; });</span>
+<span class="fc" id="L116">        verifyElementsInPredicate(new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; });</span>
+<span class="fc" id="L117">    }</span>
+
+    /**
+     * Test that when the iterator is changed, the hasNext method returns the
+     * correct response for the new iterator.
+     */
+    public void testSetIterator() {
+<span class="fc" id="L124">        Iterator iter1 = Collections.singleton(new Object()).iterator();</span>
+<span class="fc" id="L125">        Iterator iter2 = Collections.EMPTY_LIST.iterator();</span>
+        
+<span class="fc" id="L127">        FilterIterator filterIterator = new FilterIterator(iter1);</span>
+<span class="fc" id="L128">        filterIterator.setPredicate(TruePredicate.getInstance());</span>
+        // this iterator has elements
+<span class="fc" id="L130">        assertEquals(true, filterIterator.hasNext());</span>
+        
+        // this iterator has no elements
+<span class="fc" id="L133">        filterIterator.setIterator(iter2);</span>
+<span class="fc" id="L134">        assertEquals(false, filterIterator.hasNext());</span>
+<span class="fc" id="L135">    }</span>
+
+    /**
+     * Test that when the predicate is changed, the hasNext method returns the
+     * correct response for the new predicate.
+     */
+    public void testSetPredicate() {
+<span class="fc" id="L142">        Iterator iter = Collections.singleton(null).iterator();</span>
+
+<span class="fc" id="L144">        FilterIterator filterIterator = new FilterIterator(iter);</span>
+<span class="fc" id="L145">        filterIterator.setPredicate(TruePredicate.getInstance());</span>
+        // this predicate matches
+<span class="fc" id="L147">        assertEquals(true, filterIterator.hasNext());</span>
+        
+        // this predicate doesn't match
+<span class="fc" id="L150">        filterIterator.setPredicate(NotNullPredicate.getInstance());</span>
+<span class="fc" id="L151">        assertEquals(false, filterIterator.hasNext());</span>
+<span class="fc" id="L152">    }</span>
+
+    private void verifyNoMoreElements() {
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">        assertTrue(!iterator.hasNext());</span>
+        try {
+<span class="nc" id="L157">            iterator.next();</span>
+<span class="nc" id="L158">            fail(&quot;NoSuchElementException expected&quot;);</span>
+<span class="nc" id="L159">        }</span>
+<span class="fc" id="L160">        catch (NoSuchElementException e) {</span>
+            // success
+        }
+<span class="fc" id="L163">    }</span>
+
+    private void verifyElementsInPredicate(final String[] elements) {
+<span class="fc" id="L166">        Predicate pred = new Predicate() {</span>
+            public boolean evaluate(Object x) {
+<span class="fc bfc" id="L168" title="All 2 branches covered.">                for (int i = 0; i &lt; elements.length; i++)</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">                    if (elements[i].equals(x))</span>
+<span class="fc" id="L170">                        return true;</span>
+<span class="fc" id="L171">                return false;</span>
+            }
+        };
+<span class="fc" id="L174">        initIterator();</span>
+<span class="fc" id="L175">        iterator.setPredicate(pred);</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        for (int i = 0; i &lt; elements.length; i++) {</span>
+<span class="fc" id="L177">            String s = (String)iterator.next();</span>
+<span class="fc" id="L178">            assertEquals(elements[i], s);</span>
+<span class="pc bpc" id="L179" title="1 of 4 branches missed.">            assertTrue(i == elements.length - 1 ? !iterator.hasNext() : iterator.hasNext());</span>
+        }
+<span class="fc" id="L181">        verifyNoMoreElements();</span>
+
+        // test removal
+<span class="fc" id="L184">        initIterator();</span>
+<span class="fc" id="L185">        iterator.setPredicate(pred);</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        if (iterator.hasNext()) {</span>
+<span class="fc" id="L187">            Object last = iterator.next();</span>
+<span class="fc" id="L188">            iterator.remove();</span>
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">            assertTrue(&quot;Base of FilterIterator still contains removed element.&quot;, !list.contains(last));</span>
+        }
+<span class="fc" id="L191">    }</span>
+
+    private void initIterator() {
+<span class="fc" id="L194">        iterator = (FilterIterator) makeFullIterator();</span>
+<span class="fc" id="L195">    }</span>
+
+    /**
+     * Returns a FilterIterator that does not filter
+     * any of its elements
+     * 
+     * @param i      the Iterator to &quot;filter&quot;
+     * @return &quot;filtered&quot; iterator
+     */
+    protected FilterIterator makePassThroughFilter(Iterator i) {
+<span class="fc" id="L205">        Predicate pred = new Predicate() {</span>
+<span class="fc" id="L206">                public boolean evaluate(Object x) { return true; }</span>
+        };
+<span class="fc" id="L208">        return new FilterIterator(i,pred);</span>
+    }
+
+    /**
+     * Returns a FilterIterator that blocks
+     * all of its elements
+     * 
+     * @param i      the Iterator to &quot;filter&quot;
+     * @return &quot;filtered&quot; iterator
+     */
+    protected FilterIterator makeBlockAllFilter(Iterator i) {
+<span class="fc" id="L219">        Predicate pred = new Predicate() {</span>
+<span class="fc" id="L220">                public boolean evaluate(Object x) { return false; }</span>
+        };
+<span class="fc" id="L222">        return new FilterIterator(i,pred);</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestNodeCachingLinkedList.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.list</a> &gt; <span class="el_source">TestNodeCachingLinkedList.java</span></div><h1>TestNodeCachingLinkedList.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.list;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.BulkTest;
+
+/**
+ * Test class for NodeCachingLinkedList, a performance optimised LinkedList.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Jeff Varszegi
+ * @author Phil Steitz
+ */
+public class TestNodeCachingLinkedList extends TestAbstractLinkedList {
+
+    public TestNodeCachingLinkedList(String testName) {
+<span class="fc" id="L38">        super(testName);</span>
+<span class="fc" id="L39">    }</span>
+
+    public static void main(String args[]) {
+<span class="nc" id="L42">        compareSpeed();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        String[] testCaseName = { TestNodeCachingLinkedList.class.getName()};</span>
+<span class="nc" id="L44">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L45">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L48" title="All 2 branches covered.">        return BulkTest.makeSuite(TestNodeCachingLinkedList.class);</span>
+    }
+
+    //-----------------------------------------------------------------------    
+    public List makeEmptyList() {
+<span class="fc" id="L53">        return new NodeCachingLinkedList();</span>
+    }
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L57">        return &quot;3&quot;;</span>
+    }
+    
+    //-----------------------------------------------------------------------
+    public void testShrinkCache() {
+<span class="pc bpc" id="L62" title="2 of 4 branches missed.">        if (isRemoveSupported() == false || isAddSupported() == false) return;</span>
+<span class="fc" id="L63">        resetEmpty();</span>
+<span class="fc" id="L64">        NodeCachingLinkedList list = (NodeCachingLinkedList) collection;</span>
+        
+<span class="fc" id="L66">        list.addAll( Arrays.asList( new String[]{&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;}));</span>
+<span class="fc" id="L67">        list.removeAllNodes();        // Will dump all 4 elements into cache</span>
+<span class="fc" id="L68">        ((NodeCachingLinkedList) list).setMaximumCacheSize(2); // shrink cache</span>
+<span class="fc" id="L69">        list.addAll( Arrays.asList( new String[]{&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;}));</span>
+<span class="fc" id="L70">        checkNodes();</span>
+<span class="fc" id="L71">        list.removeNode(list.getNode(0, false)); // no room in cache</span>
+<span class="fc" id="L72">        list.removeNode(list.getNode(0, false)); </span>
+<span class="fc" id="L73">        list.removeNode(list.getNode(0, false)); </span>
+<span class="fc" id="L74">        checkNodes();    </span>
+<span class="fc" id="L75">        list.addAll( Arrays.asList( new String[]{&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;}));</span>
+<span class="fc" id="L76">        checkNodes();     </span>
+<span class="fc" id="L77">    }       </span>
+    
+    //-----------------------------------------------------------------------
+    public static void compareSpeed() {
+<span class="nc" id="L81">        NodeCachingLinkedList ncll = new NodeCachingLinkedList();</span>
+<span class="nc" id="L82">        LinkedList ll = new LinkedList();</span>
+        
+<span class="nc" id="L84">        Object o1 = new Object();</span>
+<span class="nc" id="L85">        Object o2 = new Object();</span>
+        
+<span class="nc" id="L87">        int loopCount = 4000000;</span>
+        
+        long startTime, endTime;
+        
+<span class="nc" id="L91">        System.out.println(&quot;Testing relative execution time of commonly-used methods...&quot;);</span>
+        
+<span class="nc" id="L93">        startTime = System.currentTimeMillis();   </span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        for(int x = loopCount; x &gt; 0; x--) {</span>
+            // unrolled a few times to minimize effect of loop
+<span class="nc" id="L96">            ll.addFirst(o1);</span>
+<span class="nc" id="L97">            ll.addLast(o2);</span>
+<span class="nc" id="L98">            ll.removeFirst();</span>
+<span class="nc" id="L99">            ll.removeLast();</span>
+<span class="nc" id="L100">            ll.add(o1);</span>
+<span class="nc" id="L101">            ll.remove(0);</span>
+            //
+<span class="nc" id="L103">            ll.addFirst(o1);</span>
+<span class="nc" id="L104">            ll.addLast(o2);</span>
+<span class="nc" id="L105">            ll.removeFirst();</span>
+<span class="nc" id="L106">            ll.removeLast();</span>
+<span class="nc" id="L107">            ll.add(o1);</span>
+<span class="nc" id="L108">            ll.remove(0);</span>
+            //
+<span class="nc" id="L110">            ll.addFirst(o1);</span>
+<span class="nc" id="L111">            ll.addLast(o2);</span>
+<span class="nc" id="L112">            ll.removeFirst();</span>
+<span class="nc" id="L113">            ll.removeLast();</span>
+<span class="nc" id="L114">            ll.add(o1);</span>
+<span class="nc" id="L115">            ll.remove(0);</span>
+        }
+<span class="nc" id="L117">        endTime = System.currentTimeMillis();   </span>
+<span class="nc" id="L118">        System.out.println(&quot;Time with LinkedList: &quot; + (endTime - startTime) + &quot; ms&quot;);</span>
+
+<span class="nc" id="L120">        startTime = System.currentTimeMillis();   </span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        for(int x = loopCount; x &gt; 0; x--) {</span>
+<span class="nc" id="L122">            ncll.addFirst(o1);</span>
+<span class="nc" id="L123">            ncll.addLast(o2);</span>
+<span class="nc" id="L124">            ncll.removeFirst();</span>
+<span class="nc" id="L125">            ncll.removeLast();</span>
+<span class="nc" id="L126">            ncll.add(o1);</span>
+<span class="nc" id="L127">            ncll.remove(0);</span>
+            //
+<span class="nc" id="L129">            ncll.addFirst(o1);</span>
+<span class="nc" id="L130">            ncll.addLast(o2);</span>
+<span class="nc" id="L131">            ncll.removeFirst();</span>
+<span class="nc" id="L132">            ncll.removeLast();</span>
+<span class="nc" id="L133">            ncll.add(o1);</span>
+<span class="nc" id="L134">            ncll.remove(0);</span>
+            //
+<span class="nc" id="L136">            ncll.addFirst(o1);</span>
+<span class="nc" id="L137">            ncll.addLast(o2);</span>
+<span class="nc" id="L138">            ncll.removeFirst();</span>
+<span class="nc" id="L139">            ncll.removeLast();</span>
+<span class="nc" id="L140">            ncll.add(o1);</span>
+<span class="nc" id="L141">            ncll.remove(0);</span>
+        }
+<span class="nc" id="L143">        endTime = System.currentTimeMillis();   </span>
+<span class="nc" id="L144">        System.out.println(&quot;Time with NodeCachingLinkedList: &quot; + (endTime - startTime) + &quot; ms&quot;);</span>
+
+<span class="nc" id="L146">    }</span>
+    
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) collection,
+//           &quot;D:/dev/collections/data/test/NodeCachingLinkedList.emptyCollection.version3.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) collection,
+//            &quot;D:/dev/collections/data/test/NodeCachingLinkedList.fullCollection.version3.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

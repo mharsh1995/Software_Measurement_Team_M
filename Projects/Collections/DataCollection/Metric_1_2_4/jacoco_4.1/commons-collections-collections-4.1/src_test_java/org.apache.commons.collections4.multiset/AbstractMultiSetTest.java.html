@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractMultiSetTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.multiset</a> &gt; <span class="el_source">AbstractMultiSetTest.java</span></div><h1>AbstractMultiSetTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.multiset;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.apache.commons.collections4.BulkTest;
+import org.apache.commons.collections4.MultiSet;
+import org.apache.commons.collections4.collection.AbstractCollectionTest;
+import org.apache.commons.collections4.set.AbstractSetTest;
+
+/**
+ * Abstract test class for {@link org.apache.commons.collections4.MultiSet MultiSet}
+ * methods and contracts.
+ * &lt;p&gt;
+ * To use, simply extend this class, and implement
+ * the {@link #makeObject} method.
+ * &lt;p&gt;
+ * If your multiset fails one of these tests by design,
+ * you may still use this base set of cases.  Simply override the
+ * test case (method) your multiset fails.
+ * &lt;p&gt;
+ * This abstract test class does wrap the concrete multiset implementation
+ * with such a decorator, see the overridden {@link #resetEmpty()} and
+ * {@link #resetFull()} methods.
+ * &lt;p&gt;
+ * In addition to the generic collection tests (prefix testCollection) inherited
+ * from AbstractCollectionTest, there are test methods that test the &quot;normal&quot; MultiSet
+ * interface (prefix testMultiSet). For MultiSet specific tests use the {@link #makeObject()} and 
+ * {@link #makeFullCollection()} methods instead of {@link #resetEmpty()} and resetFull().
+ *
+ * @since 4.1
+ * @version $Id$
+ */
+public abstract class AbstractMultiSetTest&lt;T&gt; extends AbstractCollectionTest&lt;T&gt; {
+
+    /**
+     * JUnit constructor.
+     *
+     * @param testName  the test class name
+     */
+    public AbstractMultiSetTest(final String testName) {
+<span class="fc" id="L67">        super(testName);</span>
+<span class="fc" id="L68">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Returns an empty {@link ArrayList}.
+     */
+    @Override
+    public Collection&lt;T&gt; makeConfirmedCollection() {
+<span class="fc" id="L76">        final ArrayList&lt;T&gt; list = new ArrayList&lt;T&gt;();</span>
+<span class="fc" id="L77">        return list;</span>
+    }
+
+    /**
+     * Returns a full collection.
+     */
+    @Override
+    public Collection&lt;T&gt; makeConfirmedFullCollection() {
+<span class="fc" id="L85">        final Collection&lt;T&gt; coll = makeConfirmedCollection();</span>
+<span class="fc" id="L86">        coll.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L87">        return coll;</span>
+    }
+
+    /**
+     * Return a new, empty multiset to used for testing.
+     *
+     * @return the multiset to be tested
+     */
+    @Override
+    public abstract MultiSet&lt;T&gt; makeObject();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MultiSet&lt;T&gt; makeFullCollection() {
+<span class="fc" id="L103">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L104">        multiset.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L105">        return multiset;</span>
+    }
+
+    //-----------------------------------------------------------------------
+
+    @Override
+    public void resetEmpty() {
+<span class="fc" id="L112">        this.setCollection(makeObject());</span>
+<span class="fc" id="L113">        this.setConfirmed(makeConfirmedCollection());</span>
+<span class="fc" id="L114">    }</span>
+
+    @Override
+    public void resetFull() {
+<span class="fc" id="L118">        this.setCollection(makeFullCollection());</span>
+<span class="fc" id="L119">        this.setConfirmed(makeConfirmedFullCollection());</span>
+<span class="fc" id="L120">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Returns the {@link #collection} field cast to a {@link MultiSet}.
+     *
+     * @return the collection field as a MultiSet
+     */
+    @Override
+    public MultiSet&lt;T&gt; getCollection() {
+<span class="fc" id="L130">        return (MultiSet&lt;T&gt;) super.getCollection();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetAdd() {
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L137">            return;</span>
+        }
+
+<span class="fc" id="L140">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L141">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L142">        assertTrue(&quot;Should contain 'A'&quot;, multiset.contains(&quot;A&quot;));</span>
+<span class="fc" id="L143">        assertEquals(&quot;Should have count of 1&quot;, 1, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L144">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L145">        assertTrue(&quot;Should contain 'A'&quot;, multiset.contains(&quot;A&quot;));</span>
+<span class="fc" id="L146">        assertEquals(&quot;Should have count of 2&quot;, 2, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L147">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L148">        assertTrue(multiset.contains(&quot;A&quot;));</span>
+<span class="fc" id="L149">        assertTrue(multiset.contains(&quot;B&quot;));</span>
+<span class="fc" id="L150">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetEqualsSelf() {
+<span class="fc" id="L154">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L155">        assertTrue(multiset.equals(multiset));</span>
+        
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L158">            return;</span>
+        }
+        
+<span class="fc" id="L161">        multiset.add((T) &quot;elt&quot;);</span>
+<span class="fc" id="L162">        assertTrue(multiset.equals(multiset));</span>
+<span class="fc" id="L163">        multiset.add((T) &quot;elt&quot;); // again</span>
+<span class="fc" id="L164">        assertTrue(multiset.equals(multiset));</span>
+<span class="fc" id="L165">        multiset.add((T) &quot;elt2&quot;);</span>
+<span class="fc" id="L166">        assertTrue(multiset.equals(multiset));</span>
+<span class="fc" id="L167">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetRemove() {
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L172">            return;</span>
+        }
+
+<span class="fc" id="L175">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L176">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L177">        assertEquals(&quot;Should have count of 1&quot;, 1, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L178">        multiset.remove(&quot;A&quot;);</span>
+<span class="fc" id="L179">        assertEquals(&quot;Should have count of 0&quot;, 0, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L180">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L181">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L182">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L183">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L184">        assertEquals(&quot;Should have count of 4&quot;, 4, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L185">        multiset.remove(&quot;A&quot;, 0);</span>
+<span class="fc" id="L186">        assertEquals(&quot;Should have count of 4&quot;, 4, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L187">        multiset.remove(&quot;A&quot;, 2);</span>
+<span class="fc" id="L188">        assertEquals(&quot;Should have count of 2&quot;, 2, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L189">        multiset.remove(&quot;A&quot;);</span>
+<span class="fc" id="L190">        assertEquals(&quot;Should have count of 1&quot;, 1, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L191">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetRemoveAll() {
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L196">            return;</span>
+        }
+        
+<span class="fc" id="L199">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L200">        multiset.add((T) &quot;A&quot;, 2);</span>
+<span class="fc" id="L201">        assertEquals(&quot;Should have count of 2&quot;, 2, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L202">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L203">        multiset.add((T) &quot;C&quot;);</span>
+<span class="fc" id="L204">        assertEquals(&quot;Should have count of 4&quot;, 4, multiset.size());</span>
+<span class="fc" id="L205">        final List&lt;String&gt; delete = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L206">        delete.add(&quot;A&quot;);</span>
+<span class="fc" id="L207">        delete.add(&quot;B&quot;);</span>
+<span class="fc" id="L208">        multiset.removeAll(delete);</span>
+<span class="fc" id="L209">        assertEquals(&quot;Should have count of 0&quot;, 0, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L210">        assertEquals(&quot;Should have count of 0&quot;, 0, multiset.getCount(&quot;B&quot;));</span>
+<span class="fc" id="L211">        assertEquals(&quot;Should have count of 1&quot;, 1, multiset.getCount(&quot;C&quot;));</span>
+<span class="fc" id="L212">        assertEquals(&quot;Should have count of 1&quot;, 1, multiset.size());</span>
+<span class="fc" id="L213">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetContains() {
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L218">            return;</span>
+        }
+        
+<span class="fc" id="L221">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+
+<span class="fc" id="L223">        assertEquals(&quot;MultiSet does not have at least 1 'A'&quot;, false, multiset.contains(&quot;A&quot;));</span>
+<span class="fc" id="L224">        assertEquals(&quot;MultiSet does not have at least 1 'B'&quot;, false, multiset.contains(&quot;B&quot;));</span>
+
+<span class="fc" id="L226">        multiset.add((T) &quot;A&quot;);  // multiset 1A</span>
+<span class="fc" id="L227">        assertEquals(&quot;MultiSet has at least 1 'A'&quot;, true, multiset.contains(&quot;A&quot;));</span>
+<span class="fc" id="L228">        assertEquals(&quot;MultiSet does not have at least 1 'B'&quot;, false, multiset.contains(&quot;B&quot;));</span>
+
+<span class="fc" id="L230">        multiset.add((T) &quot;A&quot;);  // multiset 2A</span>
+<span class="fc" id="L231">        assertEquals(&quot;MultiSet has at least 1 'A'&quot;, true, multiset.contains(&quot;A&quot;));</span>
+<span class="fc" id="L232">        assertEquals(&quot;MultiSet does not have at least 1 'B'&quot;, false, multiset.contains(&quot;B&quot;));</span>
+
+<span class="fc" id="L234">        multiset.add((T) &quot;B&quot;);  // multiset 2A,1B</span>
+<span class="fc" id="L235">        assertEquals(&quot;MultiSet has at least 1 'A'&quot;, true, multiset.contains(&quot;A&quot;));</span>
+<span class="fc" id="L236">        assertEquals(&quot;MultiSet has at least 1 'B'&quot;, true, multiset.contains(&quot;B&quot;));</span>
+<span class="fc" id="L237">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetContainsAll() {
+<span class="fc bfc" id="L241" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L242">            return;</span>
+        }
+        
+<span class="fc" id="L245">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L246">        final List&lt;String&gt; known = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L247">        final List&lt;String&gt; known1A = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L248">        known1A.add(&quot;A&quot;);</span>
+<span class="fc" id="L249">        final List&lt;String&gt; known2A = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L250">        known2A.add(&quot;A&quot;);</span>
+<span class="fc" id="L251">        known2A.add(&quot;A&quot;);</span>
+<span class="fc" id="L252">        final List&lt;String&gt; known1B = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L253">        known1B.add(&quot;B&quot;);</span>
+<span class="fc" id="L254">        final List&lt;String&gt; known1A1B = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L255">        known1A1B.add(&quot;A&quot;);</span>
+<span class="fc" id="L256">        known1A1B.add(&quot;B&quot;);</span>
+
+<span class="fc" id="L258">        assertEquals(&quot;MultiSet containsAll of empty&quot;, true, multiset.containsAll(known));</span>
+<span class="fc" id="L259">        assertEquals(&quot;MultiSet does not containsAll of 1 'A'&quot;, false, multiset.containsAll(known1A));</span>
+<span class="fc" id="L260">        assertEquals(&quot;MultiSet does not containsAll of 2 'A'&quot;, false, multiset.containsAll(known2A));</span>
+<span class="fc" id="L261">        assertEquals(&quot;MultiSet does not containsAll of 1 'B'&quot;, false, multiset.containsAll(known1B));</span>
+<span class="fc" id="L262">        assertEquals(&quot;MultiSet does not containsAll of 1 'A' 1 'B'&quot;, false, multiset.containsAll(known1A1B));</span>
+
+<span class="fc" id="L264">        multiset.add((T) &quot;A&quot;);  // multiset 1A</span>
+<span class="fc" id="L265">        assertEquals(&quot;MultiSet containsAll of empty&quot;, true, multiset.containsAll(known));</span>
+<span class="fc" id="L266">        assertEquals(&quot;MultiSet containsAll of 1 'A'&quot;, true, multiset.containsAll(known1A));</span>
+<span class="fc" id="L267">        assertEquals(&quot;MultiSet does not containsAll 'A'&quot;, true, multiset.containsAll(known2A));</span>
+<span class="fc" id="L268">        assertEquals(&quot;MultiSet does not containsAll of 1 'B'&quot;, false, multiset.containsAll(known1B));</span>
+<span class="fc" id="L269">        assertEquals(&quot;MultiSet does not containsAll of 1 'A' 1 'B'&quot;, false, multiset.containsAll(known1A1B));</span>
+
+<span class="fc" id="L271">        multiset.add((T) &quot;A&quot;);  // multiset 2A</span>
+<span class="fc" id="L272">        assertEquals(&quot;MultiSet containsAll of empty&quot;, true, multiset.containsAll(known));</span>
+<span class="fc" id="L273">        assertEquals(&quot;MultiSet containsAll of 1 'A'&quot;, true, multiset.containsAll(known1A));</span>
+<span class="fc" id="L274">        assertEquals(&quot;MultiSet containsAll of 2 'A'&quot;, true, multiset.containsAll(known2A));</span>
+<span class="fc" id="L275">        assertEquals(&quot;MultiSet does not containsAll of 1 'B'&quot;, false, multiset.containsAll(known1B));</span>
+<span class="fc" id="L276">        assertEquals(&quot;MultiSet does not containsAll of 1 'A' 1 'B'&quot;, false, multiset.containsAll(known1A1B));</span>
+
+<span class="fc" id="L278">        multiset.add((T) &quot;A&quot;);  // multiset 3A</span>
+<span class="fc" id="L279">        assertEquals(&quot;MultiSet containsAll of empty&quot;, true, multiset.containsAll(known));</span>
+<span class="fc" id="L280">        assertEquals(&quot;MultiSet containsAll of 1 'A'&quot;, true, multiset.containsAll(known1A));</span>
+<span class="fc" id="L281">        assertEquals(&quot;MultiSet containsAll of 2 'A'&quot;, true, multiset.containsAll(known2A));</span>
+<span class="fc" id="L282">        assertEquals(&quot;MultiSet does not containsAll of 1 'B'&quot;, false, multiset.containsAll(known1B));</span>
+<span class="fc" id="L283">        assertEquals(&quot;MultiSet does not containsAll of 1 'A' 1 'B'&quot;, false, multiset.containsAll(known1A1B));</span>
+
+<span class="fc" id="L285">        multiset.add((T) &quot;B&quot;);  // multiset 3A1B</span>
+<span class="fc" id="L286">        assertEquals(&quot;MultiSet containsAll of empty&quot;, true, multiset.containsAll(known));</span>
+<span class="fc" id="L287">        assertEquals(&quot;MultiSet containsAll of 1 'A'&quot;, true, multiset.containsAll(known1A));</span>
+<span class="fc" id="L288">        assertEquals(&quot;MultiSet containsAll of 2 'A'&quot;, true, multiset.containsAll(known2A));</span>
+<span class="fc" id="L289">        assertEquals(&quot;MultiSet containsAll of 1 'B'&quot;, true, multiset.containsAll(known1B));</span>
+<span class="fc" id="L290">        assertEquals(&quot;MultiSet containsAll of 1 'A' 1 'B'&quot;, true, multiset.containsAll(known1A1B));</span>
+<span class="fc" id="L291">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetSize() {
+<span class="fc bfc" id="L295" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L296">            return;</span>
+        }
+        
+<span class="fc" id="L299">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L300">        assertEquals(&quot;Should have 0 total items&quot;, 0, multiset.size());</span>
+<span class="fc" id="L301">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L302">        assertEquals(&quot;Should have 1 total items&quot;, 1, multiset.size());</span>
+<span class="fc" id="L303">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L304">        assertEquals(&quot;Should have 2 total items&quot;, 2, multiset.size());</span>
+<span class="fc" id="L305">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L306">        assertEquals(&quot;Should have 3 total items&quot;, 3, multiset.size());</span>
+<span class="fc" id="L307">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L308">        assertEquals(&quot;Should have 4 total items&quot;, 4, multiset.size());</span>
+<span class="fc" id="L309">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L310">        assertEquals(&quot;Should have 5 total items&quot;, 5, multiset.size());</span>
+<span class="fc" id="L311">        multiset.remove(&quot;A&quot;, 2);</span>
+<span class="fc" id="L312">        assertEquals(&quot;Should have 1 'A'&quot;, 1, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L313">        assertEquals(&quot;Should have 3 total items&quot;, 3, multiset.size());</span>
+<span class="fc" id="L314">        multiset.remove(&quot;B&quot;);</span>
+<span class="fc" id="L315">        assertEquals(&quot;Should have 2 total item&quot;, 2, multiset.size());</span>
+<span class="fc" id="L316">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetRetainAll() {
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L321">            return;</span>
+        }
+        
+<span class="fc" id="L324">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L325">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L326">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L327">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L328">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L329">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L330">        multiset.add((T) &quot;C&quot;);</span>
+<span class="fc" id="L331">        final List&lt;String&gt; retains = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L332">        retains.add(&quot;B&quot;);</span>
+<span class="fc" id="L333">        retains.add(&quot;C&quot;);</span>
+<span class="fc" id="L334">        multiset.retainAll(retains);</span>
+<span class="fc" id="L335">        assertEquals(&quot;Should have 3 total items&quot;, 3, multiset.size());</span>
+<span class="fc" id="L336">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetIterator() {
+<span class="fc bfc" id="L340" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L341">            return;</span>
+        }
+
+<span class="fc" id="L344">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L345">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L346">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L347">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L348">        assertEquals(&quot;MultiSet should have 3 items&quot;, 3, multiset.size());</span>
+<span class="fc" id="L349">        final Iterator&lt;T&gt; i = multiset.iterator();</span>
+
+<span class="fc" id="L351">        boolean foundA = false;</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">        while (i.hasNext()) {</span>
+<span class="fc" id="L353">            final String element = (String) i.next();</span>
+            // ignore the first A, remove the second via Iterator.remove()
+<span class="fc bfc" id="L355" title="All 2 branches covered.">            if (element.equals(&quot;A&quot;)) {</span>
+<span class="fc bfc" id="L356" title="All 2 branches covered.">                if (!foundA) {</span>
+<span class="fc" id="L357">                    foundA = true;</span>
+<span class="fc" id="L358">                } else {</span>
+<span class="fc" id="L359">                    i.remove();</span>
+                }
+            }
+        }
+
+<span class="fc" id="L364">        assertTrue(&quot;MultiSet should still contain 'A'&quot;, multiset.contains(&quot;A&quot;));</span>
+<span class="fc" id="L365">        assertEquals(&quot;MultiSet should have 2 items&quot;, 2, multiset.size());</span>
+<span class="fc" id="L366">        assertEquals(&quot;MultiSet should have 1 'A'&quot;, 1, multiset.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L367">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetIteratorFail() {
+<span class="fc bfc" id="L371" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L372">            return;</span>
+        }
+
+<span class="fc" id="L375">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L376">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L377">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L378">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L379">        final Iterator&lt;T&gt; it = multiset.iterator();</span>
+<span class="fc" id="L380">        it.next();</span>
+<span class="fc" id="L381">        multiset.remove(&quot;A&quot;);</span>
+        try {
+<span class="nc" id="L383">            it.next();</span>
+<span class="nc" id="L384">            fail(&quot;Should throw ConcurrentModificationException&quot;);</span>
+<span class="pc" id="L385">        } catch (final ConcurrentModificationException e) {</span>
+            // expected
+        }
+<span class="fc" id="L388">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetIteratorFailNoMore() {
+<span class="fc bfc" id="L392" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L393">            return;</span>
+        }
+
+<span class="fc" id="L396">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L397">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L398">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L399">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L400">        final Iterator&lt;T&gt; it = multiset.iterator();</span>
+<span class="fc" id="L401">        it.next();</span>
+<span class="fc" id="L402">        it.next();</span>
+<span class="fc" id="L403">        it.next();</span>
+        try {
+<span class="nc" id="L405">            it.next();</span>
+<span class="nc" id="L406">            fail(&quot;Should throw NoSuchElementException&quot;);</span>
+<span class="pc" id="L407">        } catch (final NoSuchElementException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L410">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetIteratorFailDoubleRemove() {
+<span class="fc bfc" id="L414" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L415">            return;</span>
+        }
+
+<span class="fc" id="L418">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L419">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L420">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L421">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L422">        final Iterator&lt;T&gt; it = multiset.iterator();</span>
+<span class="fc" id="L423">        it.next();</span>
+<span class="fc" id="L424">        it.next();</span>
+<span class="fc" id="L425">        assertEquals(3, multiset.size());</span>
+<span class="fc" id="L426">        it.remove();</span>
+<span class="fc" id="L427">        assertEquals(2, multiset.size());</span>
+        try {
+<span class="nc" id="L429">            it.remove();</span>
+<span class="nc" id="L430">            fail(&quot;Should throw IllegalStateException&quot;);</span>
+<span class="pc" id="L431">        } catch (final IllegalStateException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L434">        assertEquals(2, multiset.size());</span>
+<span class="fc" id="L435">        it.next();</span>
+<span class="fc" id="L436">        it.remove();</span>
+<span class="fc" id="L437">        assertEquals(1, multiset.size());</span>
+<span class="fc" id="L438">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetIteratorRemoveProtectsInvariants() {
+<span class="fc bfc" id="L442" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L443">            return;</span>
+        }
+
+<span class="fc" id="L446">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L447">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L448">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L449">        assertEquals(2, multiset.size());</span>
+<span class="fc" id="L450">        final Iterator&lt;T&gt; it = multiset.iterator();</span>
+<span class="fc" id="L451">        assertEquals(&quot;A&quot;, it.next());</span>
+<span class="fc" id="L452">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L453">        it.remove();</span>
+<span class="fc" id="L454">        assertEquals(1, multiset.size());</span>
+<span class="fc" id="L455">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L456">        assertEquals(&quot;A&quot;, it.next());</span>
+<span class="fc" id="L457">        assertEquals(false, it.hasNext());</span>
+<span class="fc" id="L458">        it.remove();</span>
+<span class="fc" id="L459">        assertEquals(0, multiset.size());</span>
+<span class="fc" id="L460">        assertEquals(false, it.hasNext());</span>
+
+<span class="fc" id="L462">        final Iterator&lt;T&gt; it2 = multiset.iterator();</span>
+<span class="fc" id="L463">        assertEquals(false, it2.hasNext());</span>
+<span class="fc" id="L464">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetToArray() {
+<span class="fc bfc" id="L468" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L469">            return;</span>
+        }
+
+<span class="fc" id="L472">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L473">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L474">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L475">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L476">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L477">        multiset.add((T) &quot;C&quot;);</span>
+<span class="fc" id="L478">        final Object[] array = multiset.toArray();</span>
+<span class="fc" id="L479">        int a = 0, b = 0, c = 0;</span>
+<span class="fc bfc" id="L480" title="All 2 branches covered.">        for (final Object element : array) {</span>
+<span class="fc bfc" id="L481" title="All 2 branches covered.">            a += element.equals(&quot;A&quot;) ? 1 : 0;</span>
+<span class="fc bfc" id="L482" title="All 2 branches covered.">            b += element.equals(&quot;B&quot;) ? 1 : 0;</span>
+<span class="fc bfc" id="L483" title="All 2 branches covered.">            c += element.equals(&quot;C&quot;) ? 1 : 0;</span>
+        }
+<span class="fc" id="L485">        assertEquals(2, a);</span>
+<span class="fc" id="L486">        assertEquals(2, b);</span>
+<span class="fc" id="L487">        assertEquals(1, c);</span>
+<span class="fc" id="L488">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetToArrayPopulate() {
+<span class="fc bfc" id="L492" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L493">            return;</span>
+        }
+
+<span class="fc" id="L496">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L497">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L498">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L499">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L500">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L501">        multiset.add((T) &quot;C&quot;);</span>
+<span class="fc" id="L502">        final String[] array = multiset.toArray(new String[0]);</span>
+<span class="fc" id="L503">        int a = 0, b = 0, c = 0;</span>
+<span class="fc bfc" id="L504" title="All 2 branches covered.">        for (final String element : array) {</span>
+<span class="fc bfc" id="L505" title="All 2 branches covered.">            a += element.equals(&quot;A&quot;) ? 1 : 0;</span>
+<span class="fc bfc" id="L506" title="All 2 branches covered.">            b += element.equals(&quot;B&quot;) ? 1 : 0;</span>
+<span class="fc bfc" id="L507" title="All 2 branches covered.">            c += element.equals(&quot;C&quot;) ? 1 : 0;</span>
+        }
+<span class="fc" id="L509">        assertEquals(2, a);</span>
+<span class="fc" id="L510">        assertEquals(2, b);</span>
+<span class="fc" id="L511">        assertEquals(1, c);</span>
+<span class="fc" id="L512">    }</span>
+
+    //-----------------------------------------------------------------------
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetEquals() {
+<span class="fc bfc" id="L517" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L518">            return;</span>
+        }
+
+<span class="fc" id="L521">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L522">        final MultiSet&lt;T&gt; multiset2 = makeObject();</span>
+<span class="fc" id="L523">        assertEquals(true, multiset.equals(multiset2));</span>
+<span class="fc" id="L524">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L525">        assertEquals(false, multiset.equals(multiset2));</span>
+<span class="fc" id="L526">        multiset2.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L527">        assertEquals(true, multiset.equals(multiset2));</span>
+<span class="fc" id="L528">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L529">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L530">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L531">        multiset.add((T) &quot;C&quot;);</span>
+<span class="fc" id="L532">        multiset2.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L533">        multiset2.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L534">        multiset2.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L535">        multiset2.add((T) &quot;C&quot;);</span>
+<span class="fc" id="L536">        assertEquals(true, multiset.equals(multiset2));</span>
+<span class="fc" id="L537">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetEqualsHashMultiSet() {
+<span class="fc bfc" id="L541" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L542">            return;</span>
+        }
+
+<span class="fc" id="L545">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L546">        final MultiSet&lt;T&gt; multiset2 = new HashMultiSet&lt;T&gt;();</span>
+<span class="fc" id="L547">        assertEquals(true, multiset.equals(multiset2));</span>
+<span class="fc" id="L548">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L549">        assertEquals(false, multiset.equals(multiset2));</span>
+<span class="fc" id="L550">        multiset2.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L551">        assertEquals(true, multiset.equals(multiset2));</span>
+<span class="fc" id="L552">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L553">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L554">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L555">        multiset.add((T) &quot;C&quot;);</span>
+<span class="fc" id="L556">        multiset2.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L557">        multiset2.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L558">        multiset2.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L559">        multiset2.add((T) &quot;C&quot;);</span>
+<span class="fc" id="L560">        assertEquals(true, multiset.equals(multiset2));</span>
+<span class="fc" id="L561">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultiSetHashCode() {
+<span class="fc bfc" id="L565" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L566">            return;</span>
+        }
+
+<span class="fc" id="L569">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="fc" id="L570">        final MultiSet&lt;T&gt; multiset2 = makeObject();</span>
+<span class="fc" id="L571">        assertEquals(0, multiset.hashCode());</span>
+<span class="fc" id="L572">        assertEquals(0, multiset2.hashCode());</span>
+<span class="fc" id="L573">        assertEquals(multiset.hashCode(), multiset2.hashCode());</span>
+<span class="fc" id="L574">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L575">        multiset.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L576">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L577">        multiset.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L578">        multiset.add((T) &quot;C&quot;);</span>
+<span class="fc" id="L579">        multiset2.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L580">        multiset2.add((T) &quot;A&quot;);</span>
+<span class="fc" id="L581">        multiset2.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L582">        multiset2.add((T) &quot;B&quot;);</span>
+<span class="fc" id="L583">        multiset2.add((T) &quot;C&quot;);</span>
+<span class="fc" id="L584">        assertEquals(multiset.hashCode(), multiset2.hashCode());</span>
+
+<span class="fc" id="L586">        int total = 0;</span>
+<span class="fc" id="L587">        total += &quot;A&quot;.hashCode() ^ 2;</span>
+<span class="fc" id="L588">        total += &quot;B&quot;.hashCode() ^ 2;</span>
+<span class="fc" id="L589">        total += &quot;C&quot;.hashCode() ^ 1;</span>
+<span class="fc" id="L590">        assertEquals(total, multiset.hashCode());</span>
+<span class="fc" id="L591">        assertEquals(total, multiset2.hashCode());</span>
+<span class="fc" id="L592">    }</span>
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Bulk test {@link MultiSet#uniqueSet()}.  This method runs through all of
+     * the tests in {@link AbstractSetTest}.
+     * After modification operations, {@link #verify()} is invoked to ensure
+     * that the multiset and the other collection views are still valid.
+     *
+     * @return a {@link AbstractSetTest} instance for testing the multiset's unique set
+     */
+    public BulkTest bulkTestMultiSetUniqueSet() {
+<span class="fc" id="L605">        return new TestMultiSetUniqueSet();</span>
+    }
+
+    public class TestMultiSetUniqueSet extends AbstractSetTest&lt;T&gt; {
+<span class="fc" id="L609">        public TestMultiSetUniqueSet() {</span>
+<span class="fc" id="L610">            super(&quot;&quot;);</span>
+<span class="fc" id="L611">        }</span>
+
+        @Override
+        public T[] getFullElements() {
+<span class="fc" id="L615">            return AbstractMultiSetTest.this.getFullElements();</span>
+        }
+
+        @Override
+        public T[] getOtherElements() {
+<span class="fc" id="L620">            return AbstractMultiSetTest.this.getOtherElements();</span>
+        }
+
+        @Override
+        public Set&lt;T&gt; makeObject() {
+<span class="fc" id="L625">            return AbstractMultiSetTest.this.makeObject().uniqueSet();</span>
+        }
+
+        @Override
+        public Set&lt;T&gt; makeFullCollection() {
+<span class="fc" id="L630">            return AbstractMultiSetTest.this.makeFullCollection().uniqueSet();</span>
+        }
+
+        @Override
+        public boolean isNullSupported() {
+<span class="nc" id="L635">            return AbstractMultiSetTest.this.isNullSupported();</span>
+        }
+
+        @Override
+        public boolean isAddSupported() {
+<span class="fc" id="L640">            return false;</span>
+        }
+
+        @Override
+        public boolean isRemoveSupported() {
+<span class="fc" id="L645">            return AbstractMultiSetTest.this.isRemoveSupported();</span>
+        }
+
+        @Override
+        public boolean isTestSerialization() {
+<span class="fc" id="L650">            return false;</span>
+        }
+
+        @Override
+        public void resetEmpty() {
+<span class="fc" id="L655">            AbstractMultiSetTest.this.resetEmpty();</span>
+<span class="fc" id="L656">            TestMultiSetUniqueSet.this.setCollection(AbstractMultiSetTest.this.getCollection().uniqueSet());</span>
+<span class="fc" id="L657">            TestMultiSetUniqueSet.this.setConfirmed(new HashSet&lt;T&gt;(AbstractMultiSetTest.this.getConfirmed()));</span>
+<span class="fc" id="L658">        }</span>
+
+        @Override
+        public void resetFull() {
+<span class="fc" id="L662">            AbstractMultiSetTest.this.resetFull();</span>
+<span class="fc" id="L663">            TestMultiSetUniqueSet.this.setCollection(AbstractMultiSetTest.this.getCollection().uniqueSet());</span>
+<span class="fc" id="L664">            TestMultiSetUniqueSet.this.setConfirmed(new HashSet&lt;T&gt;(AbstractMultiSetTest.this.getConfirmed()));</span>
+<span class="fc" id="L665">        }</span>
+
+        @Override
+        public void verify() {
+<span class="fc" id="L669">            super.verify();</span>
+<span class="fc" id="L670">        }</span>
+    }
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Compare the current serialized form of the MultiSet
+     * against the canonical version in SVN.
+     */
+    public void testEmptyMultiSetCompatibility() throws IOException, ClassNotFoundException {
+        // test to make sure the canonical form has been preserved
+<span class="fc" id="L681">        final MultiSet&lt;T&gt; multiset = makeObject();</span>
+<span class="pc bpc" id="L682" title="2 of 6 branches missed.">        if (multiset instanceof Serializable &amp;&amp; !skipSerializedCanonicalTests() &amp;&amp; isTestSerialization()) {</span>
+<span class="fc" id="L683">            final MultiSet&lt;?&gt; multiset2 = (MultiSet&lt;?&gt;) readExternalFormFromDisk(getCanonicalEmptyCollectionName(multiset));</span>
+<span class="pc bpc" id="L684" title="1 of 2 branches missed.">            assertTrue(&quot;MultiSet is empty&quot;,multiset2.size()  == 0);</span>
+<span class="fc" id="L685">            assertEquals(multiset, multiset2);</span>
+        }
+<span class="fc" id="L687">    }</span>
+
+    /**
+     * Compare the current serialized form of the MultiSet
+     * against the canonical version in SVN.
+     */
+    public void testFullMultiSetCompatibility() throws IOException, ClassNotFoundException {
+        // test to make sure the canonical form has been preserved
+<span class="fc" id="L695">        final MultiSet&lt;T&gt; multiset = makeFullCollection();</span>
+<span class="pc bpc" id="L696" title="2 of 6 branches missed.">        if (multiset instanceof Serializable &amp;&amp; !skipSerializedCanonicalTests() &amp;&amp; isTestSerialization()) {</span>
+<span class="fc" id="L697">            final MultiSet&lt;?&gt; multiset2 = (MultiSet&lt;?&gt;) readExternalFormFromDisk(getCanonicalFullCollectionName(multiset));</span>
+<span class="fc" id="L698">            assertEquals(&quot;MultiSet is the right size&quot;,multiset.size(), multiset2.size());</span>
+<span class="fc" id="L699">            assertEquals(multiset, multiset2);</span>
+        }
+<span class="fc" id="L701">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

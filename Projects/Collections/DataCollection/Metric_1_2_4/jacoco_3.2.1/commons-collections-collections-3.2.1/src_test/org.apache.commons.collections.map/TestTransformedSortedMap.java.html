@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestTransformedSortedMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">TestTransformedSortedMap.java</span></div><h1>TestTransformedSortedMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.BulkTest;
+import org.apache.commons.collections.TransformerUtils;
+import org.apache.commons.collections.collection.TestTransformedCollection;
+
+/**
+ * Extension of {@link AbstractTestSortedMap} for exercising the {@link TransformedSortedMap}
+ * implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class TestTransformedSortedMap extends AbstractTestSortedMap {
+    
+    public TestTransformedSortedMap(String testName) {
+<span class="fc" id="L42">        super(testName);</span>
+<span class="fc" id="L43">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L46" title="All 2 branches covered.">        return BulkTest.makeSuite(TestTransformedSortedMap.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        String[] testCaseName = { TestTransformedSortedMap.class.getName()};</span>
+<span class="nc" id="L51">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L52">    }</span>
+
+    //-----------------------------------------------------------------------
+    public Map makeEmptyMap() {
+<span class="fc" id="L56">        return TransformedSortedMap.decorate(new TreeMap(), TransformerUtils.nopTransformer(), TransformerUtils.nopTransformer());</span>
+    }
+
+    public boolean isSubMapViewsSerializable() {
+        // TreeMap sub map views have a bug in deserialization.
+<span class="nc" id="L61">        return false;</span>
+    }
+
+    //-----------------------------------------------------------------------    
+    public void testTransformedMap() {
+<span class="fc" id="L66">        Object[] els = new Object[] {&quot;1&quot;, &quot;3&quot;, &quot;5&quot;, &quot;7&quot;, &quot;2&quot;, &quot;4&quot;, &quot;6&quot;};</span>
+
+<span class="fc" id="L68">        Map map = TransformedSortedMap.decorate(new TreeMap(), TestTransformedCollection.STRING_TO_INTEGER_TRANSFORMER, null);</span>
+<span class="fc" id="L69">        assertEquals(0, map.size());</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        for (int i = 0; i &lt; els.length; i++) {</span>
+<span class="fc" id="L71">            map.put(els[i], els[i]);</span>
+<span class="fc" id="L72">            assertEquals(i + 1, map.size());</span>
+<span class="fc" id="L73">            assertEquals(true, map.containsKey(new Integer((String) els[i])));</span>
+            try {
+<span class="nc" id="L75">                map.containsKey(els[i]);</span>
+<span class="nc" id="L76">                fail();</span>
+<span class="pc" id="L77">            } catch (ClassCastException ex) {}</span>
+<span class="fc" id="L78">            assertEquals(true, map.containsValue(els[i]));</span>
+<span class="fc" id="L79">            assertEquals(els[i], map.get(new Integer((String) els[i])));</span>
+        }
+        
+        try {
+<span class="nc" id="L83">            map.remove(els[0]);</span>
+<span class="nc" id="L84">            fail();</span>
+<span class="pc" id="L85">        } catch (ClassCastException ex) {}</span>
+<span class="fc" id="L86">        assertEquals(els[0], map.remove(new Integer((String) els[0])));</span>
+        
+<span class="fc" id="L88">        map = TransformedSortedMap.decorate(new TreeMap(), null, TestTransformedCollection.STRING_TO_INTEGER_TRANSFORMER);</span>
+<span class="fc" id="L89">        assertEquals(0, map.size());</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (int i = 0; i &lt; els.length; i++) {</span>
+<span class="fc" id="L91">            map.put(els[i], els[i]);</span>
+<span class="fc" id="L92">            assertEquals(i + 1, map.size());</span>
+<span class="fc" id="L93">            assertEquals(true, map.containsValue(new Integer((String) els[i])));</span>
+<span class="fc" id="L94">            assertEquals(false, map.containsValue(els[i]));</span>
+<span class="fc" id="L95">            assertEquals(true, map.containsKey(els[i]));</span>
+<span class="fc" id="L96">            assertEquals(new Integer((String) els[i]), map.get(els[i]));</span>
+        }
+
+<span class="fc" id="L99">        assertEquals(new Integer((String) els[0]), map.remove(els[0]));</span>
+        
+<span class="fc" id="L101">        Set entrySet = map.entrySet();</span>
+<span class="fc" id="L102">        Map.Entry[] array = (Map.Entry[]) entrySet.toArray(new Map.Entry[0]);</span>
+<span class="fc" id="L103">        array[0].setValue(&quot;66&quot;);</span>
+<span class="fc" id="L104">        assertEquals(new Integer(66), array[0].getValue());</span>
+<span class="fc" id="L105">        assertEquals(new Integer(66), map.get(array[0].getKey()));</span>
+        
+<span class="fc" id="L107">        Map.Entry entry = (Map.Entry) entrySet.iterator().next();</span>
+<span class="fc" id="L108">        entry.setValue(&quot;88&quot;);</span>
+<span class="fc" id="L109">        assertEquals(new Integer(88), entry.getValue());</span>
+<span class="fc" id="L110">        assertEquals(new Integer(88), map.get(entry.getKey()));</span>
+<span class="fc" id="L111">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testFactory_Decorate() {
+<span class="fc" id="L115">        SortedMap base = new TreeMap();</span>
+<span class="fc" id="L116">        base.put(&quot;A&quot;, &quot;1&quot;);</span>
+<span class="fc" id="L117">        base.put(&quot;B&quot;, &quot;2&quot;);</span>
+<span class="fc" id="L118">        base.put(&quot;C&quot;, &quot;3&quot;);</span>
+        
+<span class="fc" id="L120">        SortedMap trans = TransformedSortedMap.decorate(base, null, TestTransformedCollection.STRING_TO_INTEGER_TRANSFORMER);</span>
+<span class="fc" id="L121">        assertEquals(3, trans.size());</span>
+<span class="fc" id="L122">        assertEquals(&quot;1&quot;, trans.get(&quot;A&quot;));</span>
+<span class="fc" id="L123">        assertEquals(&quot;2&quot;, trans.get(&quot;B&quot;));</span>
+<span class="fc" id="L124">        assertEquals(&quot;3&quot;, trans.get(&quot;C&quot;));</span>
+<span class="fc" id="L125">        trans.put(&quot;D&quot;, &quot;4&quot;);</span>
+<span class="fc" id="L126">        assertEquals(new Integer(4), trans.get(&quot;D&quot;));</span>
+<span class="fc" id="L127">    }</span>
+
+    public void testFactory_decorateTransform() {
+<span class="fc" id="L130">        SortedMap base = new TreeMap();</span>
+<span class="fc" id="L131">        base.put(&quot;A&quot;, &quot;1&quot;);</span>
+<span class="fc" id="L132">        base.put(&quot;B&quot;, &quot;2&quot;);</span>
+<span class="fc" id="L133">        base.put(&quot;C&quot;, &quot;3&quot;);</span>
+        
+<span class="fc" id="L135">        SortedMap trans = TransformedSortedMap.decorateTransform(base, null, TestTransformedCollection.STRING_TO_INTEGER_TRANSFORMER);</span>
+<span class="fc" id="L136">        assertEquals(3, trans.size());</span>
+<span class="fc" id="L137">        assertEquals(new Integer(1), trans.get(&quot;A&quot;));</span>
+<span class="fc" id="L138">        assertEquals(new Integer(2), trans.get(&quot;B&quot;));</span>
+<span class="fc" id="L139">        assertEquals(new Integer(3), trans.get(&quot;C&quot;));</span>
+<span class="fc" id="L140">        trans.put(&quot;D&quot;, &quot;4&quot;);</span>
+<span class="fc" id="L141">        assertEquals(new Integer(4), trans.get(&quot;D&quot;));</span>
+<span class="fc" id="L142">    }</span>
+
+    //-----------------------------------------------------------------------
+    public String getCompatibilityVersion() {
+<span class="fc" id="L146">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/TransformedSortedMap.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/TransformedSortedMap.fullCollection.version3.1.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

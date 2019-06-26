@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SynchronizedPriorityQueue.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">SynchronizedPriorityQueue.java</span></div><h1>SynchronizedPriorityQueue.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.NoSuchElementException;
+
+/**
+ * A thread safe version of the PriorityQueue.
+ * Provides synchronized wrapper methods for all the methods 
+ * defined in the PriorityQueue interface.
+ *
+ * @deprecated PriorityQueue is replaced by the Buffer interface, see buffer subpackage.
+ *  Due to be removed in v4.0.
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Ram Chidambaram
+ */
+public final class SynchronizedPriorityQueue implements PriorityQueue {
+
+    /**
+     * The underlying priority queue.
+     */
+    protected final PriorityQueue m_priorityQueue;
+
+    /**
+     * Constructs a new synchronized priority queue.
+     *
+     * @param priorityQueue  the priority queue to synchronize
+     */
+<span class="nc" id="L45">    public SynchronizedPriorityQueue(final PriorityQueue priorityQueue) {</span>
+<span class="nc" id="L46">        m_priorityQueue = priorityQueue;</span>
+<span class="nc" id="L47">    }</span>
+
+    /**
+     * Clear all elements from queue.
+     */
+    public synchronized void clear() {
+<span class="nc" id="L53">        m_priorityQueue.clear();</span>
+<span class="nc" id="L54">    }</span>
+
+    /**
+     * Test if queue is empty.
+     *
+     * @return true if queue is empty else false.
+     */
+    public synchronized boolean isEmpty() {
+<span class="nc" id="L62">        return m_priorityQueue.isEmpty();</span>
+    }
+
+    /**
+     * Insert an element into queue.
+     *
+     * @param element the element to be inserted
+     */
+    public synchronized void insert(final Object element) {
+<span class="nc" id="L71">        m_priorityQueue.insert(element);</span>
+<span class="nc" id="L72">    }</span>
+
+    /**
+     * Return element on top of heap but don't remove it.
+     *
+     * @return the element at top of heap
+     * @throws NoSuchElementException if isEmpty() == true
+     */
+    public synchronized Object peek() throws NoSuchElementException {
+<span class="nc" id="L81">        return m_priorityQueue.peek();</span>
+    }
+
+    /**
+     * Return element on top of heap and remove it.
+     *
+     * @return the element at top of heap
+     * @throws NoSuchElementException if isEmpty() == true
+     */
+    public synchronized Object pop() throws NoSuchElementException {
+<span class="nc" id="L91">        return m_priorityQueue.pop();</span>
+    }
+
+    /**
+     * Returns a string representation of the underlying queue.
+     *
+     * @return a string representation of the underlying queue
+     */
+    public synchronized String toString() {
+<span class="nc" id="L100">        return m_priorityQueue.toString();</span>
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

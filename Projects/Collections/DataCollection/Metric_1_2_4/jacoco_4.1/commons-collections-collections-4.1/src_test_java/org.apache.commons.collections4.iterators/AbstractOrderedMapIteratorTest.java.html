@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractOrderedMapIteratorTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.iterators</a> &gt; <span class="el_source">AbstractOrderedMapIteratorTest.java</span></div><h1>AbstractOrderedMapIteratorTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.iterators;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.apache.commons.collections4.OrderedMapIterator;
+
+/**
+ * Abstract class for testing the OrderedMapIterator interface.
+ * &lt;p&gt;
+ * This class provides a framework for testing an implementation of MapIterator.
+ * Concrete subclasses must provide the list iterator to be tested.
+ * They must also specify certain details of how the list iterator operates by
+ * overriding the supportsXxx() methods if necessary.
+ *
+ * @since 3.0
+ * @version $Id$
+ */
+public abstract class AbstractOrderedMapIteratorTest&lt;K, V&gt; extends AbstractMapIteratorTest&lt;K, V&gt; {
+
+    /**
+     * JUnit constructor.
+     *
+     * @param testName  the test class name
+     */
+    public AbstractOrderedMapIteratorTest(final String testName) {
+<span class="fc" id="L48">        super(testName);</span>
+<span class="fc" id="L49">    }</span>
+
+    //-----------------------------------------------------------------------
+    @Override
+    public abstract OrderedMapIterator&lt;K, V&gt; makeEmptyIterator();
+
+    @Override
+    public abstract OrderedMapIterator&lt;K, V&gt; makeObject();
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test that the empty list iterator contract is correct.
+     */
+    @Override
+    public void testEmptyMapIterator() {
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (!supportsEmptyIterator()) {</span>
+<span class="nc" id="L65">            return;</span>
+        }
+
+<span class="fc" id="L68">        super.testEmptyMapIterator();</span>
+
+<span class="fc" id="L70">        final OrderedMapIterator&lt;K, V&gt; it = makeEmptyIterator();</span>
+<span class="fc" id="L71">        assertEquals(false, it.hasPrevious());</span>
+        try {
+<span class="nc" id="L73">            it.previous();</span>
+<span class="nc" id="L74">            fail();</span>
+<span class="pc" id="L75">        } catch (final NoSuchElementException ex) {}</span>
+<span class="fc" id="L76">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test that the full list iterator contract is correct.
+     */
+    @Override
+    public void testFullMapIterator() {
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (!supportsFullIterator()) {</span>
+<span class="nc" id="L85">            return;</span>
+        }
+
+<span class="fc" id="L88">        super.testFullMapIterator();</span>
+
+<span class="fc" id="L90">        final OrderedMapIterator&lt;K, V&gt; it = makeObject();</span>
+<span class="fc" id="L91">        final Map&lt;K, V&gt; map = getMap();</span>
+
+<span class="fc" id="L93">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L94">        assertEquals(false, it.hasPrevious());</span>
+<span class="fc" id="L95">        final Set&lt;K&gt; set = new HashSet&lt;K&gt;();</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+            // getKey
+<span class="fc" id="L98">            final K key = it.next();</span>
+<span class="fc" id="L99">            assertSame(&quot;it.next() should equals getKey()&quot;, key, it.getKey());</span>
+<span class="fc" id="L100">            assertTrue(&quot;Key must be in map&quot;,  map.containsKey(key));</span>
+<span class="fc" id="L101">            assertTrue(&quot;Key must be unique&quot;, set.add(key));</span>
+
+            // getValue
+<span class="fc" id="L104">            final V value = it.getValue();</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            if (!isGetStructuralModify()) {</span>
+<span class="fc" id="L106">                assertSame(&quot;Value must be mapped to key&quot;, map.get(key), value);</span>
+            }
+<span class="fc" id="L108">            assertTrue(&quot;Value must be in map&quot;,  map.containsValue(value));</span>
+
+<span class="fc" id="L110">            assertEquals(true, it.hasPrevious());</span>
+
+<span class="fc" id="L112">            verify();</span>
+        }
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        while (it.hasPrevious()) {</span>
+            // getKey
+<span class="fc" id="L116">            final Object key = it.previous();</span>
+<span class="fc" id="L117">            assertSame(&quot;it.previous() should equals getKey()&quot;, key, it.getKey());</span>
+<span class="fc" id="L118">            assertTrue(&quot;Key must be in map&quot;,  map.containsKey(key));</span>
+<span class="fc" id="L119">            assertTrue(&quot;Key must be unique&quot;, set.remove(key));</span>
+
+            // getValue
+<span class="fc" id="L122">            final Object value = it.getValue();</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">            if (!isGetStructuralModify()) {</span>
+<span class="fc" id="L124">                assertSame(&quot;Value must be mapped to key&quot;, map.get(key), value);</span>
+            }
+<span class="fc" id="L126">            assertTrue(&quot;Value must be in map&quot;,  map.containsValue(value));</span>
+
+<span class="fc" id="L128">            assertEquals(true, it.hasNext());</span>
+
+<span class="fc" id="L130">            verify();</span>
+        }
+<span class="fc" id="L132">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test that the iterator order matches the keySet order.
+     */
+    public void testMapIteratorOrder() {
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if (!supportsFullIterator()) {</span>
+<span class="nc" id="L140">            return;</span>
+        }
+
+<span class="fc" id="L143">        final OrderedMapIterator&lt;K, V&gt; it = makeObject();</span>
+<span class="fc" id="L144">        final Map&lt;K, V&gt; map = getMap();</span>
+
+<span class="fc" id="L146">        assertEquals(&quot;keySet() not consistent&quot;, new ArrayList&lt;K&gt;(map.keySet()), new ArrayList&lt;K&gt;(map.keySet()));</span>
+
+<span class="fc" id="L148">        final Iterator&lt;K&gt; it2 = map.keySet().iterator();</span>
+<span class="fc" id="L149">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L150">        assertEquals(true, it2.hasNext());</span>
+<span class="fc" id="L151">        final List&lt;K&gt; list = new ArrayList&lt;K&gt;();</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L153">            final K key = it.next();</span>
+<span class="fc" id="L154">            assertEquals(it2.next(), key);</span>
+<span class="fc" id="L155">            list.add(key);</span>
+        }
+<span class="fc" id="L157">        assertEquals(map.size(), list.size());</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        while (it.hasPrevious()) {</span>
+<span class="fc" id="L159">            final K key = it.previous();</span>
+<span class="fc" id="L160">            assertEquals(list.get(list.size() - 1), key);</span>
+<span class="fc" id="L161">            list.remove(list.size() - 1);</span>
+        }
+<span class="fc" id="L163">        assertEquals(0, list.size());</span>
+<span class="fc" id="L164">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

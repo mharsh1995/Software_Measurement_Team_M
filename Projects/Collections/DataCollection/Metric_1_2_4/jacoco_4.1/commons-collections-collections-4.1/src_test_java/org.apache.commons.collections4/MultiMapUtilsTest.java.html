@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MultiMapUtilsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4</a> &gt; <span class="el_source">MultiMapUtilsTest.java</span></div><h1>MultiMapUtilsTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
+import org.junit.Test;
+
+/**
+ * Tests for MultiMapUtils
+ *
+ * @since 4.1
+ * @version $Id$
+ */
+<span class="fc" id="L38">public class MultiMapUtilsTest {</span>
+
+    @Test
+    @SuppressWarnings({ &quot;unchecked&quot;, &quot;rawtypes&quot; })
+    public void testEmptyUnmodifiableMultiValuedMap() {
+<span class="fc" id="L43">        final MultiValuedMap map = MultiMapUtils.EMPTY_MULTI_VALUED_MAP;</span>
+<span class="fc" id="L44">        assertTrue(map.isEmpty());</span>
+        try {
+<span class="nc" id="L46">            map.put(&quot;key&quot;, &quot;value&quot;);</span>
+<span class="nc" id="L47">            fail(&quot;Should throw UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L48">        } catch (UnsupportedOperationException e) {</span>
+        }
+<span class="fc" id="L50">    }</span>
+
+    @Test
+    public void testTypeSafeEmptyMultiValuedMap() {
+<span class="fc" id="L54">        final MultiValuedMap&lt;String, String&gt; map = MultiMapUtils.&lt;String, String&gt;emptyMultiValuedMap();</span>
+<span class="fc" id="L55">        assertTrue(map.isEmpty());</span>
+        try {
+<span class="nc" id="L57">            map.put(&quot;key&quot;, &quot;value&quot;);</span>
+<span class="nc" id="L58">            fail(&quot;Should throw UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L59">        } catch (UnsupportedOperationException e) {</span>
+        }
+<span class="fc" id="L61">    }</span>
+
+    @Test
+    public void testEmptyIfNull() {
+<span class="fc" id="L65">        assertTrue(MultiMapUtils.emptyIfNull(null).isEmpty());</span>
+
+<span class="fc" id="L67">        final MultiValuedMap&lt;String, String&gt; map = new ArrayListValuedHashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L68">        map.put(&quot;item&quot;, &quot;value&quot;);</span>
+<span class="fc" id="L69">        assertFalse(MultiMapUtils.emptyIfNull(map).isEmpty());</span>
+<span class="fc" id="L70">    }</span>
+
+    @Test
+    public void testIsEmptyWithEmptyMap() {
+<span class="fc" id="L74">        final MultiValuedMap&lt;Object, Object&gt; map = new ArrayListValuedHashMap&lt;Object, Object&gt;();</span>
+<span class="fc" id="L75">        assertEquals(true, MultiMapUtils.isEmpty(map));</span>
+<span class="fc" id="L76">    }</span>
+
+    @Test
+    public void testIsEmptyWithNonEmptyMap() {
+<span class="fc" id="L80">        final MultiValuedMap&lt;String, String&gt; map = new ArrayListValuedHashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L81">        map.put(&quot;item&quot;, &quot;value&quot;);</span>
+<span class="fc" id="L82">        assertEquals(false, MultiMapUtils.isEmpty(map));</span>
+<span class="fc" id="L83">    }</span>
+
+    @Test
+    public void testIsEmptyWithNull() {
+<span class="fc" id="L87">        final MultiValuedMap&lt;Object, Object&gt; map = null;</span>
+<span class="fc" id="L88">        assertEquals(true, MultiMapUtils.isEmpty(map));</span>
+<span class="fc" id="L89">    }</span>
+
+    @Test
+    public void testGetCollection() {
+<span class="fc" id="L93">        assertNull(MultiMapUtils.getCollection(null, &quot;key1&quot;));</span>
+
+<span class="fc" id="L95">        String values[] = { &quot;v1&quot;, &quot;v2&quot;, &quot;v3&quot; };</span>
+<span class="fc" id="L96">        final MultiValuedMap&lt;String, String&gt; map = new ArrayListValuedHashMap&lt;String, String&gt;();</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (String val : values) {</span>
+<span class="fc" id="L98">            map.put(&quot;key1&quot;, val);</span>
+        }
+
+<span class="fc" id="L101">        Collection&lt;String&gt; col = MultiMapUtils.getCollection(map, &quot;key1&quot;);</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        for (String val : values) {</span>
+<span class="fc" id="L103">            assertTrue(col.contains(val));</span>
+        }
+<span class="fc" id="L105">    }</span>
+
+    @Test
+    public void testGetValuesAsList() {
+<span class="fc" id="L109">        assertNull(MultiMapUtils.getValuesAsList(null, &quot;key1&quot;));</span>
+
+<span class="fc" id="L111">        String values[] = { &quot;v1&quot;, &quot;v2&quot;, &quot;v3&quot; };</span>
+<span class="fc" id="L112">        final MultiValuedMap&lt;String, String&gt; map = new ArrayListValuedHashMap&lt;String, String&gt;();</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        for (String val : values) {</span>
+<span class="fc" id="L114">            map.put(&quot;key1&quot;, val);</span>
+        }
+
+<span class="fc" id="L117">        List&lt;String&gt; list = MultiMapUtils.getValuesAsList(map, &quot;key1&quot;);</span>
+<span class="fc" id="L118">        int i = 0;</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        for (String val : list) {</span>
+<span class="fc" id="L120">            assertTrue(val.equals(values[i++]));</span>
+        }
+<span class="fc" id="L122">    }</span>
+
+    @Test
+    public void testGetValuesAsSet() {
+<span class="fc" id="L126">        assertNull(MultiMapUtils.getValuesAsList(null, &quot;key1&quot;));</span>
+
+<span class="fc" id="L128">        String values[] = { &quot;v1&quot;, &quot;v2&quot;, &quot;v3&quot; };</span>
+<span class="fc" id="L129">        final MultiValuedMap&lt;String, String&gt; map = new ArrayListValuedHashMap&lt;String, String&gt;();</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        for (String val : values) {</span>
+<span class="fc" id="L131">            map.put(&quot;key1&quot;, val);</span>
+<span class="fc" id="L132">            map.put(&quot;key1&quot;, val);</span>
+        }
+
+<span class="fc" id="L135">        Set&lt;String&gt; set = MultiMapUtils.getValuesAsSet(map, &quot;key1&quot;);</span>
+<span class="fc" id="L136">        assertEquals(3, set.size());</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        for (String val : values) {</span>
+<span class="fc" id="L138">            assertTrue(set.contains(val));</span>
+        }
+<span class="fc" id="L140">    }</span>
+
+    @Test
+    public void testGetValuesAsBag() {
+<span class="fc" id="L144">        assertNull(MultiMapUtils.getValuesAsBag(null, &quot;key1&quot;));</span>
+
+<span class="fc" id="L146">        String values[] = { &quot;v1&quot;, &quot;v2&quot;, &quot;v3&quot; };</span>
+<span class="fc" id="L147">        final MultiValuedMap&lt;String, String&gt; map = new ArrayListValuedHashMap&lt;String, String&gt;();</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        for (String val : values) {</span>
+<span class="fc" id="L149">            map.put(&quot;key1&quot;, val);</span>
+<span class="fc" id="L150">            map.put(&quot;key1&quot;, val);</span>
+        }
+
+<span class="fc" id="L153">        Bag&lt;String&gt; bag = MultiMapUtils.getValuesAsBag(map, &quot;key1&quot;);</span>
+<span class="fc" id="L154">        assertEquals(6, bag.size());</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        for (String val : values) {</span>
+<span class="fc" id="L156">            assertTrue(bag.contains(val));</span>
+<span class="fc" id="L157">            assertEquals(2, bag.getCount(val));</span>
+        }
+<span class="fc" id="L159">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

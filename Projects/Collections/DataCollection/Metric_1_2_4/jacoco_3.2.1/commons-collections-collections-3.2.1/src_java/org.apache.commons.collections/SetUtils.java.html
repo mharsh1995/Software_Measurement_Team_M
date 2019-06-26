@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SetUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">SetUtils.java</span></div><h1>SetUtils.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.apache.commons.collections.set.ListOrderedSet;
+import org.apache.commons.collections.set.PredicatedSet;
+import org.apache.commons.collections.set.PredicatedSortedSet;
+import org.apache.commons.collections.set.SynchronizedSet;
+import org.apache.commons.collections.set.SynchronizedSortedSet;
+import org.apache.commons.collections.set.TransformedSet;
+import org.apache.commons.collections.set.TransformedSortedSet;
+import org.apache.commons.collections.set.TypedSet;
+import org.apache.commons.collections.set.TypedSortedSet;
+import org.apache.commons.collections.set.UnmodifiableSet;
+import org.apache.commons.collections.set.UnmodifiableSortedSet;
+
+/**
+ * Provides utility methods and decorators for
+ * {@link Set} and {@link SortedSet} instances.
+ *
+ * @since Commons Collections 2.1
+ * @version $Revision$ $Date$
+ * 
+ * @author Paul Jack
+ * @author Stephen Colebourne
+ * @author Neil O'Toole
+ * @author Matthew Hawthorne
+ */
+public class SetUtils {
+
+    /**
+     * An empty unmodifiable set.
+     * This uses the {@link Collections} implementation 
+     * and is provided for completeness.
+     */
+<span class="fc" id="L57">    public static final Set EMPTY_SET = Collections.EMPTY_SET;</span>
+    /**
+     * An empty unmodifiable sorted set.
+     * This is not provided in the JDK.
+     */
+<span class="fc" id="L62">    public static final SortedSet EMPTY_SORTED_SET = UnmodifiableSortedSet.decorate(new TreeSet());</span>
+
+    /**
+     * &lt;code&gt;SetUtils&lt;/code&gt; should not normally be instantiated.
+     */
+<span class="nc" id="L67">    public SetUtils() {</span>
+<span class="nc" id="L68">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Tests two sets for equality as per the &lt;code&gt;equals()&lt;/code&gt; contract
+     * in {@link java.util.Set#equals(java.lang.Object)}.
+     * &lt;p&gt;
+     * This method is useful for implementing &lt;code&gt;Set&lt;/code&gt; when you cannot
+     * extend AbstractSet. The method takes Collection instances to enable other
+     * collection types to use the Set implementation algorithm.
+     * &lt;p&gt;
+     * The relevant text (slightly paraphrased as this is a static method) is:
+     * &lt;blockquote&gt;
+     * &lt;p&gt;Two sets are considered equal if they have
+     * the same size, and every member of the first set is contained in
+     * the second. This ensures that the &lt;tt&gt;equals&lt;/tt&gt; method works
+     * properly across different implementations of the &lt;tt&gt;Set&lt;/tt&gt;
+     * interface.&lt;/p&gt;
+     * 
+     * &lt;p&gt;
+     * This implementation first checks if the two sets are the same object: 
+     * if so it returns &lt;tt&gt;true&lt;/tt&gt;.  Then, it checks if the two sets are
+     * identical in size; if not, it returns false. If so, it returns
+     * &lt;tt&gt;a.containsAll((Collection) b)&lt;/tt&gt;.&lt;/p&gt;
+     * &lt;/blockquote&gt;
+     * 
+     * @see java.util.Set
+     * @param set1  the first set, may be null
+     * @param set2  the second set, may be null
+     * @return whether the sets are equal by value comparison
+     */
+    public static boolean isEqualSet(final Collection set1, final Collection set2) {
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (set1 == set2) {</span>
+<span class="fc" id="L101">            return true;</span>
+        }
+<span class="fc bfc" id="L103" title="All 6 branches covered.">        if (set1 == null || set2 == null || set1.size() != set2.size()) {</span>
+<span class="fc" id="L104">            return false;</span>
+        }
+
+<span class="fc" id="L107">        return set1.containsAll(set2);</span>
+    }
+
+    /**
+     * Generates a hash code using the algorithm specified in 
+     * {@link java.util.Set#hashCode()}.
+     * &lt;p&gt;
+     * This method is useful for implementing &lt;code&gt;Set&lt;/code&gt; when you cannot
+     * extend AbstractSet. The method takes Collection instances to enable other
+     * collection types to use the Set implementation algorithm.
+     * 
+     * @see java.util.Set#hashCode()
+     * @param set  the set to calculate the hash code for, may be null
+     * @return the hash code
+     */
+    public static int hashCodeForSet(final Collection set) {
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (set == null) {</span>
+<span class="fc" id="L124">            return 0;</span>
+        }
+<span class="fc" id="L126">        int hashCode = 0;</span>
+<span class="fc" id="L127">        Iterator it = set.iterator();</span>
+<span class="fc" id="L128">        Object obj = null;</span>
+
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L131">            obj = it.next();</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">            if (obj != null) {</span>
+<span class="fc" id="L133">                hashCode += obj.hashCode();</span>
+            }
+        }
+<span class="fc" id="L136">        return hashCode;</span>
+    }
+    
+    //-----------------------------------------------------------------------
+    /**
+     * Returns a synchronized set backed by the given set.
+     * &lt;p&gt;
+     * You must manually synchronize on the returned buffer's iterator to 
+     * avoid non-deterministic behavior:
+     *  
+     * &lt;pre&gt;
+     * Set s = SetUtils.synchronizedSet(mySet);
+     * synchronized (s) {
+     *     Iterator i = s.iterator();
+     *     while (i.hasNext()) {
+     *         process (i.next());
+     *     }
+     * }
+     * &lt;/pre&gt;
+     * 
+     * This method uses the implementation in the decorators subpackage.
+     * 
+     * @param set  the set to synchronize, must not be null
+     * @return a synchronized set backed by the given set
+     * @throws IllegalArgumentException  if the set is null
+     */
+    public static Set synchronizedSet(Set set) {
+<span class="nc" id="L163">        return SynchronizedSet.decorate(set);</span>
+    }
+
+    /**
+     * Returns an unmodifiable set backed by the given set.
+     * &lt;p&gt;
+     * This method uses the implementation in the decorators subpackage.
+     *
+     * @param set  the set to make unmodifiable, must not be null
+     * @return an unmodifiable set backed by the given set
+     * @throws IllegalArgumentException  if the set is null
+     */
+    public static Set unmodifiableSet(Set set) {
+<span class="nc" id="L176">        return UnmodifiableSet.decorate(set);</span>
+    }
+
+    /**
+     * Returns a predicated (validating) set backed by the given set.
+     * &lt;p&gt;
+     * Only objects that pass the test in the given predicate can be added to the set.
+     * Trying to add an invalid object results in an IllegalArgumentException.
+     * It is important not to use the original set after invoking this method,
+     * as it is a backdoor for adding invalid objects.
+     *
+     * @param set  the set to predicate, must not be null
+     * @param predicate  the predicate for the set, must not be null
+     * @return a predicated set backed by the given set
+     * @throws IllegalArgumentException  if the Set or Predicate is null
+     */
+    public static Set predicatedSet(Set set, Predicate predicate) {
+<span class="fc" id="L193">        return PredicatedSet.decorate(set, predicate);</span>
+    }
+
+    /**
+     * Returns a typed set backed by the given set.
+     * &lt;p&gt;
+     * Only objects of the specified type can be added to the set.
+     * 
+     * @param set  the set to limit to a specific type, must not be null
+     * @param type  the type of objects which may be added to the set
+     * @return a typed set backed by the specified set
+     */
+    public static Set typedSet(Set set, Class type) {
+<span class="nc" id="L206">        return TypedSet.decorate(set, type);</span>
+    }
+    
+    /**
+     * Returns a transformed set backed by the given set.
+     * &lt;p&gt;
+     * Each object is passed through the transformer as it is added to the
+     * Set. It is important not to use the original set after invoking this 
+     * method, as it is a backdoor for adding untransformed objects.
+     *
+     * @param set  the set to transform, must not be null
+     * @param transformer  the transformer for the set, must not be null
+     * @return a transformed set backed by the given set
+     * @throws IllegalArgumentException  if the Set or Transformer is null
+     */
+    public static Set transformedSet(Set set, Transformer transformer) {
+<span class="nc" id="L222">        return TransformedSet.decorate(set, transformer);</span>
+    }
+    
+    /**
+     * Returns a set that maintains the order of elements that are added
+     * backed by the given set.
+     * &lt;p&gt;
+     * If an element is added twice, the order is determined by the first add.
+     * The order is observed through the iterator or toArray.
+     *
+     * @param set  the set to order, must not be null
+     * @return an ordered set backed by the given set
+     * @throws IllegalArgumentException  if the Set is null
+     */
+    public static Set orderedSet(Set set) {
+<span class="nc" id="L237">        return ListOrderedSet.decorate(set);</span>
+    }
+    
+    //-----------------------------------------------------------------------
+    /**
+     * Returns a synchronized sorted set backed by the given sorted set.
+     * &lt;p&gt;
+     * You must manually synchronize on the returned buffer's iterator to 
+     * avoid non-deterministic behavior:
+     *  
+     * &lt;pre&gt;
+     * Set s = SetUtils.synchronizedSet(mySet);
+     * synchronized (s) {
+     *     Iterator i = s.iterator();
+     *     while (i.hasNext()) {
+     *         process (i.next());
+     *     }
+     * }
+     * &lt;/pre&gt;
+     * 
+     * This method uses the implementation in the decorators subpackage.
+     * 
+     * @param set  the sorted set to synchronize, must not be null
+     * @return a synchronized set backed by the given set
+     * @throws IllegalArgumentException  if the set is null
+     */
+    public static SortedSet synchronizedSortedSet(SortedSet set) {
+<span class="nc" id="L264">        return SynchronizedSortedSet.decorate(set);</span>
+    }
+
+    /**
+     * Returns an unmodifiable sorted set backed by the given sorted set.
+     * &lt;p&gt;
+     * This method uses the implementation in the decorators subpackage.
+     *
+     * @param set  the sorted set to make unmodifiable, must not be null
+     * @return an unmodifiable set backed by the given set
+     * @throws IllegalArgumentException  if the set is null
+     */
+    public static SortedSet unmodifiableSortedSet(SortedSet set) {
+<span class="nc" id="L277">        return UnmodifiableSortedSet.decorate(set);</span>
+    }
+
+    /**
+     * Returns a predicated (validating) sorted set backed by the given sorted set.  
+     * &lt;p&gt;
+     * Only objects that pass the test in the given predicate can be added to the set.
+     * Trying to add an invalid object results in an IllegalArgumentException.
+     * It is important not to use the original set after invoking this method,
+     * as it is a backdoor for adding invalid objects.
+     *
+     * @param set  the sorted set to predicate, must not be null
+     * @param predicate  the predicate for the sorted set, must not be null
+     * @return a predicated sorted set backed by the given sorted set
+     * @throws IllegalArgumentException  if the Set or Predicate is null
+     */
+    public static SortedSet predicatedSortedSet(SortedSet set, Predicate predicate) {
+<span class="nc" id="L294">        return PredicatedSortedSet.decorate(set, predicate);</span>
+    }
+
+    /**
+     * Returns a typed sorted set backed by the given set.
+     * &lt;p&gt;
+     * Only objects of the specified type can be added to the set.
+     * 
+     * @param set  the set to limit to a specific type, must not be null
+     * @param type  the type of objects which may be added to the set
+     * @return a typed set backed by the specified set
+     */
+    public static SortedSet typedSortedSet(SortedSet set, Class type) {
+<span class="nc" id="L307">        return TypedSortedSet.decorate(set, type);</span>
+    }
+    
+    /**
+     * Returns a transformed sorted set backed by the given set.
+     * &lt;p&gt;
+     * Each object is passed through the transformer as it is added to the
+     * Set. It is important not to use the original set after invoking this 
+     * method, as it is a backdoor for adding untransformed objects.
+     *
+     * @param set  the set to transform, must not be null
+     * @param transformer  the transformer for the set, must not be null
+     * @return a transformed set backed by the given set
+     * @throws IllegalArgumentException  if the Set or Transformer is null
+     */
+    public static SortedSet transformedSortedSet(SortedSet set, Transformer transformer) {
+<span class="nc" id="L323">        return TransformedSortedSet.decorate(set, transformer);</span>
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

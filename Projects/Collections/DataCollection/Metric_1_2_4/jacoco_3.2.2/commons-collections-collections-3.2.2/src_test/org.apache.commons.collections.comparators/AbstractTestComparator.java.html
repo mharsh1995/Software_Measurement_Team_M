@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestComparator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.comparators</a> &gt; <span class="el_source">AbstractTestComparator.java</span></div><h1>AbstractTestComparator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.comparators;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.commons.collections.AbstractTestObject;
+
+/**
+ * Abstract test class for testing the Comparator interface.
+ * &lt;p&gt;
+ * Concrete subclasses declare the comparator to be tested.
+ * They also declare certain aspects of the tests.
+ * 
+ * @author Stephen Colebourne
+ */
+public abstract class AbstractTestComparator extends AbstractTestObject {
+
+    /**
+     * JUnit constructor.
+     * 
+     * @param testName  the test class name
+     */
+    public AbstractTestComparator(String testName) {
+<span class="fc" id="L45">        super(testName);</span>
+<span class="fc" id="L46">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Implement this method to return the comparator to test.
+     * 
+     * @return the comparator to test
+     */
+    public abstract Comparator makeComparator();
+    
+    /**
+     * Implement this method to return a list of sorted objects.
+     * 
+     * @return sorted objects
+     */
+    public abstract List getComparableObjectsOrdered();
+
+    //-----------------------------------------------------------------------
+    /**
+     * Implements the abstract superclass method to return the comparator.
+     * 
+     * @return a full iterator
+     */
+    public Object makeObject() {
+<span class="fc" id="L70">        return makeComparator();</span>
+    }
+
+    /**
+     * Overrides superclass to block tests.
+     */
+    public boolean supportsEmptyCollections() {
+<span class="fc" id="L77">        return false;</span>
+    }
+
+    /**
+     * Overrides superclass to block tests.
+     */
+    public boolean supportsFullCollections() {
+<span class="fc" id="L84">        return false;</span>
+    }
+
+    /**
+     * Overrides superclass to set the compatability to version 2
+     * as there were no Comparators in version 1.x.
+     */
+    public String getCompatibilityVersion() {
+<span class="fc" id="L92">        return &quot;2&quot;;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Reverse the list.
+     */
+    protected void reverseObjects(List list) {
+<span class="fc" id="L100">        Collections.reverse(list);</span>
+<span class="fc" id="L101">    }</span>
+
+    /**
+     * Randomize the list.
+     */
+    protected void randomizeObjects(List list) {
+<span class="fc" id="L107">        Collections.shuffle(list);</span>
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * Sort the list.
+     */
+    protected void sortObjects(List list, Comparator comparator) {
+<span class="fc" id="L114">        Collections.sort(list,comparator);</span>
+
+<span class="fc" id="L116">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test sorting an empty list
+     */
+    public void testEmptyListSort() {
+<span class="fc" id="L123">        List list = new LinkedList();</span>
+<span class="fc" id="L124">        sortObjects(list, makeComparator());</span>
+
+<span class="fc" id="L126">        List list2 = new LinkedList();</span>
+        
+<span class="fc" id="L128">        assertTrue(&quot;Comparator cannot sort empty lists&quot;,</span>
+<span class="fc" id="L129">                   list2.equals(list));</span>
+<span class="fc" id="L130">    }</span>
+
+    /**
+     * Test sorting a reversed list.
+     */
+    public void testReverseListSort() {
+<span class="fc" id="L136">        Comparator comparator = makeComparator();</span>
+
+<span class="fc" id="L138">        List randomList = getComparableObjectsOrdered();</span>
+<span class="fc" id="L139">        reverseObjects(randomList);</span>
+<span class="fc" id="L140">        sortObjects(randomList,comparator);</span>
+
+<span class="fc" id="L142">        List orderedList = getComparableObjectsOrdered();</span>
+
+<span class="fc" id="L144">        assertTrue(&quot;Comparator did not reorder the List correctly&quot;,</span>
+<span class="fc" id="L145">                   orderedList.equals(randomList));</span>
+
+<span class="fc" id="L147">    }</span>
+
+    /**
+     * Test sorting a random list.
+     */
+    public void testRandomListSort() {
+<span class="fc" id="L153">        Comparator comparator = makeComparator();</span>
+
+<span class="fc" id="L155">        List randomList = getComparableObjectsOrdered();</span>
+<span class="fc" id="L156">        randomizeObjects(randomList);</span>
+<span class="fc" id="L157">        sortObjects(randomList,comparator);</span>
+
+<span class="fc" id="L159">        List orderedList = getComparableObjectsOrdered();</span>
+
+        /* debug 
+        Iterator i = randomList.iterator();
+        while (i.hasNext()) {
+            System.out.println(i.next());
+        }
+        */
+
+<span class="fc" id="L168">        assertTrue(&quot;Comparator did not reorder the List correctly&quot;,</span>
+<span class="fc" id="L169">                   orderedList.equals(randomList));</span>
+
+<span class="fc" id="L171">    }</span>
+
+    /**
+     * Nearly all Comparators should be Serializable.
+     */
+    public void testComparatorIsSerializable() {
+<span class="fc" id="L177">        Comparator comparator = makeComparator();</span>
+<span class="fc" id="L178">        assertTrue(&quot;This comparator should be Serializable.&quot;,</span>
+<span class="fc" id="L179">                   comparator instanceof Serializable);</span>
+<span class="fc" id="L180">    }</span>
+
+    public String getCanonicalComparatorName(Object object) {
+<span class="fc" id="L183">        StringBuffer retval = new StringBuffer();</span>
+<span class="fc" id="L184">        retval.append(&quot;data/test/&quot;);</span>
+<span class="fc" id="L185">        String colName = object.getClass().getName();</span>
+<span class="fc" id="L186">        colName = colName.substring(colName.lastIndexOf(&quot;.&quot;)+1,colName.length());</span>
+<span class="fc" id="L187">        retval.append(colName);</span>
+<span class="fc" id="L188">        retval.append(&quot;.version&quot;);</span>
+<span class="fc" id="L189">        retval.append(getCompatibilityVersion());</span>
+<span class="fc" id="L190">        retval.append(&quot;.obj&quot;);</span>
+<span class="fc" id="L191">        return retval.toString();</span>
+    }
+
+    /**
+     * Compare the current serialized form of the Comparator
+     * against the canonical version in CVS.
+     */
+    public void testComparatorCompatibility() throws IOException, ClassNotFoundException {
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">        if(!skipSerializedCanonicalTests()) {</span>
+<span class="fc" id="L200">            Comparator comparator = null;</span>
+    
+            // test to make sure the canonical form has been preserved
+            try {
+<span class="fc" id="L204">                comparator = (Comparator) readExternalFormFromDisk(getCanonicalComparatorName(makeComparator()));</span>
+<span class="pc" id="L205">        	} catch (FileNotFoundException exception) {</span>
+    
+<span class="nc" id="L207">                boolean autoCreateSerialized = false;</span>
+    
+<span class="nc bnc" id="L209" title="All 2 branches missed.">        	    if(autoCreateSerialized) {</span>
+<span class="nc" id="L210">    	          	comparator = makeComparator();</span>
+<span class="nc" id="L211">            		String fileName = getCanonicalComparatorName(comparator);</span>
+<span class="nc" id="L212">            		writeExternalFormToDisk((Serializable) comparator, fileName);</span>
+<span class="nc" id="L213">            		fail(&quot;Serialized form could not be found.  A serialized version &quot; +</span>
+<span class="nc" id="L214">            		     &quot;has now been written (and should be added to CVS): &quot; + fileName);</span>
+<span class="nc" id="L215">                } else {</span>
+<span class="nc" id="L216">                    fail(&quot;The Serialized form could be located to test serialization &quot; +</span>
+<span class="nc" id="L217">                        &quot;compatibility: &quot; + exception.getMessage());</span>
+                }
+            }
+    
+            
+            // make sure the canonical form produces the ordering we currently
+            // expect
+<span class="fc" id="L224">            List randomList = getComparableObjectsOrdered();</span>
+<span class="fc" id="L225">            reverseObjects(randomList);</span>
+<span class="fc" id="L226">            sortObjects(randomList,comparator);</span>
+    
+<span class="fc" id="L228">            List orderedList = getComparableObjectsOrdered();</span>
+    
+<span class="fc" id="L230">            assertTrue(&quot;Comparator did not reorder the List correctly&quot;,</span>
+<span class="fc" id="L231">                       orderedList.equals(randomList));</span>
+        }
+<span class="fc" id="L233">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

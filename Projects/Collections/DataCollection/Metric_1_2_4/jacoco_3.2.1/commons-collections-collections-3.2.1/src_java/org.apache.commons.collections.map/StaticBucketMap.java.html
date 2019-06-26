@@ -1,0 +1,702 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>StaticBucketMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">StaticBucketMap.java</span></div><h1>StaticBucketMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.util.AbstractCollection;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.apache.commons.collections.KeyValue;
+
+/**
+ * A StaticBucketMap is an efficient, thread-safe implementation of
+ * &lt;code&gt;java.util.Map&lt;/code&gt; that performs well in in a highly
+ * thread-contentious environment.  The map supports very efficient
+ * {@link #get(Object) get}, {@link #put(Object,Object) put}, 
+ * {@link #remove(Object) remove} and {@link #containsKey(Object) containsKey}
+ * operations, assuming (approximate) uniform hashing and
+ * that the number of entries does not exceed the number of buckets.  If the
+ * number of entries exceeds the number of buckets or if the hash codes of the
+ * objects are not uniformly distributed, these operations have a worst case
+ * scenario that is proportional to the number of elements in the map
+ * (&lt;i&gt;O(n)&lt;/i&gt;).&lt;p&gt;
+ *
+ * Each bucket in the hash table has its own monitor, so two threads can 
+ * safely operate on the map at the same time, often without incurring any 
+ * monitor contention.  This means that you don't have to wrap instances
+ * of this class with {@link java.util.Collections#synchronizedMap(Map)};
+ * instances are already thread-safe.  Unfortunately, however, this means 
+ * that this map implementation behaves in ways you may find disconcerting.  
+ * Bulk operations, such as {@link #putAll(Map) putAll} or the
+ * {@link Collection#retainAll(Collection) retainAll} operation in collection 
+ * views, are &lt;i&gt;not&lt;/i&gt; atomic.  If two threads are simultaneously 
+ * executing 
+ *
+ * &lt;pre&gt;
+ *   staticBucketMapInstance.putAll(map);
+ * &lt;/pre&gt;
+ *
+ * and
+ *
+ * &lt;pre&gt;
+ *   staticBucketMapInstance.entrySet().removeAll(map.entrySet());
+ * &lt;/pre&gt;
+ *
+ * then the results are generally random.  Those two statement could cancel
+ * each other out, leaving &lt;code&gt;staticBucketMapInstance&lt;/code&gt; essentially 
+ * unchanged, or they could leave some random subset of &lt;code&gt;map&lt;/code&gt; in 
+ * &lt;code&gt;staticBucketMapInstance&lt;/code&gt;.&lt;p&gt;
+ *
+ * Also, much like an encyclopedia, the results of {@link #size()} and 
+ * {@link #isEmpty()} are out-of-date as soon as they are produced.&lt;p&gt;
+ *
+ * The iterators returned by the collection views of this class are &lt;i&gt;not&lt;/i&gt;
+ * fail-fast.  They will &lt;i&gt;never&lt;/i&gt; raise a 
+ * {@link java.util.ConcurrentModificationException}.  Keys and values 
+ * added to the map after the iterator is created do not necessarily appear
+ * during iteration.  Similarly, the iterator does not necessarily fail to 
+ * return keys and values that were removed after the iterator was created.&lt;p&gt;
+ *
+ * Finally, unlike {@link java.util.HashMap}-style implementations, this
+ * class &lt;i&gt;never&lt;/i&gt; rehashes the map.  The number of buckets is fixed 
+ * at construction time and never altered.  Performance may degrade if 
+ * you do not allocate enough buckets upfront.&lt;p&gt;
+ *
+ * The {@link #atomic(Runnable)} method is provided to allow atomic iterations
+ * and bulk operations; however, overuse of {@link #atomic(Runnable) atomic}
+ * will basically result in a map that's slower than an ordinary synchronized
+ * {@link java.util.HashMap}.
+ *
+ * Use this class if you do not require reliable bulk operations and 
+ * iterations, or if you can make your own guarantees about how bulk 
+ * operations will affect the map.&lt;p&gt;
+ *
+ * @since Commons Collections 3.0 (previously in main package v2.1)
+ * @version $Revision$ $Date$
+ * 
+ * @author Berin Loritsch
+ * @author Gerhard Froehlich
+ * @author Michael A. Smith
+ * @author Paul Jack
+ * @author Leo Sutic
+ * @author Janek Bogucki
+ * @author Kazuya Ujihara
+ */
+public final class StaticBucketMap implements Map {
+
+    /** The default number of buckets to use */
+    private static final int DEFAULT_BUCKETS = 255;
+    /** The array of buckets, where the actual data is held */
+    private Node[] buckets;
+    /** The matching array of locks */
+    private Lock[] locks;
+
+    /**
+     * Initializes the map with the default number of buckets (255).
+     */
+    public StaticBucketMap() {
+<span class="nc" id="L117">        this(DEFAULT_BUCKETS);</span>
+<span class="nc" id="L118">    }</span>
+
+    /**
+     * Initializes the map with a specified number of buckets.  The number
+     * of buckets is never below 17, and is always an odd number (StaticBucketMap
+     * ensures this). The number of buckets is inversely proportional to the
+     * chances for thread contention.  The fewer buckets, the more chances for
+     * thread contention.  The more buckets the fewer chances for thread
+     * contention.
+     *
+     * @param numBuckets  the number of buckets for this map
+     */
+<span class="fc" id="L130">    public StaticBucketMap(int numBuckets) {</span>
+<span class="fc" id="L131">        int size = Math.max(17, numBuckets);</span>
+
+        // Ensure that bucketSize is never a power of 2 (to ensure maximal distribution)
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (size % 2 == 0) {</span>
+<span class="fc" id="L135">            size--;</span>
+        }
+
+<span class="fc" id="L138">        buckets = new Node[size];</span>
+<span class="fc" id="L139">        locks = new Lock[size];</span>
+
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L142">            locks[i] = new Lock();</span>
+        }
+<span class="fc" id="L144">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Determine the exact hash entry for the key.  The hash algorithm
+     * is rather simplistic, but it does the job:
+     *
+     * &lt;pre&gt;
+     *   He = |Hk mod n|
+     * &lt;/pre&gt;
+     *
+     * &lt;p&gt;
+     *   He is the entry's hashCode, Hk is the key's hashCode, and n is
+     *   the number of buckets.
+     * &lt;/p&gt;
+     */
+    private final int getHash(Object key) {
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        if (key == null) {</span>
+<span class="fc" id="L162">            return 0;</span>
+        }
+<span class="fc" id="L164">        int hash = key.hashCode();</span>
+<span class="fc" id="L165">        hash += ~(hash &lt;&lt; 15);</span>
+<span class="fc" id="L166">        hash ^= (hash &gt;&gt;&gt; 10);</span>
+<span class="fc" id="L167">        hash += (hash &lt;&lt; 3);</span>
+<span class="fc" id="L168">        hash ^= (hash &gt;&gt;&gt; 6);</span>
+<span class="fc" id="L169">        hash += ~(hash &lt;&lt; 11);</span>
+<span class="fc" id="L170">        hash ^= (hash &gt;&gt;&gt; 16);</span>
+<span class="fc" id="L171">        hash %= buckets.length;</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        return (hash &lt; 0) ? hash * -1 : hash;</span>
+    }
+
+    /**
+     * Gets the current size of the map.
+     * The value is computed fresh each time the method is called.
+     * 
+     * @return the current size
+     */
+    public int size() {
+<span class="fc" id="L182">        int cnt = 0;</span>
+
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        for (int i = 0; i &lt; buckets.length; i++) {</span>
+<span class="fc" id="L185">            cnt += locks[i].size;</span>
+        }
+<span class="fc" id="L187">        return cnt;</span>
+    }
+
+    /**
+     * Checks if the size is currently zero.
+     * 
+     * @return true if empty
+     */
+    public boolean isEmpty() {
+<span class="fc bfc" id="L196" title="All 2 branches covered.">        return (size() == 0);</span>
+    }
+
+    /**
+     * Gets the value associated with the key.
+     * 
+     * @param key  the key to retrieve
+     * @return the associated value
+     */
+    public Object get(final Object key) {
+<span class="fc" id="L206">        int hash = getHash(key);</span>
+
+<span class="fc" id="L208">        synchronized (locks[hash]) {</span>
+<span class="fc" id="L209">            Node n = buckets[hash];</span>
+
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            while (n != null) {</span>
+<span class="pc bpc" id="L212" title="1 of 6 branches missed.">                if (n.key == key || (n.key != null &amp;&amp; n.key.equals(key))) {</span>
+<span class="fc" id="L213">                    return n.value;</span>
+                }
+
+<span class="fc" id="L216">                n = n.next;</span>
+            }
+        }
+<span class="fc" id="L219">        return null;</span>
+    }
+
+    /**
+     * Checks if the map contains the specified key.
+     * 
+     * @param key  the key to check
+     * @return true if found
+     */
+    public boolean containsKey(final Object key) {
+<span class="fc" id="L229">        int hash = getHash(key);</span>
+
+<span class="fc" id="L231">        synchronized (locks[hash]) {</span>
+<span class="fc" id="L232">            Node n = buckets[hash];</span>
+
+<span class="fc bfc" id="L234" title="All 2 branches covered.">            while (n != null) {</span>
+<span class="pc bpc" id="L235" title="1 of 6 branches missed.">                if (n.key == key || (n.key != null &amp;&amp; n.key.equals(key))) {</span>
+<span class="fc" id="L236">                    return true;</span>
+                }
+
+<span class="fc" id="L239">                n = n.next;</span>
+            }
+        }
+<span class="fc" id="L242">        return false;</span>
+    }
+
+    /**
+     * Checks if the map contains the specified value.
+     * 
+     * @param value  the value to check
+     * @return true if found
+     */
+    public boolean containsValue(final Object value) {
+<span class="fc bfc" id="L252" title="All 2 branches covered.">        for (int i = 0; i &lt; buckets.length; i++) {</span>
+<span class="fc" id="L253">            synchronized (locks[i]) {</span>
+<span class="fc" id="L254">                Node n = buckets[i];</span>
+
+<span class="fc bfc" id="L256" title="All 2 branches covered.">                while (n != null) {</span>
+<span class="pc bpc" id="L257" title="1 of 6 branches missed.">                    if (n.value == value || (n.value != null &amp;&amp; n.value.equals(value))) {</span>
+<span class="fc" id="L258">                        return true;</span>
+                    }
+
+<span class="fc" id="L261">                    n = n.next;</span>
+                }
+            }
+        }
+<span class="fc" id="L265">        return false;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Puts a new key value mapping into the map.
+     * 
+     * @param key  the key to use
+     * @param value  the value to use
+     * @return the previous mapping for the key
+     */
+    public Object put(final Object key, final Object value) {
+<span class="fc" id="L277">        int hash = getHash(key);</span>
+
+<span class="fc" id="L279">        synchronized (locks[hash]) {</span>
+<span class="fc" id="L280">            Node n = buckets[hash];</span>
+
+<span class="fc bfc" id="L282" title="All 2 branches covered.">            if (n == null) {</span>
+<span class="fc" id="L283">                n = new Node();</span>
+<span class="fc" id="L284">                n.key = key;</span>
+<span class="fc" id="L285">                n.value = value;</span>
+<span class="fc" id="L286">                buckets[hash] = n;</span>
+<span class="fc" id="L287">                locks[hash].size++;</span>
+<span class="fc" id="L288">                return null;</span>
+            }
+
+            // Set n to the last node in the linked list.  Check each key along the way
+            //  If the key is found, then change the value of that node and return
+            //  the old value.
+<span class="fc bfc" id="L294" title="All 2 branches covered.">            for (Node next = n; next != null; next = next.next) {</span>
+<span class="fc" id="L295">                n = next;</span>
+
+<span class="pc bpc" id="L297" title="2 of 6 branches missed.">                if (n.key == key || (n.key != null &amp;&amp; n.key.equals(key))) {</span>
+<span class="fc" id="L298">                    Object returnVal = n.value;</span>
+<span class="fc" id="L299">                    n.value = value;</span>
+<span class="fc" id="L300">                    return returnVal;</span>
+                }
+            }
+
+            // The key was not found in the current list of nodes, add it to the end
+            //  in a new node.
+<span class="fc" id="L306">            Node newNode = new Node();</span>
+<span class="fc" id="L307">            newNode.key = key;</span>
+<span class="fc" id="L308">            newNode.value = value;</span>
+<span class="fc" id="L309">            n.next = newNode;</span>
+<span class="fc" id="L310">            locks[hash].size++;</span>
+        }
+<span class="fc" id="L312">        return null;</span>
+    }
+
+    /**
+     * Removes the specified key from the map.
+     * 
+     * @param key  the key to remove
+     * @return the previous value at this key
+     */
+    public Object remove(Object key) {
+<span class="fc" id="L322">        int hash = getHash(key);</span>
+
+<span class="fc" id="L324">        synchronized (locks[hash]) {</span>
+<span class="fc" id="L325">            Node n = buckets[hash];</span>
+<span class="fc" id="L326">            Node prev = null;</span>
+
+<span class="fc bfc" id="L328" title="All 2 branches covered.">            while (n != null) {</span>
+<span class="pc bpc" id="L329" title="2 of 6 branches missed.">                if (n.key == key || (n.key != null &amp;&amp; n.key.equals(key))) {</span>
+                    // Remove this node from the linked list of nodes.
+<span class="fc bfc" id="L331" title="All 2 branches covered.">                    if (null == prev) {</span>
+                        // This node was the head, set the next node to be the new head.
+<span class="fc" id="L333">                        buckets[hash] = n.next;</span>
+<span class="fc" id="L334">                    } else {</span>
+                        // Set the next node of the previous node to be the node after this one.
+<span class="fc" id="L336">                        prev.next = n.next;</span>
+                    }
+<span class="fc" id="L338">                    locks[hash].size--;</span>
+<span class="fc" id="L339">                    return n.value;</span>
+                }
+
+<span class="fc" id="L342">                prev = n;</span>
+<span class="fc" id="L343">                n = n.next;</span>
+            }
+        }
+<span class="fc" id="L346">        return null;</span>
+    }
+    
+    //-----------------------------------------------------------------------
+    /**
+     * Gets the key set.
+     * 
+     * @return the key set
+     */
+    public Set keySet() {
+<span class="fc" id="L356">        return new KeySet();</span>
+    }
+
+    /**
+     * Gets the values.
+     * 
+     * @return the values
+     */
+    public Collection values() {
+<span class="fc" id="L365">        return new Values();</span>
+    }
+
+    /**
+     * Gets the entry set.
+     * 
+     * @return the entry set
+     */
+    public Set entrySet() {
+<span class="fc" id="L374">        return new EntrySet();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Puts all the entries from the specified map into this map.
+     * This operation is &lt;b&gt;not atomic&lt;/b&gt; and may have undesired effects.
+     * 
+     * @param map  the map of entries to add
+     */
+    public void putAll(Map map) {
+<span class="fc" id="L385">        Iterator i = map.keySet().iterator();</span>
+
+<span class="fc bfc" id="L387" title="All 2 branches covered.">        while (i.hasNext()) {</span>
+<span class="fc" id="L388">            Object key = i.next();</span>
+<span class="fc" id="L389">            put(key, map.get(key));</span>
+        }
+<span class="fc" id="L391">    }</span>
+
+    /**
+     * Clears the map of all entries.
+     */
+    public void clear() {
+<span class="fc bfc" id="L397" title="All 2 branches covered.">        for (int i = 0; i &lt; buckets.length; i++) {</span>
+<span class="fc" id="L398">            Lock lock = locks[i];</span>
+<span class="fc" id="L399">            synchronized (lock) {</span>
+<span class="fc" id="L400">                buckets[i] = null;</span>
+<span class="fc" id="L401">                lock.size = 0;</span>
+            }
+        }
+<span class="fc" id="L404">    }</span>
+
+    /**
+     * Compares this map to another, as per the Map specification.
+     * 
+     * @param obj  the object to compare to
+     * @return true if equal
+     */
+    public boolean equals(Object obj) {
+<span class="fc bfc" id="L413" title="All 2 branches covered.">        if (obj == this) {</span>
+<span class="fc" id="L414">            return true;</span>
+        }
+<span class="fc bfc" id="L416" title="All 2 branches covered.">        if (obj instanceof Map == false) {</span>
+<span class="fc" id="L417">            return false;</span>
+        }
+<span class="fc" id="L419">        Map other = (Map) obj;</span>
+<span class="fc" id="L420">        return entrySet().equals(other.entrySet());</span>
+    }
+
+    /**
+     * Gets the hash code, as per the Map specification.
+     * 
+     * @return the hash code
+     */
+    public int hashCode() {
+<span class="fc" id="L429">        int hashCode = 0;</span>
+
+<span class="fc bfc" id="L431" title="All 2 branches covered.">        for (int i = 0; i &lt; buckets.length; i++) {</span>
+<span class="fc" id="L432">            synchronized (locks[i]) {</span>
+<span class="fc" id="L433">                Node n = buckets[i];</span>
+
+<span class="fc bfc" id="L435" title="All 2 branches covered.">                while (n != null) {</span>
+<span class="fc" id="L436">                    hashCode += n.hashCode();</span>
+<span class="fc" id="L437">                    n = n.next;</span>
+                }
+            }
+        }
+<span class="fc" id="L441">        return hashCode;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The Map.Entry for the StaticBucketMap.
+     */
+    private static final class Node implements Map.Entry, KeyValue {
+        protected Object key;
+        protected Object value;
+        protected Node next;
+
+        public Object getKey() {
+<span class="fc" id="L454">            return key;</span>
+        }
+
+        public Object getValue() {
+<span class="fc" id="L458">            return value;</span>
+        }
+
+        public int hashCode() {
+<span class="fc bfc" id="L462" title="All 2 branches covered.">            return ((key == null ? 0 : key.hashCode()) ^</span>
+<span class="fc bfc" id="L463" title="All 2 branches covered.">                    (value == null ? 0 : value.hashCode()));</span>
+        }
+
+        public boolean equals(Object obj) {
+<span class="fc bfc" id="L467" title="All 2 branches covered.">            if (obj == this) {</span>
+<span class="fc" id="L468">                return true;</span>
+            }
+<span class="pc bpc" id="L470" title="1 of 2 branches missed.">            if (obj instanceof Map.Entry == false) {</span>
+<span class="nc" id="L471">                return false;</span>
+            }
+
+<span class="fc" id="L474">            Map.Entry e2 = (Map.Entry) obj;</span>
+<span class="fc" id="L475">            return (</span>
+<span class="fc bfc" id="L476" title="All 6 branches covered.">                (key == null ? e2.getKey() == null : key.equals(e2.getKey())) &amp;&amp;</span>
+<span class="pc bpc" id="L477" title="1 of 6 branches missed.">                (value == null ? e2.getValue() == null : value.equals(e2.getValue())));</span>
+        }
+
+        public Object setValue(Object obj) {
+<span class="fc" id="L481">            Object retVal = value;</span>
+<span class="fc" id="L482">            value = obj;</span>
+<span class="fc" id="L483">            return retVal;</span>
+        }
+    }
+
+
+    /**
+     * The lock object, which also includes a count of the nodes in this lock.
+     */
+    private final static class Lock {
+        public int size;
+    }
+
+
+    //-----------------------------------------------------------------------
+<span class="fc" id="L497">    private class EntryIterator implements Iterator {</span>
+
+<span class="fc" id="L499">        private ArrayList current = new ArrayList();</span>
+        private int bucket;
+        private Map.Entry last;
+
+
+        public boolean hasNext() {
+<span class="fc bfc" id="L505" title="All 2 branches covered.">            if (current.size() &gt; 0) return true;</span>
+<span class="fc bfc" id="L506" title="All 2 branches covered.">            while (bucket &lt; buckets.length) {</span>
+<span class="fc" id="L507">                synchronized (locks[bucket]) {</span>
+<span class="fc" id="L508">                    Node n = buckets[bucket];</span>
+<span class="fc bfc" id="L509" title="All 2 branches covered.">                    while (n != null) {</span>
+<span class="fc" id="L510">                        current.add(n);</span>
+<span class="fc" id="L511">                        n = n.next;</span>
+                    }
+<span class="fc" id="L513">                    bucket++;</span>
+<span class="fc bfc" id="L514" title="All 2 branches covered.">                    if (current.size() &gt; 0) return true;</span>
+                }
+            }
+<span class="fc" id="L517">            return false;</span>
+        }
+
+        protected Map.Entry nextEntry() {
+<span class="fc bfc" id="L521" title="All 2 branches covered.">            if (!hasNext()) throw new NoSuchElementException();</span>
+<span class="fc" id="L522">            last = (Map.Entry)current.remove(current.size() - 1);</span>
+<span class="fc" id="L523">            return last;</span>
+        }
+
+        public Object next() {
+<span class="fc" id="L527">            return nextEntry();</span>
+        }
+
+        public void remove() {
+<span class="fc bfc" id="L531" title="All 2 branches covered.">            if (last == null) throw new IllegalStateException();</span>
+<span class="fc" id="L532">            StaticBucketMap.this.remove(last.getKey());</span>
+<span class="fc" id="L533">            last = null;</span>
+<span class="fc" id="L534">        }</span>
+
+    }
+
+<span class="fc" id="L538">    private class ValueIterator extends EntryIterator {</span>
+
+        public Object next() {
+<span class="fc" id="L541">            return nextEntry().getValue();</span>
+        }
+
+    }
+
+<span class="fc" id="L546">    private class KeyIterator extends EntryIterator {</span>
+
+        public Object next() {
+<span class="fc" id="L549">            return nextEntry().getKey();</span>
+        }
+
+    }
+
+<span class="fc" id="L554">    private class EntrySet extends AbstractSet {</span>
+
+        public int size() {
+<span class="fc" id="L557">            return StaticBucketMap.this.size();</span>
+        }
+
+        public void clear() {
+<span class="fc" id="L561">            StaticBucketMap.this.clear();</span>
+<span class="fc" id="L562">        }</span>
+
+        public Iterator iterator() {
+<span class="fc" id="L565">            return new EntryIterator();</span>
+        }
+
+        public boolean contains(Object obj) {
+<span class="fc" id="L569">            Map.Entry entry = (Map.Entry) obj;</span>
+<span class="fc" id="L570">            int hash = getHash(entry.getKey());</span>
+<span class="fc" id="L571">            synchronized (locks[hash]) {</span>
+<span class="fc bfc" id="L572" title="All 2 branches covered.">                for (Node n = buckets[hash]; n != null; n = n.next) {</span>
+<span class="fc bfc" id="L573" title="All 2 branches covered.">                    if (n.equals(entry)) return true;</span>
+                }
+            }
+<span class="fc" id="L576">            return false;</span>
+        }
+
+        public boolean remove(Object obj) {
+<span class="fc bfc" id="L580" title="All 2 branches covered.">            if (obj instanceof Map.Entry == false) {</span>
+<span class="fc" id="L581">                return false;</span>
+            }
+<span class="fc" id="L583">            Map.Entry entry = (Map.Entry) obj;</span>
+<span class="fc" id="L584">            int hash = getHash(entry.getKey());</span>
+<span class="fc" id="L585">            synchronized (locks[hash]) {</span>
+<span class="fc bfc" id="L586" title="All 2 branches covered.">                for (Node n = buckets[hash]; n != null; n = n.next) {</span>
+<span class="fc bfc" id="L587" title="All 2 branches covered.">                    if (n.equals(entry)) {</span>
+<span class="fc" id="L588">                        StaticBucketMap.this.remove(n.getKey());</span>
+<span class="fc" id="L589">                        return true;</span>
+                    }
+                }
+            }
+<span class="fc" id="L593">            return false;</span>
+        }
+
+    }
+
+
+<span class="fc" id="L599">    private class KeySet extends AbstractSet {</span>
+
+        public int size() {
+<span class="fc" id="L602">            return StaticBucketMap.this.size();</span>
+        }
+
+        public void clear() {
+<span class="fc" id="L606">            StaticBucketMap.this.clear();</span>
+<span class="fc" id="L607">        }</span>
+
+        public Iterator iterator() {
+<span class="fc" id="L610">            return new KeyIterator();</span>
+        }
+
+        public boolean contains(Object obj) {
+<span class="fc" id="L614">            return StaticBucketMap.this.containsKey(obj);</span>
+        }
+
+        public boolean remove(Object obj) {
+<span class="fc" id="L618">            int hash = getHash(obj);</span>
+<span class="fc" id="L619">            synchronized (locks[hash]) {</span>
+<span class="fc bfc" id="L620" title="All 2 branches covered.">                for (Node n = buckets[hash]; n != null; n = n.next) {</span>
+<span class="fc" id="L621">                    Object k = n.getKey();</span>
+<span class="pc bpc" id="L622" title="2 of 6 branches missed.">                    if ((k == obj) || ((k != null) &amp;&amp; k.equals(obj))) {</span>
+<span class="fc" id="L623">                        StaticBucketMap.this.remove(k);</span>
+<span class="fc" id="L624">                        return true;</span>
+                    }
+                }
+            }
+<span class="fc" id="L628">            return false;</span>
+
+        }
+
+    }
+
+
+<span class="fc" id="L635">    private class Values extends AbstractCollection {</span>
+
+        public int size() {
+<span class="fc" id="L638">            return StaticBucketMap.this.size();</span>
+        }
+
+        public void clear() {
+<span class="fc" id="L642">            StaticBucketMap.this.clear();</span>
+<span class="fc" id="L643">        }</span>
+
+        public Iterator iterator() {
+<span class="fc" id="L646">            return new ValueIterator();</span>
+        }
+
+    }
+
+
+    /**
+     *  Prevents any operations from occurring on this map while the
+     *  given {@link Runnable} executes.  This method can be used, for
+     *  instance, to execute a bulk operation atomically: 
+     *
+     *  &lt;pre&gt;
+     *    staticBucketMapInstance.atomic(new Runnable() {
+     *        public void run() {
+     *            staticBucketMapInstance.putAll(map);
+     *        }
+     *    });
+     *  &lt;/pre&gt;
+     *
+     *  It can also be used if you need a reliable iterator:
+     *
+     *  &lt;pre&gt;
+     *    staticBucketMapInstance.atomic(new Runnable() {
+     *        public void run() {
+     *            Iterator iterator = staticBucketMapInstance.iterator();
+     *            while (iterator.hasNext()) {
+     *                foo(iterator.next();
+     *            }
+     *        }
+     *    });
+     *  &lt;/pre&gt;
+     *
+     *  &lt;b&gt;Implementation note:&lt;/b&gt; This method requires a lot of time
+     *  and a ton of stack space.  Essentially a recursive algorithm is used
+     *  to enter each bucket's monitor.  If you have twenty thousand buckets
+     *  in your map, then the recursive method will be invoked twenty thousand
+     *  times.  You have been warned.
+     *
+     *  @param r  the code to execute atomically
+     */
+    public void atomic(Runnable r) {
+<span class="nc bnc" id="L687" title="All 2 branches missed.">        if (r == null) throw new NullPointerException();</span>
+<span class="nc" id="L688">        atomic(r, 0);</span>
+<span class="nc" id="L689">    }</span>
+
+    private void atomic(Runnable r, int bucket) {
+<span class="nc bnc" id="L692" title="All 2 branches missed.">        if (bucket &gt;= buckets.length) {</span>
+<span class="nc" id="L693">            r.run();</span>
+<span class="nc" id="L694">            return;</span>
+        }
+<span class="nc" id="L696">        synchronized (locks[bucket]) {</span>
+<span class="nc" id="L697">            atomic(r, bucket + 1);</span>
+        }
+<span class="nc" id="L699">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MultiMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">MultiMap.java</span></div><h1>MultiMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.Collection;
+import java.util.Map;
+
+/** 
+ * Defines a map that holds a collection of values against each key.
+ * &lt;p&gt;
+ * A &lt;code&gt;MultiMap&lt;/code&gt; is a Map with slightly different semantics.
+ * Putting a value into the map will add the value to a Collection at that key.
+ * Getting a value will return a Collection, holding all the values put to that key.
+ * &lt;p&gt;
+ * For example:
+ * &lt;pre&gt;
+ * MultiMap mhm = new MultiHashMap();
+ * mhm.put(key, &quot;A&quot;);
+ * mhm.put(key, &quot;B&quot;);
+ * mhm.put(key, &quot;C&quot;);
+ * Collection coll = (Collection) mhm.get(key);&lt;/pre&gt;
+ * &lt;p&gt;
+ * &lt;code&gt;coll&lt;/code&gt; will be a collection containing &quot;A&quot;, &quot;B&quot;, &quot;C&quot;.
+ * &lt;p&gt;
+ * NOTE: Additional methods were added to this interface in Commons Collections 3.1.
+ * These were added solely for documentation purposes and do not change the interface
+ * as they were defined in the superinterface &lt;code&gt;Map&lt;/code&gt; anyway.
+ *
+ * @since Commons Collections 2.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Christopher Berry
+ * @author James Strachan
+ * @author Stephen Colebourne
+ */
+public interface MultiMap extends Map {
+
+    /**
+     * Removes a specific value from map.
+     * &lt;p&gt;
+     * The item is removed from the collection mapped to the specified key.
+     * Other values attached to that key are unaffected.
+     * &lt;p&gt;
+     * If the last value for a key is removed, implementations typically
+     * return &lt;code&gt;null&lt;/code&gt; from a subsequant &lt;code&gt;get(Object)&lt;/code&gt;, however
+     * they may choose to return an empty collection.
+     * 
+     * @param key  the key to remove from
+     * @param item  the item to remove
+     * @return the value removed (which was passed in), null if nothing removed
+     * @throws UnsupportedOperationException if the map is unmodifiable
+     * @throws ClassCastException if the key or value is of an invalid type
+     * @throws NullPointerException if the key or value is null and null is invalid
+     */
+<span class="nc" id="L69">    public Object remove(Object key, Object item);</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Gets the number of keys in this map.
+     * &lt;p&gt;
+     * Implementations typically return only the count of keys in the map
+     * This cannot be mandated due to backwards compatability of this interface.
+     *
+     * @return the number of key-collection mappings in this map
+     */
+    int size();
+
+    /**
+     * Gets the collection of values associated with the specified key.
+     * &lt;p&gt;
+     * The returned value will implement &lt;code&gt;Collection&lt;/code&gt;. Implementations
+     * are free to declare that they return &lt;code&gt;Collection&lt;/code&gt; subclasses
+     * such as &lt;code&gt;List&lt;/code&gt; or &lt;code&gt;Set&lt;/code&gt;.
+     * &lt;p&gt;
+     * Implementations typically return &lt;code&gt;null&lt;/code&gt; if no values have
+     * been mapped to the key, however the implementation may choose to
+     * return an empty collection.
+     * &lt;p&gt;
+     * Implementations may choose to return a clone of the internal collection.
+     *
+     * @param key  the key to retrieve
+     * @return the &lt;code&gt;Collection&lt;/code&gt; of values, implementations should
+     *  return &lt;code&gt;null&lt;/code&gt; for no mapping, but may return an empty collection
+     * @throws ClassCastException if the key is of an invalid type
+     * @throws NullPointerException if the key is null and null keys are invalid
+     */
+    Object get(Object key);
+
+    /**
+     * Checks whether the map contains the value specified.
+     * &lt;p&gt;
+     * Implementations typically check all collections against all keys for the value.
+     * This cannot be mandated due to backwards compatability of this interface.
+     *
+     * @param value  the value to search for
+     * @return true if the map contains the value
+     * @throws ClassCastException if the value is of an invalid type
+     * @throws NullPointerException if the value is null and null value are invalid
+     */
+    boolean containsValue(Object value);
+
+    /**
+     * Adds the value to the collection associated with the specified key.
+     * &lt;p&gt;
+     * Unlike a normal &lt;code&gt;Map&lt;/code&gt; the previous value is not replaced.
+     * Instead the new value is added to the collection stored against the key.
+     * The collection may be a &lt;code&gt;List&lt;/code&gt;, &lt;code&gt;Set&lt;/code&gt; or other
+     * collection dependent on implementation.
+     *
+     * @param key  the key to store against
+     * @param value  the value to add to the collection at the key
+     * @return typically the value added if the map changed and null if the map did not change
+     * @throws UnsupportedOperationException if the map is unmodifiable
+     * @throws ClassCastException if the key or value is of an invalid type
+     * @throws NullPointerException if the key or value is null and null is invalid
+     * @throws IllegalArgumentException if the key or value is invalid
+     */
+    Object put(Object key, Object value);
+
+    /**
+     * Removes all values associated with the specified key.
+     * &lt;p&gt;
+     * Implementations typically return &lt;code&gt;null&lt;/code&gt; from a subsequant
+     * &lt;code&gt;get(Object)&lt;/code&gt;, however they may choose to return an empty collection.
+     *
+     * @param key  the key to remove values from
+     * @return the &lt;code&gt;Collection&lt;/code&gt; of values removed, implementations should
+     *  return &lt;code&gt;null&lt;/code&gt; for no mapping found, but may return an empty collection
+     * @throws UnsupportedOperationException if the map is unmodifiable
+     * @throws ClassCastException if the key is of an invalid type
+     * @throws NullPointerException if the key is null and null keys are invalid
+     */
+    Object remove(Object key);
+
+    /**
+     * Gets a collection containing all the values in the map.
+     * &lt;p&gt;
+     * Inplementations typically return a collection containing the combination
+     * of values from all keys.
+     * This cannot be mandated due to backwards compatability of this interface.
+     *
+     * @return a collection view of the values contained in this map
+     */
+    Collection values();
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

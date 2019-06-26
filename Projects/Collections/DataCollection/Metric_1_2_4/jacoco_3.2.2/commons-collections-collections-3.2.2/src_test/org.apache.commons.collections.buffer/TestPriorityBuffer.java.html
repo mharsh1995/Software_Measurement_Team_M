@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestPriorityBuffer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.buffer</a> &gt; <span class="el_source">TestPriorityBuffer.java</span></div><h1>TestPriorityBuffer.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.buffer;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Random;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.BufferUnderflowException;
+import org.apache.commons.collections.ComparatorUtils;
+import org.apache.commons.collections.collection.AbstractTestCollection;
+import org.apache.commons.collections.comparators.ComparableComparator;
+import org.apache.commons.collections.comparators.ReverseComparator;
+
+/**
+ * Tests the PriorityBuffer.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Michael A. Smith
+ * @author Steve Phelps
+ */
+public class TestPriorityBuffer extends AbstractTestCollection {
+
+    public static void main(String[] args) {
+<span class="nc" id="L48">        junit.textui.TestRunner.run(suite());</span>
+<span class="nc" id="L49">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L52" title="All 2 branches covered.">        return new TestSuite(TestPriorityBuffer.class);</span>
+    }
+
+    public TestPriorityBuffer(String testName) {
+<span class="fc" id="L56">        super(testName);</span>
+<span class="fc" id="L57">    }</span>
+
+    //-----------------------------------------------------------------------  
+    public void verify() {
+<span class="fc" id="L61">        super.verify();</span>
+<span class="fc" id="L62">        PriorityBuffer heap = (PriorityBuffer) collection;</span>
+
+<span class="fc" id="L64">        Comparator c = heap.comparator;</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (c == null) {</span>
+<span class="fc" id="L66">            c = ComparatorUtils.naturalComparator();</span>
+        }
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (!heap.ascendingOrder) {</span>
+<span class="nc" id="L69">            c = ComparatorUtils.reversedComparator(c);</span>
+        }
+
+<span class="fc" id="L72">        Object[] tree = heap.elements;</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        for (int i = 1; i &lt;= heap.size; i++) {</span>
+<span class="fc" id="L74">            Object parent = tree[i];</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            if (i * 2 &lt;= heap.size) {</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">                assertTrue(&quot;Parent is less than or equal to its left child&quot;, c.compare(parent, tree[i * 2]) &lt;= 0);</span>
+            }
+<span class="fc bfc" id="L78" title="All 2 branches covered.">            if (i * 2 + 1 &lt; heap.size) {</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">                assertTrue(&quot;Parent is less than or equal to its right child&quot;, c.compare(parent, tree[i * 2 + 1]) &lt;= 0);</span>
+            }
+        }
+<span class="fc" id="L82">    }</span>
+
+    //-----------------------------------------------------------------------  
+    /**
+     * Overridden because BinaryBuffer isn't fail fast.
+     * @return false
+     */
+    public boolean isFailFastSupported() {
+<span class="fc" id="L90">        return false;</span>
+    }
+
+    //-----------------------------------------------------------------------  
+    public Collection makeConfirmedCollection() {
+<span class="fc" id="L95">        return new ArrayList();</span>
+    }
+
+    public Collection makeConfirmedFullCollection() {
+<span class="fc" id="L99">        ArrayList list = new ArrayList();</span>
+<span class="fc" id="L100">        list.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L101">        return list;</span>
+    }
+
+    /**
+     * Return a new, empty {@link Object} to used for testing.
+     */
+    public Collection makeCollection() {
+<span class="fc" id="L108">        return new PriorityBuffer();</span>
+    }
+
+    //-----------------------------------------------------------------------  
+    public Object[] getFullElements() {
+<span class="fc" id="L113">        return getFullNonNullStringElements();</span>
+    }
+
+    public Object[] getOtherElements() {
+<span class="fc" id="L117">        return getOtherNonNullStringElements();</span>
+    }
+
+    //-----------------------------------------------------------------------  
+    public void testBufferEmpty() {
+<span class="fc" id="L122">        resetEmpty();</span>
+<span class="fc" id="L123">        Buffer buffer = (Buffer) collection;</span>
+
+<span class="fc" id="L125">        assertEquals(0, buffer.size());</span>
+<span class="fc" id="L126">        assertEquals(true, buffer.isEmpty());</span>
+        try {
+<span class="nc" id="L128">            buffer.get();</span>
+<span class="nc" id="L129">            fail();</span>
+<span class="pc" id="L130">        } catch (BufferUnderflowException ex) {}</span>
+
+        try {
+<span class="nc" id="L133">            buffer.remove();</span>
+<span class="nc" id="L134">            fail();</span>
+<span class="pc" id="L135">        } catch (BufferUnderflowException ex) {}</span>
+<span class="fc" id="L136">    }</span>
+    
+    public void testBasicOps() {
+<span class="fc" id="L139">        PriorityBuffer heap = new PriorityBuffer();</span>
+
+<span class="fc" id="L141">        heap.add(&quot;a&quot;);</span>
+<span class="fc" id="L142">        heap.add(&quot;c&quot;);</span>
+<span class="fc" id="L143">        heap.add(&quot;e&quot;);</span>
+<span class="fc" id="L144">        heap.add(&quot;b&quot;);</span>
+<span class="fc" id="L145">        heap.add(&quot;d&quot;);</span>
+<span class="fc" id="L146">        heap.add(&quot;n&quot;);</span>
+<span class="fc" id="L147">        heap.add(&quot;m&quot;);</span>
+<span class="fc" id="L148">        heap.add(&quot;l&quot;);</span>
+<span class="fc" id="L149">        heap.add(&quot;k&quot;);</span>
+<span class="fc" id="L150">        heap.add(&quot;j&quot;);</span>
+<span class="fc" id="L151">        heap.add(&quot;i&quot;);</span>
+<span class="fc" id="L152">        heap.add(&quot;h&quot;);</span>
+<span class="fc" id="L153">        heap.add(&quot;g&quot;);</span>
+<span class="fc" id="L154">        heap.add(&quot;f&quot;);</span>
+
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        assertTrue(&quot;heap should not be empty after adds&quot;, !heap.isEmpty());</span>
+
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        for (int i = 0; i &lt; 14; i++) {</span>
+<span class="fc" id="L159">            assertEquals(</span>
+<span class="fc" id="L160">                &quot;get using default constructor should return minimum value in the binary heap&quot;,</span>
+<span class="fc" id="L161">                String.valueOf((char) ('a' + i)),</span>
+<span class="fc" id="L162">                heap.get());</span>
+
+<span class="fc" id="L164">            assertEquals(</span>
+<span class="fc" id="L165">                &quot;remove using default constructor should return minimum value in the binary heap&quot;,</span>
+<span class="fc" id="L166">                String.valueOf((char) ('a' + i)),</span>
+<span class="fc" id="L167">                heap.remove());</span>
+
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            if (i + 1 &lt; 14) {</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">                assertTrue(&quot;heap should not be empty before all elements are removed&quot;, !heap.isEmpty());</span>
+<span class="fc" id="L171">            } else {</span>
+<span class="fc" id="L172">                assertTrue(&quot;heap should be empty after all elements are removed&quot;, heap.isEmpty());</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L177">            heap.get();</span>
+<span class="nc" id="L178">            fail(&quot;NoSuchElementException should be thrown if get is called after all elements are removed&quot;);</span>
+<span class="pc" id="L179">        } catch (BufferUnderflowException ex) {}</span>
+
+        try {
+<span class="nc" id="L182">            heap.remove();</span>
+<span class="nc" id="L183">            fail(&quot;NoSuchElementException should be thrown if remove is called after all elements are removed&quot;);</span>
+<span class="pc" id="L184">        } catch (BufferUnderflowException ex) {}</span>
+<span class="fc" id="L185">    }</span>
+
+    public void testBasicComparatorOps() {
+<span class="fc" id="L188">        PriorityBuffer heap = new PriorityBuffer(new ReverseComparator(new ComparableComparator()));</span>
+
+<span class="fc" id="L190">        assertTrue(&quot;heap should be empty after create&quot;, heap.isEmpty());</span>
+
+        try {
+<span class="nc" id="L193">            heap.get();</span>
+<span class="nc" id="L194">            fail(&quot;NoSuchElementException should be thrown if get is called before any elements are added&quot;);</span>
+<span class="pc" id="L195">        } catch (BufferUnderflowException ex) {}</span>
+
+        try {
+<span class="nc" id="L198">            heap.remove();</span>
+<span class="nc" id="L199">            fail(&quot;NoSuchElementException should be thrown if remove is called before any elements are added&quot;);</span>
+<span class="pc" id="L200">        } catch (BufferUnderflowException ex) {}</span>
+
+<span class="fc" id="L202">        heap.add(&quot;a&quot;);</span>
+<span class="fc" id="L203">        heap.add(&quot;c&quot;);</span>
+<span class="fc" id="L204">        heap.add(&quot;e&quot;);</span>
+<span class="fc" id="L205">        heap.add(&quot;b&quot;);</span>
+<span class="fc" id="L206">        heap.add(&quot;d&quot;);</span>
+<span class="fc" id="L207">        heap.add(&quot;n&quot;);</span>
+<span class="fc" id="L208">        heap.add(&quot;m&quot;);</span>
+<span class="fc" id="L209">        heap.add(&quot;l&quot;);</span>
+<span class="fc" id="L210">        heap.add(&quot;k&quot;);</span>
+<span class="fc" id="L211">        heap.add(&quot;j&quot;);</span>
+<span class="fc" id="L212">        heap.add(&quot;i&quot;);</span>
+<span class="fc" id="L213">        heap.add(&quot;h&quot;);</span>
+<span class="fc" id="L214">        heap.add(&quot;g&quot;);</span>
+<span class="fc" id="L215">        heap.add(&quot;f&quot;);</span>
+
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">        assertTrue(&quot;heap should not be empty after adds&quot;, !heap.isEmpty());</span>
+
+<span class="fc bfc" id="L219" title="All 2 branches covered.">        for (int i = 0; i &lt; 14; i++) {</span>
+
+            // note: since we're using a comparator that reverses items, the
+            // &quot;minimum&quot; item is &quot;n&quot;, and the &quot;maximum&quot; item is &quot;a&quot;.
+
+<span class="fc" id="L224">            assertEquals(</span>
+<span class="fc" id="L225">                &quot;get using default constructor should return minimum value in the binary heap&quot;,</span>
+<span class="fc" id="L226">                String.valueOf((char) ('n' - i)),</span>
+<span class="fc" id="L227">                heap.get());</span>
+
+<span class="fc" id="L229">            assertEquals(</span>
+<span class="fc" id="L230">                &quot;remove using default constructor should return minimum value in the binary heap&quot;,</span>
+<span class="fc" id="L231">                String.valueOf((char) ('n' - i)),</span>
+<span class="fc" id="L232">                heap.remove());</span>
+
+<span class="fc bfc" id="L234" title="All 2 branches covered.">            if (i + 1 &lt; 14) {</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">                assertTrue(&quot;heap should not be empty before all elements are removed&quot;, !heap.isEmpty());</span>
+<span class="fc" id="L236">            } else {</span>
+<span class="fc" id="L237">                assertTrue(&quot;heap should be empty after all elements are removed&quot;, heap.isEmpty());</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L242">            heap.get();</span>
+<span class="nc" id="L243">            fail(&quot;NoSuchElementException should be thrown if get is called after all elements are removed&quot;);</span>
+<span class="pc" id="L244">        } catch (BufferUnderflowException ex) {}</span>
+
+        try {
+<span class="nc" id="L247">            heap.remove();</span>
+<span class="nc" id="L248">            fail(&quot;NoSuchElementException should be thrown if remove is called after all elements are removed&quot;);</span>
+<span class="pc" id="L249">        } catch (BufferUnderflowException ex) {}</span>
+<span class="fc" id="L250">    }</span>
+
+    /**
+     * Illustrates bad internal heap state reported in Bugzilla PR #235818. 
+     */  
+    public void testAddRemove() {
+<span class="fc" id="L256">        resetEmpty();</span>
+<span class="fc" id="L257">        PriorityBuffer heap = (PriorityBuffer) collection;</span>
+<span class="fc" id="L258">        heap.add(new Integer(0));</span>
+<span class="fc" id="L259">        heap.add(new Integer(2));</span>
+<span class="fc" id="L260">        heap.add(new Integer(4));</span>
+<span class="fc" id="L261">        heap.add(new Integer(3));</span>
+<span class="fc" id="L262">        heap.add(new Integer(8));</span>
+<span class="fc" id="L263">        heap.add(new Integer(10));</span>
+<span class="fc" id="L264">        heap.add(new Integer(12));</span>
+<span class="fc" id="L265">        heap.add(new Integer(3));</span>
+<span class="fc" id="L266">        confirmed.addAll(heap);</span>
+        // System.out.println(heap);
+<span class="fc" id="L268">        Object obj = new Integer(10);</span>
+<span class="fc" id="L269">        heap.remove(obj);</span>
+<span class="fc" id="L270">        confirmed.remove(obj);</span>
+        // System.out.println(heap);
+<span class="fc" id="L272">        verify();</span>
+<span class="fc" id="L273">    }</span>
+    
+    /**
+     * Generate heaps staring with Integers from 0 - heapSize - 1.
+     * Then perform random add / remove operations, checking
+     * heap order after modifications. Alternates minHeaps, maxHeaps.
+     *
+     * Based on code provided by Steve Phelps in PR #25818
+     *
+     */
+    public void testRandom() {
+<span class="fc" id="L284">        int iterations = 500;</span>
+<span class="fc" id="L285">        int heapSize = 100;</span>
+<span class="fc" id="L286">        int operations = 20;</span>
+<span class="fc" id="L287">        Random randGenerator = new Random();</span>
+<span class="fc" id="L288">        PriorityBuffer h = null;</span>
+<span class="fc bfc" id="L289" title="All 2 branches covered.">        for(int i=0; i &lt; iterations; i++) {</span>
+<span class="fc bfc" id="L290" title="All 2 branches covered.">            if (i &lt; iterations / 2) {          </span>
+<span class="fc" id="L291">                h = new PriorityBuffer(true);</span>
+<span class="fc" id="L292">            } else {</span>
+<span class="fc" id="L293">                h = new PriorityBuffer(false);</span>
+            }
+<span class="fc bfc" id="L295" title="All 2 branches covered.">            for(int r = 0; r &lt; heapSize; r++) {</span>
+<span class="fc" id="L296">                h.add( new Integer( randGenerator.nextInt(heapSize)) );</span>
+            }
+<span class="fc bfc" id="L298" title="All 2 branches covered.">            for( int r = 0; r &lt; operations; r++ ) {</span>
+<span class="fc" id="L299">                h.remove(new Integer(r));</span>
+<span class="fc" id="L300">                h.add(new Integer(randGenerator.nextInt(heapSize)));</span>
+            }
+<span class="fc" id="L302">            checkOrder(h);</span>
+        }
+<span class="fc" id="L304">    }</span>
+     
+    /**
+     * Pops all elements from the heap and verifies that the elements come off
+     * in the correct order.  NOTE: this method empties the heap.
+     */
+    protected void checkOrder(PriorityBuffer h) {
+<span class="fc" id="L311">        Integer lastNum = null;</span>
+<span class="fc" id="L312">        Integer num = null;</span>
+<span class="fc bfc" id="L313" title="All 2 branches covered.">        while (!h.isEmpty()) {</span>
+<span class="fc" id="L314">            num = (Integer) h.remove();</span>
+<span class="fc bfc" id="L315" title="All 2 branches covered.">            if (h.ascendingOrder) {</span>
+<span class="pc bpc" id="L316" title="1 of 4 branches missed.">                assertTrue(lastNum == null || num.intValue() &gt;= lastNum.intValue());</span>
+<span class="fc" id="L317">            } else { // max heap</span>
+<span class="pc bpc" id="L318" title="1 of 4 branches missed.">                assertTrue(lastNum == null || num.intValue() &lt;= lastNum.intValue());</span>
+            }
+<span class="fc" id="L320">            lastNum = num;</span>
+<span class="fc" id="L321">            num = null;</span>
+        }
+<span class="fc" id="L323">    }</span>
+    
+    /**
+     * Returns a string showing the contents of the heap formatted as a tree.
+     * Makes no attempt at padding levels or handling wrapping. 
+     */
+    protected String showTree(PriorityBuffer h) {
+<span class="nc" id="L330">        int count = 1;</span>
+<span class="nc" id="L331">        StringBuffer buffer = new StringBuffer();</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">        for (int offset = 1; count &lt; h.size() + 1; offset *= 2) {</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">            for (int i = offset; i &lt; offset * 2; i++) {</span>
+<span class="nc bnc" id="L334" title="All 4 branches missed.">                if (i &lt; h.elements.length &amp;&amp; h.elements[i] != null) </span>
+<span class="nc" id="L335">                    buffer.append(h.elements[i] + &quot; &quot;);</span>
+<span class="nc" id="L336">                count++;</span>
+            }
+<span class="nc" id="L338">            buffer.append('\n');</span>
+        }
+<span class="nc" id="L340">        return buffer.toString();</span>
+    }
+
+    /**
+     * Generates 500 randomly initialized heaps of size 100
+     * and tests that after serializing and restoring them to a byte array
+     * that the following conditions hold:
+     * 
+     *  - the size of the restored heap is the same 
+     *      as the size of the orignal heap
+     *  
+     *  - all elements in the original heap are present in the restored heap
+     *  
+     *  - the heap order of the restored heap is intact as 
+     *      verified by checkOrder()
+     */
+    public void testSerialization() {
+<span class="fc" id="L357">        int iterations = 500;</span>
+<span class="fc" id="L358">        int heapSize = 100;</span>
+        PriorityBuffer h;
+<span class="fc" id="L360">        Random randGenerator = new Random();</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">        for (int i = 0; i &lt; iterations; i++) {</span>
+<span class="fc bfc" id="L362" title="All 2 branches covered.">            if (i &lt; iterations / 2) {</span>
+<span class="fc" id="L363">                h = new PriorityBuffer(true);</span>
+<span class="fc" id="L364">            } else {</span>
+<span class="fc" id="L365">                h = new PriorityBuffer(false);</span>
+            }
+<span class="fc bfc" id="L367" title="All 2 branches covered.">            for (int r = 0; r &lt; heapSize; r++) {</span>
+<span class="fc" id="L368">                h.add(new Integer(randGenerator.nextInt(heapSize)));</span>
+            }
+<span class="pc bpc" id="L370" title="1 of 2 branches missed.">            assertTrue(h.size() == heapSize);</span>
+<span class="fc" id="L371">            PriorityBuffer h1 = serializeAndRestore(h);</span>
+<span class="pc bpc" id="L372" title="1 of 2 branches missed.">            assertTrue(h1.size() == heapSize);</span>
+<span class="fc" id="L373">            Iterator hit = h.iterator();</span>
+<span class="fc bfc" id="L374" title="All 2 branches covered.">            while (hit.hasNext()) {</span>
+<span class="fc" id="L375">                Integer n = (Integer) hit.next();</span>
+<span class="fc" id="L376">                assertTrue(h1.contains(n));</span>
+            }
+<span class="fc" id="L378">            checkOrder(h1);</span>
+        }
+<span class="fc" id="L380">    }</span>
+
+    public PriorityBuffer serializeAndRestore(PriorityBuffer h) {
+<span class="fc" id="L383">        PriorityBuffer h1 = null;</span>
+        try {
+<span class="fc" id="L385">            byte[] objekt = writeExternalFormToBytes(h);</span>
+<span class="fc" id="L386">            h1 = (PriorityBuffer) readExternalFormFromBytes(objekt);</span>
+<span class="pc" id="L387">        } catch (IOException e) {</span>
+<span class="nc" id="L388">            e.printStackTrace();</span>
+<span class="nc" id="L389">            fail(e.toString());</span>
+<span class="nc" id="L390">        } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L391">            e.printStackTrace();</span>
+<span class="nc" id="L392">            fail(e.toString());</span>
+        }
+<span class="fc" id="L394">        return h1;</span>
+    }
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L398">        return &quot;3.2&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;C:/commons/collections/data/test/PriorityBuffer.emptyCollection.version3.2.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;C:/commons/collections/data/test/PriorityBuffer.fullCollection.version3.2.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestSortedMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">AbstractTestSortedMap.java</span></div><h1>AbstractTestSortedMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import org.apache.commons.collections.BulkTest;
+
+/**
+ * Abstract test class for {@link java.util.SortedMap} methods and contracts.
+ *
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public abstract class AbstractTestSortedMap extends AbstractTestMap {
+
+    /**
+     * JUnit constructor.
+     * 
+     * @param testName  the test name
+     */
+    public AbstractTestSortedMap(String testName) {
+<span class="fc" id="L44">        super(testName);</span>
+<span class="fc" id="L45">    }</span>
+    
+    //-----------------------------------------------------------------------
+    /**
+     * Can't sort null keys.
+     * 
+     * @return false
+     */
+    public boolean isAllowNullKey() {
+<span class="fc" id="L54">        return false;</span>
+    }
+
+    /**
+     * SortedMap uses TreeMap as its known comparison.
+     * 
+     * @return a map that is known to be valid
+     */
+    public Map makeConfirmedMap() {
+<span class="fc" id="L63">        return new TreeMap();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testComparator() {
+<span class="fc" id="L68">        SortedMap sm = (SortedMap) makeFullMap();</span>
+        // no tests I can think of
+<span class="fc" id="L70">    }</span>
+    
+    public void testFirstKey() {
+<span class="fc" id="L73">        SortedMap sm = (SortedMap) makeFullMap();</span>
+<span class="fc" id="L74">        assertSame(sm.keySet().iterator().next(), sm.firstKey());</span>
+<span class="fc" id="L75">    }</span>
+    
+    public void testLastKey() {
+<span class="fc" id="L78">        SortedMap sm = (SortedMap) makeFullMap();</span>
+<span class="fc" id="L79">        Object obj = null;</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (Iterator it = sm.keySet().iterator(); it.hasNext();) {</span>
+<span class="fc" id="L81">            obj = (Object) it.next();</span>
+        }
+<span class="fc" id="L83">        assertSame(obj, sm.lastKey());</span>
+<span class="fc" id="L84">    }</span>
+    
+    //-----------------------------------------------------------------------    
+    public BulkTest bulkTestHeadMap() {
+<span class="fc" id="L88">        return new TestHeadMap(this);</span>
+    }
+
+    public BulkTest bulkTestTailMap() {
+<span class="fc" id="L92">        return new TestTailMap(this);</span>
+    }
+
+    public BulkTest bulkTestSubMap() {
+<span class="fc" id="L96">        return new TestSubMap(this);</span>
+    }
+
+    public static abstract class TestViewMap extends AbstractTestSortedMap {
+        protected final AbstractTestMap main;
+<span class="fc" id="L101">        protected final List subSortedKeys = new ArrayList();</span>
+<span class="fc" id="L102">        protected final List subSortedValues = new ArrayList();</span>
+<span class="fc" id="L103">        protected final List subSortedNewValues = new ArrayList();</span>
+        
+        public TestViewMap(String name, AbstractTestMap main) {
+<span class="fc" id="L106">            super(name);</span>
+<span class="fc" id="L107">            this.main = main;</span>
+<span class="fc" id="L108">        }</span>
+        public void resetEmpty() {
+            // needed to init verify correctly
+<span class="fc" id="L111">            main.resetEmpty();</span>
+<span class="fc" id="L112">            super.resetEmpty();</span>
+<span class="fc" id="L113">        }</span>
+        public void resetFull() {
+            // needed to init verify correctly
+<span class="fc" id="L116">            main.resetFull();</span>
+<span class="fc" id="L117">            super.resetFull();</span>
+<span class="fc" id="L118">        }</span>
+        public void verify() {
+            // cross verify changes on view with changes on main map
+<span class="fc" id="L121">            super.verify();</span>
+<span class="fc" id="L122">            main.verify();</span>
+<span class="fc" id="L123">        }</span>
+        public BulkTest bulkTestHeadMap() {
+<span class="fc" id="L125">            return null;  // block infinite recursion</span>
+        }
+        public BulkTest bulkTestTailMap() {
+<span class="fc" id="L128">            return null;  // block infinite recursion</span>
+        }
+        public BulkTest bulkTestSubMap() {
+<span class="fc" id="L131">            return null;  // block infinite recursion</span>
+        }
+        
+        public Object[] getSampleKeys() {
+<span class="fc" id="L135">            return subSortedKeys.toArray();</span>
+        }
+        public Object[] getSampleValues() {
+<span class="fc" id="L138">            return subSortedValues.toArray();</span>
+        }
+        public Object[] getNewSampleValues() {
+<span class="fc" id="L141">            return subSortedNewValues.toArray();</span>
+        }
+        
+        public boolean isAllowNullKey() {
+<span class="fc" id="L145">            return main.isAllowNullKey();</span>
+        }
+        public boolean isAllowNullValue() {
+<span class="fc" id="L148">            return main.isAllowNullValue();</span>
+        }
+        public boolean isPutAddSupported() {
+<span class="fc" id="L151">            return main.isPutAddSupported();</span>
+        }
+        public boolean isPutChangeSupported() {
+<span class="fc" id="L154">            return main.isPutChangeSupported();</span>
+        }
+        public boolean isRemoveSupported() {
+<span class="fc" id="L157">            return main.isRemoveSupported();</span>
+        }
+        public boolean isTestSerialization() {
+<span class="fc" id="L160">            return false;</span>
+        }
+//        public void testSimpleSerialization() throws Exception {
+//            if (main.isSubMapViewsSerializable() == false) return;
+//            super.testSimpleSerialization();
+//        }
+//        public void testSerializeDeserializeThenCompare() throws Exception {
+//            if (main.isSubMapViewsSerializable() == false) return;
+//            super.testSerializeDeserializeThenCompare();
+//        }
+//        public void testEmptyMapCompatibility() throws Exception {
+//            if (main.isSubMapViewsSerializable() == false) return;
+//            super.testEmptyMapCompatibility();
+//        }
+//        public void testFullMapCompatibility() throws Exception {
+//            if (main.isSubMapViewsSerializable() == false) return;
+//            super.testFullMapCompatibility();
+//        }
+    }
+    
+    public static class TestHeadMap extends TestViewMap {
+        static final int SUBSIZE = 6;
+        final Object toKey;
+        
+        public TestHeadMap(AbstractTestMap main) {
+<span class="fc" id="L185">            super(&quot;SortedMap.HeadMap&quot;, main);</span>
+<span class="fc" id="L186">            SortedMap sm = (SortedMap) main.makeFullMap();</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">            for (Iterator it = sm.entrySet().iterator(); it.hasNext();) {</span>
+<span class="fc" id="L188">                Map.Entry entry = (Map.Entry) it.next();</span>
+<span class="fc" id="L189">                this.subSortedKeys.add(entry.getKey());</span>
+<span class="fc" id="L190">                this.subSortedValues.add(entry.getValue());</span>
+            }
+<span class="fc" id="L192">            this.toKey = this.subSortedKeys.get(SUBSIZE);</span>
+<span class="fc" id="L193">            this.subSortedKeys.subList(SUBSIZE, this.subSortedKeys.size()).clear();</span>
+<span class="fc" id="L194">            this.subSortedValues.subList(SUBSIZE, this.subSortedValues.size()).clear();</span>
+<span class="fc" id="L195">            this.subSortedNewValues.addAll(Arrays.asList(main.getNewSampleValues()).subList(0, SUBSIZE));</span>
+<span class="fc" id="L196">        }</span>
+        public Map makeEmptyMap() {
+            // done this way so toKey is correctly set in the returned map
+<span class="fc" id="L199">            return ((SortedMap) main.makeEmptyMap()).headMap(toKey);</span>
+        }
+        public Map makeFullMap() {
+<span class="fc" id="L202">            return ((SortedMap) main.makeFullMap()).headMap(toKey);</span>
+        }
+        public void testHeadMapOutOfRange() {
+<span class="fc bfc" id="L205" title="All 2 branches covered.">            if (isPutAddSupported() == false) return;</span>
+<span class="fc" id="L206">            resetEmpty();</span>
+            try {
+<span class="nc" id="L208">                ((SortedMap) map).put(toKey, subSortedValues.get(0));</span>
+<span class="nc" id="L209">                fail();</span>
+<span class="pc" id="L210">            } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L211">            verify();</span>
+<span class="fc" id="L212">        }</span>
+        public String getCompatibilityVersion() {
+<span class="nc" id="L214">            return main.getCompatibilityVersion() + &quot;.HeadMapView&quot;;</span>
+        }
+
+//        public void testCreate() throws Exception {
+//            Map map = makeEmptyMap();
+//            writeExternalFormToDisk(
+//                (java.io.Serializable) map,
+//                &quot;D:/dev/collections/data/test/FixedSizeSortedMap.emptyCollection.version3.1.HeadMapView.obj&quot;);
+//            map = makeFullMap();
+//            writeExternalFormToDisk(
+//                (java.io.Serializable) map,
+//                &quot;D:/dev/collections/data/test/FixedSizeSortedMap.fullCollection.version3.1.HeadMapView.obj&quot;);
+//        }
+    }
+    
+    public static class TestTailMap extends TestViewMap {
+        static final int SUBSIZE = 6;
+        final Object fromKey;
+        final Object invalidKey;
+        
+        public TestTailMap(AbstractTestMap main) {
+<span class="fc" id="L235">            super(&quot;SortedMap.TailMap&quot;, main);</span>
+<span class="fc" id="L236">            SortedMap sm = (SortedMap) main.makeFullMap();</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">            for (Iterator it = sm.entrySet().iterator(); it.hasNext();) {</span>
+<span class="fc" id="L238">                Map.Entry entry = (Map.Entry) it.next();</span>
+<span class="fc" id="L239">                this.subSortedKeys.add(entry.getKey());</span>
+<span class="fc" id="L240">                this.subSortedValues.add(entry.getValue());</span>
+            }
+<span class="fc" id="L242">            this.fromKey = this.subSortedKeys.get(this.subSortedKeys.size() - SUBSIZE);</span>
+<span class="fc" id="L243">            this.invalidKey = this.subSortedKeys.get(this.subSortedKeys.size() - SUBSIZE - 1);</span>
+<span class="fc" id="L244">            this.subSortedKeys.subList(0, this.subSortedKeys.size() - SUBSIZE).clear();</span>
+<span class="fc" id="L245">            this.subSortedValues.subList(0, this.subSortedValues.size() - SUBSIZE).clear();</span>
+<span class="fc" id="L246">            this.subSortedNewValues.addAll(Arrays.asList(main.getNewSampleValues()).subList(0, SUBSIZE));</span>
+<span class="fc" id="L247">        }</span>
+        public Map makeEmptyMap() {
+            // done this way so toKey is correctly set in the returned map
+<span class="fc" id="L250">            return ((SortedMap) main.makeEmptyMap()).tailMap(fromKey);</span>
+        }
+        public Map makeFullMap() {
+<span class="fc" id="L253">            return ((SortedMap) main.makeFullMap()).tailMap(fromKey);</span>
+        }
+        public void testTailMapOutOfRange() {
+<span class="fc bfc" id="L256" title="All 2 branches covered.">            if (isPutAddSupported() == false) return;</span>
+<span class="fc" id="L257">            resetEmpty();</span>
+            try {
+<span class="nc" id="L259">                ((SortedMap) map).put(invalidKey, subSortedValues.get(0));</span>
+<span class="nc" id="L260">                fail();</span>
+<span class="pc" id="L261">            } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L262">            verify();</span>
+<span class="fc" id="L263">        }</span>
+        public String getCompatibilityVersion() {
+<span class="nc" id="L265">            return main.getCompatibilityVersion() + &quot;.TailMapView&quot;;</span>
+        }
+
+//        public void testCreate() throws Exception {
+//            Map map = makeEmptyMap();
+//            writeExternalFormToDisk(
+//                (java.io.Serializable) map,
+//                &quot;D:/dev/collections/data/test/FixedSizeSortedMap.emptyCollection.version3.1.TailMapView.obj&quot;);
+//            map = makeFullMap();
+//            writeExternalFormToDisk(
+//                (java.io.Serializable) map,
+//                &quot;D:/dev/collections/data/test/FixedSizeSortedMap.fullCollection.version3.1.TailMapView.obj&quot;);
+//        }
+    }
+    
+    public static class TestSubMap extends TestViewMap {
+        static final int SUBSIZE = 3;
+        final Object fromKey;
+        final Object toKey;
+        
+        public TestSubMap(AbstractTestMap main) {
+<span class="fc" id="L286">            super(&quot;SortedMap.SubMap&quot;, main);</span>
+<span class="fc" id="L287">            SortedMap sm = (SortedMap) main.makeFullMap();</span>
+<span class="fc bfc" id="L288" title="All 2 branches covered.">            for (Iterator it = sm.entrySet().iterator(); it.hasNext();) {</span>
+<span class="fc" id="L289">                Map.Entry entry = (Map.Entry) it.next();</span>
+<span class="fc" id="L290">                this.subSortedKeys.add(entry.getKey());</span>
+<span class="fc" id="L291">                this.subSortedValues.add(entry.getValue());</span>
+            }
+<span class="fc" id="L293">            this.fromKey = this.subSortedKeys.get(SUBSIZE);</span>
+<span class="fc" id="L294">            this.toKey = this.subSortedKeys.get(this.subSortedKeys.size() - SUBSIZE);</span>
+            
+<span class="fc" id="L296">            this.subSortedKeys.subList(0, SUBSIZE).clear();</span>
+<span class="fc" id="L297">            this.subSortedKeys.subList(this.subSortedKeys.size() - SUBSIZE, this.subSortedKeys.size()).clear();</span>
+            
+<span class="fc" id="L299">            this.subSortedValues.subList(0, SUBSIZE).clear();</span>
+<span class="fc" id="L300">            this.subSortedValues.subList(this.subSortedValues.size() - SUBSIZE, this.subSortedValues.size()).clear();</span>
+            
+<span class="fc" id="L302">            this.subSortedNewValues.addAll(Arrays.asList(main.getNewSampleValues()).subList(</span>
+<span class="fc" id="L303">                SUBSIZE, this.main.getNewSampleValues().length - SUBSIZE));</span>
+<span class="fc" id="L304">        }</span>
+        
+        public Map makeEmptyMap() {
+            // done this way so toKey is correctly set in the returned map
+<span class="fc" id="L308">            return ((SortedMap) main.makeEmptyMap()).subMap(fromKey, toKey);</span>
+        }
+        public Map makeFullMap() {
+<span class="fc" id="L311">            return ((SortedMap) main.makeFullMap()).subMap(fromKey, toKey);</span>
+        }
+        public void testSubMapOutOfRange() {
+<span class="fc bfc" id="L314" title="All 2 branches covered.">            if (isPutAddSupported() == false) return;</span>
+<span class="fc" id="L315">            resetEmpty();</span>
+            try {
+<span class="nc" id="L317">                ((SortedMap) map).put(toKey, subSortedValues.get(0));</span>
+<span class="nc" id="L318">                fail();</span>
+<span class="pc" id="L319">            } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L320">            verify();</span>
+<span class="fc" id="L321">        }</span>
+        public String getCompatibilityVersion() {
+<span class="nc" id="L323">            return main.getCompatibilityVersion() + &quot;.SubMapView&quot;;</span>
+        }
+
+//        public void testCreate() throws Exception {
+//            Map map = makeEmptyMap();
+//            writeExternalFormToDisk(
+//                (java.io.Serializable) map,
+//                &quot;D:/dev/collections/data/test/TransformedSortedMap.emptyCollection.version3.1.SubMapView.obj&quot;);
+//            map = makeFullMap();
+//            writeExternalFormToDisk(
+//                (java.io.Serializable) map,
+//                &quot;D:/dev/collections/data/test/TransformedSortedMap.fullCollection.version3.1.SubMapView.obj&quot;);
+//        }
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

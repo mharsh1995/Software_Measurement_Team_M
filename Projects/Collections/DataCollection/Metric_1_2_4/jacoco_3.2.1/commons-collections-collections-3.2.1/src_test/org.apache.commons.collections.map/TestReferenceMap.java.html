@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestReferenceMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">TestReferenceMap.java</span></div><h1>TestReferenceMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.lang.ref.WeakReference;
+import java.util.Map;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.BulkTest;
+
+/**
+ * Tests for ReferenceMap. 
+ * 
+ * @version $Revision$ $Date$
+ *
+ * @author Paul Jack
+ * @author Guilhem Lavaux
+ */
+public class TestReferenceMap extends AbstractTestIterableMap {
+
+    public TestReferenceMap(String testName) {
+<span class="fc" id="L37">        super(testName);</span>
+<span class="fc" id="L38">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L41" title="All 2 branches covered.">        return BulkTest.makeSuite(TestReferenceMap.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        String[] testCaseName = { TestReferenceMap.class.getName() };</span>
+<span class="nc" id="L46">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L47">    }</span>
+
+    public Map makeEmptyMap() {
+<span class="fc" id="L50">        ReferenceMap map = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.WEAK);</span>
+<span class="fc" id="L51">        return map;</span>
+    }
+
+    public boolean isAllowNullKey() {
+<span class="fc" id="L55">        return false;</span>
+    }
+
+    public boolean isAllowNullValue() {
+<span class="fc" id="L59">        return false;</span>
+    }
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L63">        return &quot;3.1&quot;;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testNullHandling() {
+<span class="fc" id="L68">        resetFull();</span>
+<span class="fc" id="L69">        assertEquals(null, map.get(null));</span>
+<span class="fc" id="L70">        assertEquals(false, map.containsKey(null));</span>
+<span class="fc" id="L71">        assertEquals(false, map.containsValue(null));</span>
+<span class="fc" id="L72">        assertEquals(null, map.remove(null));</span>
+<span class="fc" id="L73">        assertEquals(false, map.entrySet().contains(null));</span>
+<span class="fc" id="L74">        assertEquals(false, map.keySet().contains(null));</span>
+<span class="fc" id="L75">        assertEquals(false, map.values().contains(null));</span>
+        try {
+<span class="nc" id="L77">            map.put(null, null);</span>
+<span class="nc" id="L78">            fail();</span>
+<span class="pc" id="L79">        } catch (NullPointerException ex) {}</span>
+        try {
+<span class="nc" id="L81">            map.put(new Object(), null);</span>
+<span class="nc" id="L82">            fail();</span>
+<span class="pc" id="L83">        } catch (NullPointerException ex) {}</span>
+        try {
+<span class="nc" id="L85">            map.put(null, new Object());</span>
+<span class="nc" id="L86">            fail();</span>
+<span class="pc" id="L87">        } catch (NullPointerException ex) {}</span>
+<span class="fc" id="L88">    }</span>
+
+    //-----------------------------------------------------------------------
+/*
+    // Tests often fail because gc is uncontrollable
+
+    public void testPurge() {
+        ReferenceMap map = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.WEAK);
+        Object[] hard = new Object[10];
+        for (int i = 0; i &lt; hard.length; i++) {
+            hard[i] = new Object();
+            map.put(hard[i], new Object());
+        }
+        gc();
+        assertTrue(&quot;map should be empty after purge of weak values&quot;, map.isEmpty());
+
+        for (int i = 0; i &lt; hard.length; i++) {
+            map.put(new Object(), hard[i]);
+        }
+        gc();
+        assertTrue(&quot;map should be empty after purge of weak keys&quot;, map.isEmpty());
+
+        for (int i = 0; i &lt; hard.length; i++) {
+            map.put(new Object(), hard[i]);
+            map.put(hard[i], new Object());
+        }
+
+        gc();
+        assertTrue(&quot;map should be empty after purge of weak keys and values&quot;, map.isEmpty());
+    }
+
+
+    public void testGetAfterGC() {
+        ReferenceMap map = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.WEAK);
+        for (int i = 0; i &lt; 10; i++) {
+            map.put(new Integer(i), new Integer(i));
+        }
+
+        gc();
+        for (int i = 0; i &lt; 10; i++) {
+            Integer I = new Integer(i);
+            assertTrue(&quot;map.containsKey should return false for GC'd element&quot;, !map.containsKey(I));
+            assertTrue(&quot;map.get should return null for GC'd element&quot;, map.get(I) == null);
+        }
+    }
+
+
+    public void testEntrySetIteratorAfterGC() {
+        ReferenceMap map = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.WEAK);
+        Object[] hard = new Object[10];
+        for (int i = 0; i &lt; 10; i++) {
+            hard[i] = new Integer(10 + i);
+            map.put(new Integer(i), new Integer(i));
+            map.put(hard[i], hard[i]);
+        }
+
+        gc();
+        Iterator iterator = map.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry)iterator.next();
+            Integer key = (Integer)entry.getKey();
+            Integer value = (Integer)entry.getValue();
+            assertTrue(&quot;iterator should skip GC'd keys&quot;, key.intValue() &gt;= 10);
+            assertTrue(&quot;iterator should skip GC'd values&quot;, value.intValue() &gt;= 10);
+        }
+
+    }
+
+    public void testMapIteratorAfterGC() {
+        ReferenceMap map = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.WEAK);
+        Object[] hard = new Object[10];
+        for (int i = 0; i &lt; 10; i++) {
+            hard[i] = new Integer(10 + i);
+            map.put(new Integer(i), new Integer(i));
+            map.put(hard[i], hard[i]);
+        }
+
+        gc();
+        MapIterator iterator = map.mapIterator();
+        while (iterator.hasNext()) {
+            Object key1 = iterator.next();
+            Integer key = (Integer) iterator.getKey();
+            Integer value = (Integer) iterator.getValue();
+            assertTrue(&quot;iterator keys should match&quot;, key == key1);
+            assertTrue(&quot;iterator should skip GC'd keys&quot;, key.intValue() &gt;= 10);
+            assertTrue(&quot;iterator should skip GC'd values&quot;, value.intValue() &gt;= 10);
+        }
+
+    }
+
+    public void testMapIteratorAfterGC2() {
+        ReferenceMap map = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.WEAK);
+        Object[] hard = new Object[10];
+        for (int i = 0; i &lt; 10; i++) {
+            hard[i] = new Integer(10 + i);
+            map.put(new Integer(i), new Integer(i));
+            map.put(hard[i], hard[i]);
+        }
+
+        MapIterator iterator = map.mapIterator();
+        while (iterator.hasNext()) {
+            Object key1 = iterator.next();
+            gc();
+            Integer key = (Integer) iterator.getKey();
+            Integer value = (Integer) iterator.getValue();
+            assertTrue(&quot;iterator keys should match&quot;, key == key1);
+            assertTrue(&quot;iterator should skip GC'd keys&quot;, key.intValue() &gt;= 10);
+            assertTrue(&quot;iterator should skip GC'd values&quot;, value.intValue() &gt;= 10);
+        }
+
+    }
+*/
+
+    WeakReference keyReference;
+    WeakReference valueReference;
+
+    public Map buildRefMap() {
+<span class="fc" id="L205">        Object key = new Object();</span>
+<span class="fc" id="L206">        Object value = new Object();</span>
+        
+<span class="fc" id="L208">        keyReference = new WeakReference(key);</span>
+<span class="fc" id="L209">        valueReference = new WeakReference(value);</span>
+        
+<span class="fc" id="L211">        Map testMap = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.HARD, true);</span>
+<span class="fc" id="L212">        testMap.put(key, value);</span>
+ 
+<span class="fc" id="L214">        assertEquals(&quot;In map&quot;, value, testMap.get(key));</span>
+<span class="fc" id="L215">        assertNotNull(&quot;Weak reference released early (1)&quot;, keyReference.get());</span>
+<span class="fc" id="L216">        assertNotNull(&quot;Weak reference released early (2)&quot;, valueReference.get());</span>
+<span class="fc" id="L217">        return testMap;</span>
+    }
+
+    /** Tests whether purge values setting works */
+    public void testPurgeValues() throws Exception {
+        // many thanks to Juozas Baliuka for suggesting this method
+<span class="fc" id="L223">        Map testMap = buildRefMap();</span>
+
+<span class="fc" id="L225">        int iterations = 0;</span>
+<span class="fc" id="L226">        int bytz = 2;</span>
+<span class="fc" id="L227">        while(true) {</span>
+<span class="fc" id="L228">            System.gc();</span>
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">            if(iterations++ &gt; 50){</span>
+<span class="nc" id="L230">                fail(&quot;Max iterations reached before resource released.&quot;);</span>
+            }
+<span class="fc" id="L232">            testMap.isEmpty();</span>
+            if( 
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">                keyReference.get() == null &amp;&amp;</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">                valueReference.get() == null) {</span>
+<span class="fc" id="L236">                break;</span>
+                
+            } else {
+                // create garbage:
+<span class="fc" id="L240">                byte[] b =  new byte[bytz];</span>
+<span class="fc" id="L241">                bytz = bytz * 2;</span>
+            }
+        }
+<span class="fc" id="L244">    }</span>
+
+    private static void gc() {
+        try {
+            // trigger GC
+<span class="nc" id="L249">            byte[][] tooLarge = new byte[1000000000][1000000000];</span>
+<span class="nc" id="L250">            fail(&quot;you have too much RAM&quot;);</span>
+<span class="nc" id="L251">        } catch (OutOfMemoryError ex) {</span>
+<span class="nc" id="L252">            System.gc(); // ignore</span>
+        }
+<span class="nc" id="L254">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

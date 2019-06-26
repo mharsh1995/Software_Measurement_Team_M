@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestLoopingListIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">TestLoopingListIterator.java</span></div><h1>TestLoopingListIterator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+/**
+ * Tests the LoopingListIterator class.
+ *
+ * @version $Revision$ $Date$
+ *
+ * @author Eric Crampton &lt;ccesc@eonomine.com&gt;
+ */
+public class TestLoopingListIterator extends TestCase {
+
+    public TestLoopingListIterator(String testName) {
+<span class="fc" id="L38">        super(testName);</span>
+<span class="fc" id="L39">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L42" title="All 2 branches covered.">        return new TestSuite(TestLoopingListIterator.class);</span>
+    }
+
+    /**
+     * Tests constructor exception.
+     */
+    public void testConstructorEx() throws Exception {
+        try {
+<span class="nc" id="L50">            new LoopingListIterator(null);</span>
+<span class="nc" id="L51">            fail();</span>
+<span class="pc" id="L52">        } catch (NullPointerException ex) {</span>
+        }
+<span class="fc" id="L54">    }</span>
+
+    /**
+     * Tests whether an empty looping list iterator works.
+     */
+    public void testLooping0() throws Exception {
+<span class="fc" id="L60">        List list = new ArrayList();</span>
+<span class="fc" id="L61">        LoopingListIterator loop = new LoopingListIterator(list);</span>
+<span class="fc" id="L62">        assertFalse(loop.hasNext());</span>
+<span class="fc" id="L63">        assertFalse(loop.hasPrevious());</span>
+        
+        try {
+<span class="nc" id="L66">            loop.next();</span>
+<span class="nc" id="L67">            fail();</span>
+<span class="pc" id="L68">        } catch (NoSuchElementException ex) {</span>
+        }
+
+        try {
+<span class="nc" id="L72">            loop.previous();</span>
+<span class="nc" id="L73">            fail();</span>
+<span class="pc" id="L74">        } catch (NoSuchElementException ex) {</span>
+        }
+<span class="fc" id="L76">    }</span>
+
+    /**
+     * Tests whether a looping list iterator works on a list with only
+     * one element.
+     */
+    public void testLooping1() throws Exception {
+<span class="fc" id="L83">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot; }));</span>
+<span class="fc" id="L84">        LoopingListIterator loop = new LoopingListIterator(list); // &lt;a&gt;</span>
+
+<span class="fc" id="L86">        assertTrue(loop.hasNext());</span>
+<span class="fc" id="L87">        assertEquals(&quot;a&quot;, loop.next());     // &lt;a&gt;</span>
+
+<span class="fc" id="L89">        assertTrue(loop.hasNext());</span>
+<span class="fc" id="L90">        assertEquals(&quot;a&quot;, loop.next());     // &lt;a&gt;</span>
+
+<span class="fc" id="L92">        assertTrue(loop.hasNext());</span>
+<span class="fc" id="L93">        assertEquals(&quot;a&quot;, loop.next());     // &lt;a&gt;</span>
+
+<span class="fc" id="L95">        assertTrue(loop.hasPrevious());</span>
+<span class="fc" id="L96">        assertEquals(&quot;a&quot;, loop.previous()); // &lt;a&gt;</span>
+
+<span class="fc" id="L98">        assertTrue(loop.hasPrevious());</span>
+<span class="fc" id="L99">        assertEquals(&quot;a&quot;, loop.previous()); // &lt;a&gt;</span>
+
+<span class="fc" id="L101">        assertTrue(loop.hasPrevious());</span>
+<span class="fc" id="L102">        assertEquals(&quot;a&quot;, loop.previous()); // &lt;a&gt;</span>
+<span class="fc" id="L103">    }</span>
+
+    /**
+     * Tests whether a looping list iterator works on a list with two
+     * elements.
+     */
+    public void testLooping2() throws Exception {
+<span class="fc" id="L110">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot; }));</span>
+<span class="fc" id="L111">        LoopingListIterator loop = new LoopingListIterator(list); // &lt;a&gt; b</span>
+
+<span class="fc" id="L113">        assertTrue(loop.hasNext());</span>
+<span class="fc" id="L114">        assertEquals(&quot;a&quot;, loop.next());     // a &lt;b&gt;</span>
+
+<span class="fc" id="L116">        assertTrue(loop.hasNext());</span>
+<span class="fc" id="L117">        assertEquals(&quot;b&quot;, loop.next());     // &lt;a&gt; b</span>
+
+<span class="fc" id="L119">        assertTrue(loop.hasNext());</span>
+<span class="fc" id="L120">        assertEquals(&quot;a&quot;, loop.next());     // a &lt;b&gt;</span>
+
+        // Reset the iterator and try using previous.
+<span class="fc" id="L123">        loop.reset();                       // &lt;a&gt; b</span>
+
+<span class="fc" id="L125">        assertTrue(loop.hasPrevious());</span>
+<span class="fc" id="L126">        assertEquals(&quot;b&quot;, loop.previous()); // a &lt;b&gt;</span>
+
+<span class="fc" id="L128">        assertTrue(loop.hasPrevious());</span>
+<span class="fc" id="L129">        assertEquals(&quot;a&quot;, loop.previous()); // &lt;a&gt; b</span>
+
+<span class="fc" id="L131">        assertTrue(loop.hasPrevious());</span>
+<span class="fc" id="L132">        assertEquals(&quot;b&quot;, loop.previous()); // a &lt;b&gt;</span>
+<span class="fc" id="L133">    }</span>
+
+    /**
+     * Tests jogging back and forth between two elements, but not over
+     * the begin/end boundary of the list.
+     */
+    public void testJoggingNotOverBoundary() {
+<span class="fc" id="L140">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot; }));</span>
+<span class="fc" id="L141">        LoopingListIterator loop = new LoopingListIterator(list); // &lt;a&gt; b</span>
+    
+        // Try jogging back and forth between the elements, but not
+        // over the begin/end boundary.
+<span class="fc" id="L145">        loop.reset();</span>
+<span class="fc" id="L146">        assertEquals(&quot;a&quot;, loop.next());     // a &lt;b&gt;</span>
+<span class="fc" id="L147">        assertEquals(&quot;a&quot;, loop.previous()); // &lt;a&gt; b</span>
+<span class="fc" id="L148">        assertEquals(&quot;a&quot;, loop.next());     // a &lt;b&gt;</span>
+
+<span class="fc" id="L150">        assertEquals(&quot;b&quot;, loop.next());     // &lt;a&gt; b</span>
+<span class="fc" id="L151">        assertEquals(&quot;b&quot;, loop.previous()); // a &lt;b&gt;</span>
+<span class="fc" id="L152">        assertEquals(&quot;b&quot;, loop.next());     // &lt;a&gt; b</span>
+<span class="fc" id="L153">    }</span>
+
+    /**
+     * Tests jogging back and forth between two elements over the
+     * begin/end boundary of the list.
+     */
+    public void testJoggingOverBoundary() {
+<span class="fc" id="L160">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot; }));</span>
+<span class="fc" id="L161">        LoopingListIterator loop = new LoopingListIterator(list); // &lt;a&gt; b</span>
+    
+        // Try jogging back and forth between the elements, but not
+        // over the begin/end boundary.
+<span class="fc" id="L165">        assertEquals(&quot;b&quot;, loop.previous()); // a &lt;b&gt;</span>
+<span class="fc" id="L166">        assertEquals(&quot;b&quot;, loop.next());     // &lt;a&gt; b</span>
+<span class="fc" id="L167">        assertEquals(&quot;b&quot;, loop.previous()); // a &lt;b&gt;</span>
+
+<span class="fc" id="L169">        assertEquals(&quot;a&quot;, loop.previous()); // &lt;a&gt; b</span>
+<span class="fc" id="L170">        assertEquals(&quot;a&quot;, loop.next());     // a &lt;b&gt;</span>
+<span class="fc" id="L171">        assertEquals(&quot;a&quot;, loop.previous()); // &lt;a&gt; b</span>
+<span class="fc" id="L172">    }</span>
+
+    /**
+     * Tests removing an element from a wrapped ArrayList.
+     */
+    public void testRemovingElementsAndIteratingForward() {
+<span class="fc" id="L178">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; }));</span>
+<span class="fc" id="L179">        LoopingListIterator loop = new LoopingListIterator(list); // &lt;a&gt; b c</span>
+
+<span class="fc" id="L181">        assertTrue(loop.hasNext());</span>
+<span class="fc" id="L182">        assertEquals(&quot;a&quot;, loop.next()); // a &lt;b&gt; c</span>
+<span class="fc" id="L183">        loop.remove();                  // &lt;b&gt; c</span>
+<span class="fc" id="L184">        assertEquals(2, list.size());</span>
+
+<span class="fc" id="L186">        assertTrue(loop.hasNext());</span>
+<span class="fc" id="L187">        assertEquals(&quot;b&quot;, loop.next()); // b &lt;c&gt;</span>
+<span class="fc" id="L188">        loop.remove();                  // &lt;c&gt;</span>
+<span class="fc" id="L189">        assertEquals(1, list.size());</span>
+
+<span class="fc" id="L191">        assertTrue(loop.hasNext());</span>
+<span class="fc" id="L192">        assertEquals(&quot;c&quot;, loop.next()); // &lt;c&gt;</span>
+<span class="fc" id="L193">        loop.remove();                  // ---</span>
+<span class="fc" id="L194">        assertEquals(0, list.size());</span>
+
+<span class="fc" id="L196">        assertFalse(loop.hasNext());</span>
+        try {
+<span class="nc" id="L198">            loop.next();</span>
+<span class="nc" id="L199">            fail();</span>
+<span class="pc" id="L200">        } catch (NoSuchElementException ex) {</span>
+        }
+<span class="fc" id="L202">    }</span>
+
+    /**
+     * Tests removing an element from a wrapped ArrayList.
+     */
+    public void testRemovingElementsAndIteratingBackwards() {
+<span class="fc" id="L208">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; }));</span>
+<span class="fc" id="L209">        LoopingListIterator loop = new LoopingListIterator(list); // &lt;a&gt; b c</span>
+
+<span class="fc" id="L211">        assertTrue(loop.hasPrevious());</span>
+<span class="fc" id="L212">        assertEquals(&quot;c&quot;, loop.previous()); // a b &lt;c&gt;</span>
+<span class="fc" id="L213">        loop.remove();                      // &lt;a&gt; b</span>
+<span class="fc" id="L214">        assertEquals(2, list.size());</span>
+
+<span class="fc" id="L216">        assertTrue(loop.hasPrevious());</span>
+<span class="fc" id="L217">        assertEquals(&quot;b&quot;, loop.previous()); // a &lt;b&gt;</span>
+<span class="fc" id="L218">        loop.remove();                      // &lt;a&gt;</span>
+<span class="fc" id="L219">        assertEquals(1, list.size());</span>
+
+<span class="fc" id="L221">        assertTrue(loop.hasPrevious());</span>
+<span class="fc" id="L222">        assertEquals(&quot;a&quot;, loop.previous()); // &lt;a&gt;</span>
+<span class="fc" id="L223">        loop.remove();                      // ---</span>
+<span class="fc" id="L224">        assertEquals(0, list.size());</span>
+
+<span class="fc" id="L226">        assertFalse(loop.hasPrevious());</span>
+        try {
+<span class="nc" id="L228">            loop.previous();</span>
+<span class="nc" id="L229">            fail();</span>
+<span class="pc" id="L230">        } catch (NoSuchElementException ex) {</span>
+        }
+<span class="fc" id="L232">    }</span>
+
+    /**
+     * Tests the reset method.
+     */
+    public void testReset() {
+<span class="fc" id="L238">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; }));</span>
+<span class="fc" id="L239">        LoopingListIterator loop = new LoopingListIterator(list); // &lt;a&gt; b c</span>
+
+<span class="fc" id="L241">        assertEquals(&quot;a&quot;, loop.next()); // a &lt;b&gt; c</span>
+<span class="fc" id="L242">        assertEquals(&quot;b&quot;, loop.next()); // a b &lt;c&gt;</span>
+<span class="fc" id="L243">        loop.reset();                   // &lt;a&gt; b c</span>
+<span class="fc" id="L244">        assertEquals(&quot;a&quot;, loop.next()); // a &lt;b&gt; c</span>
+<span class="fc" id="L245">        loop.reset();                   // &lt;a&gt; b c</span>
+<span class="fc" id="L246">        assertEquals(&quot;a&quot;, loop.next()); // a &lt;b&gt; c</span>
+<span class="fc" id="L247">        assertEquals(&quot;b&quot;, loop.next()); // a b &lt;c&gt;</span>
+<span class="fc" id="L248">        assertEquals(&quot;c&quot;, loop.next()); // &lt;a&gt; b c</span>
+<span class="fc" id="L249">        loop.reset();                   // &lt;a&gt; b c</span>
+
+<span class="fc" id="L251">        assertEquals(&quot;c&quot;, loop.previous()); // a b &lt;c&gt;</span>
+<span class="fc" id="L252">        assertEquals(&quot;b&quot;, loop.previous()); // a &lt;b&gt; c</span>
+<span class="fc" id="L253">        loop.reset();                       // &lt;a&gt; b c</span>
+<span class="fc" id="L254">        assertEquals(&quot;c&quot;, loop.previous()); // a b &lt;c&gt;</span>
+<span class="fc" id="L255">        loop.reset();                       // &lt;a&gt; b c</span>
+<span class="fc" id="L256">        assertEquals(&quot;c&quot;, loop.previous()); // a b &lt;c&gt;</span>
+<span class="fc" id="L257">        assertEquals(&quot;b&quot;, loop.previous()); // a &lt;b&gt; c</span>
+<span class="fc" id="L258">        assertEquals(&quot;a&quot;, loop.previous()); // &lt;a&gt; b c</span>
+<span class="fc" id="L259">    }</span>
+
+    /**
+     * Tests the add method.
+     */
+    public void testAdd() {
+<span class="fc" id="L265">        List list = new ArrayList(Arrays.asList(new String[] { &quot;b&quot;, &quot;e&quot;, &quot;f&quot; }));</span>
+<span class="fc" id="L266">        LoopingListIterator loop = new LoopingListIterator(list); // &lt;b&gt; e f</span>
+
+<span class="fc" id="L268">        loop.add(&quot;a&quot;);                      // &lt;a&gt; b e f</span>
+<span class="fc" id="L269">        assertEquals(&quot;b&quot;, loop.next());     // a &lt;b&gt; e f</span>
+<span class="fc" id="L270">        loop.reset();                       // &lt;a&gt; b e f</span>
+<span class="fc" id="L271">        assertEquals(&quot;a&quot;, loop.next());     // a &lt;b&gt; e f</span>
+<span class="fc" id="L272">        assertEquals(&quot;b&quot;, loop.next());     // a b &lt;e&gt; f</span>
+
+<span class="fc" id="L274">        loop.add(&quot;c&quot;);                      // a b c &lt;e&gt; f</span>
+<span class="fc" id="L275">        assertEquals(&quot;e&quot;, loop.next());     // a b c e &lt;f&gt;</span>
+<span class="fc" id="L276">        assertEquals(&quot;e&quot;, loop.previous()); // a b c &lt;e&gt; f</span>
+<span class="fc" id="L277">        assertEquals(&quot;c&quot;, loop.previous()); // a b &lt;c&gt; e f</span>
+<span class="fc" id="L278">        assertEquals(&quot;c&quot;, loop.next());     // a b c &lt;e&gt; f</span>
+        
+<span class="fc" id="L280">        loop.add(&quot;d&quot;);                      // a b c d &lt;e&gt; f</span>
+<span class="fc" id="L281">        loop.reset();                       // &lt;a&gt; b c d e f</span>
+<span class="fc" id="L282">        assertEquals(&quot;a&quot;, loop.next());     // a &lt;b&gt; c d e f</span>
+<span class="fc" id="L283">        assertEquals(&quot;b&quot;, loop.next());     // a b &lt;c&gt; d e f</span>
+<span class="fc" id="L284">        assertEquals(&quot;c&quot;, loop.next());     // a b c &lt;d&gt; e f</span>
+<span class="fc" id="L285">        assertEquals(&quot;d&quot;, loop.next());     // a b c d &lt;e&gt; f</span>
+<span class="fc" id="L286">        assertEquals(&quot;e&quot;, loop.next());     // a b c d e &lt;f&gt;</span>
+<span class="fc" id="L287">        assertEquals(&quot;f&quot;, loop.next());     // &lt;a&gt; b c d e f</span>
+<span class="fc" id="L288">        assertEquals(&quot;a&quot;, loop.next());     // a &lt;b&gt; c d e f</span>
+
+<span class="fc" id="L290">        list = new ArrayList(Arrays.asList(new String[] { &quot;b&quot;, &quot;e&quot;, &quot;f&quot; }));</span>
+<span class="fc" id="L291">        loop = new LoopingListIterator(list); // &lt;b&gt; e f        </span>
+
+<span class="fc" id="L293">        loop.add(&quot;a&quot;);                      // a &lt;b&gt; e f</span>
+<span class="fc" id="L294">        assertEquals(&quot;a&quot;, loop.previous()); // a b e &lt;f&gt;</span>
+<span class="fc" id="L295">        loop.reset();                       // &lt;a&gt; b e f</span>
+<span class="fc" id="L296">        assertEquals(&quot;f&quot;, loop.previous()); // a b e &lt;f&gt;</span>
+<span class="fc" id="L297">        assertEquals(&quot;e&quot;, loop.previous()); // a b &lt;e&gt; f</span>
+
+<span class="fc" id="L299">        loop.add(&quot;d&quot;);                      // a b d &lt;e&gt; f</span>
+<span class="fc" id="L300">        assertEquals(&quot;d&quot;, loop.previous()); // a b &lt;d&gt; e f</span>
+
+<span class="fc" id="L302">        loop.add(&quot;c&quot;);                      // a b c &lt;d&gt; e f</span>
+<span class="fc" id="L303">        assertEquals(&quot;c&quot;, loop.previous()); // a b &lt;c&gt; d e f</span>
+
+<span class="fc" id="L305">        loop.reset();</span>
+<span class="fc" id="L306">        assertEquals(&quot;a&quot;, loop.next());     // a &lt;b&gt; c d e f</span>
+<span class="fc" id="L307">        assertEquals(&quot;b&quot;, loop.next());     // a b &lt;c&gt; d e f</span>
+<span class="fc" id="L308">        assertEquals(&quot;c&quot;, loop.next());     // a b c &lt;d&gt; e f</span>
+<span class="fc" id="L309">        assertEquals(&quot;d&quot;, loop.next());     // a b c d &lt;e&gt; f</span>
+<span class="fc" id="L310">        assertEquals(&quot;e&quot;, loop.next());     // a b c d e &lt;f&gt;</span>
+<span class="fc" id="L311">        assertEquals(&quot;f&quot;, loop.next());     // &lt;a&gt; b c d e f</span>
+<span class="fc" id="L312">        assertEquals(&quot;a&quot;, loop.next());     // a &lt;b&gt; c d e f</span>
+<span class="fc" id="L313">    }</span>
+
+    /**
+     * Tests nextIndex and previousIndex.
+     */
+    public void testNextAndPreviousIndex() {
+<span class="fc" id="L319">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; }));</span>
+<span class="fc" id="L320">        LoopingListIterator loop = new LoopingListIterator(list); // &lt;a&gt; b c</span>
+
+<span class="fc" id="L322">        assertEquals(0, loop.nextIndex());</span>
+<span class="fc" id="L323">        assertEquals(2, loop.previousIndex());</span>
+
+<span class="fc" id="L325">        assertEquals(&quot;a&quot;, loop.next());        // a &lt;b&gt; c</span>
+<span class="fc" id="L326">        assertEquals(1, loop.nextIndex());</span>
+<span class="fc" id="L327">        assertEquals(0, loop.previousIndex());</span>
+
+<span class="fc" id="L329">        assertEquals(&quot;a&quot;, loop.previous());    // &lt;a&gt; b c</span>
+<span class="fc" id="L330">        assertEquals(0, loop.nextIndex());</span>
+<span class="fc" id="L331">        assertEquals(2, loop.previousIndex());</span>
+
+<span class="fc" id="L333">        assertEquals(&quot;c&quot;, loop.previous());    // a b &lt;c&gt;</span>
+<span class="fc" id="L334">        assertEquals(2, loop.nextIndex());</span>
+<span class="fc" id="L335">        assertEquals(1, loop.previousIndex());</span>
+
+<span class="fc" id="L337">        assertEquals(&quot;b&quot;, loop.previous());    // a &lt;b&gt; c</span>
+<span class="fc" id="L338">        assertEquals(1, loop.nextIndex());</span>
+<span class="fc" id="L339">        assertEquals(0, loop.previousIndex());</span>
+
+<span class="fc" id="L341">        assertEquals(&quot;a&quot;, loop.previous());    // &lt;a&gt; b c</span>
+<span class="fc" id="L342">        assertEquals(0, loop.nextIndex());</span>
+<span class="fc" id="L343">        assertEquals(2, loop.previousIndex());</span>
+<span class="fc" id="L344">    }</span>
+
+    /**
+     * Tests using the set method to change elements.
+     */
+    public void testSet() {
+<span class="fc" id="L350">        List list = new ArrayList(Arrays.asList(new String[] { &quot;q&quot;, &quot;r&quot;, &quot;z&quot; }));</span>
+<span class="fc" id="L351">        LoopingListIterator loop = new LoopingListIterator(list); // &lt;q&gt; r z</span>
+
+<span class="fc" id="L353">        assertEquals(&quot;z&quot;, loop.previous()); // q r &lt;z&gt;</span>
+<span class="fc" id="L354">        loop.set(&quot;c&quot;);                      // q r &lt;c&gt;</span>
+
+<span class="fc" id="L356">        loop.reset();                       // &lt;q&gt; r c</span>
+<span class="fc" id="L357">        assertEquals(&quot;q&quot;, loop.next());     // q &lt;r&gt; c</span>
+<span class="fc" id="L358">        loop.set(&quot;a&quot;);                      // a &lt;r&gt; c</span>
+        
+<span class="fc" id="L360">        assertEquals(&quot;r&quot;, loop.next());     // a r &lt;c&gt;</span>
+<span class="fc" id="L361">        loop.set(&quot;b&quot;);                      // a b &lt;c&gt;</span>
+
+<span class="fc" id="L363">        loop.reset();                       // &lt;a&gt; b c</span>
+<span class="fc" id="L364">        assertEquals(&quot;a&quot;, loop.next());     // a &lt;b&gt; c</span>
+<span class="fc" id="L365">        assertEquals(&quot;b&quot;, loop.next());     // a b &lt;c&gt;</span>
+<span class="fc" id="L366">        assertEquals(&quot;c&quot;, loop.next());     // &lt;a&gt; b c</span>
+<span class="fc" id="L367">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

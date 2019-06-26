@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestLazySortedMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">TestLazySortedMap.java</span></div><h1>TestLazySortedMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.util.Comparator;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.Factory;
+import org.apache.commons.collections.FactoryUtils;
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections.TransformerUtils;
+
+/**
+ * Extension of {@link TestLazyMap} for exercising the 
+ * {@link LazySortedMap} implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Phil Steitz
+ */
+public class TestLazySortedMap extends AbstractTestSortedMap {
+    
+<span class="fc" id="L43">    protected static final Factory oneFactory = FactoryUtils.constantFactory(&quot;One&quot;);</span>
+<span class="fc" id="L44">    protected static final Factory nullFactory = FactoryUtils.nullFactory();</span>
+    
+    public TestLazySortedMap(String testName) {
+<span class="fc" id="L47">        super(testName);</span>
+<span class="fc" id="L48">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L51" title="All 2 branches covered.">        return new TestSuite(TestLazySortedMap.class);</span>
+    }
+    
+    public static void main(String args[]) {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        String[] testCaseName = { TestLazySortedMap.class.getName()};</span>
+<span class="nc" id="L56">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L57">    }</span>
+
+    //-----------------------------------------------------------------------    
+    protected SortedMap decorateMap(SortedMap map, Factory factory) {
+<span class="fc" id="L61">        return LazySortedMap.decorate(map, factory);</span>
+    }
+    
+    public Map makeEmptyMap() {
+<span class="fc" id="L65">        return decorateMap(new TreeMap(), nullFactory);</span>
+    }
+    
+    protected SortedMap makeTestSortedMap(Factory factory) {
+<span class="fc" id="L69">        return decorateMap(new TreeMap(), factory);</span>
+    }
+    
+    public boolean isSubMapViewsSerializable() {
+        // TreeMap sub map views have a bug in deserialization.
+<span class="nc" id="L74">        return false;</span>
+    }
+
+    public boolean isAllowNullKey() {
+<span class="fc" id="L78">        return false;</span>
+    }
+
+    // from TestLazyMap
+    //-----------------------------------------------------------------------
+    public void testMapGet() {
+<span class="fc" id="L84">        Map map = makeTestSortedMap(oneFactory);</span>
+<span class="fc" id="L85">        assertEquals(0, map.size());</span>
+<span class="fc" id="L86">        String s1 = (String) map.get(&quot;Five&quot;);</span>
+<span class="fc" id="L87">        assertEquals(&quot;One&quot;, s1);</span>
+<span class="fc" id="L88">        assertEquals(1, map.size());</span>
+<span class="fc" id="L89">        String s2 = (String) map.get(new String(new char[] {'F','i','v','e'}));</span>
+<span class="fc" id="L90">        assertEquals(&quot;One&quot;, s2);</span>
+<span class="fc" id="L91">        assertEquals(1, map.size());</span>
+<span class="fc" id="L92">        assertSame(s1, s2);</span>
+        
+<span class="fc" id="L94">        map = makeTestSortedMap(nullFactory);</span>
+<span class="fc" id="L95">        Object o = map.get(&quot;Five&quot;);</span>
+<span class="fc" id="L96">        assertEquals(null,o);</span>
+<span class="fc" id="L97">        assertEquals(1, map.size());</span>
+        
+<span class="fc" id="L99">    }</span>
+    
+    //-----------------------------------------------------------------------
+    public void testSortOrder() {
+<span class="fc" id="L103">        SortedMap map = makeTestSortedMap(oneFactory);</span>
+<span class="fc" id="L104">        map.put(&quot;A&quot;,  &quot;a&quot;);</span>
+<span class="fc" id="L105">        map.get(&quot;B&quot;); // Entry with value &quot;One&quot; created</span>
+<span class="fc" id="L106">        map.put(&quot;C&quot;, &quot;c&quot;);</span>
+<span class="fc" id="L107">        assertEquals(&quot;First key should be A&quot;, map.firstKey(), &quot;A&quot;);</span>
+<span class="fc" id="L108">        assertEquals(&quot;Last key should be C&quot;, map.lastKey(), &quot;C&quot;);</span>
+<span class="fc" id="L109">        assertEquals(&quot;First key in tail map should be B&quot;, </span>
+<span class="fc" id="L110">            map.tailMap(&quot;B&quot;).firstKey(), &quot;B&quot;);</span>
+<span class="fc" id="L111">        assertEquals(&quot;Last key in head map should be B&quot;, </span>
+<span class="fc" id="L112">            map.headMap(&quot;C&quot;).lastKey(), &quot;B&quot;);</span>
+<span class="fc" id="L113">        assertEquals(&quot;Last key in submap should be B&quot;,</span>
+<span class="fc" id="L114">           map.subMap(&quot;A&quot;,&quot;C&quot;).lastKey(), &quot;B&quot;);</span>
+        
+<span class="fc" id="L116">        Comparator c = map.comparator();</span>
+<span class="fc" id="L117">        assertTrue(&quot;natural order, so comparator should be null&quot;, </span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">            c == null);      </span>
+<span class="fc" id="L119">    } </span>
+    
+    public void testTransformerDecorate() {
+<span class="fc" id="L122">        Transformer transformer = TransformerUtils.asTransformer(oneFactory);</span>
+<span class="fc" id="L123">        SortedMap map = LazySortedMap.decorate(new TreeMap(), transformer);     </span>
+<span class="fc" id="L124">        assertTrue(map instanceof LazySortedMap);  </span>
+         try {
+<span class="nc" id="L126">            map = LazySortedMap.decorate(new TreeMap(), (Transformer) null);</span>
+<span class="nc" id="L127">            fail(&quot;Expecting IllegalArgumentException for null transformer&quot;);</span>
+<span class="pc" id="L128">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L132">            map = LazySortedMap.decorate(null, transformer);</span>
+<span class="nc" id="L133">            fail(&quot;Expecting IllegalArgumentException for null map&quot;);</span>
+<span class="pc" id="L134">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        } 
+<span class="fc" id="L137">    }</span>
+    
+    public String getCompatibilityVersion() {
+<span class="fc" id="L140">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/LazySortedMap.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/LazySortedMap.fullCollection.version3.1.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

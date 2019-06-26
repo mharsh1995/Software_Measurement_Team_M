@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestMapEntry.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.keyvalue</a> &gt; <span class="el_source">AbstractTestMapEntry.java</span></div><h1>AbstractTestMapEntry.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.keyvalue;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import junit.framework.TestCase;
+
+/**
+ * Abstract tests that can be extended to test any Map.Entry implementation.
+ * Subclasses must implement {@link #makeMapEntry(Object, Object)} to return
+ * a new Map.Entry of the type being tested. Subclasses must also implement
+ * {@link #testConstructors()} to test the constructors of the Map.Entry
+ * type being tested.
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Neil O'Toole
+ */
+public abstract class AbstractTestMapEntry extends TestCase {
+    
+<span class="fc" id="L38">    protected final String key = &quot;name&quot;;</span>
+<span class="fc" id="L39">    protected final String value = &quot;duke&quot;;</span>
+
+    /**
+     * JUnit constructor.
+     * 
+     * @param testName  the test name
+     */
+    public AbstractTestMapEntry(String testName) {
+<span class="fc" id="L47">        super(testName);</span>
+<span class="fc" id="L48">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Make an instance of Map.Entry with the default (null) key and value.
+     * This implementation simply calls {@link #makeMapEntry(Object, Object)}
+     * with null for key and value. Subclasses can override this method if desired.
+     */
+    public Map.Entry makeMapEntry() {
+<span class="fc" id="L57">        return makeMapEntry(null, null);</span>
+    }
+
+    /**
+     * Make an instance of Map.Entry with the specified key and value.
+     * Subclasses should override this method to return a Map.Entry
+     * of the type being tested.
+     */
+    public abstract Map.Entry makeMapEntry(Object key, Object value);
+
+    /**
+     * Makes a Map.Entry of a type that's known to work correctly.
+     */
+    public Map.Entry makeKnownMapEntry() {
+<span class="fc" id="L71">        return makeKnownMapEntry(null, null);</span>
+    }
+
+    /**
+     * Makes a Map.Entry of a type that's known to work correctly.
+     */
+    public Map.Entry makeKnownMapEntry(Object key, Object value) {
+<span class="fc" id="L78">        Map map = new HashMap(1);</span>
+<span class="fc" id="L79">        map.put(key, value);</span>
+<span class="fc" id="L80">        Map.Entry entry = (Map.Entry) map.entrySet().iterator().next();</span>
+<span class="fc" id="L81">        return entry;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testAccessorsAndMutators() {
+<span class="fc" id="L86">        Map.Entry entry = makeMapEntry(key, value);</span>
+
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        assertTrue(entry.getKey() == key);</span>
+
+<span class="fc" id="L90">        entry.setValue(value);</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        assertTrue(entry.getValue() == value);</span>
+
+        // check that null doesn't do anything funny
+<span class="fc" id="L94">        entry = makeMapEntry(null, null);</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        assertTrue(entry.getKey() == null);</span>
+
+<span class="fc" id="L97">        entry.setValue(null);</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        assertTrue(entry.getValue() == null);</span>
+<span class="fc" id="L99">    }</span>
+
+    /**
+     * Subclasses should override this method to test the
+     * desired behaviour of the class with respect to
+     * handling of self-references.
+     *
+     */
+
+    public void testSelfReferenceHandling() {
+        // test that #setValue does not permit
+        //  the MapEntry to contain itself (and thus cause infinite recursion
+        //  in #hashCode and #toString)
+
+<span class="fc" id="L113">        Map.Entry entry = makeMapEntry();</span>
+
+        try {
+<span class="nc" id="L116">            entry.setValue(entry);</span>
+<span class="nc" id="L117">            fail(&quot;Should throw an IllegalArgumentException&quot;);</span>
+<span class="pc" id="L118">        } catch (IllegalArgumentException iae) {</span>
+            // expected to happen...
+
+            // check that the KVP's state has not changed
+<span class="pc bpc" id="L122" title="2 of 4 branches missed.">            assertTrue(entry.getKey() == null &amp;&amp; entry.getValue() == null);</span>
+        }
+<span class="fc" id="L124">    }</span>
+
+    /**
+     * Subclasses should provide tests for their constructors.
+     *
+     */
+    public abstract void testConstructors();
+
+    public void testEqualsAndHashCode() {
+        // 1. test with object data
+<span class="fc" id="L134">        Map.Entry e1 = makeMapEntry(key, value);</span>
+<span class="fc" id="L135">        Map.Entry e2 = makeKnownMapEntry(key, value);</span>
+
+<span class="fc" id="L137">        assertTrue(e1.equals(e1));</span>
+<span class="fc" id="L138">        assertTrue(e2.equals(e1));</span>
+<span class="fc" id="L139">        assertTrue(e1.equals(e2));</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">        assertTrue(e1.hashCode() == e2.hashCode());</span>
+
+        // 2. test with nulls
+<span class="fc" id="L143">        e1 = makeMapEntry();</span>
+<span class="fc" id="L144">        e2 = makeKnownMapEntry();</span>
+
+<span class="fc" id="L146">        assertTrue(e1.equals(e1));</span>
+<span class="fc" id="L147">        assertTrue(e2.equals(e1));</span>
+<span class="fc" id="L148">        assertTrue(e1.equals(e2));</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">        assertTrue(e1.hashCode() == e2.hashCode());</span>
+<span class="fc" id="L150">    }</span>
+
+    public void testToString() {
+<span class="fc" id="L153">        Map.Entry entry = makeMapEntry(key, value);</span>
+<span class="fc" id="L154">        assertTrue(entry.toString().equals(entry.getKey() + &quot;=&quot; + entry.getValue()));</span>
+
+        // test with nulls
+<span class="fc" id="L157">        entry = makeMapEntry();</span>
+<span class="fc" id="L158">        assertTrue(entry.toString().equals(entry.getKey() + &quot;=&quot; + entry.getValue()));</span>
+<span class="fc" id="L159">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestBinaryHeap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestBinaryHeap.java</span></div><h1>TestBinaryHeap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.NoSuchElementException;
+import java.util.Random;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.collection.AbstractTestCollection;
+import org.apache.commons.collections.comparators.ComparableComparator;
+import org.apache.commons.collections.comparators.ReverseComparator;
+
+/**
+ * Tests the BinaryHeap.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Michael A. Smith
+ */
+public class TestBinaryHeap extends AbstractTestCollection {
+
+    public static Test suite() {
+<span class="pc bfc" id="L43" title="All 2 branches covered.">        return new TestSuite(TestBinaryHeap.class);</span>
+    }
+
+    public TestBinaryHeap(String testName) {
+<span class="fc" id="L47">        super(testName);</span>
+<span class="fc" id="L48">    }</span>
+
+    //-----------------------------------------------------------------------  
+    public void verify() {
+<span class="fc" id="L52">        super.verify();</span>
+<span class="fc" id="L53">        BinaryHeap heap = (BinaryHeap) collection;</span>
+
+<span class="fc" id="L55">        Comparator c = heap.m_comparator;</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (c == null)</span>
+<span class="fc" id="L57">            c = ComparatorUtils.naturalComparator();</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (!heap.m_isMinHeap)</span>
+<span class="nc" id="L59">            c = ComparatorUtils.reversedComparator(c);</span>
+
+<span class="fc" id="L61">        Object[] tree = heap.m_elements;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (int i = 1; i &lt;= heap.m_size; i++) {</span>
+<span class="fc" id="L63">            Object parent = tree[i];</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">            if (i * 2 &lt;= heap.m_size) {</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">                assertTrue(&quot;Parent is less than or equal to its left child&quot;, c.compare(parent, tree[i * 2]) &lt;= 0);</span>
+            }
+<span class="fc bfc" id="L67" title="All 2 branches covered.">            if (i * 2 + 1 &lt; heap.m_size) {</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">                assertTrue(&quot;Parent is less than or equal to its right child&quot;, c.compare(parent, tree[i * 2 + 1]) &lt;= 0);</span>
+            }
+        }
+<span class="fc" id="L71">    }</span>
+
+    //-----------------------------------------------------------------------  
+    /**
+     * Overridden because UnboundedFifoBuffer isn't fail fast.
+     * @return false
+     */
+    public boolean isFailFastSupported() {
+<span class="fc" id="L79">        return false;</span>
+    }
+
+    //-----------------------------------------------------------------------  
+    public Collection makeConfirmedCollection() {
+<span class="fc" id="L84">        return new ArrayList();</span>
+    }
+
+    public Collection makeConfirmedFullCollection() {
+<span class="fc" id="L88">        ArrayList list = new ArrayList();</span>
+<span class="fc" id="L89">        list.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L90">        return list;</span>
+    }
+
+    /**
+     * Return a new, empty {@link Object} to used for testing.
+     */
+    public Collection makeCollection() {
+<span class="fc" id="L97">        return new BinaryHeap();</span>
+    }
+
+    //-----------------------------------------------------------------------  
+    public Object[] getFullElements() {
+<span class="fc" id="L102">        return getFullNonNullStringElements();</span>
+    }
+
+    public Object[] getOtherElements() {
+<span class="fc" id="L106">        return getOtherNonNullStringElements();</span>
+    }
+
+    //-----------------------------------------------------------------------  
+    public void testBasicOps() {
+<span class="fc" id="L111">        BinaryHeap heap = new BinaryHeap();</span>
+
+<span class="fc" id="L113">        assertTrue(&quot;heap should be empty after create&quot;, heap.isEmpty());</span>
+
+        try {
+<span class="nc" id="L116">            heap.peek();</span>
+<span class="nc" id="L117">            fail(&quot;NoSuchElementException should be thrown if peek is called before any elements are inserted&quot;);</span>
+<span class="pc" id="L118">        } catch (NoSuchElementException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L123">            heap.pop();</span>
+<span class="nc" id="L124">            fail(&quot;NoSuchElementException should be thrown if pop is called before any elements are inserted&quot;);</span>
+<span class="pc" id="L125">        } catch (NoSuchElementException e) {</span>
+            // expected
+        }
+
+<span class="fc" id="L129">        heap.insert(&quot;a&quot;);</span>
+<span class="fc" id="L130">        heap.insert(&quot;c&quot;);</span>
+<span class="fc" id="L131">        heap.insert(&quot;e&quot;);</span>
+<span class="fc" id="L132">        heap.insert(&quot;b&quot;);</span>
+<span class="fc" id="L133">        heap.insert(&quot;d&quot;);</span>
+<span class="fc" id="L134">        heap.insert(&quot;n&quot;);</span>
+<span class="fc" id="L135">        heap.insert(&quot;m&quot;);</span>
+<span class="fc" id="L136">        heap.insert(&quot;l&quot;);</span>
+<span class="fc" id="L137">        heap.insert(&quot;k&quot;);</span>
+<span class="fc" id="L138">        heap.insert(&quot;j&quot;);</span>
+<span class="fc" id="L139">        heap.insert(&quot;i&quot;);</span>
+<span class="fc" id="L140">        heap.insert(&quot;h&quot;);</span>
+<span class="fc" id="L141">        heap.insert(&quot;g&quot;);</span>
+<span class="fc" id="L142">        heap.insert(&quot;f&quot;);</span>
+
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        assertTrue(&quot;heap should not be empty after inserts&quot;, !heap.isEmpty());</span>
+
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        for (int i = 0; i &lt; 14; i++) {</span>
+<span class="fc" id="L147">            assertEquals(</span>
+<span class="fc" id="L148">                &quot;peek using default constructor should return minimum value in the binary heap&quot;,</span>
+<span class="fc" id="L149">                String.valueOf((char) ('a' + i)),</span>
+<span class="fc" id="L150">                heap.peek());</span>
+
+<span class="fc" id="L152">            assertEquals(</span>
+<span class="fc" id="L153">                &quot;pop using default constructor should return minimum value in the binary heap&quot;,</span>
+<span class="fc" id="L154">                String.valueOf((char) ('a' + i)),</span>
+<span class="fc" id="L155">                heap.pop());</span>
+
+<span class="fc bfc" id="L157" title="All 2 branches covered.">            if (i + 1 &lt; 14) {</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">                assertTrue(&quot;heap should not be empty before all elements are popped&quot;, !heap.isEmpty());</span>
+<span class="fc" id="L159">            } else {</span>
+<span class="fc" id="L160">                assertTrue(&quot;heap should be empty after all elements are popped&quot;, heap.isEmpty());</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L165">            heap.peek();</span>
+<span class="nc" id="L166">            fail(&quot;NoSuchElementException should be thrown if peek is called after all elements are popped&quot;);</span>
+<span class="pc" id="L167">        } catch (NoSuchElementException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L172">            heap.pop();</span>
+<span class="nc" id="L173">            fail(&quot;NoSuchElementException should be thrown if pop is called after all elements are popped&quot;);</span>
+<span class="pc" id="L174">        } catch (NoSuchElementException e) {</span>
+            // expected
+        }
+<span class="fc" id="L177">    }</span>
+
+    public void testBasicComparatorOps() {
+<span class="fc" id="L180">        BinaryHeap heap = new BinaryHeap(new ReverseComparator(new ComparableComparator()));</span>
+
+<span class="fc" id="L182">        assertTrue(&quot;heap should be empty after create&quot;, heap.isEmpty());</span>
+
+        try {
+<span class="nc" id="L185">            heap.peek();</span>
+<span class="nc" id="L186">            fail(&quot;NoSuchElementException should be thrown if peek is called before any elements are inserted&quot;);</span>
+<span class="pc" id="L187">        } catch (NoSuchElementException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L192">            heap.pop();</span>
+<span class="nc" id="L193">            fail(&quot;NoSuchElementException should be thrown if pop is called before any elements are inserted&quot;);</span>
+<span class="pc" id="L194">        } catch (NoSuchElementException e) {</span>
+            // expected
+        }
+
+<span class="fc" id="L198">        heap.insert(&quot;a&quot;);</span>
+<span class="fc" id="L199">        heap.insert(&quot;c&quot;);</span>
+<span class="fc" id="L200">        heap.insert(&quot;e&quot;);</span>
+<span class="fc" id="L201">        heap.insert(&quot;b&quot;);</span>
+<span class="fc" id="L202">        heap.insert(&quot;d&quot;);</span>
+<span class="fc" id="L203">        heap.insert(&quot;n&quot;);</span>
+<span class="fc" id="L204">        heap.insert(&quot;m&quot;);</span>
+<span class="fc" id="L205">        heap.insert(&quot;l&quot;);</span>
+<span class="fc" id="L206">        heap.insert(&quot;k&quot;);</span>
+<span class="fc" id="L207">        heap.insert(&quot;j&quot;);</span>
+<span class="fc" id="L208">        heap.insert(&quot;i&quot;);</span>
+<span class="fc" id="L209">        heap.insert(&quot;h&quot;);</span>
+<span class="fc" id="L210">        heap.insert(&quot;g&quot;);</span>
+<span class="fc" id="L211">        heap.insert(&quot;f&quot;);</span>
+
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">        assertTrue(&quot;heap should not be empty after inserts&quot;, !heap.isEmpty());</span>
+
+<span class="fc bfc" id="L215" title="All 2 branches covered.">        for (int i = 0; i &lt; 14; i++) {</span>
+
+            // note: since we're using a comparator that reverses items, the
+            // &quot;minimum&quot; item is &quot;n&quot;, and the &quot;maximum&quot; item is &quot;a&quot;.
+
+<span class="fc" id="L220">            assertEquals(</span>
+<span class="fc" id="L221">                &quot;peek using default constructor should return minimum value in the binary heap&quot;,</span>
+<span class="fc" id="L222">                String.valueOf((char) ('n' - i)),</span>
+<span class="fc" id="L223">                heap.peek());</span>
+
+<span class="fc" id="L225">            assertEquals(</span>
+<span class="fc" id="L226">                &quot;pop using default constructor should return minimum value in the binary heap&quot;,</span>
+<span class="fc" id="L227">                String.valueOf((char) ('n' - i)),</span>
+<span class="fc" id="L228">                heap.pop());</span>
+
+<span class="fc bfc" id="L230" title="All 2 branches covered.">            if (i + 1 &lt; 14) {</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">                assertTrue(&quot;heap should not be empty before all elements are popped&quot;, !heap.isEmpty());</span>
+<span class="fc" id="L232">            } else {</span>
+<span class="fc" id="L233">                assertTrue(&quot;heap should be empty after all elements are popped&quot;, heap.isEmpty());</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L238">            heap.peek();</span>
+<span class="nc" id="L239">            fail(&quot;NoSuchElementException should be thrown if peek is called after all elements are popped&quot;);</span>
+<span class="pc" id="L240">        } catch (NoSuchElementException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L245">            heap.pop();</span>
+<span class="nc" id="L246">            fail(&quot;NoSuchElementException should be thrown if pop is called after all elements are popped&quot;);</span>
+<span class="pc" id="L247">        } catch (NoSuchElementException e) {</span>
+            // expected
+        }
+<span class="fc" id="L250">    }</span>
+    
+    /**
+     * Illustrates bad internal heap state reported in Bugzilla PR #235818. 
+     */  
+    public void testAddRemove() {
+<span class="fc" id="L256">        resetEmpty();</span>
+<span class="fc" id="L257">        BinaryHeap heap = (BinaryHeap) collection;</span>
+<span class="fc" id="L258">        heap.add(new Integer(0));</span>
+<span class="fc" id="L259">        heap.add(new Integer(2));</span>
+<span class="fc" id="L260">        heap.add(new Integer(4));</span>
+<span class="fc" id="L261">        heap.add(new Integer(3));</span>
+<span class="fc" id="L262">        heap.add(new Integer(8));</span>
+<span class="fc" id="L263">        heap.add(new Integer(10));</span>
+<span class="fc" id="L264">        heap.add(new Integer(12));</span>
+<span class="fc" id="L265">        heap.add(new Integer(3));</span>
+<span class="fc" id="L266">        confirmed.addAll(heap);</span>
+        // System.out.println(heap);
+<span class="fc" id="L268">        Object obj = new Integer(10);</span>
+<span class="fc" id="L269">        heap.remove(obj);</span>
+<span class="fc" id="L270">        confirmed.remove(obj);</span>
+        // System.out.println(heap);
+<span class="fc" id="L272">        verify();</span>
+<span class="fc" id="L273">    }</span>
+    
+    /**
+     * Generate heaps staring with Integers from 0 - heapSize - 1.
+     * Then perform random add / remove operations, checking
+     * heap order after modifications. Alternates minHeaps, maxHeaps.
+     *
+     * Based on code provided by Steve Phelps in PR #25818
+     *
+     */
+    public void testRandom() {
+<span class="fc" id="L284">        int iterations = 500;</span>
+<span class="fc" id="L285">        int heapSize = 100;</span>
+<span class="fc" id="L286">        int operations = 20;</span>
+<span class="fc" id="L287">        Random randGenerator = new Random();</span>
+<span class="fc" id="L288">        BinaryHeap h = null;</span>
+<span class="fc bfc" id="L289" title="All 2 branches covered.">        for(int i=0; i &lt; iterations; i++) {</span>
+<span class="fc bfc" id="L290" title="All 2 branches covered.">            if (i &lt; iterations / 2) {          </span>
+<span class="fc" id="L291">                h = new BinaryHeap(true);</span>
+<span class="fc" id="L292">            } else {</span>
+<span class="fc" id="L293">                h = new BinaryHeap(false);</span>
+            }
+<span class="fc bfc" id="L295" title="All 2 branches covered.">            for(int r = 0; r &lt; heapSize; r++) {</span>
+<span class="fc" id="L296">                h.add( new Integer( randGenerator.nextInt(heapSize)) );</span>
+            }
+<span class="fc bfc" id="L298" title="All 2 branches covered.">            for( int r = 0; r &lt; operations; r++ ) {</span>
+<span class="fc" id="L299">                h.remove(new Integer(r));</span>
+<span class="fc" id="L300">                h.add(new Integer(randGenerator.nextInt(heapSize)));</span>
+            }
+<span class="fc" id="L302">            checkOrder(h);</span>
+        }
+<span class="fc" id="L304">    }</span>
+     
+    /**
+     * Pops all elements from the heap and verifies that the elements come off
+     * in the correct order.  NOTE: this method empties the heap.
+     */
+    protected void checkOrder(BinaryHeap h) {
+<span class="fc" id="L311">        Integer lastNum = null;</span>
+<span class="fc" id="L312">        Integer num = null;</span>
+<span class="fc" id="L313">        boolean fail = false;</span>
+<span class="fc bfc" id="L314" title="All 2 branches covered.">        while (!h.isEmpty()) {</span>
+<span class="fc" id="L315">            num = (Integer) h.pop();</span>
+<span class="fc bfc" id="L316" title="All 2 branches covered.">            if (h.m_isMinHeap) {</span>
+<span class="pc bpc" id="L317" title="1 of 4 branches missed.">                assertTrue(lastNum == null || num.intValue() &gt;= lastNum.intValue());</span>
+<span class="fc" id="L318">            } else { // max heap</span>
+<span class="pc bpc" id="L319" title="1 of 4 branches missed.">                assertTrue(lastNum == null || num.intValue() &lt;= lastNum.intValue());</span>
+            }
+<span class="fc" id="L321">            lastNum = num;</span>
+<span class="fc" id="L322">            num = null;</span>
+        }
+<span class="fc" id="L324">    }</span>
+    
+    /**
+     * Returns a string showing the contents of the heap formatted as a tree.
+     * Makes no attempt at padding levels or handling wrapping. 
+     */
+    protected String showTree(BinaryHeap h) {
+<span class="nc" id="L331">        int count = 1;</span>
+<span class="nc" id="L332">        StringBuffer buffer = new StringBuffer();</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">        for (int offset = 1; count &lt; h.size() + 1; offset *= 2) {</span>
+<span class="nc bnc" id="L334" title="All 2 branches missed.">            for (int i = offset; i &lt; offset * 2; i++) {</span>
+<span class="nc bnc" id="L335" title="All 4 branches missed.">                if (i &lt; h.m_elements.length &amp;&amp; h.m_elements[i] != null) </span>
+<span class="nc" id="L336">                    buffer.append(h.m_elements[i] + &quot; &quot;);</span>
+<span class="nc" id="L337">                count++;</span>
+            }
+<span class="nc" id="L339">            buffer.append('\n');</span>
+        }
+<span class="nc" id="L341">        return buffer.toString();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

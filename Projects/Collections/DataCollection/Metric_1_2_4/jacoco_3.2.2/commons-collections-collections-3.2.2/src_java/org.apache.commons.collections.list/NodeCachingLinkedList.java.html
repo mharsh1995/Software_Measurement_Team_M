@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>NodeCachingLinkedList.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.list</a> &gt; <span class="el_source">NodeCachingLinkedList.java</span></div><h1>NodeCachingLinkedList.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.list;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Collection;
+
+/**
+ * A &lt;code&gt;List&lt;/code&gt; implementation that stores a cache of internal Node objects
+ * in an effort to reduce wasteful object creation.
+ * &lt;p&gt;
+ * A linked list creates one Node for each item of data added. This can result in
+ * a lot of object creation and garbage collection. This implementation seeks to
+ * avoid that by maintaining a store of cached nodes.
+ * &lt;p&gt;
+ * This implementation is suitable for long-lived lists where both add and remove
+ * are used. Short-lived lists, or lists which only grow will have worse performance
+ * using this class.
+ * &lt;p&gt;
+ * &lt;b&gt;Note that this implementation is not synchronized.&lt;/b&gt;
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Jeff Varszegi
+ * @author Rich Dougherty
+ * @author Phil Steitz
+ * @author Stephen Colebourne
+ */
+public class NodeCachingLinkedList extends AbstractLinkedList implements Serializable {
+
+    /** Serialization version */
+    private static final long serialVersionUID = 6897789178562232073L;
+
+    /**
+     * The default value for {@link #maximumCacheSize}.
+     */
+    protected static final int DEFAULT_MAXIMUM_CACHE_SIZE = 20;
+
+    /**
+     * The first cached node, or &lt;code&gt;null&lt;/code&gt; if no nodes are cached.
+     * Cached nodes are stored in a singly-linked list with
+     * &lt;code&gt;next&lt;/code&gt; pointing to the next element.
+     */
+    protected transient Node firstCachedNode;
+    
+    /**
+     * The size of the cache.
+     */
+    protected transient int cacheSize;
+
+    /**
+     * The maximum size of the cache.
+     */
+    protected int maximumCacheSize;
+
+    //-----------------------------------------------------------------------
+    /**
+     * Constructor that creates.
+     */
+    public NodeCachingLinkedList() {
+<span class="fc" id="L79">        this(DEFAULT_MAXIMUM_CACHE_SIZE);</span>
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * Constructor that copies the specified collection
+     * 
+     * @param coll  the collection to copy
+     */
+    public NodeCachingLinkedList(Collection coll) {
+<span class="nc" id="L88">        super(coll);</span>
+<span class="nc" id="L89">        this.maximumCacheSize = DEFAULT_MAXIMUM_CACHE_SIZE;</span>
+<span class="nc" id="L90">    }</span>
+    
+    /**
+     * Constructor that species the maximum cache size.
+     *
+     * @param maximumCacheSize  the maximum cache size
+     */
+    public NodeCachingLinkedList(int maximumCacheSize) {
+<span class="fc" id="L98">        super();</span>
+<span class="fc" id="L99">        this.maximumCacheSize = maximumCacheSize;</span>
+<span class="fc" id="L100">        init();  // must call init() as use super();</span>
+<span class="fc" id="L101">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Gets the maximum size of the cache.
+     * 
+     * @return the maximum cache size
+     */
+    protected int getMaximumCacheSize() {
+<span class="nc" id="L110">        return maximumCacheSize;</span>
+    }
+
+    /**
+     * Sets the maximum size of the cache.
+     * 
+     * @param maximumCacheSize  the new maximum cache size
+     */
+    protected void setMaximumCacheSize(int maximumCacheSize) {
+<span class="fc" id="L119">        this.maximumCacheSize = maximumCacheSize;</span>
+<span class="fc" id="L120">        shrinkCacheToMaximumSize();</span>
+<span class="fc" id="L121">    }</span>
+
+    /**
+     * Reduce the size of the cache to the maximum, if necessary.
+     */
+    protected void shrinkCacheToMaximumSize() {
+        // Rich Dougherty: This could be more efficient.
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        while (cacheSize &gt; maximumCacheSize) {</span>
+<span class="fc" id="L129">            getNodeFromCache();</span>
+        }
+<span class="fc" id="L131">    }</span>
+    
+    /**
+     * Gets a node from the cache. If a node is returned, then the value of
+     * {@link #cacheSize} is decreased accordingly. The node that is returned
+     * will have &lt;code&gt;null&lt;/code&gt; values for next, previous and element.
+     *
+     * @return a node, or &lt;code&gt;null&lt;/code&gt; if there are no nodes in the cache.
+     */
+    protected Node getNodeFromCache() {
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (cacheSize == 0) {</span>
+<span class="fc" id="L142">            return null;</span>
+        }
+<span class="fc" id="L144">        Node cachedNode = firstCachedNode;</span>
+<span class="fc" id="L145">        firstCachedNode = cachedNode.next;</span>
+<span class="fc" id="L146">        cachedNode.next = null; // This should be changed anyway, but defensively</span>
+                                // set it to null.                    
+<span class="fc" id="L148">        cacheSize--;</span>
+<span class="fc" id="L149">        return cachedNode;</span>
+    }
+    
+    /**
+     * Checks whether the cache is full.
+     * 
+     * @return true if the cache is full
+     */
+    protected boolean isCacheFull() {
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        return cacheSize &gt;= maximumCacheSize;</span>
+    }
+    
+    /**
+     * Adds a node to the cache, if the cache isn't full.
+     * The node's contents are cleared to so they can be garbage collected.
+     * 
+     * @param node  the node to add to the cache
+     */
+    protected void addNodeToCache(Node node) {
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        if (isCacheFull()) {</span>
+            // don't cache the node.
+<span class="fc" id="L170">            return;</span>
+        }
+        // clear the node's contents and add it to the cache.
+<span class="fc" id="L173">        Node nextCachedNode = firstCachedNode;</span>
+<span class="fc" id="L174">        node.previous = null;</span>
+<span class="fc" id="L175">        node.next = nextCachedNode;</span>
+<span class="fc" id="L176">        node.setValue(null);</span>
+<span class="fc" id="L177">        firstCachedNode = node;</span>
+<span class="fc" id="L178">        cacheSize++;</span>
+<span class="fc" id="L179">    }</span>
+
+    //-----------------------------------------------------------------------    
+    /**
+     * Creates a new node, either by reusing one from the cache or creating
+     * a new one.
+     * 
+     * @param value  value of the new node
+     * @return the newly created node
+     */
+    protected Node createNode(Object value) {
+<span class="fc" id="L190">        Node cachedNode = getNodeFromCache();</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">        if (cachedNode == null) {</span>
+<span class="fc" id="L192">            return super.createNode(value);</span>
+        } else {
+<span class="fc" id="L194">            cachedNode.setValue(value);</span>
+<span class="fc" id="L195">            return cachedNode;</span>
+        }
+    }
+
+    /**
+     * Removes the node from the list, storing it in the cache for reuse
+     * if the cache is not yet full.
+     * 
+     * @param node  the node to remove
+     */
+    protected void removeNode(Node node) {
+<span class="fc" id="L206">        super.removeNode(node);</span>
+<span class="fc" id="L207">        addNodeToCache(node);</span>
+<span class="fc" id="L208">    }</span>
+    
+    /**
+     * Removes all the nodes from the list, storing as many as required in the
+     * cache for reuse.
+     * 
+     */
+    protected void removeAllNodes() {
+        // Add the removed nodes to the cache, then remove the rest.
+        // We can add them to the cache before removing them, since
+        // {@link AbstractLinkedList.removeAllNodes()} removes the
+        // nodes by removing references directly from {@link #header}.
+<span class="fc" id="L220">        int numberOfNodesToCache = Math.min(size, maximumCacheSize - cacheSize);</span>
+<span class="fc" id="L221">        Node node = header.next;</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        for (int currentIndex = 0; currentIndex &lt; numberOfNodesToCache; currentIndex++) {</span>
+<span class="fc" id="L223">            Node oldNode = node;</span>
+<span class="fc" id="L224">            node = node.next;</span>
+<span class="fc" id="L225">            addNodeToCache(oldNode);</span>
+        }
+<span class="fc" id="L227">        super.removeAllNodes();        </span>
+<span class="fc" id="L228">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Serializes the data held in this object to the stream specified.
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+<span class="fc" id="L235">        out.defaultWriteObject();</span>
+<span class="fc" id="L236">        doWriteObject(out);</span>
+<span class="fc" id="L237">    }</span>
+
+    /**
+     * Deserializes the data held in this object to the stream specified.
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L243">        in.defaultReadObject();</span>
+<span class="fc" id="L244">        doReadObject(in);</span>
+<span class="fc" id="L245">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

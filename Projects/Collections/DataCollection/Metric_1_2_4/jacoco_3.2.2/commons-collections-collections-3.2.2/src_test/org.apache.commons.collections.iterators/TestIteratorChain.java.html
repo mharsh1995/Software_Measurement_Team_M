@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestIteratorChain.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">TestIteratorChain.java</span></div><h1>TestIteratorChain.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.collections.Predicate;
+
+/**
+ * Tests the IteratorChain class.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author James Strachan
+ * @author Mauricio S. Moura
+ * @author Morgan Delagrange
+ */
+public class TestIteratorChain extends AbstractTestIterator {
+
+<span class="fc" id="L41">    protected String[] testArray = {</span>
+<span class="fc" id="L42">        &quot;One&quot;, &quot;Two&quot;, &quot;Three&quot;, &quot;Four&quot;, &quot;Five&quot;, &quot;Six&quot;</span>
+    };
+
+<span class="fc" id="L45">    protected List list1 = null;</span>
+<span class="fc" id="L46">    protected List list2 = null;</span>
+<span class="fc" id="L47">    protected List list3 = null;</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L50" title="All 2 branches covered.">        return new TestSuite(TestIteratorChain.class);</span>
+    }
+
+    public TestIteratorChain(String testName) {
+<span class="fc" id="L54">        super(testName);</span>
+<span class="fc" id="L55">    }</span>
+
+    public void setUp() {
+<span class="fc" id="L58">        list1 = new ArrayList();</span>
+<span class="fc" id="L59">        list1.add(&quot;One&quot;);</span>
+<span class="fc" id="L60">        list1.add(&quot;Two&quot;);</span>
+<span class="fc" id="L61">        list1.add(&quot;Three&quot;);</span>
+<span class="fc" id="L62">        list2 = new ArrayList();</span>
+<span class="fc" id="L63">        list2.add(&quot;Four&quot;);</span>
+<span class="fc" id="L64">        list3 = new ArrayList();</span>
+<span class="fc" id="L65">        list3.add(&quot;Five&quot;);</span>
+<span class="fc" id="L66">        list3.add(&quot;Six&quot;);        </span>
+<span class="fc" id="L67">    }</span>
+
+    public Iterator makeEmptyIterator() {
+<span class="fc" id="L70">        ArrayList list = new ArrayList();</span>
+<span class="fc" id="L71">        return new IteratorChain(list.iterator());</span>
+    }
+
+    public Iterator makeFullIterator() {
+<span class="fc" id="L75">        IteratorChain chain = new IteratorChain();</span>
+
+<span class="fc" id="L77">        chain.addIterator(list1.iterator());</span>
+<span class="fc" id="L78">        chain.addIterator(list2.iterator());</span>
+<span class="fc" id="L79">        chain.addIterator(list3.iterator());</span>
+<span class="fc" id="L80">        return chain;</span>
+    }
+
+    public void testIterator() {
+<span class="fc" id="L84">        Iterator iter = (Iterator) makeFullIterator();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        for ( int i = 0; i &lt; testArray.length; i++ ) {</span>
+<span class="fc" id="L86">            Object testValue = testArray[i];            </span>
+<span class="fc" id="L87">            Object iterValue = iter.next();</span>
+
+<span class="fc" id="L89">            assertEquals( &quot;Iteration value is correct&quot;, testValue, iterValue );</span>
+        }
+
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        assertTrue(&quot;Iterator should now be empty&quot;, ! iter.hasNext() );</span>
+
+        try {
+<span class="nc" id="L95">            Object testValue = iter.next();</span>
+<span class="pc" id="L96">        } catch (Exception e) {</span>
+<span class="fc" id="L97">            assertTrue(&quot;NoSuchElementException must be thrown&quot;, </span>
+<span class="fc" id="L98">                       e.getClass().equals((new NoSuchElementException()).getClass()));</span>
+        }
+<span class="fc" id="L100">    }</span>
+
+    public void testRemoveFromFilteredIterator() {
+
+<span class="fc" id="L104">        final Predicate myPredicate = new Predicate() {</span>
+            public boolean evaluate( Object object ) {
+<span class="fc" id="L106">                Integer i = (Integer) object;</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">                if (i.compareTo(new Integer(4)) &lt; 0)</span>
+<span class="fc" id="L108">                    return true;</span>
+<span class="fc" id="L109">                return false;</span>
+            }
+        };
+
+<span class="fc" id="L113">        List list1 = new ArrayList();</span>
+<span class="fc" id="L114">        List list2 = new ArrayList();</span>
+
+<span class="fc" id="L116">        list1.add(new Integer(1));</span>
+<span class="fc" id="L117">        list1.add(new Integer(2));</span>
+<span class="fc" id="L118">        list2.add(new Integer(3));</span>
+<span class="fc" id="L119">        list2.add(new Integer(4)); // will be ignored by the predicate</span>
+
+<span class="fc" id="L121">        Iterator it1 = IteratorUtils.filteredIterator(list1.iterator(), myPredicate );</span>
+<span class="fc" id="L122">        Iterator it2 = IteratorUtils.filteredIterator(list2.iterator(), myPredicate );</span>
+
+<span class="fc" id="L124">        Iterator it = IteratorUtils.chainedIterator(it1, it2);</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L126">            it.next();</span>
+<span class="fc" id="L127">            it.remove();</span>
+        }
+<span class="fc" id="L129">        assertEquals( 0, list1.size() );</span>
+<span class="fc" id="L130">        assertEquals( 1, list2.size() );</span>
+
+<span class="fc" id="L132">    }</span>
+    
+    public void testRemove() {
+<span class="fc" id="L135">        Iterator iter = (Iterator) makeFullIterator();</span>
+
+        try {
+<span class="nc" id="L138">            iter.remove();</span>
+<span class="nc" id="L139">            fail(&quot;Calling remove before the first call to next() should throw an exception&quot;);</span>
+<span class="pc" id="L140">        } catch (IllegalStateException e) {</span>
+
+        }
+
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        for ( int i = 0; i &lt; testArray.length; i++ ) {</span>
+<span class="fc" id="L145">            Object testValue = testArray[i];            </span>
+<span class="fc" id="L146">            Object iterValue = iter.next();</span>
+
+<span class="fc" id="L148">            assertEquals( &quot;Iteration value is correct&quot;, testValue, iterValue );</span>
+
+<span class="fc bfc" id="L150" title="All 2 branches covered.">            if (! iterValue.equals(&quot;Four&quot;)) {</span>
+<span class="fc" id="L151">                iter.remove();</span>
+            }
+        }
+
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">        assertTrue(&quot;List is empty&quot;,list1.size() == 0);</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        assertTrue(&quot;List is empty&quot;,list2.size() == 1);</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        assertTrue(&quot;List is empty&quot;,list3.size() == 0);</span>
+<span class="fc" id="L158">    }</span>
+
+    public void testFirstIteratorIsEmptyBug() {
+<span class="fc" id="L161">        List empty = new ArrayList();</span>
+<span class="fc" id="L162">        List notEmpty = new ArrayList();</span>
+<span class="fc" id="L163">        notEmpty.add(&quot;A&quot;);</span>
+<span class="fc" id="L164">        notEmpty.add(&quot;B&quot;);</span>
+<span class="fc" id="L165">        notEmpty.add(&quot;C&quot;);</span>
+<span class="fc" id="L166">        IteratorChain chain = new IteratorChain();</span>
+<span class="fc" id="L167">        chain.addIterator(empty.iterator());</span>
+<span class="fc" id="L168">        chain.addIterator(notEmpty.iterator());</span>
+<span class="fc" id="L169">        assertTrue(&quot;should have next&quot;,chain.hasNext());</span>
+<span class="fc" id="L170">        assertEquals(&quot;A&quot;,chain.next());</span>
+<span class="fc" id="L171">        assertTrue(&quot;should have next&quot;,chain.hasNext());</span>
+<span class="fc" id="L172">        assertEquals(&quot;B&quot;,chain.next());</span>
+<span class="fc" id="L173">        assertTrue(&quot;should have next&quot;,chain.hasNext());</span>
+<span class="fc" id="L174">        assertEquals(&quot;C&quot;,chain.next());</span>
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">        assertTrue(&quot;should not have next&quot;,!chain.hasNext());</span>
+<span class="fc" id="L176">    }</span>
+    
+    public void testEmptyChain() {
+<span class="fc" id="L179">        IteratorChain chain = new IteratorChain();</span>
+<span class="fc" id="L180">        assertEquals(false, chain.hasNext());</span>
+        try {
+<span class="nc" id="L182">            chain.next();</span>
+<span class="nc" id="L183">            fail();</span>
+<span class="pc" id="L184">        } catch (NoSuchElementException ex) {}</span>
+        try {
+<span class="nc" id="L186">            chain.remove();</span>
+<span class="nc" id="L187">            fail();</span>
+<span class="pc" id="L188">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L189">    }</span>
+        
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

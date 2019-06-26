@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ProxyIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">ProxyIterator.java</span></div><h1>ProxyIterator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.Iterator;
+
+/** 
+ * A Proxy {@link Iterator Iterator} which delegates its methods to a proxy instance.
+ *
+ * @deprecated Use AbstractIteratorDecorator. Will be removed in v4.0
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ * 
+ * @author James Strachan
+ */
+public class ProxyIterator implements Iterator {
+    
+    /** Holds value of property iterator. */
+    private Iterator iterator;
+    
+    // Constructors
+    //-------------------------------------------------------------------------
+
+    /**
+     * Constructs a new &lt;code&gt;ProxyIterator&lt;/code&gt; that will not function
+     * until {@link #setIterator(Iterator)} is called.
+     */
+    public ProxyIterator() {
+<span class="nc" id="L43">        super();</span>
+<span class="nc" id="L44">    }</span>
+    
+    /**
+     * Constructs a new &lt;code&gt;ProxyIterator&lt;/code&gt; that will use the
+     * given iterator.
+     *
+     * @param iterator  the underlying iterator
+     */
+    public ProxyIterator(Iterator iterator) {
+<span class="nc" id="L53">        super();</span>
+<span class="nc" id="L54">        this.iterator = iterator;</span>
+<span class="nc" id="L55">    }</span>
+
+    // Iterator interface
+    //-------------------------------------------------------------------------
+
+    /**
+     *  Returns true if the underlying iterator has more elements.
+     *
+     *  @return true if the underlying iterator has more elements
+     */
+    public boolean hasNext() {
+<span class="nc" id="L66">        return getIterator().hasNext();</span>
+    }
+
+    /**
+     *  Returns the next element from the underlying iterator.
+     *
+     *  @return the next element from the underlying iterator
+     *  @throws java.util.NoSuchElementException  if the underlying iterator 
+     *    raises it because it has no more elements
+     */
+    public Object next() {
+<span class="nc" id="L77">        return getIterator().next();</span>
+    }
+
+    /**
+     *  Removes the last returned element from the collection that spawned
+     *  the underlying iterator.
+     */
+    public void remove() {
+<span class="nc" id="L85">        getIterator().remove();</span>
+<span class="nc" id="L86">    }</span>
+
+    // Properties
+    //-------------------------------------------------------------------------
+    /** Getter for property iterator.
+     * @return Value of property iterator.
+     */
+    public Iterator getIterator() {
+<span class="nc" id="L94">        return iterator;</span>
+    }
+    /** Setter for property iterator.
+     * @param iterator New value of property iterator.
+     */
+    public void setIterator(Iterator iterator) {
+<span class="nc" id="L100">        this.iterator = iterator;</span>
+<span class="nc" id="L101">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

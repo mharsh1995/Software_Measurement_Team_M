@@ -1,0 +1,2817 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestDoubleOrderedMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestDoubleOrderedMap.java</span></div><h1>TestDoubleOrderedMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.map.AbstractTestMap;
+
+/**
+ * Class TestDoubleOrderedMap
+ * &lt;p&gt;
+ * Test cases for DoubleOrderedMap.  This class cannot
+ * implement TestMap.SupportsPut, because it is a special
+ * Map that does not support duplicate keys, duplicate 
+ * values, or null values.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Marc Johnson
+ * @author Stephen Colebourne
+ */
+public class TestDoubleOrderedMap extends AbstractTestMap  {
+
+    /**
+     * constructor
+     *
+     * @param name
+     */
+    public TestDoubleOrderedMap(final String name) {
+<span class="fc" id="L54">        super(name);</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * create a suite of the tests in this class
+     *
+     * @return the test suite
+     */
+    public static Test suite() {
+<span class="pc bfc" id="L63" title="All 2 branches covered.">        return BulkTest.makeSuite(TestDoubleOrderedMap.class);</span>
+    }
+
+    /**
+     *  The default comparator in double ordered map does not allow null keys.
+     **/
+    public boolean isAllowNullKey() {
+<span class="fc" id="L70">        return false;</span>
+    }
+
+    /**
+     *  The default comparator in double ordered map does not allow null keys,
+     *  and values are keys in this map.
+     **/
+    public boolean isAllowNullValue() {
+<span class="fc" id="L78">        return false;</span>
+    }
+
+    /**
+     *  Double ordered map does not support duplicate values
+     **/
+    public boolean isAllowDuplicateValues() {
+<span class="fc" id="L85">        return false;</span>
+    }
+    
+    /**
+     * Change the Map.put() test because it tries put with the same key
+     * which is invalid in the modified double ordered map contract. (The
+     * DoubleOrderedMap documentation states that an IllegalArgumentException
+     * is thrown when a key is tried to be put into the map again.  This
+     * differs from the standard Map contract which would replace the value
+     * for that key and return it.
+     */
+    public boolean isPutChangeSupported() {
+<span class="fc" id="L97">        return false;</span>
+    }
+
+    /**
+     * setValue() is not supported as it can change the map.
+     */
+    public boolean isSetValueSupported() {
+<span class="fc" id="L104">        return false;</span>
+    }
+
+    public Map makeEmptyMap() {
+<span class="fc" id="L108">        return new DoubleOrderedMap();</span>
+    }
+
+    protected Map makeMap() {
+<span class="fc" id="L112">        return new DoubleOrderedMap();</span>
+    }
+
+    /**
+     * test size() method
+     */
+    public void testSize() {
+
+<span class="fc" id="L120">        Map m = makeMap();</span>
+
+<span class="fc" id="L122">        assertEquals(0, m.size());</span>
+
+<span class="fc" id="L124">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L127">            m.put(nodes[k].getKey(), nodes[k].getValue());</span>
+<span class="fc" id="L128">            assertEquals(k + 1, m.size());</span>
+        }
+
+<span class="fc" id="L131">        int count = m.size();</span>
+
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L134">            m.remove(nodes[k].getKey());</span>
+
+<span class="fc" id="L136">            --count;</span>
+
+<span class="fc" id="L138">            assertEquals(count, m.size());</span>
+
+            // failed remove should not affect size
+<span class="fc" id="L141">            m.remove(nodes[k].getKey());</span>
+<span class="fc" id="L142">            assertEquals(count, m.size());</span>
+        }
+<span class="fc" id="L144">    }</span>
+
+    /**
+     * test IsEmpty() method
+     */
+    public void testIsEmpty() {
+
+<span class="fc" id="L151">        Map m = makeMap();</span>
+
+<span class="fc" id="L153">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L155">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L158">            m.put(nodes[k].getKey(), nodes[k].getValue());</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">            assertTrue(!m.isEmpty());</span>
+        }
+
+<span class="fc" id="L162">        int count = m.size();</span>
+
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L165">            m.remove(nodes[k].getKey());</span>
+
+<span class="fc" id="L167">            --count;</span>
+
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            if (count == 0) {</span>
+<span class="fc" id="L170">                assertTrue(m.isEmpty());</span>
+<span class="fc" id="L171">            } else {</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">                assertTrue(!m.isEmpty());</span>
+            }
+
+            // failed remove should not affect emptiness
+<span class="fc" id="L176">            m.remove(nodes[k].getKey());</span>
+
+<span class="fc bfc" id="L178" title="All 2 branches covered.">            if (count == 0) {</span>
+<span class="fc" id="L179">                assertTrue(m.isEmpty());</span>
+<span class="fc" id="L180">            } else {</span>
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">                assertTrue(!m.isEmpty());</span>
+            }
+        }
+<span class="fc" id="L184">    }</span>
+
+    /**
+     * test containsKey() method
+     */
+    public void testContainsKey() {
+
+<span class="fc" id="L191">        Map m = makeMap();</span>
+
+        try {
+<span class="nc" id="L194">            m.containsKey(new Object());</span>
+<span class="nc" id="L195">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L196">        } catch (ClassCastException ignored) {}</span>
+
+        try {
+<span class="nc" id="L199">            m.containsKey(null);</span>
+<span class="nc" id="L200">            fail(&quot;should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L201">        } catch (NullPointerException ignored) {}</span>
+
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">        assertTrue(!m.containsKey(&quot;foo&quot;));</span>
+
+<span class="fc" id="L205">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L208">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L209">            assertTrue(m.containsKey(nodes[k].getKey()));</span>
+        }
+
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">        assertTrue(!m.containsKey(new Integer(-1)));</span>
+
+        try {
+<span class="nc" id="L215">            m.containsKey(&quot;foo&quot;);</span>
+<span class="nc" id="L216">            fail(&quot;Should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L217">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc bfc" id="L219" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L220">            m.remove(nodes[k].getKey());</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">            assertTrue(!m.containsKey(nodes[k].getKey()));</span>
+        }
+<span class="fc" id="L223">    }</span>
+
+    /**
+     * test containsValue() method
+     */
+    public void testContainsValue() {
+
+<span class="fc" id="L230">        Map           m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L231">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L233" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L234">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L235">            assertTrue(m.containsValue(nodes[k]));</span>
+        }
+
+<span class="fc bfc" id="L238" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L239">            m.remove(nodes[k].getKey());</span>
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">            assertTrue(!m.containsValue(nodes[k]));</span>
+        }
+<span class="fc" id="L242">    }</span>
+
+    /**
+     * test get() method
+     */
+    public void testGet() {
+
+<span class="fc" id="L249">        Map m = makeMap();</span>
+
+        try {
+<span class="nc" id="L252">            m.get(new Object());</span>
+<span class="nc" id="L253">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L254">        } catch (ClassCastException ignored) {}</span>
+
+        try {
+<span class="nc" id="L257">            m.get(null);</span>
+<span class="nc" id="L258">            fail(&quot;should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L259">        } catch (NullPointerException ignored) {}</span>
+
+<span class="fc" id="L261">        assertNull(m.get(&quot;foo&quot;));</span>
+
+<span class="fc" id="L263">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L265" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L266">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L267">            assertSame(m.get(nodes[k].getKey()), nodes[k]);</span>
+        }
+
+<span class="fc" id="L270">        assertNull(m.get(new Integer(-1)));</span>
+
+        try {
+<span class="nc" id="L273">            m.get(&quot;foo&quot;);</span>
+<span class="nc" id="L274">            fail(&quot;Should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L275">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc bfc" id="L277" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L278">            assertNotNull(m.get(nodes[k].getKey()));</span>
+<span class="fc" id="L279">            m.remove(nodes[k].getKey());</span>
+<span class="fc" id="L280">            assertNull(m.get(nodes[k].getKey()));</span>
+        }
+<span class="fc" id="L282">    }</span>
+
+    /**
+     * test put() method
+     */
+    public void testPut() {
+
+<span class="fc" id="L289">        Map m = makeMap();</span>
+
+        try {
+<span class="nc" id="L292">            m.put(new Object(), &quot;foo&quot;);</span>
+<span class="nc" id="L293">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L294">        } catch (ClassCastException ignored) {}</span>
+
+        try {
+<span class="nc" id="L297">            m.put(null, &quot;foo&quot;);</span>
+<span class="nc" id="L298">            fail(&quot;should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L299">        } catch (NullPointerException ignored) {}</span>
+
+        try {
+<span class="nc" id="L302">            m.put(&quot;foo&quot;, null);</span>
+<span class="nc" id="L303">            fail(&quot;should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L304">        } catch (NullPointerException ignored) {}</span>
+
+        try {
+<span class="nc" id="L307">            m.put(&quot;foo&quot;, new Object());</span>
+<span class="nc" id="L308">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L309">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc" id="L311">        LocalTestNode[] nodes = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L313" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L314">            assertNull(m.put(nodes[k].getKey(), nodes[k].getValue()));</span>
+
+            try {
+<span class="nc" id="L317">                m.put(nodes[k].getKey(), &quot;foo&quot;);</span>
+<span class="pc" id="L318">            } catch (IllegalArgumentException ignored) {}</span>
+        }
+<span class="fc" id="L320">    }</span>
+
+    /**
+     * test remove() method
+     */
+    public void testRemove() {
+
+<span class="fc" id="L327">        DoubleOrderedMap m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L328">        LocalTestNode    nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L330" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L331">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+        try {
+<span class="nc" id="L335">            m.remove(null);</span>
+<span class="nc" id="L336">            fail(&quot;should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L337">        } catch (NullPointerException ignored) {}</span>
+
+        try {
+<span class="nc" id="L340">            m.remove(new Object());</span>
+<span class="nc" id="L341">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L342">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc" id="L344">        assertNull(m.remove(new Integer(-1)));</span>
+
+        try {
+<span class="nc" id="L347">            m.remove(&quot;foo&quot;);</span>
+<span class="nc" id="L348">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L349">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc bfc" id="L351" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k += 2) {</span>
+<span class="fc" id="L352">            Comparable key = nodes[k].getKey();</span>
+
+<span class="fc" id="L354">            assertNotNull(m.get(key));</span>
+<span class="fc" id="L355">            assertSame(nodes[k], m.remove(key));</span>
+<span class="fc" id="L356">            assertNull(m.remove(key));</span>
+<span class="fc" id="L357">            assertNull(m.get(key));</span>
+        }
+
+<span class="fc bfc" id="L360" title="All 2 branches covered.">        for (int k = 1; k &lt; nodes.length; k += 2) {</span>
+<span class="fc" id="L361">            Comparable key = nodes[k].getKey();</span>
+
+<span class="fc" id="L363">            assertNotNull(m.get(key));</span>
+<span class="fc" id="L364">            assertSame(nodes[k], m.remove(key));</span>
+<span class="fc" id="L365">            assertNull(m.remove(key));</span>
+<span class="fc" id="L366">            assertNull(m.get(key));</span>
+        }
+
+<span class="fc" id="L369">        assertTrue(m.isEmpty());</span>
+<span class="fc" id="L370">    }</span>
+
+    /**
+     * Method testPutAll
+     */
+    public void testPutAll() {
+
+<span class="fc" id="L377">        Map           m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L378">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L380" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L381">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L384">        Map m1 = new HashMap();</span>
+
+<span class="fc" id="L386">        m1.put(null, &quot;foo&quot;);</span>
+
+        try {
+<span class="nc" id="L389">            m.putAll(m1);</span>
+<span class="nc" id="L390">            fail(&quot;Should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L391">        } catch (NullPointerException ignored) {}</span>
+
+<span class="fc" id="L393">        m1 = new HashMap();</span>
+
+<span class="fc" id="L395">        m1.put(new Object(), &quot;bar&quot;);</span>
+
+        try {
+<span class="nc" id="L398">            m.putAll(m1);</span>
+<span class="nc" id="L399">            fail(&quot;Should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L400">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc" id="L402">        m1 = new HashMap();</span>
+
+<span class="fc" id="L404">        m1.put(&quot;fubar&quot;, null);</span>
+
+        try {
+<span class="nc" id="L407">            m.putAll(m1);</span>
+<span class="nc" id="L408">            fail(&quot;Should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L409">        } catch (NullPointerException ignored) {}</span>
+
+<span class="fc" id="L411">        m1 = new HashMap();</span>
+
+<span class="fc" id="L413">        m1.put(&quot;fubar&quot;, new Object());</span>
+
+        try {
+<span class="nc" id="L416">            m.putAll(m1);</span>
+<span class="nc" id="L417">            fail(&quot;Should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L418">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc" id="L420">        assertEquals(nodes.length, m.size());</span>
+
+<span class="fc" id="L422">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L423">        m1 = new HashMap();</span>
+
+<span class="fc bfc" id="L425" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L426">            m1.put(nodes[k].getKey(), nodes[k].getValue());</span>
+        }
+
+<span class="fc" id="L429">        m.putAll(m1);</span>
+<span class="fc" id="L430">        assertEquals(nodes.length, m.size());</span>
+
+<span class="fc bfc" id="L432" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L433">            assertSame(nodes[k].getValue(), m.get(nodes[k].getKey()));</span>
+        }
+<span class="fc" id="L435">    }</span>
+
+    /**
+     * test clear() method
+     */
+    public void testClear() {
+
+<span class="fc" id="L442">        Map           m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L443">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L445" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L446">            m.put(nodes[k].getKey(), nodes[k].getValue());</span>
+<span class="pc bpc" id="L447" title="1 of 2 branches missed.">            assertTrue(!m.isEmpty());</span>
+        }
+
+<span class="pc bpc" id="L450" title="1 of 2 branches missed.">        assertTrue(!m.isEmpty());</span>
+
+<span class="fc bfc" id="L452" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L453">            assertTrue(m.containsKey(nodes[k].getKey()));</span>
+<span class="fc" id="L454">            assertTrue(m.containsValue(nodes[k].getValue()));</span>
+        }
+
+<span class="fc" id="L457">        m.clear();</span>
+<span class="fc" id="L458">        assertTrue(m.isEmpty());</span>
+
+<span class="fc bfc" id="L460" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="pc bpc" id="L461" title="1 of 2 branches missed.">            assertTrue(!m.containsKey(nodes[k].getKey()));</span>
+<span class="pc bpc" id="L462" title="1 of 2 branches missed.">            assertTrue(!m.containsValue(nodes[k].getValue()));</span>
+        }
+<span class="fc" id="L464">    }</span>
+
+    /**
+     * test keySet() method
+     */
+    public void testKeySet() {
+
+<span class="fc" id="L471">        testKeySet((DoubleOrderedMap) makeMap());</span>
+
+<span class="fc" id="L473">        Map           m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L474">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L476" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L477">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L480">        testKeySet(m);</span>
+
+<span class="fc" id="L482">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L484" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L485">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L488">        int count = m.size();</span>
+
+<span class="fc bfc" id="L490" title="All 2 branches covered.">        for (Iterator iter = m.keySet().iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L491">            iter.next();</span>
+<span class="fc" id="L492">            iter.remove();</span>
+
+<span class="fc" id="L494">            --count;</span>
+
+<span class="fc" id="L496">            assertEquals(count, m.size());</span>
+        }
+
+<span class="fc" id="L499">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L501">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L503" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L504">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L507">        Set s = m.keySet();</span>
+
+        try {
+<span class="nc" id="L510">            s.remove(null);</span>
+<span class="nc" id="L511">            fail(&quot;should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L512">        } catch (NullPointerException ignored) {}</span>
+
+        try {
+<span class="nc" id="L515">            s.remove(new Object());</span>
+<span class="nc" id="L516">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L517">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc bfc" id="L519" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L520">            Comparable key = nodes[k].getKey();</span>
+
+<span class="fc" id="L522">            assertTrue(s.remove(key));</span>
+<span class="pc bpc" id="L523" title="1 of 2 branches missed.">            assertTrue(!s.contains(key));</span>
+<span class="pc bpc" id="L524" title="1 of 2 branches missed.">            assertTrue(!m.containsKey(key));</span>
+<span class="pc bpc" id="L525" title="1 of 2 branches missed.">            assertTrue(!m.containsValue(nodes[k]));</span>
+        }
+
+<span class="fc" id="L528">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L530">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc" id="L532">        Collection c1 = new LinkedList();</span>
+<span class="fc" id="L533">        Collection c2 = new LinkedList();</span>
+
+<span class="fc" id="L535">        c2.add(new Integer(-99));</span>
+
+<span class="fc bfc" id="L537" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L538">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L539">            c1.add(nodes[k].getKey());</span>
+<span class="fc" id="L540">            c2.add(nodes[k].getKey());</span>
+        }
+
+<span class="fc" id="L543">        assertTrue(m.keySet().containsAll(c1));</span>
+<span class="pc bpc" id="L544" title="1 of 2 branches missed.">        assertTrue(!m.keySet().containsAll(c2));</span>
+
+<span class="fc" id="L546">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L547">        c1 = new LinkedList();</span>
+
+<span class="fc" id="L549">        c1.add(new Integer(-55));</span>
+
+        try {
+<span class="nc" id="L552">            m.keySet().addAll(c1);</span>
+<span class="nc" id="L553">            fail(&quot;should have caught exception of addAll()&quot;);</span>
+<span class="pc" id="L554">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="fc bfc" id="L556" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L557">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L558">            c1.add(nodes[k].getKey());</span>
+        }
+
+<span class="pc bpc" id="L561" title="1 of 2 branches missed.">        assertTrue(!m.keySet().retainAll(c1));</span>
+<span class="fc" id="L562">        assertEquals(nodes.length, m.size());</span>
+
+<span class="fc" id="L564">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L565">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L567" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L568">            m.put(nodes[k].getKey(), nodes[k]);</span>
+
+<span class="fc bfc" id="L570" title="All 2 branches covered.">            if (k % 2 == 1) {</span>
+<span class="fc" id="L571">                c1.add(nodes[k].getKey());</span>
+            }
+        }
+
+<span class="fc" id="L575">        assertTrue(m.keySet().retainAll(c1));</span>
+<span class="fc" id="L576">        assertEquals(nodes.length / 2, m.size());</span>
+
+<span class="fc" id="L578">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L579">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L581" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L582">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L585">        assertTrue(m.keySet().retainAll(c1));</span>
+<span class="fc" id="L586">        assertEquals(0, m.size());</span>
+
+<span class="fc" id="L588">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L589">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L591" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L592">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="pc bpc" id="L595" title="1 of 2 branches missed.">        assertTrue(!m.keySet().removeAll(c1));</span>
+<span class="fc" id="L596">        assertEquals(nodes.length, m.size());</span>
+
+<span class="fc" id="L598">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L599">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L601" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L602">            m.put(nodes[k].getKey(), nodes[k]);</span>
+
+<span class="fc bfc" id="L604" title="All 2 branches covered.">            if (k % 2 == 0) {</span>
+<span class="fc" id="L605">                c1.add(nodes[k].getKey());</span>
+            }
+        }
+
+<span class="fc" id="L609">        assertTrue(m.keySet().removeAll(c1));</span>
+<span class="fc" id="L610">        assertEquals(nodes.length / 2, m.size());</span>
+
+<span class="fc" id="L612">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L613">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L615" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L616">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L617">            c1.add(nodes[k].getKey());</span>
+        }
+
+<span class="fc" id="L620">        assertTrue(m.keySet().removeAll(c1));</span>
+<span class="fc" id="L621">        assertEquals(0, m.size());</span>
+
+<span class="fc" id="L623">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L625" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L626">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L629">        m.keySet().clear();</span>
+<span class="fc" id="L630">        assertEquals(0, m.size());</span>
+<span class="fc" id="L631">    }</span>
+
+    /**
+     * test values() method
+     */
+    public void testValues() {
+
+<span class="fc" id="L638">        testValues((DoubleOrderedMap) makeMap());</span>
+
+<span class="fc" id="L640">        Map           m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L641">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L643" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L644">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L647">        testValues(m);</span>
+
+<span class="fc" id="L649">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L651" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L652">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L655">        int count = m.size();</span>
+
+<span class="fc bfc" id="L657" title="All 2 branches covered.">        for (Iterator iter = m.values().iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L658">            iter.next();</span>
+<span class="fc" id="L659">            iter.remove();</span>
+
+<span class="fc" id="L661">            --count;</span>
+
+<span class="fc" id="L663">            assertEquals(count, m.size());</span>
+        }
+
+<span class="fc" id="L666">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L668">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L670" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L671">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L674">        count = m.size();</span>
+
+<span class="fc" id="L676">        Collection s = m.values();</span>
+
+<span class="fc bfc" id="L678" title="All 2 branches covered.">        for (int k = 0; k &lt; count; k++) {</span>
+<span class="fc" id="L679">            assertTrue(s.remove(nodes[k]));</span>
+<span class="pc bpc" id="L680" title="1 of 2 branches missed.">            assertTrue(!s.contains(nodes[k]));</span>
+<span class="pc bpc" id="L681" title="1 of 2 branches missed.">            assertTrue(!m.containsKey(nodes[k].getKey()));</span>
+<span class="pc bpc" id="L682" title="1 of 2 branches missed.">            assertTrue(!m.containsValue(nodes[k]));</span>
+        }
+
+<span class="fc" id="L685">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L687">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc" id="L689">        Collection c1 = new LinkedList();</span>
+<span class="fc" id="L690">        Collection c2 = new LinkedList();</span>
+
+<span class="fc" id="L692">        c2.add(new LocalTestNode(-123));</span>
+
+<span class="fc bfc" id="L694" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L695">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L696">            c1.add(nodes[k]);</span>
+<span class="fc" id="L697">            c2.add(nodes[k]);</span>
+        }
+
+<span class="fc" id="L700">        assertTrue(m.values().containsAll(c1));</span>
+<span class="pc bpc" id="L701" title="1 of 2 branches missed.">        assertTrue(!m.values().containsAll(c2));</span>
+
+<span class="fc" id="L703">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L704">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L706" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L707">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L708">            c1.add(nodes[k]);</span>
+        }
+
+        try {
+<span class="nc" id="L712">            m.values().addAll(c1);</span>
+<span class="nc" id="L713">            fail(&quot;should have caught exception of addAll()&quot;);</span>
+<span class="pc" id="L714">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="fc" id="L716">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L717">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L719" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L720">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L721">            c1.add(nodes[k]);</span>
+        }
+
+<span class="pc bpc" id="L724" title="1 of 2 branches missed.">        assertTrue(!m.values().retainAll(c1));</span>
+<span class="fc" id="L725">        assertEquals(nodes.length, m.size());</span>
+
+<span class="fc" id="L727">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L728">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L730" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L731">            m.put(nodes[k].getKey(), nodes[k]);</span>
+
+<span class="fc bfc" id="L733" title="All 2 branches covered.">            if (k % 2 == 1) {</span>
+<span class="fc" id="L734">                c1.add(nodes[k]);</span>
+            }
+        }
+
+<span class="fc" id="L738">        assertTrue(m.values().retainAll(c1));</span>
+<span class="fc" id="L739">        assertEquals(nodes.length / 2, m.size());</span>
+
+<span class="fc" id="L741">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L742">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L744" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L745">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L748">        assertTrue(m.values().retainAll(c1));</span>
+<span class="fc" id="L749">        assertEquals(0, m.size());</span>
+
+<span class="fc" id="L751">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L752">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L754" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L755">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="pc bpc" id="L758" title="1 of 2 branches missed.">        assertTrue(!m.values().removeAll(c1));</span>
+<span class="fc" id="L759">        assertEquals(nodes.length, m.size());</span>
+
+<span class="fc" id="L761">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L762">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L764" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L765">            m.put(nodes[k].getKey(), nodes[k]);</span>
+
+<span class="fc bfc" id="L767" title="All 2 branches covered.">            if (k % 2 == 0) {</span>
+<span class="fc" id="L768">                c1.add(nodes[k]);</span>
+            }
+        }
+
+<span class="fc" id="L772">        assertTrue(m.values().removeAll(c1));</span>
+<span class="fc" id="L773">        assertEquals(nodes.length / 2, m.size());</span>
+
+<span class="fc" id="L775">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L776">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L778" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L779">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L780">            c1.add(nodes[k]);</span>
+        }
+
+<span class="fc" id="L783">        assertTrue(m.values().removeAll(c1));</span>
+<span class="fc" id="L784">        assertEquals(0, m.size());</span>
+
+<span class="fc" id="L786">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L788" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L789">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L792">        m.values().clear();</span>
+<span class="fc" id="L793">        assertEquals(0, m.size());</span>
+<span class="fc" id="L794">    }</span>
+
+    /**
+     * test entrySet() method
+     */
+    public void testEntrySet() {
+
+<span class="fc" id="L801">        testEntrySet((DoubleOrderedMap) makeMap());</span>
+
+<span class="fc" id="L803">        Map           m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L804">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L806" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L807">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L810">        testEntrySet(m);</span>
+
+<span class="fc" id="L812">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L814" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L815">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+        try {
+<span class="fc" id="L819">            ((Map.Entry) m.entrySet().iterator().next())</span>
+<span class="nc" id="L820">                .setValue(new LocalTestNode(-1));</span>
+<span class="nc" id="L821">            fail(&quot;Should have caught UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L822">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="fc" id="L824">        int count = m.size();</span>
+
+<span class="fc bfc" id="L826" title="All 2 branches covered.">        for (Iterator iter = m.entrySet().iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L827">            iter.next();</span>
+<span class="fc" id="L828">            iter.remove();</span>
+
+<span class="fc" id="L830">            --count;</span>
+
+<span class="fc" id="L832">            assertEquals(count, m.size());</span>
+        }
+
+<span class="fc" id="L835">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L837">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc" id="L839">        Collection c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L841" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L842">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L843">            c1.add(nodes[k].getKey());</span>
+        }
+
+        try {
+<span class="nc" id="L847">            m.entrySet().addAll(c1);</span>
+<span class="nc" id="L848">            fail(&quot;should have caught exception of addAll()&quot;);</span>
+<span class="pc" id="L849">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="fc" id="L851">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L853" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L854">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L857">        m.entrySet().clear();</span>
+<span class="fc" id="L858">        assertEquals(0, m.size());</span>
+
+<span class="fc" id="L860">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L862" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L863">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L866">        int x = 0;</span>
+
+<span class="fc bfc" id="L868" title="All 2 branches covered.">        for (Iterator iter = m.entrySet().iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L869">            Map.Entry entry = (Map.Entry) iter.next();</span>
+
+<span class="fc" id="L871">            assertSame(entry.getKey(), nodes[x].getKey());</span>
+<span class="fc" id="L872">            assertSame(entry.getValue(), nodes[x]);</span>
+
+<span class="fc" id="L874">            x++;</span>
+        }
+<span class="fc" id="L876">    }</span>
+
+    /**
+     * Method testEquals
+     */
+    public void testEquals() {
+
+<span class="fc" id="L883">        Map           m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L884">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L886" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L887">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="pc bpc" id="L890" title="1 of 2 branches missed.">        assertTrue(!m.equals(null));</span>
+<span class="fc" id="L891">        assertEquals(m, m);</span>
+
+<span class="fc" id="L893">        Map m1 = new HashMap();</span>
+
+<span class="fc bfc" id="L895" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L896">            m1.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L899">        assertEquals(m, m1);</span>
+
+<span class="fc" id="L901">        m1 = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L903" title="All 2 branches covered.">        for (int k = 0; k &lt; (nodes.length - 1); k++) {</span>
+<span class="fc" id="L904">            m1.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="pc bpc" id="L907" title="1 of 2 branches missed.">        assertTrue(!m.equals(m1));</span>
+
+<span class="fc" id="L909">        m1 = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L911" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L912">            m1.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L915">        LocalTestNode node1 = new LocalTestNode(-1000);</span>
+
+<span class="fc" id="L917">        m1.put(node1.getKey(), node1);</span>
+<span class="pc bpc" id="L918" title="1 of 2 branches missed.">        assertTrue(!m.equals(m1));</span>
+
+<span class="fc" id="L920">        m1 = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L922" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L923">            m1.put(nodes[k].getKey(), nodes[nodes.length - (k + 1)]);</span>
+        }
+
+<span class="pc bpc" id="L926" title="1 of 2 branches missed.">        assertTrue(!m.equals(m1));</span>
+
+<span class="fc" id="L928">        m1 = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L930" title="All 2 branches covered.">        for (int k = nodes.length - 1; k &gt;= 0; k--) {</span>
+<span class="fc" id="L931">            m1.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L934">        assertEquals(m, m1);</span>
+<span class="fc" id="L935">    }</span>
+
+    /**
+     * test hashCode() method
+     */
+    public void testHashCode() {
+
+<span class="fc" id="L942">        Map           m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L943">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L945" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L946">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L949">        Map m1 = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L951" title="All 2 branches covered.">        for (int k = nodes.length - 1; k &gt;= 0; k--) {</span>
+<span class="fc" id="L952">            m1.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L955">        assertEquals(m.hashCode(), m1.hashCode());</span>
+<span class="fc" id="L956">    }</span>
+
+    /**
+     * test constructors
+     */
+    public void testConstructors() {
+
+<span class="fc" id="L963">        DoubleOrderedMap m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc" id="L965">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L967">        DoubleOrderedMap m1 = new DoubleOrderedMap(m);</span>
+
+<span class="fc" id="L969">        assertTrue(m1.isEmpty());</span>
+
+<span class="fc" id="L971">        m1 = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc" id="L973">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L975" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L976">            m1.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L979">        m = new DoubleOrderedMap(m1);</span>
+
+<span class="fc" id="L981">        assertEquals(m, m1);</span>
+
+<span class="fc" id="L983">        Map m2 = new HashMap();</span>
+
+<span class="fc bfc" id="L985" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L986">            m2.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L989">        m = new DoubleOrderedMap(m2);</span>
+
+<span class="fc" id="L991">        assertEquals(m, m2);</span>
+
+        // reject duplicated values
+<span class="fc" id="L994">        m2 = new HashMap();</span>
+
+<span class="fc" id="L996">        m2.put(&quot;1&quot;, &quot;foo&quot;);</span>
+<span class="fc" id="L997">        m2.put(&quot;2&quot;, &quot;foo&quot;);</span>
+
+        try {
+<span class="nc" id="L1000">            m = new DoubleOrderedMap(m2);</span>
+
+<span class="nc" id="L1002">            fail(&quot;Should have caught IllegalArgumentException&quot;);</span>
+<span class="pc" id="L1003">        } catch (IllegalArgumentException ignored) {}</span>
+
+        // reject null values
+<span class="fc" id="L1006">        m2.put(&quot;2&quot;, null);</span>
+
+        try {
+<span class="nc" id="L1009">            m = new DoubleOrderedMap(m2);</span>
+
+<span class="nc" id="L1011">            fail(&quot;Should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L1012">        } catch (NullPointerException ignored) {}</span>
+
+        // reject non-Comparable values
+<span class="fc" id="L1015">        m2.put(&quot;2&quot;, new Object());</span>
+
+        try {
+<span class="nc" id="L1018">            m = new DoubleOrderedMap(m2);</span>
+
+<span class="nc" id="L1020">            fail(&quot;Should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L1021">        } catch (ClassCastException ignored) {}</span>
+
+        // reject incompatible values
+<span class="fc" id="L1024">        m2.put(&quot;2&quot;, new Integer(2));</span>
+
+        try {
+<span class="nc" id="L1027">            m = new DoubleOrderedMap(m2);</span>
+
+<span class="nc" id="L1029">            fail(&quot;Should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L1030">        } catch (ClassCastException ignored) {}</span>
+
+        // reject incompatible keys
+<span class="fc" id="L1033">        m2.remove(&quot;2&quot;);</span>
+<span class="fc" id="L1034">        m2.put(new Integer(2), &quot;bad key&quot;);</span>
+
+        try {
+<span class="nc" id="L1037">            m = new DoubleOrderedMap(m2);</span>
+
+<span class="nc" id="L1039">            fail(&quot;Should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L1040">        } catch (ClassCastException ignored) {}</span>
+
+        // reject non-Comparable keys
+<span class="fc" id="L1043">        m2.clear();</span>
+<span class="fc" id="L1044">        m2.put(&quot;1&quot;, &quot;foo&quot;);</span>
+<span class="fc" id="L1045">        m2.put(new Object(), &quot;bad key&quot;);</span>
+
+        try {
+<span class="nc" id="L1048">            m = new DoubleOrderedMap(m2);</span>
+
+<span class="nc" id="L1050">            fail(&quot;Should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L1051">        } catch (ClassCastException ignored) {}</span>
+<span class="fc" id="L1052">    }</span>
+
+    /**
+     * test getKeyForValue() method
+     */
+    public void testGetKeyForValue() {
+
+<span class="fc" id="L1059">        DoubleOrderedMap m = (DoubleOrderedMap) makeMap();</span>
+
+        try {
+<span class="nc" id="L1062">            m.getKeyForValue(new Object());</span>
+<span class="nc" id="L1063">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L1064">        } catch (ClassCastException ignored) {}</span>
+
+        try {
+<span class="nc" id="L1067">            m.getKeyForValue(null);</span>
+<span class="nc" id="L1068">            fail(&quot;should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L1069">        } catch (NullPointerException ignored) {}</span>
+
+<span class="fc" id="L1071">        assertNull(m.getKeyForValue(&quot;foo&quot;));</span>
+
+<span class="fc" id="L1073">        LocalTestNode nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L1075" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1076">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L1077">            assertSame(m.getKeyForValue(nodes[k]), nodes[k].getKey());</span>
+        }
+
+<span class="fc" id="L1080">        assertNull(m.getKeyForValue(new LocalTestNode(-1)));</span>
+
+        try {
+<span class="nc" id="L1083">            m.getKeyForValue(&quot;foo&quot;);</span>
+<span class="nc" id="L1084">            fail(&quot;Should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L1085">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc bfc" id="L1087" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1088">            assertNotNull(m.getKeyForValue(nodes[k]));</span>
+<span class="fc" id="L1089">            m.remove(nodes[k].getKey());</span>
+<span class="fc" id="L1090">            assertNull(m.getKeyForValue(nodes[k]));</span>
+        }
+<span class="fc" id="L1092">    }</span>
+
+    /**
+     * test removeValue() method
+     */
+    public void testRemoveValue() {
+
+<span class="fc" id="L1099">        DoubleOrderedMap m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1100">        LocalTestNode    nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L1102" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1103">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+        try {
+<span class="nc" id="L1107">            m.removeValue(null);</span>
+<span class="nc" id="L1108">            fail(&quot;should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L1109">        } catch (NullPointerException ignored) {}</span>
+
+        try {
+<span class="nc" id="L1112">            m.removeValue(new Object());</span>
+<span class="nc" id="L1113">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L1114">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc" id="L1116">        assertNull(m.remove(new Integer(-1)));</span>
+
+        try {
+<span class="nc" id="L1119">            m.removeValue(&quot;foo&quot;);</span>
+<span class="nc" id="L1120">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L1121">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc bfc" id="L1123" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k += 2) {</span>
+<span class="fc" id="L1124">            assertNotNull(m.getKeyForValue(nodes[k]));</span>
+<span class="fc" id="L1125">            assertSame(nodes[k].getKey(), m.removeValue(nodes[k]));</span>
+<span class="fc" id="L1126">            assertNull(m.removeValue(nodes[k]));</span>
+<span class="fc" id="L1127">            assertNull(m.getKeyForValue(nodes[k]));</span>
+        }
+
+<span class="fc bfc" id="L1130" title="All 2 branches covered.">        for (int k = 1; k &lt; nodes.length; k += 2) {</span>
+<span class="fc" id="L1131">            assertNotNull(m.getKeyForValue(nodes[k]));</span>
+<span class="fc" id="L1132">            assertSame(nodes[k].getKey(), m.removeValue(nodes[k]));</span>
+<span class="fc" id="L1133">            assertNull(m.removeValue(nodes[k]));</span>
+<span class="fc" id="L1134">            assertNull(m.getKeyForValue(nodes[k]));</span>
+        }
+
+<span class="fc" id="L1137">        assertTrue(m.isEmpty());</span>
+<span class="fc" id="L1138">    }</span>
+
+    /**
+     * test entrySetByValue() method
+     */
+    public void testEntrySetByValue() {
+
+<span class="fc" id="L1145">        testEntrySetByValue((DoubleOrderedMap) makeMap());</span>
+
+<span class="fc" id="L1147">        DoubleOrderedMap m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1148">        LocalTestNode    nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L1150" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1151">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1154">        testEntrySetByValue(m);</span>
+
+<span class="fc" id="L1156">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L1158" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1159">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+        try {
+<span class="fc" id="L1163">            ((Map.Entry) m.entrySetByValue().iterator().next())</span>
+<span class="nc" id="L1164">                .setValue(new LocalTestNode(-1));</span>
+<span class="nc" id="L1165">            fail(&quot;Should have caught UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L1166">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="fc" id="L1168">        int count = m.size();</span>
+
+<span class="fc" id="L1170">        for (Iterator iter = m.entrySetByValue().iterator();</span>
+<span class="fc bfc" id="L1171" title="All 2 branches covered.">                iter.hasNext(); ) {</span>
+<span class="fc" id="L1172">            iter.next();</span>
+<span class="fc" id="L1173">            iter.remove();</span>
+
+<span class="fc" id="L1175">            --count;</span>
+
+<span class="fc" id="L1177">            assertEquals(count, m.size());</span>
+        }
+
+<span class="fc" id="L1180">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L1182">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc" id="L1184">        Collection c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1186" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1187">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L1188">            c1.add(nodes[k].getKey());</span>
+        }
+
+        try {
+<span class="nc" id="L1192">            m.entrySetByValue().addAll(c1);</span>
+<span class="nc" id="L1193">            fail(&quot;should have caught exception of addAll()&quot;);</span>
+<span class="pc" id="L1194">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="fc" id="L1196">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L1198" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1199">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1202">        m.entrySetByValue().clear();</span>
+<span class="fc" id="L1203">        assertEquals(0, m.size());</span>
+
+<span class="fc" id="L1205">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L1207" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1208">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1211">        int x = 0;</span>
+
+<span class="fc" id="L1213">        for (Iterator iter = m.entrySetByValue().iterator();</span>
+<span class="fc bfc" id="L1214" title="All 2 branches covered.">                iter.hasNext(); ) {</span>
+<span class="fc" id="L1215">            Map.Entry entry = (Map.Entry) iter.next();</span>
+
+<span class="fc" id="L1217">            assertSame(entry.getKey(), nodes[x].getKey());</span>
+<span class="fc" id="L1218">            assertSame(entry.getValue(), nodes[x]);</span>
+
+<span class="fc" id="L1220">            x++;</span>
+        }
+<span class="fc" id="L1222">    }</span>
+
+    /**
+     * test keySetByValue() method
+     */
+    public void testKeySetByValue() {
+
+<span class="fc" id="L1229">        testKeySetByValue((DoubleOrderedMap) makeMap());</span>
+
+<span class="fc" id="L1231">        DoubleOrderedMap m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1232">        LocalTestNode    nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L1234" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1235">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1238">        testKeySetByValue(m);</span>
+
+<span class="fc" id="L1240">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L1242" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1243">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1246">        int count = m.size();</span>
+
+<span class="fc bfc" id="L1248" title="All 2 branches covered.">        for (Iterator iter = m.keySetByValue().iterator(); iter.hasNext(); ) </span>
+{
+<span class="fc" id="L1250">            iter.next();</span>
+<span class="fc" id="L1251">            iter.remove();</span>
+
+<span class="fc" id="L1253">            --count;</span>
+
+<span class="fc" id="L1255">            assertEquals(count, m.size());</span>
+        }
+
+<span class="fc" id="L1258">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L1260">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L1262" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1263">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1266">        Set s = m.keySetByValue();</span>
+
+        try {
+<span class="nc" id="L1269">            s.remove(null);</span>
+<span class="nc" id="L1270">            fail(&quot;should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L1271">        } catch (NullPointerException ignored) {}</span>
+
+        try {
+<span class="nc" id="L1274">            s.remove(new Object());</span>
+<span class="nc" id="L1275">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L1276">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc bfc" id="L1278" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1279">            Comparable key = nodes[k].getKey();</span>
+
+<span class="fc" id="L1281">            assertTrue(s.remove(key));</span>
+<span class="pc bpc" id="L1282" title="1 of 2 branches missed.">            assertTrue(!s.contains(key));</span>
+<span class="pc bpc" id="L1283" title="1 of 2 branches missed.">            assertTrue(!m.containsKey(key));</span>
+<span class="pc bpc" id="L1284" title="1 of 2 branches missed.">            assertTrue(!m.containsValue(nodes[k]));</span>
+        }
+
+<span class="fc" id="L1287">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L1289">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc" id="L1291">        Collection c1 = new LinkedList();</span>
+<span class="fc" id="L1292">        Collection c2 = new LinkedList();</span>
+
+<span class="fc" id="L1294">        c2.add(new Integer(-99));</span>
+
+<span class="fc bfc" id="L1296" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1297">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L1298">            c1.add(nodes[k].getKey());</span>
+<span class="fc" id="L1299">            c2.add(nodes[k].getKey());</span>
+        }
+
+<span class="fc" id="L1302">        assertTrue(m.keySetByValue().containsAll(c1));</span>
+<span class="pc bpc" id="L1303" title="1 of 2 branches missed.">        assertTrue(!m.keySetByValue().containsAll(c2));</span>
+
+<span class="fc" id="L1305">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1306">        c1 = new LinkedList();</span>
+
+<span class="fc" id="L1308">        c1.add(new Integer(-55));</span>
+
+        try {
+<span class="nc" id="L1311">            m.keySetByValue().addAll(c1);</span>
+<span class="nc" id="L1312">            fail(&quot;should have caught exception of addAll()&quot;);</span>
+<span class="pc" id="L1313">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="fc bfc" id="L1315" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1316">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L1317">            c1.add(nodes[k].getKey());</span>
+        }
+
+<span class="pc bpc" id="L1320" title="1 of 2 branches missed.">        assertTrue(!m.keySetByValue().retainAll(c1));</span>
+<span class="fc" id="L1321">        assertEquals(nodes.length, m.size());</span>
+
+<span class="fc" id="L1323">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1324">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1326" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1327">            m.put(nodes[k].getKey(), nodes[k]);</span>
+
+<span class="fc bfc" id="L1329" title="All 2 branches covered.">            if (k % 2 == 1) {</span>
+<span class="fc" id="L1330">                c1.add(nodes[k].getKey());</span>
+            }
+        }
+
+<span class="fc" id="L1334">        assertTrue(m.keySetByValue().retainAll(c1));</span>
+<span class="fc" id="L1335">        assertEquals(nodes.length / 2, m.size());</span>
+
+<span class="fc" id="L1337">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1338">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1340" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1341">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1344">        assertTrue(m.keySetByValue().retainAll(c1));</span>
+<span class="fc" id="L1345">        assertEquals(0, m.size());</span>
+
+<span class="fc" id="L1347">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1348">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1350" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1351">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="pc bpc" id="L1354" title="1 of 2 branches missed.">        assertTrue(!m.keySetByValue().removeAll(c1));</span>
+<span class="fc" id="L1355">        assertEquals(nodes.length, m.size());</span>
+
+<span class="fc" id="L1357">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1358">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1360" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1361">            m.put(nodes[k].getKey(), nodes[k]);</span>
+
+<span class="fc bfc" id="L1363" title="All 2 branches covered.">            if (k % 2 == 0) {</span>
+<span class="fc" id="L1364">                c1.add(nodes[k].getKey());</span>
+            }
+        }
+
+<span class="fc" id="L1368">        assertTrue(m.keySetByValue().removeAll(c1));</span>
+<span class="fc" id="L1369">        assertEquals(nodes.length / 2, m.size());</span>
+
+<span class="fc" id="L1371">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1372">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1374" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1375">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L1376">            c1.add(nodes[k].getKey());</span>
+        }
+
+<span class="fc" id="L1379">        assertTrue(m.keySetByValue().removeAll(c1));</span>
+<span class="fc" id="L1380">        assertEquals(0, m.size());</span>
+
+<span class="fc" id="L1382">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L1384" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1385">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1388">        m.keySetByValue().clear();</span>
+<span class="fc" id="L1389">        assertEquals(0, m.size());</span>
+<span class="fc" id="L1390">    }</span>
+
+    /**
+     * test valuesByValue() method
+     */
+    public void testValuesByValue() {
+
+<span class="fc" id="L1397">        testValuesByValue((DoubleOrderedMap) makeMap());</span>
+
+<span class="fc" id="L1399">        DoubleOrderedMap m       = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1400">        LocalTestNode    nodes[] = makeLocalNodes();</span>
+
+<span class="fc bfc" id="L1402" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1403">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1406">        testValuesByValue(m);</span>
+
+<span class="fc" id="L1408">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L1410" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1411">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1414">        int count = m.size();</span>
+
+<span class="fc bfc" id="L1416" title="All 2 branches covered.">        for (Iterator iter = m.valuesByValue().iterator(); iter.hasNext(); ) </span>
+{
+<span class="fc" id="L1418">            iter.next();</span>
+<span class="fc" id="L1419">            iter.remove();</span>
+
+<span class="fc" id="L1421">            --count;</span>
+
+<span class="fc" id="L1423">            assertEquals(count, m.size());</span>
+        }
+
+<span class="fc" id="L1426">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L1428">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L1430" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1431">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1434">        count = m.size();</span>
+
+<span class="fc" id="L1436">        Collection s = m.valuesByValue();</span>
+
+<span class="fc bfc" id="L1438" title="All 2 branches covered.">        for (int k = 0; k &lt; count; k++) {</span>
+<span class="fc" id="L1439">            assertTrue(s.remove(nodes[k]));</span>
+<span class="pc bpc" id="L1440" title="1 of 2 branches missed.">            assertTrue(!s.contains(nodes[k]));</span>
+<span class="pc bpc" id="L1441" title="1 of 2 branches missed.">            assertTrue(!m.containsKey(nodes[k].getKey()));</span>
+<span class="pc bpc" id="L1442" title="1 of 2 branches missed.">            assertTrue(!m.containsValue(nodes[k]));</span>
+        }
+
+<span class="fc" id="L1445">        assertTrue(m.isEmpty());</span>
+
+<span class="fc" id="L1447">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc" id="L1449">        Collection c1 = new LinkedList();</span>
+<span class="fc" id="L1450">        Collection c2 = new LinkedList();</span>
+
+<span class="fc" id="L1452">        c2.add(new LocalTestNode(-123));</span>
+
+<span class="fc bfc" id="L1454" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1455">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L1456">            c1.add(nodes[k]);</span>
+<span class="fc" id="L1457">            c2.add(nodes[k]);</span>
+        }
+
+<span class="fc" id="L1460">        assertTrue(m.valuesByValue().containsAll(c1));</span>
+<span class="pc bpc" id="L1461" title="1 of 2 branches missed.">        assertTrue(!m.valuesByValue().containsAll(c2));</span>
+
+<span class="fc" id="L1463">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1464">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1466" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1467">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L1468">            c1.add(nodes[k]);</span>
+        }
+
+        try {
+<span class="nc" id="L1472">            m.valuesByValue().addAll(c1);</span>
+<span class="nc" id="L1473">            fail(&quot;should have caught exception of addAll()&quot;);</span>
+<span class="pc" id="L1474">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="fc" id="L1476">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1477">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1479" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1480">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L1481">            c1.add(nodes[k]);</span>
+        }
+
+<span class="pc bpc" id="L1484" title="1 of 2 branches missed.">        assertTrue(!m.valuesByValue().retainAll(c1));</span>
+<span class="fc" id="L1485">        assertEquals(nodes.length, m.size());</span>
+
+<span class="fc" id="L1487">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1488">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1490" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1491">            m.put(nodes[k].getKey(), nodes[k]);</span>
+
+<span class="fc bfc" id="L1493" title="All 2 branches covered.">            if (k % 2 == 1) {</span>
+<span class="fc" id="L1494">                c1.add(nodes[k]);</span>
+            }
+        }
+
+<span class="fc" id="L1498">        assertTrue(m.valuesByValue().retainAll(c1));</span>
+<span class="fc" id="L1499">        assertEquals(nodes.length / 2, m.size());</span>
+
+<span class="fc" id="L1501">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1502">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1504" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1505">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1508">        assertTrue(m.valuesByValue().retainAll(c1));</span>
+<span class="fc" id="L1509">        assertEquals(0, m.size());</span>
+
+<span class="fc" id="L1511">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1512">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1514" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1515">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="pc bpc" id="L1518" title="1 of 2 branches missed.">        assertTrue(!m.valuesByValue().removeAll(c1));</span>
+<span class="fc" id="L1519">        assertEquals(nodes.length, m.size());</span>
+
+<span class="fc" id="L1521">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1522">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1524" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1525">            m.put(nodes[k].getKey(), nodes[k]);</span>
+
+<span class="fc bfc" id="L1527" title="All 2 branches covered.">            if (k % 2 == 0) {</span>
+<span class="fc" id="L1528">                c1.add(nodes[k]);</span>
+            }
+        }
+
+<span class="fc" id="L1532">        assertTrue(m.valuesByValue().removeAll(c1));</span>
+<span class="fc" id="L1533">        assertEquals(nodes.length / 2, m.size());</span>
+
+<span class="fc" id="L1535">        m  = (DoubleOrderedMap) makeMap();</span>
+<span class="fc" id="L1536">        c1 = new LinkedList();</span>
+
+<span class="fc bfc" id="L1538" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1539">            m.put(nodes[k].getKey(), nodes[k]);</span>
+<span class="fc" id="L1540">            c1.add(nodes[k]);</span>
+        }
+
+<span class="fc" id="L1543">        assertTrue(m.valuesByValue().removeAll(c1));</span>
+<span class="fc" id="L1544">        assertEquals(0, m.size());</span>
+
+<span class="fc" id="L1546">        m = (DoubleOrderedMap) makeMap();</span>
+
+<span class="fc bfc" id="L1548" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L1549">            m.put(nodes[k].getKey(), nodes[k]);</span>
+        }
+
+<span class="fc" id="L1552">        m.valuesByValue().clear();</span>
+<span class="fc" id="L1553">        assertEquals(0, m.size());</span>
+<span class="fc" id="L1554">    }</span>
+
+    /* ********** START helper methods ********** */
+    private void testKeySet(final Map m) {
+
+<span class="fc" id="L1559">        Set s = m.keySet();</span>
+
+<span class="fc" id="L1561">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L1562">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+
+<span class="fc" id="L1564">        LocalTestNode node = new LocalTestNode(-1);</span>
+
+<span class="fc" id="L1566">        m.put(node.getKey(), node);</span>
+<span class="fc" id="L1567">        assertTrue(s.contains(node.getKey()));</span>
+<span class="fc" id="L1568">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L1569">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+<span class="fc" id="L1570">        m.remove(node.getKey());</span>
+<span class="pc bpc" id="L1571" title="1 of 2 branches missed.">        assertTrue(!s.contains(node.getKey()));</span>
+<span class="fc" id="L1572">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L1573">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+
+        try {
+<span class="nc" id="L1576">            s.contains(null);</span>
+<span class="nc" id="L1577">            fail(&quot;should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L1578">        } catch (NullPointerException ignored) {}</span>
+
+        try {
+<span class="nc" id="L1581">            s.contains(new Object());</span>
+<span class="nc" id="L1582">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L1583">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc bfc" id="L1585" title="All 2 branches covered.">        for (int k = 0; k &lt; m.size(); k++) {</span>
+<span class="fc" id="L1586">            assertTrue(s.contains(new Integer(k)));</span>
+        }
+
+<span class="fc" id="L1589">        int count = 0;</span>
+
+<span class="fc bfc" id="L1591" title="All 2 branches covered.">        for (Iterator iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L1592">            iter.next();</span>
+
+<span class="fc" id="L1594">            ++count;</span>
+        }
+
+<span class="fc" id="L1597">        assertEquals(count, s.size());</span>
+
+        // force the map to have some content
+<span class="fc" id="L1600">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L1602">        Iterator      iter  = m.keySet().iterator();</span>
+<span class="fc" id="L1603">        LocalTestNode node2 = new LocalTestNode(-2);</span>
+
+<span class="fc" id="L1605">        m.put(node2.getKey(), node2);</span>
+
+        try {
+<span class="nc" id="L1608">            iter.next();</span>
+<span class="nc" id="L1609">            fail(&quot;next() should have thrown an exception after a put&quot;);</span>
+<span class="pc" id="L1610">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L1612">        m.remove(node2.getKey());</span>
+
+<span class="fc" id="L1614">        iter = s.iterator();</span>
+
+<span class="fc" id="L1616">        m.remove(node.getKey());</span>
+
+        try {
+<span class="nc" id="L1619">            iter.next();</span>
+<span class="nc" id="L1620">            fail(&quot;next() should have thrown an exception after a Map remove&quot;);</span>
+<span class="pc" id="L1621">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L1623">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L1625">        iter = s.iterator();</span>
+
+<span class="fc" id="L1627">        s.remove(node.getKey());</span>
+
+        try {
+<span class="nc" id="L1630">            iter.next();</span>
+<span class="nc" id="L1631">            fail(&quot;next() should have thrown an exception after a Set remove&quot;);</span>
+<span class="pc" id="L1632">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L1634">        iter  = s.iterator();</span>
+<span class="fc" id="L1635">        count = 0;</span>
+
+<span class="fc" id="L1637">        boolean terminated = false;</span>
+
+        try {
+<span class="fc" id="L1640">            while (true) {</span>
+<span class="fc" id="L1641">                iter.next();</span>
+
+<span class="fc" id="L1643">                ++count;</span>
+            }
+<span class="fc" id="L1645">        } catch (NoSuchElementException ignored) {</span>
+<span class="fc" id="L1646">            terminated = true;</span>
+        }
+
+<span class="fc" id="L1649">        assertTrue(terminated);</span>
+<span class="fc" id="L1650">        assertEquals(m.size(), count);</span>
+
+<span class="fc" id="L1652">        iter = s.iterator();</span>
+
+        try {
+<span class="nc" id="L1655">            iter.remove();</span>
+<span class="nc" id="L1656">            fail(&quot;Should have thrown exception&quot;);</span>
+<span class="pc" id="L1657">        } catch (IllegalStateException ignored) {}</span>
+
+<span class="fc" id="L1659">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L1661">        iter = s.iterator();</span>
+
+<span class="fc" id="L1663">        iter.next();</span>
+<span class="fc" id="L1664">        m.put(node2.getKey(), node2);</span>
+
+        try {
+<span class="nc" id="L1667">            iter.remove();</span>
+<span class="nc" id="L1668">            fail(&quot;should have thrown exception&quot;);</span>
+<span class="pc" id="L1669">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L1671">        Iterator iter2 = s.iterator();</span>
+
+<span class="fc" id="L1673">        iter2.next();</span>
+
+<span class="fc" id="L1675">        LocalTestNode node3 = new LocalTestNode(-3);</span>
+
+<span class="fc" id="L1677">        m.put(node3.getKey(), node3);</span>
+
+        try {
+<span class="nc" id="L1680">            iter2.remove();</span>
+<span class="nc" id="L1681">            fail(&quot;should have thrown exception&quot;);</span>
+<span class="pc" id="L1682">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L1684">        int removalCount = 0;</span>
+
+<span class="fc bfc" id="L1686" title="All 2 branches covered.">        for (iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc bfc" id="L1687" title="All 2 branches covered.">            if (iter.next().equals(node.getKey())) {</span>
+                try {
+<span class="fc" id="L1689">                    iter.remove();</span>
+
+<span class="fc" id="L1691">                    ++removalCount;</span>
+
+<span class="nc" id="L1693">                    iter.remove();</span>
+<span class="nc" id="L1694">                    fail(&quot;2nd remove should have failed&quot;);</span>
+<span class="pc" id="L1695">                } catch (IllegalStateException ignored) {</span>
+<span class="fc" id="L1696">                    assertEquals(1, removalCount);</span>
+                }
+            }
+        }
+
+<span class="fc" id="L1701">        assertEquals(1, removalCount);</span>
+<span class="pc bpc" id="L1702" title="1 of 2 branches missed.">        assertTrue(!s.contains(node.getKey()));</span>
+
+<span class="fc" id="L1704">        removalCount = 0;</span>
+
+<span class="fc" id="L1706">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L1708">        Object[] a1 = s.toArray();</span>
+
+<span class="fc" id="L1710">        assertEquals(s.size(), a1.length);</span>
+
+<span class="pc bpc" id="L1712" title="1 of 2 branches missed.">        if (a1.length &gt; 1) {</span>
+<span class="fc" id="L1713">            Comparable first = (Comparable) a1[0];</span>
+
+<span class="fc bfc" id="L1715" title="All 2 branches covered.">            for (int k = 1; k &lt; a1.length; k++) {</span>
+<span class="fc" id="L1716">                Comparable second = (Comparable) a1[k];</span>
+
+<span class="pc bpc" id="L1718" title="1 of 2 branches missed.">                assertTrue(first.compareTo(second) &lt; 0);</span>
+
+<span class="fc" id="L1720">                first = second;</span>
+            }
+
+<span class="fc" id="L1723">            iter  = s.iterator();</span>
+<span class="fc" id="L1724">            first = (Comparable) iter.next();</span>
+
+<span class="fc bfc" id="L1726" title="All 2 branches covered.">            for (; iter.hasNext(); ) {</span>
+<span class="fc" id="L1727">                Comparable second = (Comparable) iter.next();</span>
+
+<span class="pc bpc" id="L1729" title="1 of 2 branches missed.">                assertTrue(first.compareTo(second) &lt; 0);</span>
+
+<span class="fc" id="L1731">                first = second;</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L1736">            String array2[] = (String[]) s.toArray(new String[0]);</span>
+
+<span class="nc bnc" id="L1738" title="All 2 branches missed.">            if (s.size() != 0) {</span>
+<span class="nc" id="L1739">                fail(&quot;should have caught exception creating an invalid array&quot;);</span>
+            }
+<span class="pc" id="L1741">        } catch (ArrayStoreException ignored) {}</span>
+
+<span class="fc" id="L1743">        Comparable array2[] = (Comparable[]) s.toArray(new Comparable[0]);</span>
+<span class="fc" id="L1744">        Integer    array3[] = (Integer[]) s.toArray(new Integer[s.size()]);</span>
+
+<span class="pc bpc" id="L1746" title="1 of 2 branches missed.">        if (array3.length &gt; 1) {</span>
+<span class="fc" id="L1747">            Integer first = array3[0];</span>
+
+<span class="fc bfc" id="L1749" title="All 2 branches covered.">            for (int k = 1; k &lt; array3.length; k++) {</span>
+<span class="fc" id="L1750">                Integer second = array3[k];</span>
+
+<span class="pc bpc" id="L1752" title="1 of 2 branches missed.">                assertTrue(first.compareTo(second) &lt; 0);</span>
+
+<span class="fc" id="L1754">                first = second;</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L1759">            s.add(&quot;foo&quot;);</span>
+<span class="nc" id="L1760">            fail(&quot;should have thrown an exception&quot;);</span>
+<span class="pc" id="L1761">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="pc bpc" id="L1763" title="1 of 2 branches missed.">        assertTrue(!s.equals(null));</span>
+<span class="fc" id="L1764">        assertEquals(s, s);</span>
+
+<span class="fc" id="L1766">        Set hs = new HashSet(s);</span>
+
+<span class="fc" id="L1768">        assertEquals(s, hs);</span>
+<span class="fc" id="L1769">        assertEquals(hs, s);</span>
+<span class="fc" id="L1770">        assertEquals(s.hashCode(), hs.hashCode());</span>
+<span class="fc" id="L1771">    }</span>
+
+    private void testKeySetByValue(final DoubleOrderedMap m) {
+
+<span class="fc" id="L1775">        Set s = m.keySetByValue();</span>
+
+<span class="fc" id="L1777">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L1778">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+
+<span class="fc" id="L1780">        LocalTestNode node = new LocalTestNode(-1);</span>
+
+<span class="fc" id="L1782">        m.put(node.getKey(), node);</span>
+<span class="fc" id="L1783">        assertTrue(s.contains(node.getKey()));</span>
+<span class="fc" id="L1784">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L1785">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+<span class="fc" id="L1786">        m.remove(node.getKey());</span>
+<span class="pc bpc" id="L1787" title="1 of 2 branches missed.">        assertTrue(!s.contains(node.getKey()));</span>
+<span class="fc" id="L1788">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L1789">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+
+        try {
+<span class="nc" id="L1792">            s.contains(null);</span>
+<span class="nc" id="L1793">            fail(&quot;should have caught NullPointerException&quot;);</span>
+<span class="pc" id="L1794">        } catch (NullPointerException ignored) {}</span>
+
+        try {
+<span class="nc" id="L1797">            s.contains(new Object());</span>
+<span class="nc" id="L1798">            fail(&quot;should have caught ClassCastException&quot;);</span>
+<span class="pc" id="L1799">        } catch (ClassCastException ignored) {}</span>
+
+<span class="fc bfc" id="L1801" title="All 2 branches covered.">        for (int k = 0; k &lt; m.size(); k++) {</span>
+<span class="fc" id="L1802">            assertTrue(s.contains(new Integer(k)));</span>
+        }
+
+<span class="fc" id="L1805">        int count = 0;</span>
+
+<span class="fc bfc" id="L1807" title="All 2 branches covered.">        for (Iterator iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L1808">            iter.next();</span>
+
+<span class="fc" id="L1810">            ++count;</span>
+        }
+
+<span class="fc" id="L1813">        assertEquals(count, s.size());</span>
+
+        // force the map to have some content
+<span class="fc" id="L1816">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L1818">        Iterator      iter  = m.keySetByValue().iterator();</span>
+<span class="fc" id="L1819">        LocalTestNode node2 = new LocalTestNode(-2);</span>
+
+<span class="fc" id="L1821">        m.put(node2.getKey(), node2);</span>
+
+        try {
+<span class="nc" id="L1824">            iter.next();</span>
+<span class="nc" id="L1825">            fail(&quot;next() should have thrown an exception after a put&quot;);</span>
+<span class="pc" id="L1826">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L1828">        m.remove(node2.getKey());</span>
+
+<span class="fc" id="L1830">        iter = s.iterator();</span>
+
+<span class="fc" id="L1832">        m.remove(node.getKey());</span>
+
+        try {
+<span class="nc" id="L1835">            iter.next();</span>
+<span class="nc" id="L1836">            fail(&quot;next() should have thrown an exception after a Map remove&quot;);</span>
+<span class="pc" id="L1837">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L1839">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L1841">        iter = s.iterator();</span>
+
+<span class="fc" id="L1843">        s.remove(node.getKey());</span>
+
+        try {
+<span class="nc" id="L1846">            iter.next();</span>
+<span class="nc" id="L1847">            fail(&quot;next() should have thrown an exception after a Set remove&quot;);</span>
+<span class="pc" id="L1848">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L1850">        iter  = s.iterator();</span>
+<span class="fc" id="L1851">        count = 0;</span>
+
+<span class="fc" id="L1853">        boolean terminated = false;</span>
+
+        try {
+<span class="fc" id="L1856">            while (true) {</span>
+<span class="fc" id="L1857">                iter.next();</span>
+
+<span class="fc" id="L1859">                ++count;</span>
+            }
+<span class="fc" id="L1861">        } catch (NoSuchElementException ignored) {</span>
+<span class="fc" id="L1862">            terminated = true;</span>
+        }
+
+<span class="fc" id="L1865">        assertTrue(terminated);</span>
+<span class="fc" id="L1866">        assertEquals(m.size(), count);</span>
+
+<span class="fc" id="L1868">        iter = s.iterator();</span>
+
+        try {
+<span class="nc" id="L1871">            iter.remove();</span>
+<span class="nc" id="L1872">            fail(&quot;Should have thrown exception&quot;);</span>
+<span class="pc" id="L1873">        } catch (IllegalStateException ignored) {}</span>
+
+<span class="fc" id="L1875">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L1877">        iter = s.iterator();</span>
+
+<span class="fc" id="L1879">        iter.next();</span>
+<span class="fc" id="L1880">        m.put(node2.getKey(), node2);</span>
+
+        try {
+<span class="nc" id="L1883">            iter.remove();</span>
+<span class="nc" id="L1884">            fail(&quot;should have thrown exception&quot;);</span>
+<span class="pc" id="L1885">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L1887">        Iterator iter2 = s.iterator();</span>
+
+<span class="fc" id="L1889">        iter2.next();</span>
+
+<span class="fc" id="L1891">        LocalTestNode node3 = new LocalTestNode(-3);</span>
+
+<span class="fc" id="L1893">        m.put(node3.getKey(), node3);</span>
+
+        try {
+<span class="nc" id="L1896">            iter2.remove();</span>
+<span class="nc" id="L1897">            fail(&quot;should have thrown exception&quot;);</span>
+<span class="pc" id="L1898">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L1900">        int removalCount = 0;</span>
+
+<span class="fc bfc" id="L1902" title="All 2 branches covered.">        for (iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc bfc" id="L1903" title="All 2 branches covered.">            if (iter.next().equals(node.getKey())) {</span>
+                try {
+<span class="fc" id="L1905">                    iter.remove();</span>
+
+<span class="fc" id="L1907">                    ++removalCount;</span>
+
+<span class="nc" id="L1909">                    iter.remove();</span>
+<span class="nc" id="L1910">                    fail(&quot;2nd remove should have failed&quot;);</span>
+<span class="pc" id="L1911">                } catch (IllegalStateException ignored) {</span>
+<span class="fc" id="L1912">                    assertEquals(1, removalCount);</span>
+                }
+            }
+        }
+
+<span class="fc" id="L1917">        assertEquals(1, removalCount);</span>
+<span class="pc bpc" id="L1918" title="1 of 2 branches missed.">        assertTrue(!s.contains(node.getKey()));</span>
+
+<span class="fc" id="L1920">        removalCount = 0;</span>
+
+<span class="fc" id="L1922">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L1924">        Object[] a1 = s.toArray();</span>
+
+<span class="fc" id="L1926">        assertEquals(s.size(), a1.length);</span>
+
+        //          if (a1.length &gt; 1)
+        //          {
+        //              Comparable first = ( Comparable ) a1[ 0 ];
+        //              for (int k = 1; k &lt; a1.length; k++)
+        //              {
+        //                  Comparable second = ( Comparable ) a1[ k ];
+        //                  assertTrue(first.compareTo(second) &lt; 0);
+        //                  first = second;
+        //              }
+        //              iter  = s.iterator();
+        //              first = ( Comparable ) iter.next();
+        //              for (; iter.hasNext(); )
+        //              {
+        //                  Comparable second = ( Comparable ) iter.next();
+        //                  assertTrue(first.compareTo(second) &lt; 0);
+        //                  first = second;
+        //              }
+        //          }
+        try {
+<span class="nc" id="L1947">            String array2[] = (String[]) s.toArray(new String[0]);</span>
+
+<span class="nc bnc" id="L1949" title="All 2 branches missed.">            if (s.size() != 0) {</span>
+<span class="nc" id="L1950">                fail(&quot;should have caught exception creating an invalid array&quot;);</span>
+            }
+<span class="pc" id="L1952">        } catch (ArrayStoreException ignored) {}</span>
+
+<span class="fc" id="L1954">        Comparable array2[] = (Comparable[]) s.toArray(new Comparable[0]);</span>
+<span class="fc" id="L1955">        Integer    array3[] = (Integer[]) s.toArray(new Integer[s.size()]);</span>
+
+        //          if (array3.length &gt; 1)
+        //          {
+        //              Integer first = array3[ 0 ];
+        //              for (int k = 1; k &lt; array3.length; k++)
+        //              {
+        //                  Integer second = array3[ k ];
+        //                  assertTrue(first.compareTo(second) &lt; 0);
+        //                  first = second;
+        //              }
+        //          }
+        try {
+<span class="nc" id="L1968">            s.add(&quot;foo&quot;);</span>
+<span class="nc" id="L1969">            fail(&quot;should have thrown an exception&quot;);</span>
+<span class="pc" id="L1970">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="pc bpc" id="L1972" title="1 of 2 branches missed.">        assertTrue(!s.equals(null));</span>
+<span class="fc" id="L1973">        assertEquals(s, s);</span>
+
+<span class="fc" id="L1975">        Set hs = new HashSet(s);</span>
+
+<span class="fc" id="L1977">        assertEquals(s, hs);</span>
+<span class="fc" id="L1978">        assertEquals(hs, s);</span>
+<span class="fc" id="L1979">        assertEquals(s.hashCode(), hs.hashCode());</span>
+<span class="fc" id="L1980">    }</span>
+
+    private void testValues(Map m) {
+
+<span class="fc" id="L1984">        Collection s = m.values();</span>
+
+<span class="fc" id="L1986">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L1987">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+
+<span class="fc" id="L1989">        LocalTestNode node = new LocalTestNode(-1);</span>
+
+<span class="fc" id="L1991">        m.put(node.getKey(), node);</span>
+<span class="fc" id="L1992">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L1993">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+<span class="fc" id="L1994">        m.remove(node.getKey());</span>
+<span class="fc" id="L1995">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L1996">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+<span class="pc bpc" id="L1997" title="1 of 2 branches missed.">        assertTrue(!s.contains(node));</span>
+
+<span class="fc bfc" id="L1999" title="All 2 branches covered.">        for (int k = 0; k &lt; m.size(); k++) {</span>
+<span class="fc" id="L2000">            assertTrue(s.contains(new LocalTestNode(k)));</span>
+        }
+
+<span class="fc" id="L2003">        m.put(node.getKey(), node);</span>
+<span class="fc" id="L2004">        assertTrue(s.contains(node));</span>
+<span class="fc" id="L2005">        m.remove(node.getKey());</span>
+<span class="pc bpc" id="L2006" title="1 of 2 branches missed.">        assertTrue(!s.contains(node));</span>
+
+<span class="fc" id="L2008">        int count = 0;</span>
+
+<span class="fc bfc" id="L2010" title="All 2 branches covered.">        for (Iterator iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L2011">            iter.next();</span>
+
+<span class="fc" id="L2013">            ++count;</span>
+        }
+
+<span class="fc" id="L2016">        assertEquals(s.size(), count);</span>
+
+<span class="fc" id="L2018">        LocalTestNode node4 = new LocalTestNode(-4);</span>
+
+<span class="fc" id="L2020">        m.put(node4.getKey(), node4);</span>
+
+<span class="fc" id="L2022">        Iterator iter = s.iterator();</span>
+
+<span class="fc" id="L2024">        m.put(node.getKey(), node);</span>
+
+        try {
+<span class="nc" id="L2027">            iter.next();</span>
+<span class="nc" id="L2028">            fail(&quot;next() should have thrown an exception after a put&quot;);</span>
+<span class="pc" id="L2029">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2031">        iter = s.iterator();</span>
+
+<span class="fc" id="L2033">        m.remove(node.getKey());</span>
+
+        try {
+<span class="nc" id="L2036">            iter.next();</span>
+<span class="nc" id="L2037">            fail(&quot;next() should have thrown an exception after a Map remove&quot;);</span>
+<span class="pc" id="L2038">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2040">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L2042">        iter = s.iterator();</span>
+
+<span class="fc" id="L2044">        s.remove(node);</span>
+
+        try {
+<span class="nc" id="L2047">            iter.next();</span>
+<span class="nc" id="L2048">            fail(&quot;next() should have thrown an exception after a Set remove&quot;);</span>
+<span class="pc" id="L2049">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2051">        iter  = s.iterator();</span>
+<span class="fc" id="L2052">        count = 0;</span>
+
+<span class="fc" id="L2054">        boolean terminated = false;</span>
+
+        try {
+<span class="fc" id="L2057">            while (true) {</span>
+<span class="fc" id="L2058">                iter.next();</span>
+
+<span class="fc" id="L2060">                ++count;</span>
+            }
+<span class="fc" id="L2062">        } catch (NoSuchElementException ignored) {</span>
+<span class="fc" id="L2063">            terminated = true;</span>
+        }
+
+<span class="fc" id="L2066">        assertTrue(terminated);</span>
+<span class="fc" id="L2067">        assertEquals(m.size(), count);</span>
+
+<span class="fc" id="L2069">        iter = s.iterator();</span>
+
+        try {
+<span class="nc" id="L2072">            iter.remove();</span>
+<span class="nc" id="L2073">            fail(&quot;Should have thrown exception&quot;);</span>
+<span class="pc" id="L2074">        } catch (IllegalStateException ignored) {}</span>
+
+<span class="fc" id="L2076">        Iterator iter2 = s.iterator();</span>
+
+        try {
+<span class="nc" id="L2079">            iter2.remove();</span>
+<span class="nc" id="L2080">            fail(&quot;Should have thrown exception&quot;);</span>
+<span class="pc" id="L2081">        } catch (IllegalStateException ignored) {}</span>
+
+<span class="fc" id="L2083">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L2085">        iter = s.iterator();</span>
+
+<span class="fc" id="L2087">        iter.next();</span>
+
+<span class="fc" id="L2089">        LocalTestNode node2 = new LocalTestNode(-2);</span>
+
+<span class="fc" id="L2091">        m.put(node2.getKey(), node2);</span>
+
+        try {
+<span class="nc" id="L2094">            iter.remove();</span>
+<span class="nc" id="L2095">            fail(&quot;should have thrown exception&quot;);</span>
+<span class="pc" id="L2096">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2098">        LocalTestNode node3 = new LocalTestNode(-3);</span>
+
+<span class="fc" id="L2100">        m.put(node3.getKey(), node3);</span>
+
+<span class="fc" id="L2102">        iter2 = s.iterator();</span>
+
+<span class="fc bfc" id="L2104" title="All 2 branches covered.">        while (iter2.hasNext()) {</span>
+<span class="fc" id="L2105">            iter2.next();</span>
+        }
+
+<span class="fc" id="L2108">        int removalCount = 0;</span>
+
+<span class="fc bfc" id="L2110" title="All 2 branches covered.">        for (iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc bfc" id="L2111" title="All 2 branches covered.">            if (iter.next().equals(node3)) {</span>
+                try {
+<span class="fc" id="L2113">                    iter.remove();</span>
+
+<span class="fc" id="L2115">                    ++removalCount;</span>
+
+<span class="nc" id="L2117">                    iter.remove();</span>
+<span class="nc" id="L2118">                    fail(&quot;2nd remove should have failed&quot;);</span>
+<span class="pc" id="L2119">                } catch (IllegalStateException ignored) {</span>
+<span class="fc" id="L2120">                    assertEquals(1, removalCount);</span>
+                }
+            }
+        }
+
+<span class="fc" id="L2125">        assertEquals(1, removalCount);</span>
+<span class="pc bpc" id="L2126" title="1 of 2 branches missed.">        assertTrue(!s.contains(node3));</span>
+
+<span class="fc" id="L2128">        Object[] a1 = s.toArray();</span>
+
+<span class="fc" id="L2130">        assertEquals(s.size(), a1.length);</span>
+
+<span class="pc bpc" id="L2132" title="1 of 2 branches missed.">        if (a1.length &gt; 1) {</span>
+<span class="fc" id="L2133">            Comparable first = (Comparable) a1[0];</span>
+
+<span class="fc bfc" id="L2135" title="All 2 branches covered.">            for (int k = 1; k &lt; a1.length; k++) {</span>
+<span class="fc" id="L2136">                Comparable second = (Comparable) a1[k];</span>
+
+<span class="pc bpc" id="L2138" title="1 of 2 branches missed.">                assertTrue(first.compareTo(second) &lt; 0);</span>
+
+<span class="fc" id="L2140">                first = second;</span>
+            }
+
+<span class="fc" id="L2143">            iter  = s.iterator();</span>
+<span class="fc" id="L2144">            first = (Comparable) iter.next();</span>
+
+<span class="fc bfc" id="L2146" title="All 2 branches covered.">            for (; iter.hasNext(); ) {</span>
+<span class="fc" id="L2147">                Comparable second = (Comparable) iter.next();</span>
+
+<span class="pc bpc" id="L2149" title="1 of 2 branches missed.">                assertTrue(first.compareTo(second) &lt; 0);</span>
+
+<span class="fc" id="L2151">                first = second;</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L2156">            String array2[] = (String[]) s.toArray(new String[0]);</span>
+
+<span class="nc bnc" id="L2158" title="All 2 branches missed.">            if (s.size() != 0) {</span>
+<span class="nc" id="L2159">                fail(&quot;should have caught exception creating an invalid array&quot;);</span>
+            }
+<span class="pc" id="L2161">        } catch (ArrayStoreException ignored) {}</span>
+
+<span class="fc" id="L2163">        m.remove(node.getKey());</span>
+<span class="fc" id="L2164">        m.remove(node2.getKey());</span>
+<span class="fc" id="L2165">        m.remove(node3.getKey());</span>
+
+<span class="fc" id="L2167">        LocalTestNode array2[] =</span>
+<span class="fc" id="L2168">            (LocalTestNode[]) s.toArray(new LocalTestNode[0]);</span>
+<span class="fc" id="L2169">        LocalTestNode array3[] =</span>
+<span class="fc" id="L2170">            (LocalTestNode[]) s.toArray(new LocalTestNode[s.size()]);</span>
+
+<span class="fc bfc" id="L2172" title="All 2 branches covered.">        if (array3.length &gt; 1) {</span>
+<span class="fc" id="L2173">            LocalTestNode first = array3[0];</span>
+
+<span class="fc bfc" id="L2175" title="All 2 branches covered.">            for (int k = 1; k &lt; array3.length; k++) {</span>
+<span class="fc" id="L2176">                LocalTestNode second = array3[k];</span>
+
+<span class="pc bpc" id="L2178" title="1 of 2 branches missed.">                assertTrue(first.compareTo(second) &lt; 0);</span>
+
+<span class="fc" id="L2180">                first = second;</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L2185">            s.add(node.getKey());</span>
+<span class="nc" id="L2186">            fail(&quot;should have thrown an exception&quot;);</span>
+<span class="pc" id="L2187">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="pc bpc" id="L2189" title="1 of 2 branches missed.">        assertTrue(!s.equals(null));</span>
+<span class="fc" id="L2190">        assertEquals(s, s);</span>
+
+<span class="fc" id="L2192">        Set hs = new HashSet(s);</span>
+
+<span class="pc bpc" id="L2194" title="1 of 2 branches missed.">        assertTrue(!s.equals(hs));</span>
+<span class="pc bpc" id="L2195" title="1 of 2 branches missed.">        assertTrue(!hs.equals(s));</span>
+<span class="fc" id="L2196">    }</span>
+
+    private void testValuesByValue(DoubleOrderedMap m) {
+
+<span class="fc" id="L2200">        Collection s = m.valuesByValue();</span>
+
+<span class="fc" id="L2202">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L2203">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+
+<span class="fc" id="L2205">        LocalTestNode node = new LocalTestNode(-1);</span>
+
+<span class="fc" id="L2207">        m.put(node.getKey(), node);</span>
+<span class="fc" id="L2208">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L2209">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+<span class="fc" id="L2210">        m.remove(node.getKey());</span>
+<span class="fc" id="L2211">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L2212">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+<span class="pc bpc" id="L2213" title="1 of 2 branches missed.">        assertTrue(!s.contains(node));</span>
+
+<span class="fc bfc" id="L2215" title="All 2 branches covered.">        for (int k = 0; k &lt; m.size(); k++) {</span>
+<span class="fc" id="L2216">            assertTrue(s.contains(new LocalTestNode(k)));</span>
+        }
+
+<span class="fc" id="L2219">        m.put(node.getKey(), node);</span>
+<span class="fc" id="L2220">        assertTrue(s.contains(node));</span>
+<span class="fc" id="L2221">        m.remove(node.getKey());</span>
+<span class="pc bpc" id="L2222" title="1 of 2 branches missed.">        assertTrue(!s.contains(node));</span>
+
+<span class="fc" id="L2224">        int count = 0;</span>
+
+<span class="fc bfc" id="L2226" title="All 2 branches covered.">        for (Iterator iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L2227">            iter.next();</span>
+
+<span class="fc" id="L2229">            ++count;</span>
+        }
+
+<span class="fc" id="L2232">        assertEquals(s.size(), count);</span>
+
+<span class="fc" id="L2234">        LocalTestNode node4 = new LocalTestNode(-4);</span>
+
+<span class="fc" id="L2236">        m.put(node4.getKey(), node4);</span>
+
+<span class="fc" id="L2238">        Iterator iter = s.iterator();</span>
+
+<span class="fc" id="L2240">        m.put(node.getKey(), node);</span>
+
+        try {
+<span class="nc" id="L2243">            iter.next();</span>
+<span class="nc" id="L2244">            fail(&quot;next() should have thrown an exception after a put&quot;);</span>
+<span class="pc" id="L2245">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2247">        iter = s.iterator();</span>
+
+<span class="fc" id="L2249">        m.remove(node.getKey());</span>
+
+        try {
+<span class="nc" id="L2252">            iter.next();</span>
+<span class="nc" id="L2253">            fail(&quot;next() should have thrown an exception after a Map remove&quot;);</span>
+<span class="pc" id="L2254">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2256">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L2258">        iter = s.iterator();</span>
+
+<span class="fc" id="L2260">        s.remove(node);</span>
+
+        try {
+<span class="nc" id="L2263">            iter.next();</span>
+<span class="nc" id="L2264">            fail(&quot;next() should have thrown an exception after a Set remove&quot;);</span>
+<span class="pc" id="L2265">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2267">        iter  = s.iterator();</span>
+<span class="fc" id="L2268">        count = 0;</span>
+
+<span class="fc" id="L2270">        boolean terminated = false;</span>
+
+        try {
+<span class="fc" id="L2273">            while (true) {</span>
+<span class="fc" id="L2274">                iter.next();</span>
+
+<span class="fc" id="L2276">                ++count;</span>
+            }
+<span class="fc" id="L2278">        } catch (NoSuchElementException ignored) {</span>
+<span class="fc" id="L2279">            terminated = true;</span>
+        }
+
+<span class="fc" id="L2282">        assertTrue(terminated);</span>
+<span class="fc" id="L2283">        assertEquals(m.size(), count);</span>
+
+<span class="fc" id="L2285">        iter = s.iterator();</span>
+
+        try {
+<span class="nc" id="L2288">            iter.remove();</span>
+<span class="nc" id="L2289">            fail(&quot;Should have thrown exception&quot;);</span>
+<span class="pc" id="L2290">        } catch (IllegalStateException ignored) {}</span>
+
+<span class="fc" id="L2292">        Iterator iter2 = s.iterator();</span>
+
+        try {
+<span class="nc" id="L2295">            iter2.remove();</span>
+<span class="nc" id="L2296">            fail(&quot;Should have thrown exception&quot;);</span>
+<span class="pc" id="L2297">        } catch (IllegalStateException ignored) {}</span>
+
+<span class="fc" id="L2299">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L2301">        iter = s.iterator();</span>
+
+<span class="fc" id="L2303">        iter.next();</span>
+
+<span class="fc" id="L2305">        LocalTestNode node2 = new LocalTestNode(-2);</span>
+
+<span class="fc" id="L2307">        m.put(node2.getKey(), node2);</span>
+
+        try {
+<span class="nc" id="L2310">            iter.remove();</span>
+<span class="nc" id="L2311">            fail(&quot;should have thrown exception&quot;);</span>
+<span class="pc" id="L2312">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2314">        LocalTestNode node3 = new LocalTestNode(-3);</span>
+
+<span class="fc" id="L2316">        m.put(node3.getKey(), node3);</span>
+
+<span class="fc" id="L2318">        iter2 = s.iterator();</span>
+
+<span class="fc bfc" id="L2320" title="All 2 branches covered.">        while (iter2.hasNext()) {</span>
+<span class="fc" id="L2321">            iter2.next();</span>
+        }
+
+<span class="fc" id="L2324">        int removalCount = 0;</span>
+
+<span class="fc bfc" id="L2326" title="All 2 branches covered.">        for (iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc bfc" id="L2327" title="All 2 branches covered.">            if (iter.next().equals(node3)) {</span>
+                try {
+<span class="fc" id="L2329">                    iter.remove();</span>
+
+<span class="fc" id="L2331">                    ++removalCount;</span>
+
+<span class="nc" id="L2333">                    iter.remove();</span>
+<span class="nc" id="L2334">                    fail(&quot;2nd remove should have failed&quot;);</span>
+<span class="pc" id="L2335">                } catch (IllegalStateException ignored) {</span>
+<span class="fc" id="L2336">                    assertEquals(1, removalCount);</span>
+                }
+            }
+        }
+
+<span class="fc" id="L2341">        assertEquals(1, removalCount);</span>
+<span class="pc bpc" id="L2342" title="1 of 2 branches missed.">        assertTrue(!s.contains(node3));</span>
+
+<span class="fc" id="L2344">        Object[] a1 = s.toArray();</span>
+
+<span class="fc" id="L2346">        assertEquals(s.size(), a1.length);</span>
+
+        try {
+<span class="nc" id="L2349">            String array2[] = (String[]) s.toArray(new String[0]);</span>
+
+<span class="nc bnc" id="L2351" title="All 2 branches missed.">            if (s.size() != 0) {</span>
+<span class="nc" id="L2352">                fail(&quot;should have caught exception creating an invalid array&quot;);</span>
+            }
+<span class="pc" id="L2354">        } catch (ArrayStoreException ignored) {}</span>
+
+<span class="fc" id="L2356">        m.remove(node.getKey());</span>
+<span class="fc" id="L2357">        m.remove(node2.getKey());</span>
+<span class="fc" id="L2358">        m.remove(node3.getKey());</span>
+
+<span class="fc" id="L2360">        LocalTestNode array2[] =</span>
+<span class="fc" id="L2361">            (LocalTestNode[]) s.toArray(new LocalTestNode[0]);</span>
+<span class="fc" id="L2362">        LocalTestNode array3[] =</span>
+<span class="fc" id="L2363">            (LocalTestNode[]) s.toArray(new LocalTestNode[s.size()]);</span>
+
+        try {
+<span class="nc" id="L2366">            s.add(node.getKey());</span>
+<span class="nc" id="L2367">            fail(&quot;should have thrown an exception&quot;);</span>
+<span class="pc" id="L2368">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="pc bpc" id="L2370" title="1 of 2 branches missed.">        assertTrue(!s.equals(null));</span>
+<span class="fc" id="L2371">        assertEquals(s, s);</span>
+
+<span class="fc" id="L2373">        Set hs = new HashSet(s);</span>
+
+<span class="pc bpc" id="L2375" title="1 of 2 branches missed.">        assertTrue(!s.equals(hs));</span>
+<span class="pc bpc" id="L2376" title="1 of 2 branches missed.">        assertTrue(!hs.equals(s));</span>
+<span class="fc" id="L2377">    }</span>
+
+    private void testEntrySet(Map m) {
+
+<span class="fc" id="L2381">        Set s = m.entrySet();</span>
+
+<span class="fc" id="L2383">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L2384">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+
+<span class="fc" id="L2386">        LocalTestNode node = new LocalTestNode(-1);</span>
+
+<span class="fc" id="L2388">        m.put(node.getKey(), node);</span>
+<span class="fc" id="L2389">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L2390">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+<span class="fc" id="L2391">        m.remove(node.getKey());</span>
+<span class="fc" id="L2392">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L2393">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+
+<span class="fc" id="L2395">        int count = 0;</span>
+
+<span class="fc bfc" id="L2397" title="All 2 branches covered.">        for (Iterator iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L2398">            iter.next();</span>
+
+<span class="fc" id="L2400">            ++count;</span>
+        }
+
+<span class="fc" id="L2403">        assertEquals(s.size(), count);</span>
+
+<span class="fc" id="L2405">        LocalTestNode node2 = new LocalTestNode(-2);</span>
+
+<span class="fc bfc" id="L2407" title="All 2 branches covered.">        if (m.size() == 0) {</span>
+<span class="fc" id="L2408">            m.put(node2.getKey(), node2);</span>
+        }
+
+<span class="fc" id="L2411">        Iterator iter = s.iterator();</span>
+
+<span class="fc" id="L2413">        m.put(node.getKey(), node);</span>
+
+        try {
+<span class="nc" id="L2416">            iter.next();</span>
+<span class="nc" id="L2417">            fail(&quot;next() should have thrown an exception after a put&quot;);</span>
+<span class="pc" id="L2418">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2420">        m.remove(node2.getKey());</span>
+
+<span class="fc" id="L2422">        iter = s.iterator();</span>
+
+<span class="fc" id="L2424">        m.remove(node.getKey());</span>
+
+        try {
+<span class="nc" id="L2427">            iter.next();</span>
+<span class="nc" id="L2428">            fail(&quot;next() should have thrown an exception after a Map remove&quot;);</span>
+<span class="pc" id="L2429">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2431">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L2433">        iter  = s.iterator();</span>
+<span class="fc" id="L2434">        count = 0;</span>
+
+<span class="fc" id="L2436">        boolean terminated = false;</span>
+
+        try {
+<span class="fc" id="L2439">            while (true) {</span>
+<span class="fc" id="L2440">                iter.next();</span>
+
+<span class="fc" id="L2442">                ++count;</span>
+            }
+<span class="fc" id="L2444">        } catch (NoSuchElementException ignored) {</span>
+<span class="fc" id="L2445">            terminated = true;</span>
+        }
+
+<span class="fc" id="L2448">        assertTrue(terminated);</span>
+<span class="fc" id="L2449">        assertEquals(m.size(), count);</span>
+
+<span class="fc" id="L2451">        iter = s.iterator();</span>
+
+        try {
+<span class="nc" id="L2454">            iter.remove();</span>
+<span class="nc" id="L2455">            fail(&quot;Should have thrown exception&quot;);</span>
+<span class="pc" id="L2456">        } catch (IllegalStateException ignored) {}</span>
+
+<span class="fc" id="L2458">        iter = s.iterator();</span>
+
+<span class="fc" id="L2460">        iter.next();</span>
+
+<span class="fc" id="L2462">        LocalTestNode node3 = new LocalTestNode(-3);</span>
+
+<span class="fc" id="L2464">        m.put(node3.getKey(), node3);</span>
+
+        try {
+<span class="nc" id="L2467">            iter.remove();</span>
+<span class="nc" id="L2468">            fail(&quot;should have thrown exception&quot;);</span>
+<span class="pc" id="L2469">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2471">        int removalCount = 0;</span>
+<span class="fc" id="L2472">        int when         = m.size() / 2;</span>
+<span class="fc" id="L2473">        int timer        = 0;</span>
+
+<span class="fc bfc" id="L2475" title="All 2 branches covered.">        for (iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L2476">            iter.next();</span>
+
+<span class="fc bfc" id="L2478" title="All 2 branches covered.">            if (timer == when) {</span>
+                try {
+<span class="fc" id="L2480">                    iter.remove();</span>
+
+<span class="fc" id="L2482">                    ++removalCount;</span>
+
+<span class="nc" id="L2484">                    iter.remove();</span>
+<span class="nc" id="L2485">                    fail(&quot;2nd remove should have failed&quot;);</span>
+<span class="pc" id="L2486">                } catch (IllegalStateException ignored) {</span>
+<span class="fc" id="L2487">                    assertEquals(1, removalCount);</span>
+                }
+            }
+
+<span class="fc" id="L2491">            timer++;</span>
+        }
+
+<span class="fc" id="L2494">        assertEquals(1, removalCount);</span>
+
+<span class="fc" id="L2496">        Iterator iter2 = s.iterator();</span>
+
+        try {
+<span class="nc" id="L2499">            iter2.remove();</span>
+<span class="nc" id="L2500">            fail(&quot;Should have thrown exception&quot;);</span>
+<span class="pc" id="L2501">        } catch (IllegalStateException ignored) {}</span>
+
+<span class="fc" id="L2503">        iter2 = s.iterator();</span>
+
+<span class="fc bfc" id="L2505" title="All 2 branches covered.">        while (iter2.hasNext()) {</span>
+<span class="fc" id="L2506">            iter2.next();</span>
+        }
+
+<span class="fc" id="L2509">        LocalTestNode node4 = new LocalTestNode(-4);</span>
+
+<span class="fc" id="L2511">        m.put(node4.getKey(), node4);</span>
+
+        try {
+<span class="nc" id="L2514">            iter2.remove();</span>
+<span class="nc" id="L2515">            fail(&quot;should have thrown exception&quot;);</span>
+<span class="pc" id="L2516">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2518">        Object[] a1 = s.toArray();</span>
+
+<span class="fc" id="L2520">        assertEquals(s.size(), a1.length);</span>
+
+<span class="pc bpc" id="L2522" title="1 of 2 branches missed.">        if (a1.length &gt; 1) {</span>
+<span class="fc" id="L2523">            Map.Entry first = (Map.Entry) a1[0];</span>
+
+<span class="fc bfc" id="L2525" title="All 2 branches covered.">            for (int k = 1; k &lt; a1.length; k++) {</span>
+<span class="fc" id="L2526">                Map.Entry second = (Map.Entry) a1[k];</span>
+
+<span class="pc bpc" id="L2528" title="1 of 2 branches missed.">                assertTrue(((Comparable) first.getKey())</span>
+<span class="fc" id="L2529">                    .compareTo((Comparable) second.getKey()) &lt; 0);</span>
+
+<span class="fc" id="L2531">                first = second;</span>
+            }
+
+<span class="fc" id="L2534">            iter  = s.iterator();</span>
+<span class="fc" id="L2535">            first = (Map.Entry) iter.next();</span>
+
+<span class="fc bfc" id="L2537" title="All 2 branches covered.">            for (; iter.hasNext(); ) {</span>
+<span class="fc" id="L2538">                Map.Entry second = (Map.Entry) iter.next();</span>
+
+<span class="pc bpc" id="L2540" title="1 of 2 branches missed.">                assertTrue(((Comparable) first.getKey())</span>
+<span class="fc" id="L2541">                    .compareTo((Comparable) second.getKey()) &lt; 0);</span>
+
+<span class="fc" id="L2543">                first = second;</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L2548">            Integer array2[] = (Integer[]) s.toArray(new Integer[0]);</span>
+
+<span class="nc bnc" id="L2550" title="All 2 branches missed.">            if (s.size() != 0) {</span>
+<span class="nc" id="L2551">                fail(&quot;should have caught exception creating an invalid array&quot;);</span>
+            }
+<span class="pc" id="L2553">        } catch (ArrayStoreException ignored) {}</span>
+
+<span class="fc" id="L2555">        Map.Entry array2[] = (Map.Entry[]) s.toArray(new Map.Entry[0]);</span>
+<span class="fc" id="L2556">        Map.Entry array3[] = (Map.Entry[]) s.toArray(new Map.Entry[s.size()]);</span>
+
+<span class="pc bpc" id="L2558" title="1 of 2 branches missed.">        if (array3.length &gt; 1) {</span>
+<span class="fc" id="L2559">            Comparable first = (Comparable) ((Map.Entry) array3[0]).getKey();</span>
+
+<span class="fc bfc" id="L2561" title="All 2 branches covered.">            for (int k = 1; k &lt; array3.length; k++) {</span>
+<span class="fc" id="L2562">                Comparable second =</span>
+<span class="fc" id="L2563">                    (Comparable) ((Map.Entry) array3[k]).getKey();</span>
+
+<span class="pc bpc" id="L2565" title="1 of 2 branches missed.">                assertTrue(first.compareTo(second) &lt; 0);</span>
+
+<span class="fc" id="L2567">                first = second;</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L2572">            s.add(node.getKey());</span>
+<span class="nc" id="L2573">            fail(&quot;should have thrown an exception&quot;);</span>
+<span class="pc" id="L2574">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="pc bpc" id="L2576" title="1 of 2 branches missed.">        assertTrue(!s.equals(null));</span>
+<span class="fc" id="L2577">        assertEquals(&quot;SetEquality 1&quot;, s, s);</span>
+
+<span class="fc" id="L2579">        Set hs = new HashSet(s);</span>
+
+<span class="fc" id="L2581">        assertEquals(&quot;SetEquality 2&quot;, s, hs);</span>
+<span class="fc" id="L2582">        assertEquals(&quot;SetEquality 3&quot;, hs, s);</span>
+<span class="fc" id="L2583">        assertEquals(s.hashCode(), hs.hashCode());</span>
+<span class="fc" id="L2584">    }</span>
+
+    private void testEntrySetByValue(DoubleOrderedMap m) {
+
+<span class="fc" id="L2588">        Set s = m.entrySetByValue();</span>
+
+<span class="fc" id="L2590">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L2591">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+
+<span class="fc" id="L2593">        LocalTestNode node = new LocalTestNode(-1);</span>
+
+<span class="fc" id="L2595">        m.put(node.getKey(), node);</span>
+<span class="fc" id="L2596">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L2597">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+<span class="fc" id="L2598">        m.remove(node.getKey());</span>
+<span class="fc" id="L2599">        assertEquals(m.size(), s.size());</span>
+<span class="fc" id="L2600">        assertEquals(m.isEmpty(), s.isEmpty());</span>
+
+<span class="fc" id="L2602">        int count = 0;</span>
+
+<span class="fc bfc" id="L2604" title="All 2 branches covered.">        for (Iterator iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L2605">            iter.next();</span>
+
+<span class="fc" id="L2607">            ++count;</span>
+        }
+
+<span class="fc" id="L2610">        assertEquals(s.size(), count);</span>
+
+<span class="fc" id="L2612">        LocalTestNode node2 = new LocalTestNode(-2);</span>
+
+<span class="fc bfc" id="L2614" title="All 2 branches covered.">        if (m.size() == 0) {</span>
+<span class="fc" id="L2615">            m.put(node2.getKey(), node2);</span>
+        }
+
+<span class="fc" id="L2618">        Iterator iter = s.iterator();</span>
+
+<span class="fc" id="L2620">        m.put(node.getKey(), node);</span>
+
+        try {
+<span class="nc" id="L2623">            iter.next();</span>
+<span class="nc" id="L2624">            fail(&quot;next() should have thrown an exception after a put&quot;);</span>
+<span class="pc" id="L2625">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2627">        m.remove(node2.getKey());</span>
+
+<span class="fc" id="L2629">        iter = s.iterator();</span>
+
+<span class="fc" id="L2631">        m.remove(node.getKey());</span>
+
+        try {
+<span class="nc" id="L2634">            iter.next();</span>
+<span class="nc" id="L2635">            fail(&quot;next() should have thrown an exception after a Map remove&quot;);</span>
+<span class="pc" id="L2636">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2638">        m.put(node.getKey(), node);</span>
+
+<span class="fc" id="L2640">        iter  = s.iterator();</span>
+<span class="fc" id="L2641">        count = 0;</span>
+
+<span class="fc" id="L2643">        boolean terminated = false;</span>
+
+        try {
+<span class="fc" id="L2646">            while (true) {</span>
+<span class="fc" id="L2647">                iter.next();</span>
+
+<span class="fc" id="L2649">                ++count;</span>
+            }
+<span class="fc" id="L2651">        } catch (NoSuchElementException ignored) {</span>
+<span class="fc" id="L2652">            terminated = true;</span>
+        }
+
+<span class="fc" id="L2655">        assertTrue(terminated);</span>
+<span class="fc" id="L2656">        assertEquals(m.size(), count);</span>
+
+<span class="fc" id="L2658">        iter = s.iterator();</span>
+
+        try {
+<span class="nc" id="L2661">            iter.remove();</span>
+<span class="nc" id="L2662">            fail(&quot;Should have thrown exception&quot;);</span>
+<span class="pc" id="L2663">        } catch (IllegalStateException ignored) {}</span>
+
+<span class="fc" id="L2665">        iter = s.iterator();</span>
+
+<span class="fc" id="L2667">        iter.next();</span>
+
+<span class="fc" id="L2669">        LocalTestNode node3 = new LocalTestNode(-3);</span>
+
+<span class="fc" id="L2671">        m.put(node3.getKey(), node3);</span>
+
+        try {
+<span class="nc" id="L2674">            iter.remove();</span>
+<span class="nc" id="L2675">            fail(&quot;should have thrown exception&quot;);</span>
+<span class="pc" id="L2676">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2678">        int removalCount = 0;</span>
+<span class="fc" id="L2679">        int when         = m.size() / 2;</span>
+<span class="fc" id="L2680">        int timer        = 0;</span>
+
+<span class="fc bfc" id="L2682" title="All 2 branches covered.">        for (iter = s.iterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L2683">            iter.next();</span>
+
+<span class="fc bfc" id="L2685" title="All 2 branches covered.">            if (timer == when) {</span>
+                try {
+<span class="fc" id="L2687">                    iter.remove();</span>
+
+<span class="fc" id="L2689">                    ++removalCount;</span>
+
+<span class="nc" id="L2691">                    iter.remove();</span>
+<span class="nc" id="L2692">                    fail(&quot;2nd remove should have failed&quot;);</span>
+<span class="pc" id="L2693">                } catch (IllegalStateException ignored) {</span>
+<span class="fc" id="L2694">                    assertEquals(1, removalCount);</span>
+                }
+            }
+
+<span class="fc" id="L2698">            timer++;</span>
+        }
+
+<span class="fc" id="L2701">        assertEquals(1, removalCount);</span>
+
+<span class="fc" id="L2703">        Iterator iter2 = s.iterator();</span>
+
+        try {
+<span class="nc" id="L2706">            iter2.remove();</span>
+<span class="nc" id="L2707">            fail(&quot;Should have thrown exception&quot;);</span>
+<span class="pc" id="L2708">        } catch (IllegalStateException ignored) {}</span>
+
+<span class="fc" id="L2710">        iter2 = s.iterator();</span>
+
+<span class="fc bfc" id="L2712" title="All 2 branches covered.">        while (iter2.hasNext()) {</span>
+<span class="fc" id="L2713">            iter2.next();</span>
+        }
+
+<span class="fc" id="L2716">        LocalTestNode node4 = new LocalTestNode(-4);</span>
+
+<span class="fc" id="L2718">        m.put(node4.getKey(), node4);</span>
+
+        try {
+<span class="nc" id="L2721">            iter2.remove();</span>
+<span class="nc" id="L2722">            fail(&quot;should have thrown exception&quot;);</span>
+<span class="pc" id="L2723">        } catch (ConcurrentModificationException ignored) {}</span>
+
+<span class="fc" id="L2725">        Object[] a1 = s.toArray();</span>
+
+<span class="fc" id="L2727">        assertEquals(s.size(), a1.length);</span>
+
+<span class="pc bpc" id="L2729" title="1 of 2 branches missed.">        if (a1.length &gt; 1) {</span>
+<span class="fc" id="L2730">            Map.Entry first = (Map.Entry) a1[0];</span>
+
+<span class="fc bfc" id="L2732" title="All 2 branches covered.">            for (int k = 1; k &lt; a1.length; k++) {</span>
+<span class="fc" id="L2733">                Map.Entry second = (Map.Entry) a1[k];</span>
+
+<span class="pc bpc" id="L2735" title="1 of 2 branches missed.">                assertTrue(((Comparable) first.getKey())</span>
+<span class="fc" id="L2736">                    .compareTo((Comparable) second.getKey()) &lt; 0);</span>
+
+<span class="fc" id="L2738">                first = second;</span>
+            }
+
+<span class="fc" id="L2741">            iter  = s.iterator();</span>
+<span class="fc" id="L2742">            first = (Map.Entry) iter.next();</span>
+
+<span class="fc bfc" id="L2744" title="All 2 branches covered.">            for (; iter.hasNext(); ) {</span>
+<span class="fc" id="L2745">                Map.Entry second = (Map.Entry) iter.next();</span>
+
+<span class="pc bpc" id="L2747" title="1 of 2 branches missed.">                assertTrue(((Comparable) first.getKey())</span>
+<span class="fc" id="L2748">                    .compareTo((Comparable) second.getKey()) &lt; 0);</span>
+
+<span class="fc" id="L2750">                first = second;</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L2755">            Integer array2[] = (Integer[]) s.toArray(new Integer[0]);</span>
+
+<span class="nc bnc" id="L2757" title="All 2 branches missed.">            if (s.size() != 0) {</span>
+<span class="nc" id="L2758">                fail(&quot;should have caught exception creating an invalid array&quot;);</span>
+            }
+<span class="pc" id="L2760">        } catch (ArrayStoreException ignored) {}</span>
+
+<span class="fc" id="L2762">        Map.Entry array2[] = (Map.Entry[]) s.toArray(new Map.Entry[0]);</span>
+<span class="fc" id="L2763">        Map.Entry array3[] = (Map.Entry[]) s.toArray(new Map.Entry[s.size()]);</span>
+
+<span class="pc bpc" id="L2765" title="1 of 2 branches missed.">        if (array3.length &gt; 1) {</span>
+<span class="fc" id="L2766">            Comparable first =</span>
+<span class="fc" id="L2767">                (Comparable) ((Map.Entry) array3[0]).getValue();</span>
+
+<span class="fc bfc" id="L2769" title="All 2 branches covered.">            for (int k = 1; k &lt; array3.length; k++) {</span>
+<span class="fc" id="L2770">                Comparable second =</span>
+<span class="fc" id="L2771">                    (Comparable) ((Map.Entry) array3[k]).getValue();</span>
+
+<span class="pc bpc" id="L2773" title="1 of 2 branches missed.">                assertTrue(first.compareTo(second) &lt; 0);</span>
+
+<span class="fc" id="L2775">                first = second;</span>
+            }
+        }
+
+        try {
+<span class="nc" id="L2780">            s.add(node.getKey());</span>
+<span class="nc" id="L2781">            fail(&quot;should have thrown an exception&quot;);</span>
+<span class="pc" id="L2782">        } catch (UnsupportedOperationException ignored) {}</span>
+
+<span class="pc bpc" id="L2784" title="1 of 2 branches missed.">        assertTrue(!s.equals(null));</span>
+<span class="fc" id="L2785">        assertEquals(&quot;SetEquality 1&quot;, s, s);</span>
+
+<span class="fc" id="L2787">        Set hs = new HashSet(s);</span>
+
+<span class="fc" id="L2789">        assertEquals(&quot;SetEquality 2&quot;, s, hs);</span>
+<span class="fc" id="L2790">        assertEquals(&quot;SetEquality 3&quot;, hs, s);</span>
+<span class="fc" id="L2791">        assertEquals(s.hashCode(), hs.hashCode());</span>
+<span class="fc" id="L2792">    }</span>
+
+    private LocalTestNode[] makeLocalNodes() {
+
+<span class="fc" id="L2796">        LocalTestNode nodes[] = new LocalTestNode[1023];</span>
+
+<span class="fc bfc" id="L2798" title="All 2 branches covered.">        for (int k = 0; k &lt; nodes.length; k++) {</span>
+<span class="fc" id="L2799">            nodes[k] = new LocalTestNode(k);</span>
+        }
+
+<span class="fc" id="L2802">        return nodes;</span>
+    }
+
+    /* **********  END  helper methods ********** */
+
+    /**
+     * Method main
+     *
+     * @param unusedArgs
+     */
+    public static void main(final String unusedArgs[]) {
+<span class="nc bnc" id="L2813" title="All 2 branches missed.">        junit.textui.TestRunner.run(TestDoubleOrderedMap.class);</span>
+<span class="nc" id="L2814">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestGrowthList.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.list</a> &gt; <span class="el_source">TestGrowthList.java</span></div><h1>TestGrowthList.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.list;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+/**
+ * Extension of {@link TestList} for exercising the {@link GrowthList}.
+ *
+ * @since Commons Collections 3.2
+ * @version $Revision: 155406 $ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class TestGrowthList extends AbstractTestList {
+
+    public TestGrowthList(String testName) {
+<span class="fc" id="L38">        super(testName);</span>
+<span class="fc" id="L39">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L42" title="All 2 branches covered.">        return new TestSuite(TestGrowthList.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        String[] testCaseName = { TestGrowthList.class.getName()};</span>
+<span class="nc" id="L47">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L48">    }</span>
+
+    public List makeEmptyList() {
+<span class="fc" id="L51">        return new GrowthList();</span>
+    }
+
+    public List makeFullList() {
+<span class="fc" id="L55">        List list = new ArrayList();</span>
+<span class="fc" id="L56">        list.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L57">        return GrowthList.decorate(list);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testGrowthAdd() {
+<span class="fc" id="L62">        Integer one = new Integer(1);</span>
+<span class="fc" id="L63">        GrowthList grower = new GrowthList();</span>
+<span class="fc" id="L64">        assertEquals(0, grower.size());</span>
+<span class="fc" id="L65">        grower.add(1, one);</span>
+<span class="fc" id="L66">        assertEquals(2, grower.size());</span>
+<span class="fc" id="L67">        assertEquals(null, grower.get(0));</span>
+<span class="fc" id="L68">        assertEquals(one, grower.get(1));</span>
+<span class="fc" id="L69">    }</span>
+
+    public void testGrowthAddAll() {
+<span class="fc" id="L72">        Integer one = new Integer(1);</span>
+<span class="fc" id="L73">        Integer two = new Integer(2);</span>
+<span class="fc" id="L74">        Collection coll = new ArrayList();</span>
+<span class="fc" id="L75">        coll.add(one);</span>
+<span class="fc" id="L76">        coll.add(two);</span>
+<span class="fc" id="L77">        GrowthList grower = new GrowthList();</span>
+<span class="fc" id="L78">        assertEquals(0, grower.size());</span>
+<span class="fc" id="L79">        grower.addAll(1, coll);</span>
+<span class="fc" id="L80">        assertEquals(3, grower.size());</span>
+<span class="fc" id="L81">        assertEquals(null, grower.get(0));</span>
+<span class="fc" id="L82">        assertEquals(one, grower.get(1));</span>
+<span class="fc" id="L83">        assertEquals(two, grower.get(2));</span>
+<span class="fc" id="L84">    }</span>
+
+    public void testGrowthSet1() {
+<span class="fc" id="L87">        Integer one = new Integer(1);</span>
+<span class="fc" id="L88">        GrowthList grower = new GrowthList();</span>
+<span class="fc" id="L89">        assertEquals(0, grower.size());</span>
+<span class="fc" id="L90">        grower.set(1, one);</span>
+<span class="fc" id="L91">        assertEquals(2, grower.size());</span>
+<span class="fc" id="L92">        assertEquals(null, grower.get(0));</span>
+<span class="fc" id="L93">        assertEquals(one, grower.get(1));</span>
+<span class="fc" id="L94">    }</span>
+
+    public void testGrowthSet2() {
+<span class="fc" id="L97">        Integer one = new Integer(1);</span>
+<span class="fc" id="L98">        GrowthList grower = new GrowthList();</span>
+<span class="fc" id="L99">        assertEquals(0, grower.size());</span>
+<span class="fc" id="L100">        grower.set(0, one);</span>
+<span class="fc" id="L101">        assertEquals(1, grower.size());</span>
+<span class="fc" id="L102">        assertEquals(one, grower.get(0));</span>
+<span class="fc" id="L103">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Override.
+     */
+    public void testListAddByIndexBoundsChecking() {
+        List list;
+<span class="fc" id="L111">        Object element = getOtherElements()[0];</span>
+        try {
+<span class="fc" id="L113">            list = makeEmptyList();</span>
+<span class="nc" id="L114">            list.add(-1, element);</span>
+<span class="nc" id="L115">            fail(&quot;List.add should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L116">        } catch (IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L119">    }</span>
+
+    /**
+     * Override.
+     */
+    public void testListAddByIndexBoundsChecking2() {
+        List list;
+<span class="fc" id="L126">        Object element = getOtherElements()[0];</span>
+        try {
+<span class="fc" id="L128">            list = makeFullList();</span>
+<span class="nc" id="L129">            list.add(-1, element);</span>
+<span class="nc" id="L130">            fail(&quot;List.add should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L131">        } catch (IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L134">    }</span>
+
+    /**
+     * Override.
+     */
+    public void testListSetByIndexBoundsChecking() {
+<span class="fc" id="L140">        List list = makeEmptyList();</span>
+<span class="fc" id="L141">        Object element = getOtherElements()[0];</span>
+        try {
+<span class="nc" id="L143">            list.set(-1, element);</span>
+<span class="nc" id="L144">            fail(&quot;List.set should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L145">        } catch (IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L148">    }</span>
+
+    /**
+     * Override.
+     */
+    public void testListSetByIndexBoundsChecking2() {
+<span class="fc" id="L154">        List list = makeFullList();</span>
+<span class="fc" id="L155">        Object element = getOtherElements()[0];</span>
+        try {
+<span class="nc" id="L157">            list.set(-1, element);</span>
+<span class="nc" id="L158">            fail(&quot;List.set should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L159">        } catch(IndexOutOfBoundsException e) {</span>
+            // expected
+        } 
+<span class="fc" id="L162">    }</span>
+
+    //-----------------------------------------------------------------------
+    public String getCompatibilityVersion() {
+<span class="fc" id="L166">        return &quot;3.2&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;C:/commons/collections/data/test/GrowthList.emptyCollection.version3.2.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;C:/commons/collections/data/test/GrowthList.fullCollection.version3.2.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

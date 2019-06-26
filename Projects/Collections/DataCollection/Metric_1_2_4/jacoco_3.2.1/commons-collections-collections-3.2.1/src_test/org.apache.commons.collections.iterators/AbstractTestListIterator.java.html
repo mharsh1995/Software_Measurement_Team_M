@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestListIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">AbstractTestListIterator.java</span></div><h1>AbstractTestListIterator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+
+/**
+ * Abstract class for testing the ListIterator interface.
+ * &lt;p&gt;
+ * This class provides a framework for testing an implementation of ListIterator.
+ * Concrete subclasses must provide the list iterator to be tested.
+ * They must also specify certain details of how the list iterator operates by
+ * overriding the supportsXxx() methods if necessary.
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Rodney Waldhoff
+ * @author Stephen Colebourne
+ */
+public abstract class AbstractTestListIterator extends AbstractTestIterator {
+
+    /**
+     * JUnit constructor.
+     * 
+     * @param testName  the test class name
+     */
+    public AbstractTestListIterator(String testName) {
+<span class="fc" id="L46">        super(testName);</span>
+<span class="fc" id="L47">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Implement this method to return a list iterator over an empty collection.
+     * 
+     * @return an empty iterator
+     */
+    public abstract ListIterator makeEmptyListIterator();
+
+    /**
+     * Implement this method to return a list iterator over a collection with elements.
+     * 
+     * @return a full iterator
+     */
+    public abstract ListIterator makeFullListIterator();
+
+    /**
+     * Implements the abstract superclass method to return the list iterator.
+     * 
+     * @return an empty iterator
+     */
+    public Iterator makeEmptyIterator() {
+<span class="fc" id="L70">        return makeEmptyListIterator();</span>
+    }
+
+    /**
+     * Implements the abstract superclass method to return the list iterator.
+     * 
+     * @return a full iterator
+     */
+    public Iterator makeFullIterator() {
+<span class="fc" id="L79">        return makeFullListIterator();</span>
+    }
+
+    /**
+     * Whether or not we are testing an iterator that supports add().
+     * Default is true.
+     * 
+     * @return true if Iterator supports add
+     */
+    public boolean supportsAdd() {
+<span class="fc" id="L89">        return true;</span>
+    }
+
+    /**
+     * Whether or not we are testing an iterator that supports set().
+     * Default is true.
+     * 
+     * @return true if Iterator supports set
+     */
+    public boolean supportsSet() {
+<span class="fc" id="L99">        return true;</span>
+    }
+
+    /**
+     * The value to be used in the add and set tests.
+     * Default is null.
+     */
+    public Object addSetValue() {
+<span class="fc" id="L107">        return null;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test that the empty list iterator contract is correct.
+     */
+    public void testEmptyListIteratorIsIndeedEmpty() {
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        if (supportsEmptyIterator() == false) {</span>
+<span class="nc" id="L116">            return;</span>
+        }
+
+<span class="fc" id="L119">        ListIterator it = makeEmptyListIterator();</span>
+        
+<span class="fc" id="L121">        assertEquals(false, it.hasNext());</span>
+<span class="fc" id="L122">        assertEquals(0, it.nextIndex());</span>
+<span class="fc" id="L123">        assertEquals(false, it.hasPrevious());</span>
+<span class="fc" id="L124">        assertEquals(-1, it.previousIndex());</span>
+        
+        // next() should throw a NoSuchElementException
+        try {
+<span class="nc" id="L128">            it.next();</span>
+<span class="nc" id="L129">            fail(&quot;NoSuchElementException must be thrown from empty ListIterator&quot;);</span>
+<span class="pc" id="L130">        } catch (NoSuchElementException e) {</span>
+        }
+        
+        // previous() should throw a NoSuchElementException
+        try {
+<span class="nc" id="L135">            it.previous();</span>
+<span class="nc" id="L136">            fail(&quot;NoSuchElementException must be thrown from empty ListIterator&quot;);</span>
+<span class="pc" id="L137">        } catch (NoSuchElementException e) {</span>
+        }
+<span class="fc" id="L139">    }</span>
+    
+    /**
+     * Test navigation through the iterator.
+     */
+    public void testWalkForwardAndBack() {
+<span class="fc" id="L145">        ArrayList list = new ArrayList();</span>
+<span class="fc" id="L146">        ListIterator it = makeFullListIterator();</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L148">            list.add(it.next());</span>
+        }
+        
+        // check state at end
+<span class="fc" id="L152">        assertEquals(false, it.hasNext());</span>
+<span class="fc" id="L153">        assertEquals(true, it.hasPrevious());</span>
+        try {
+<span class="nc" id="L155">            it.next();</span>
+<span class="nc" id="L156">            fail(&quot;NoSuchElementException must be thrown from next at end of ListIterator&quot;);</span>
+<span class="pc" id="L157">        } catch (NoSuchElementException e) {</span>
+        }
+        
+        // loop back through comparing
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        for (int i = list.size() - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L162">            assertEquals(i + 1, it.nextIndex());</span>
+<span class="fc" id="L163">            assertEquals(i, it.previousIndex());</span>
+        
+<span class="fc" id="L165">            Object obj = list.get(i);</span>
+<span class="fc" id="L166">            assertEquals(obj, it.previous());</span>
+        }
+        
+        // check state at start
+<span class="fc" id="L170">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L171">        assertEquals(false, it.hasPrevious());</span>
+        try {
+<span class="nc" id="L173">            it.previous();</span>
+<span class="nc" id="L174">            fail(&quot;NoSuchElementException must be thrown from previous at start of ListIterator&quot;);</span>
+<span class="pc" id="L175">        } catch (NoSuchElementException e) {</span>
+        }
+<span class="fc" id="L177">    }</span>
+    
+    /**
+     * Test add behaviour.
+     */
+    public void testAdd() {
+<span class="fc" id="L183">        ListIterator it = makeFullListIterator();</span>
+        
+<span class="fc" id="L185">        Object addValue = addSetValue();</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        if (supportsAdd() == false) {</span>
+            // check for UnsupportedOperationException if not supported
+            try {
+<span class="nc" id="L189">                it.add(addValue);</span>
+<span class="pc" id="L190">            } catch (UnsupportedOperationException ex) {}</span>
+<span class="fc" id="L191">            return;</span>
+        }
+        
+        // add at start should be OK, added should be previous
+<span class="fc" id="L195">        it = makeFullListIterator();</span>
+<span class="fc" id="L196">        it.add(addValue);</span>
+<span class="fc" id="L197">        assertEquals(addValue, it.previous());</span>
+
+        // add at start should be OK, added should not be next
+<span class="fc" id="L200">        it = makeFullListIterator();</span>
+<span class="fc" id="L201">        it.add(addValue);</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        assertTrue(addValue != it.next());</span>
+
+        // add in middle and at end should be OK
+<span class="fc" id="L205">        it = makeFullListIterator();</span>
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L207">            it.next();</span>
+<span class="fc" id="L208">            it.add(addValue);</span>
+            // check add OK
+<span class="fc" id="L210">            assertEquals(addValue, it.previous());</span>
+<span class="fc" id="L211">            it.next();</span>
+        }        
+<span class="fc" id="L213">    }</span>
+    
+    /**
+     * Test set behaviour.
+     */
+    public void testSet() {
+<span class="fc" id="L219">        ListIterator it = makeFullListIterator();</span>
+        
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        if (supportsSet() == false) {</span>
+            // check for UnsupportedOperationException if not supported
+            try {
+<span class="nc" id="L224">                it.set(addSetValue());</span>
+<span class="pc" id="L225">            } catch (UnsupportedOperationException ex) {}</span>
+<span class="fc" id="L226">            return;</span>
+        }
+        
+        // should throw IllegalStateException before next() called
+        try {
+<span class="nc" id="L231">            it.set(addSetValue());</span>
+<span class="nc" id="L232">            fail();</span>
+<span class="pc" id="L233">        } catch (IllegalStateException ex) {}</span>
+        
+        // set after next should be fine
+<span class="fc" id="L236">        it.next();</span>
+<span class="fc" id="L237">        it.set(addSetValue());</span>
+        
+        // repeated set calls should be fine
+<span class="fc" id="L240">        it.set(addSetValue());</span>
+
+<span class="fc" id="L242">    }</span>
+    
+    public void testRemoveThenSet() {
+<span class="fc" id="L245">        ListIterator it = makeFullListIterator();</span>
+<span class="pc bpc" id="L246" title="1 of 4 branches missed.">        if (supportsRemove() &amp;&amp; supportsSet()) {</span>
+<span class="fc" id="L247">            it.next();</span>
+<span class="fc" id="L248">            it.remove();</span>
+            try {
+<span class="nc" id="L250">                it.set(addSetValue());</span>
+<span class="nc" id="L251">                fail(&quot;IllegalStateException must be thrown from set after remove&quot;);</span>
+<span class="pc" id="L252">            } catch (IllegalStateException e) {</span>
+            }
+        }
+<span class="fc" id="L255">    }</span>
+
+    public void testAddThenSet() {
+<span class="fc" id="L258">        ListIterator it = makeFullListIterator();        </span>
+        // add then set
+<span class="pc bpc" id="L260" title="1 of 4 branches missed.">        if (supportsAdd() &amp;&amp; supportsSet()) {</span>
+<span class="fc" id="L261">            it.next();</span>
+<span class="fc" id="L262">            it.add(addSetValue());</span>
+            try {
+<span class="nc" id="L264">                it.set(addSetValue());</span>
+<span class="nc" id="L265">                fail(&quot;IllegalStateException must be thrown from set after add&quot;);</span>
+<span class="pc" id="L266">            } catch (IllegalStateException e) {</span>
+            }
+        }
+<span class="fc" id="L269">    }</span>
+    
+    /**
+     * Test remove after add behaviour.
+     */
+    public void testAddThenRemove() {
+<span class="fc" id="L275">        ListIterator it = makeFullListIterator();</span>
+        
+        // add then remove
+<span class="pc bpc" id="L278" title="1 of 4 branches missed.">        if (supportsAdd() &amp;&amp; supportsRemove()) {</span>
+<span class="fc" id="L279">            it.next();</span>
+<span class="fc" id="L280">            it.add(addSetValue());</span>
+            try {
+<span class="nc" id="L282">                it.remove();</span>
+<span class="nc" id="L283">                fail(&quot;IllegalStateException must be thrown from remove after add&quot;);</span>
+<span class="pc" id="L284">            } catch (IllegalStateException e) {</span>
+            }
+        }
+<span class="fc" id="L287">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestBoundedFifoBuffer2.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestBoundedFifoBuffer2.java</span></div><h1>TestBoundedFifoBuffer2.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import junit.framework.Test;
+
+/**
+ * Runs tests against a full BoundedFifoBuffer, since many of the algorithms
+ * differ depending on whether the fifo is full or not.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Unknown
+ */
+public class TestBoundedFifoBuffer2 extends TestBoundedFifoBuffer {
+
+    public TestBoundedFifoBuffer2(String n) {
+<span class="fc" id="L35">        super(n);</span>
+<span class="fc" id="L36">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L39" title="All 2 branches covered.">        return BulkTest.makeSuite(TestBoundedFifoBuffer2.class);</span>
+    }
+
+    /**
+     *  Returns a BoundedFifoBuffer that's filled to capacity.
+     *  Any attempt to add to the returned buffer will result in a 
+     *  BufferOverflowException.
+     *
+     *  @return a full BoundedFifoBuffer
+     */
+    public Collection makeFullCollection() {
+<span class="fc" id="L50">        return new BoundedFifoBuffer(Arrays.asList(getFullElements()));</span>
+    }
+
+
+    /**
+     *  Overridden to skip the add tests.  All of them would fail with a 
+     *  BufferOverflowException.
+     *
+     *  @return false
+     */
+    public boolean isAddSupported() {
+<span class="fc" id="L61">        return false;</span>
+    }
+
+
+    /**
+     *  Overridden because the add operations raise BufferOverflowException
+     *  instead of UnsupportedOperationException.
+     */
+    public void testUnsupportedAdd() {
+<span class="fc" id="L70">    }</span>
+
+
+    /**
+     *  Tests to make sure the add operations raise BufferOverflowException.
+     */
+    public void testBufferOverflow() {
+<span class="fc" id="L77">        resetFull();</span>
+        try {
+<span class="nc" id="L79">            collection.add(getOtherElements()[0]);</span>
+<span class="nc" id="L80">            fail(&quot;add should raise BufferOverflow.&quot;);</span>
+<span class="pc" id="L81">        } catch (BufferOverflowException e) {</span>
+            // expected
+        }
+<span class="fc" id="L84">        verify();</span>
+
+        try {
+<span class="nc" id="L87">            collection.addAll(Arrays.asList(getOtherElements()));</span>
+<span class="nc" id="L88">            fail(&quot;addAll should raise BufferOverflow.&quot;);</span>
+<span class="pc" id="L89">        } catch (BufferOverflowException e) {</span>
+            // expected
+        }
+<span class="fc" id="L92">        verify();</span>
+<span class="fc" id="L93">    }</span>
+
+    /**
+     * Tests is full
+     */
+    public void testIsFull() {
+<span class="fc" id="L99">        resetFull();</span>
+<span class="fc" id="L100">        assertEquals(true, ((BoundedCollection) collection).isFull());</span>
+<span class="fc" id="L101">        ((BoundedFifoBuffer) collection).remove();</span>
+<span class="fc" id="L102">        assertEquals(false, ((BoundedCollection) collection).isFull());</span>
+<span class="fc" id="L103">        ((BoundedFifoBuffer) collection).add(&quot;jj&quot;);</span>
+<span class="fc" id="L104">        assertEquals(true, ((BoundedCollection) collection).isFull());</span>
+<span class="fc" id="L105">    }</span>
+
+    /**
+     * Tests max size
+     */
+    public void testMaxSize() {
+<span class="fc" id="L111">        resetFull();</span>
+<span class="fc" id="L112">        assertEquals(getFullElements().length, ((BoundedCollection) collection).maxSize());</span>
+<span class="fc" id="L113">        ((BoundedFifoBuffer) collection).remove();</span>
+<span class="fc" id="L114">        assertEquals(getFullElements().length, ((BoundedCollection) collection).maxSize());</span>
+<span class="fc" id="L115">        ((BoundedFifoBuffer) collection).add(&quot;jj&quot;);</span>
+<span class="fc" id="L116">        assertEquals(getFullElements().length, ((BoundedCollection) collection).maxSize());</span>
+<span class="fc" id="L117">    }</span>
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

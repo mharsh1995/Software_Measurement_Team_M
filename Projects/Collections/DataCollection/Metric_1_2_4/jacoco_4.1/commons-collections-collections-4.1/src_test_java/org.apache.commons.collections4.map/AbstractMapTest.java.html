@@ -1,0 +1,2074 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractMapTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.map</a> &gt; <span class="el_source">AbstractMapTest.java</span></div><h1>AbstractMapTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.map;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.apache.commons.collections4.AbstractObjectTest;
+import org.apache.commons.collections4.BulkTest;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.collection.AbstractCollectionTest;
+import org.apache.commons.collections4.keyvalue.DefaultMapEntry;
+import org.apache.commons.collections4.set.AbstractSetTest;
+
+/**
+ * Abstract test class for {@link java.util.Map} methods and contracts.
+ * &lt;p&gt;
+ * The forces at work here are similar to those in {@link AbstractCollectionTest}.
+ * If your class implements the full Map interface, including optional
+ * operations, simply extend this class, and implement the
+ * {@link #makeObject()} method.
+ * &lt;p&gt;
+ * On the other hand, if your map implementation is weird, you may have to
+ * override one or more of the other protected methods.  They're described
+ * below.
+ * &lt;p&gt;
+ * &lt;b&gt;Entry Population Methods&lt;/b&gt;
+ * &lt;p&gt;
+ * Override these methods if your map requires special entries:
+ *
+ * &lt;ul&gt;
+ * &lt;li&gt;{@link #getSampleKeys()}
+ * &lt;li&gt;{@link #getSampleValues()}
+ * &lt;li&gt;{@link #getNewSampleValues()}
+ * &lt;li&gt;{@link #getOtherKeys()}
+ * &lt;li&gt;{@link #getOtherValues()}
+ * &lt;/ul&gt;
+ *
+ * &lt;b&gt;Supported Operation Methods&lt;/b&gt;
+ * &lt;p&gt;
+ * Override these methods if your map doesn't support certain operations:
+ *
+ * &lt;ul&gt;
+ * &lt;li&gt; {@link #isPutAddSupported()}
+ * &lt;li&gt; {@link #isPutChangeSupported()}
+ * &lt;li&gt; {@link #isSetValueSupported()}
+ * &lt;li&gt; {@link #isRemoveSupported()}
+ * &lt;li&gt; {@link #isGetStructuralModify()}
+ * &lt;li&gt; {@link #isAllowDuplicateValues()}
+ * &lt;li&gt; {@link #isAllowNullKey()}
+ * &lt;li&gt; {@link #isAllowNullValue()}
+ * &lt;/ul&gt;
+ *
+ * &lt;b&gt;Fixture Methods&lt;/b&gt;
+ * &lt;p&gt;
+ * For tests on modification operations (puts and removes), fixtures are used
+ * to verify that that operation results in correct state for the map and its
+ * collection views.  Basically, the modification is performed against your
+ * map implementation, and an identical modification is performed against
+ * a &lt;I&gt;confirmed&lt;/I&gt; map implementation.  A confirmed map implementation is
+ * something like &lt;Code&gt;java.util.HashMap&lt;/Code&gt;, which is known to conform
+ * exactly to the {@link Map} contract.  After the modification takes place
+ * on both your map implementation and the confirmed map implementation, the
+ * two maps are compared to see if their state is identical.  The comparison
+ * also compares the collection views to make sure they're still the same.&lt;P&gt;
+ *
+ * The upshot of all that is that &lt;I&gt;any&lt;/I&gt; test that modifies the map in
+ * &lt;I&gt;any&lt;/I&gt; way will verify that &lt;I&gt;all&lt;/I&gt; of the map's state is still
+ * correct, including the state of its collection views.  So for instance
+ * if a key is removed by the map's key set's iterator, then the entry set
+ * is checked to make sure the key/value pair no longer appears.&lt;P&gt;
+ *
+ * The {@link #map} field holds an instance of your collection implementation.
+ * The {@link #entrySet}, {@link #keySet} and {@link #values} fields hold
+ * that map's collection views.  And the {@link #confirmed} field holds
+ * an instance of the confirmed collection implementation.  The
+ * {@link #resetEmpty()} and {@link #resetFull()} methods set these fields to
+ * empty or full maps, so that tests can proceed from a known state.&lt;P&gt;
+ *
+ * After a modification operation to both {@link #map} and {@link #confirmed},
+ * the {@link #verify()} method is invoked to compare the results.  The
+ * {@link #verify} method calls separate methods to verify the map and its three
+ * collection views ({@link #verifyMap}, {@link #verifyEntrySet},
+ * {@link #verifyKeySet}, and {@link #verifyValues}).  You may want to override
+ * one of the verification methods to perform additional verifications.  For
+ * instance, TestDoubleOrderedMap would want override its
+ * {@link #verifyValues()} method to verify that the values are unique and in
+ * ascending order.&lt;P&gt;
+ *
+ * &lt;b&gt;Other Notes&lt;/b&gt;
+ * &lt;p&gt;
+ * If your {@link Map} fails one of these tests by design, you may still use
+ * this base set of cases.  Simply override the test case (method) your map
+ * fails and/or the methods that define the assumptions used by the test
+ * cases.  For example, if your map does not allow duplicate values, override
+ * {@link #isAllowDuplicateValues()} and have it return &lt;code&gt;false&lt;/code&gt;
+ *
+ * @version $Id$
+ */
+public abstract class AbstractMapTest&lt;K, V&gt; extends AbstractObjectTest {
+
+    /**
+     * JDK1.2 has bugs in null handling of Maps, especially HashMap.Entry.toString
+     * This avoids nulls for JDK1.2
+     */
+    private static final boolean JDK12;
+    static {
+<span class="fc" id="L132">        final String str = System.getProperty(&quot;java.version&quot;);</span>
+<span class="fc" id="L133">        JDK12 = str.startsWith(&quot;1.2&quot;);</span>
+<span class="fc" id="L134">    }</span>
+
+    // These instance variables are initialized with the reset method.
+    // Tests for map methods that alter the map (put, putAll, remove)
+    // first call reset() to create the map and its views; then perform
+    // the modification on the map; perform the same modification on the
+    // confirmed; and then call verify() to ensure that the map is equal
+    // to the confirmed, that the already-constructed collection views
+    // are still equal to the confirmed's collection views.
+
+    /** Map created by reset(). */
+    protected Map&lt;K, V&gt; map;
+
+    /** Entry set of map created by reset(). */
+    protected Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet;
+
+    /** Key set of map created by reset(). */
+    protected Set&lt;K&gt; keySet;
+
+    /** Values collection of map created by reset(). */
+    protected Collection&lt;V&gt; values;
+
+    /** HashMap created by reset(). */
+    protected Map&lt;K, V&gt; confirmed;
+
+    /**
+     * JUnit constructor.
+     *
+     * @param testName  the test name
+     */
+    public AbstractMapTest(final String testName) {
+<span class="fc" id="L165">        super(testName);</span>
+<span class="fc" id="L166">    }</span>
+
+    /**
+     * Returns true if the maps produced by
+     * {@link #makeObject()} and {@link #makeFullMap()}
+     * support the &lt;code&gt;put&lt;/code&gt; and &lt;code&gt;putAll&lt;/code&gt; operations
+     * adding new mappings.
+     * &lt;p&gt;
+     * Default implementation returns true.
+     * Override if your collection class does not support put adding.
+     */
+    public boolean isPutAddSupported() {
+<span class="fc" id="L178">        return true;</span>
+    }
+
+    /**
+     * Returns true if the maps produced by
+     * {@link #makeObject()} and {@link #makeFullMap()}
+     * support the &lt;code&gt;put&lt;/code&gt; and &lt;code&gt;putAll&lt;/code&gt; operations
+     * changing existing mappings.
+     * &lt;p&gt;
+     * Default implementation returns true.
+     * Override if your collection class does not support put changing.
+     */
+    public boolean isPutChangeSupported() {
+<span class="fc" id="L191">        return true;</span>
+    }
+
+    /**
+     * Returns true if the maps produced by
+     * {@link #makeObject()} and {@link #makeFullMap()}
+     * support the &lt;code&gt;setValue&lt;/code&gt; operation on entrySet entries.
+     * &lt;p&gt;
+     * Default implementation returns isPutChangeSupported().
+     * Override if your collection class does not support setValue but does
+     * support put changing.
+     */
+    public boolean isSetValueSupported() {
+<span class="fc" id="L204">        return isPutChangeSupported();</span>
+    }
+
+    /**
+     * Returns true if the maps produced by
+     * {@link #makeObject()} and {@link #makeFullMap()}
+     * support the &lt;code&gt;remove&lt;/code&gt; and &lt;code&gt;clear&lt;/code&gt; operations.
+     * &lt;p&gt;
+     * Default implementation returns true.
+     * Override if your collection class does not support removal operations.
+     */
+    public boolean isRemoveSupported() {
+<span class="fc" id="L216">        return true;</span>
+    }
+
+    /**
+     * Returns true if the maps produced by
+     * {@link #makeObject()} and {@link #makeFullMap()}
+     * can cause structural modification on a get(). The example is LRUMap.
+     * &lt;p&gt;
+     * Default implementation returns false.
+     * Override if your map class structurally modifies on get.
+     */
+    public boolean isGetStructuralModify() {
+<span class="fc" id="L228">        return false;</span>
+    }
+
+    /**
+     * Returns whether the sub map views of SortedMap are serializable.
+     * If the class being tested is based around a TreeMap then you should
+     * override and return false as TreeMap has a bug in deserialization.
+     *
+     * @return false
+     */
+    public boolean isSubMapViewsSerializable() {
+<span class="nc" id="L239">        return true;</span>
+    }
+
+    /**
+     * Returns true if the maps produced by
+     * {@link #makeObject()} and {@link #makeFullMap()}
+     * supports null keys.
+     * &lt;p&gt;
+     * Default implementation returns true.
+     * Override if your collection class does not support null keys.
+     */
+    public boolean isAllowNullKey() {
+<span class="fc" id="L251">        return true;</span>
+    }
+
+    /**
+     * Returns true if the maps produced by
+     * {@link #makeObject()} and {@link #makeFullMap()}
+     * supports null values.
+     * &lt;p&gt;
+     * Default implementation returns true.
+     * Override if your collection class does not support null values.
+     */
+    public boolean isAllowNullValue() {
+<span class="fc" id="L263">        return true;</span>
+    }
+
+    /**
+     * Returns true if the maps produced by
+     * {@link #makeObject()} and {@link #makeFullMap()}
+     * supports duplicate values.
+     * &lt;p&gt;
+     * Default implementation returns true.
+     * Override if your collection class does not support duplicate values.
+     */
+    public boolean isAllowDuplicateValues() {
+<span class="fc" id="L275">        return true;</span>
+    }
+
+    /**
+     * Returns true if the maps produced by
+     * {@link #makeObject()} and {@link #makeFullMap()}
+     * provide fail-fast behavior on their various iterators.
+     * &lt;p&gt;
+     * Default implementation returns true.
+     * Override if your collection class does not support fast failure.
+     */
+    public boolean isFailFastExpected() {
+<span class="fc" id="L287">        return true;</span>
+    }
+
+    public boolean areEqualElementsDistinguishable() {
+<span class="fc" id="L291">        return false;</span>
+    }
+
+    /**
+     *  Returns the set of keys in the mappings used to test the map.  This
+     *  method must return an array with the same length as {@link
+     *  #getSampleValues()} and all array elements must be different. The
+     *  default implementation constructs a set of String keys, and includes a
+     *  single null key if {@link #isAllowNullKey()} returns &lt;code&gt;true&lt;/code&gt;.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public K[] getSampleKeys() {
+<span class="fc" id="L303">        final Object[] result = new Object[] {</span>
+<span class="fc" id="L304">            &quot;blah&quot;, &quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;, &quot;tmp&quot;, &quot;gosh&quot;, &quot;golly&quot;, &quot;gee&quot;,</span>
+<span class="fc" id="L305">            &quot;hello&quot;, &quot;goodbye&quot;, &quot;we'll&quot;, &quot;see&quot;, &quot;you&quot;, &quot;all&quot;, &quot;again&quot;,</span>
+<span class="fc" id="L306">            &quot;key&quot;,</span>
+<span class="fc" id="L307">            &quot;key2&quot;,</span>
+<span class="pc bpc" id="L308" title="1 of 4 branches missed.">            isAllowNullKey() &amp;&amp; !JDK12 ? null : &quot;nonnullkey&quot;</span>
+        };
+<span class="fc" id="L310">        return (K[]) result;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public K[] getOtherKeys() {
+<span class="fc" id="L315">        return (K[]) getOtherNonNullStringElements();</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public V[] getOtherValues() {
+<span class="fc" id="L320">        return (V[]) getOtherNonNullStringElements();</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    protected &lt;E&gt; List&lt;E&gt; getAsList(final Object[] o) {
+<span class="fc" id="L325">        final ArrayList&lt;E&gt; result = new ArrayList&lt;E&gt;();</span>
+<span class="fc bfc" id="L326" title="All 2 branches covered.">        for (final Object element : o) {</span>
+<span class="fc" id="L327">            result.add((E) element);</span>
+        }
+<span class="fc" id="L329">        return result;</span>
+    }
+
+    /**
+     * Returns a list of string elements suitable for return by
+     * {@link #getOtherKeys()} or {@link #getOtherValues}.
+     *
+     * &lt;p&gt;Override getOtherElements to return the results of this method if your
+     * collection does not support heterogenous elements or the null element.
+     * &lt;/p&gt;
+     */
+    public Object[] getOtherNonNullStringElements() {
+<span class="fc" id="L341">        return new Object[] {</span>
+<span class="fc" id="L342">            &quot;For&quot;,&quot;then&quot;,&quot;despite&quot;,/* of */&quot;space&quot;,&quot;I&quot;,&quot;would&quot;,&quot;be&quot;,&quot;brought&quot;,</span>
+<span class="fc" id="L343">            &quot;From&quot;,&quot;limits&quot;,&quot;far&quot;,&quot;remote&quot;,&quot;where&quot;,&quot;thou&quot;,&quot;dost&quot;,&quot;stay&quot;</span>
+        };
+    }
+
+    /**
+     * Returns the set of values in the mappings used to test the map.  This
+     * method must return an array with the same length as
+     * {@link #getSampleKeys()}.  The default implementation constructs a set of
+     * String values and includes a single null value if
+     * {@link #isAllowNullValue()} returns &lt;code&gt;true&lt;/code&gt;, and includes
+     * two values that are the same if {@link #isAllowDuplicateValues()} returns
+     * &lt;code&gt;true&lt;/code&gt;.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public V[] getSampleValues() {
+<span class="fc" id="L358">        final Object[] result = new Object[] {</span>
+<span class="fc" id="L359">            &quot;blahv&quot;, &quot;foov&quot;, &quot;barv&quot;, &quot;bazv&quot;, &quot;tmpv&quot;, &quot;goshv&quot;, &quot;gollyv&quot;, &quot;geev&quot;,</span>
+<span class="fc" id="L360">            &quot;hellov&quot;, &quot;goodbyev&quot;, &quot;we'llv&quot;, &quot;seev&quot;, &quot;youv&quot;, &quot;allv&quot;, &quot;againv&quot;,</span>
+<span class="pc bpc" id="L361" title="1 of 4 branches missed.">            isAllowNullValue() &amp;&amp; !JDK12 ? null : &quot;nonnullvalue&quot;,</span>
+<span class="fc" id="L362">            &quot;value&quot;,</span>
+<span class="fc bfc" id="L363" title="All 2 branches covered.">            isAllowDuplicateValues() ? &quot;value&quot; : &quot;value2&quot;,</span>
+        };
+<span class="fc" id="L365">        return (V[]) result;</span>
+    }
+
+    /**
+     * Returns a the set of values that can be used to replace the values
+     * returned from {@link #getSampleValues()}.  This method must return an
+     * array with the same length as {@link #getSampleValues()}.  The values
+     * returned from this method should not be the same as those returned from
+     * {@link #getSampleValues()}.  The default implementation constructs a
+     * set of String values and includes a single null value if
+     * {@link #isAllowNullValue()} returns &lt;code&gt;true&lt;/code&gt;, and includes two values
+     * that are the same if {@link #isAllowDuplicateValues()} returns
+     * &lt;code&gt;true&lt;/code&gt;.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public V[] getNewSampleValues() {
+<span class="fc" id="L381">        final Object[] result = new Object[] {</span>
+<span class="pc bpc" id="L382" title="1 of 6 branches missed.">            isAllowNullValue() &amp;&amp; !JDK12 &amp;&amp; isAllowDuplicateValues() ? null : &quot;newnonnullvalue&quot;,</span>
+<span class="fc" id="L383">            &quot;newvalue&quot;,</span>
+<span class="fc bfc" id="L384" title="All 2 branches covered.">            isAllowDuplicateValues() ? &quot;newvalue&quot; : &quot;newvalue2&quot;,</span>
+<span class="fc" id="L385">            &quot;newblahv&quot;, &quot;newfoov&quot;, &quot;newbarv&quot;, &quot;newbazv&quot;, &quot;newtmpv&quot;, &quot;newgoshv&quot;,</span>
+<span class="fc" id="L386">            &quot;newgollyv&quot;, &quot;newgeev&quot;, &quot;newhellov&quot;, &quot;newgoodbyev&quot;, &quot;newwe'llv&quot;,</span>
+<span class="fc" id="L387">            &quot;newseev&quot;, &quot;newyouv&quot;, &quot;newallv&quot;, &quot;newagainv&quot;,</span>
+        };
+<span class="fc" id="L389">        return (V[]) result;</span>
+    }
+
+    /**
+     *  Helper method to add all the mappings described by
+     * {@link #getSampleKeys()} and {@link #getSampleValues()}.
+     */
+    public void addSampleMappings(final Map&lt;? super K, ? super V&gt; m) {
+
+<span class="fc" id="L398">        final K[] keys = getSampleKeys();</span>
+<span class="fc" id="L399">        final V[] values = getSampleValues();</span>
+
+<span class="fc bfc" id="L401" title="All 2 branches covered.">        for (int i = 0; i &lt; keys.length; i++) {</span>
+            try {
+<span class="fc" id="L403">                m.put(keys[i], values[i]);</span>
+<span class="pc" id="L404">            } catch (final NullPointerException exception) {</span>
+<span class="nc" id="L405">                assertTrue(&quot;NullPointerException only allowed to be thrown &quot; +</span>
+                           &quot;if either the key or value is null.&quot;,
+<span class="nc bnc" id="L407" title="All 4 branches missed.">                           keys[i] == null || values[i] == null);</span>
+
+<span class="nc" id="L409">                assertTrue(&quot;NullPointerException on null key, but &quot; +</span>
+                           &quot;isAllowNullKey is not overridden to return false.&quot;,
+<span class="nc bnc" id="L411" title="All 4 branches missed.">                           keys[i] == null || !isAllowNullKey());</span>
+
+<span class="nc" id="L413">                assertTrue(&quot;NullPointerException on null value, but &quot; +</span>
+                           &quot;isAllowNullValue is not overridden to return false.&quot;,
+<span class="nc bnc" id="L415" title="All 4 branches missed.">                           values[i] == null || !isAllowNullValue());</span>
+
+<span class="nc" id="L417">                assertTrue(&quot;Unknown reason for NullPointer.&quot;, false);</span>
+            }
+        }
+<span class="fc" id="L420">        assertEquals(&quot;size must reflect number of mappings added.&quot;,</span>
+<span class="fc" id="L421">                     keys.length, m.size());</span>
+<span class="fc" id="L422">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Return a new, empty {@link Map} to be used for testing.
+     *
+     * @return the map to be tested
+     */
+    @Override
+    public abstract Map&lt;K,V&gt; makeObject();
+
+    /**
+     * Return a new, populated map.  The mappings in the map should match the
+     * keys and values returned from {@link #getSampleKeys()} and
+     * {@link #getSampleValues()}.  The default implementation uses makeEmptyMap()
+     * and calls {@link #addSampleMappings} to add all the mappings to the
+     * map.
+     *
+     * @return the map to be tested
+     */
+    public Map&lt;K, V&gt; makeFullMap() {
+<span class="fc" id="L443">        final Map&lt;K, V&gt; m = makeObject();</span>
+<span class="fc" id="L444">        addSampleMappings(m);</span>
+<span class="fc" id="L445">        return m;</span>
+    }
+
+    /**
+     * Override to return a map other than HashMap as the confirmed map.
+     *
+     * @return a map that is known to be valid
+     */
+    public Map&lt;K, V&gt; makeConfirmedMap() {
+<span class="fc" id="L454">        return new HashMap&lt;K, V&gt;();</span>
+    }
+
+    /**
+     * Creates a new Map Entry that is independent of the first and the map.
+     */
+    public static &lt;K, V&gt; Map.Entry&lt;K, V&gt; cloneMapEntry(final Map.Entry&lt;K, V&gt; entry) {
+<span class="fc" id="L461">        final HashMap&lt;K, V&gt; map = new HashMap&lt;K, V&gt;();</span>
+<span class="fc" id="L462">        map.put(entry.getKey(), entry.getValue());</span>
+<span class="fc" id="L463">        return map.entrySet().iterator().next();</span>
+    }
+
+    /**
+     * Gets the compatability version, needed for package access.
+     */
+    @Override
+    public String getCompatibilityVersion() {
+<span class="nc" id="L471">        return super.getCompatibilityVersion();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test to ensure the test setup is working properly.  This method checks
+     * to ensure that the getSampleKeys and getSampleValues methods are
+     * returning results that look appropriate.  That is, they both return a
+     * non-null array of equal length.  The keys array must not have any
+     * duplicate values, and may only contain a (single) null key if
+     * isNullKeySupported() returns true.  The values array must only have a null
+     * value if useNullValue() is true and may only have duplicate values if
+     * isAllowDuplicateValues() returns true.
+     */
+    public void testSampleMappings() {
+<span class="fc" id="L486">        final Object[] keys = getSampleKeys();</span>
+<span class="fc" id="L487">        final Object[] values = getSampleValues();</span>
+<span class="fc" id="L488">        final Object[] newValues = getNewSampleValues();</span>
+
+<span class="fc" id="L490">        assertNotNull(&quot;failure in test: Must have keys returned from &quot; +</span>
+<span class="fc" id="L491">                 &quot;getSampleKeys.&quot;, keys);</span>
+
+<span class="fc" id="L493">        assertNotNull(&quot;failure in test: Must have values returned from &quot; +</span>
+<span class="fc" id="L494">                 &quot;getSampleValues.&quot;, values);</span>
+
+        // verify keys and values have equivalent lengths (in case getSampleX are
+        // overridden)
+<span class="fc" id="L498">        assertEquals(&quot;failure in test: not the same number of sample &quot; +</span>
+<span class="fc" id="L499">                   &quot;keys and values.&quot;,  keys.length, values.length);</span>
+
+<span class="fc" id="L501">        assertEquals(&quot;failure in test: not the same number of values and new values.&quot;,</span>
+<span class="fc" id="L502">                   values.length, newValues.length);</span>
+
+        // verify there aren't duplicate keys, and check values
+<span class="fc bfc" id="L505" title="All 2 branches covered.">        for (int i = 0; i &lt; keys.length - 1; i++) {</span>
+<span class="fc bfc" id="L506" title="All 2 branches covered.">            for (int j = i + 1; j &lt; keys.length; j++) {</span>
+<span class="fc" id="L507">                assertTrue(&quot;failure in test: duplicate null keys.&quot;,</span>
+<span class="pc bpc" id="L508" title="1 of 4 branches missed.">                        keys[i] != null || keys[j] != null);</span>
+<span class="fc" id="L509">                assertTrue(</span>
+<span class="fc" id="L510">                        &quot;failure in test: duplicate non-null key.&quot;,</span>
+<span class="pc bpc" id="L511" title="1 of 6 branches missed.">                        keys[i] == null || keys[j] == null || !keys[i].equals(keys[j]) &amp;&amp; !keys[j]</span>
+<span class="pc bpc" id="L512" title="1 of 2 branches missed.">                                .equals(keys[i]));</span>
+            }
+<span class="fc" id="L514">            assertTrue(&quot;failure in test: found null key, but isNullKeySupported &quot; + &quot;is false.&quot;,</span>
+<span class="pc bpc" id="L515" title="1 of 4 branches missed.">                    keys[i] != null || isAllowNullKey());</span>
+<span class="fc" id="L516">            assertTrue(</span>
+<span class="fc" id="L517">                    &quot;failure in test: found null value, but isNullValueSupported &quot; + &quot;is false.&quot;,</span>
+<span class="pc bpc" id="L518" title="1 of 4 branches missed.">                    values[i] != null || isAllowNullValue());</span>
+<span class="fc" id="L519">            assertTrue(&quot;failure in test: found null new value, but isNullValueSupported &quot;</span>
+<span class="pc bpc" id="L520" title="1 of 4 branches missed.">                    + &quot;is false.&quot;, newValues[i] != null || isAllowNullValue());</span>
+<span class="fc" id="L521">            assertTrue(&quot;failure in test: values should not be the same as new value&quot;,</span>
+<span class="pc bpc" id="L522" title="1 of 2 branches missed.">                    values[i] != newValues[i]</span>
+<span class="pc bpc" id="L523" title="1 of 4 branches missed.">                            &amp;&amp; (values[i] == null || !values[i].equals(newValues[i])));</span>
+        }
+<span class="fc" id="L525">    }</span>
+
+    // tests begin here.  Each test adds a little bit of tested functionality.
+    // Many methods assume previous methods passed.  That is, they do not
+    // exhaustively recheck things that have already been checked in a previous
+    // test methods.
+
+    /**
+     * Test to ensure that makeEmptyMap and makeFull returns a new non-null
+     * map with each invocation.
+     */
+    public void testMakeMap() {
+<span class="fc" id="L537">        final Map&lt;K, V&gt; em = makeObject();</span>
+<span class="fc" id="L538">        assertTrue(&quot;failure in test: makeEmptyMap must return a non-null map.&quot;,</span>
+<span class="pc bpc" id="L539" title="1 of 2 branches missed.">                   em != null);</span>
+
+<span class="fc" id="L541">        final Map&lt;K, V&gt; em2 = makeObject();</span>
+<span class="fc" id="L542">        assertTrue(&quot;failure in test: makeEmptyMap must return a non-null map.&quot;,</span>
+<span class="pc bpc" id="L543" title="1 of 2 branches missed.">                   em != null);</span>
+
+<span class="fc" id="L545">        assertTrue(&quot;failure in test: makeEmptyMap must return a new map &quot; +</span>
+<span class="pc bpc" id="L546" title="1 of 2 branches missed.">                   &quot;with each invocation.&quot;, em != em2);</span>
+
+<span class="fc" id="L548">        final Map&lt;K, V&gt; fm = makeFullMap();</span>
+<span class="fc" id="L549">        assertTrue(&quot;failure in test: makeFullMap must return a non-null map.&quot;,</span>
+<span class="pc bpc" id="L550" title="1 of 2 branches missed.">                   fm != null);</span>
+
+<span class="fc" id="L552">        final Map&lt;K, V&gt; fm2 = makeFullMap();</span>
+<span class="fc" id="L553">        assertTrue(&quot;failure in test: makeFullMap must return a non-null map.&quot;,</span>
+<span class="pc bpc" id="L554" title="1 of 2 branches missed.">                   fm != null);</span>
+
+<span class="fc" id="L556">        assertTrue(&quot;failure in test: makeFullMap must return a new map &quot; +</span>
+<span class="pc bpc" id="L557" title="1 of 2 branches missed.">                   &quot;with each invocation.&quot;, fm != fm2);</span>
+<span class="fc" id="L558">    }</span>
+
+    /**
+     * Tests Map.isEmpty()
+     */
+    public void testMapIsEmpty() {
+<span class="fc" id="L564">        resetEmpty();</span>
+<span class="fc" id="L565">        assertEquals(&quot;Map.isEmpty() should return true with an empty map&quot;,</span>
+<span class="fc" id="L566">                     true, getMap().isEmpty());</span>
+<span class="fc" id="L567">        verify();</span>
+
+<span class="fc" id="L569">        resetFull();</span>
+<span class="fc" id="L570">        assertEquals(&quot;Map.isEmpty() should return false with a non-empty map&quot;,</span>
+<span class="fc" id="L571">                     false, getMap().isEmpty());</span>
+<span class="fc" id="L572">        verify();</span>
+<span class="fc" id="L573">    }</span>
+
+    /**
+     * Tests Map.size()
+     */
+    public void testMapSize() {
+<span class="fc" id="L579">        resetEmpty();</span>
+<span class="fc" id="L580">        assertEquals(&quot;Map.size() should be 0 with an empty map&quot;,</span>
+<span class="fc" id="L581">                     0, getMap().size());</span>
+<span class="fc" id="L582">        verify();</span>
+
+<span class="fc" id="L584">        resetFull();</span>
+<span class="fc" id="L585">        assertEquals(&quot;Map.size() should equal the number of entries &quot; +</span>
+<span class="fc" id="L586">                     &quot;in the map&quot;, getSampleKeys().length, getMap().size());</span>
+<span class="fc" id="L587">        verify();</span>
+<span class="fc" id="L588">    }</span>
+
+    /**
+     * Tests {@link Map#clear()}.  If the map {@link #isRemoveSupported()}
+     * can add and remove elements}, then {@link Map#size()} and
+     * {@link Map#isEmpty()} are used to ensure that map has no elements after
+     * a call to clear.  If the map does not support adding and removing
+     * elements, this method checks to ensure clear throws an
+     * UnsupportedOperationException.
+     */
+    public void testMapClear() {
+<span class="fc bfc" id="L599" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+            try {
+<span class="fc" id="L601">                resetFull();</span>
+<span class="nc" id="L602">                getMap().clear();</span>
+<span class="nc" id="L603">                fail(&quot;Expected UnsupportedOperationException on clear&quot;);</span>
+<span class="pc" id="L604">            } catch (final UnsupportedOperationException ex) {}</span>
+<span class="fc" id="L605">            return;</span>
+        }
+
+<span class="fc" id="L608">        resetEmpty();</span>
+<span class="fc" id="L609">        getMap().clear();</span>
+<span class="fc" id="L610">        getConfirmed().clear();</span>
+<span class="fc" id="L611">        verify();</span>
+
+<span class="fc" id="L613">        resetFull();</span>
+<span class="fc" id="L614">        getMap().clear();</span>
+<span class="fc" id="L615">        getConfirmed().clear();</span>
+<span class="fc" id="L616">        verify();</span>
+<span class="fc" id="L617">    }</span>
+
+    /**
+     * Tests Map.containsKey(Object) by verifying it returns false for all
+     * sample keys on a map created using an empty map and returns true for
+     * all sample keys returned on a full map.
+     */
+    public void testMapContainsKey() {
+<span class="fc" id="L625">        final Object[] keys = getSampleKeys();</span>
+
+<span class="fc" id="L627">        resetEmpty();</span>
+<span class="fc bfc" id="L628" title="All 2 branches covered.">        for (Object key : keys) {</span>
+<span class="fc" id="L629">            assertTrue(&quot;Map must not contain key when map is empty&quot;,</span>
+<span class="pc bpc" id="L630" title="1 of 2 branches missed.">                    !getMap().containsKey(key));</span>
+        }
+<span class="fc" id="L632">        verify();</span>
+
+<span class="fc" id="L634">        resetFull();</span>
+<span class="fc bfc" id="L635" title="All 2 branches covered.">        for (Object key : keys) {</span>
+<span class="fc" id="L636">            assertTrue(&quot;Map must contain key for a mapping in the map. &quot; +</span>
+<span class="fc" id="L637">                       &quot;Missing: &quot; + key, getMap().containsKey(key));</span>
+        }
+<span class="fc" id="L639">        verify();</span>
+<span class="fc" id="L640">    }</span>
+
+    /**
+     * Tests Map.containsValue(Object) by verifying it returns false for all
+     * sample values on an empty map and returns true for all sample values on
+     * a full map.
+     */
+    public void testMapContainsValue() {
+<span class="fc" id="L648">        final Object[] values = getSampleValues();</span>
+
+<span class="fc" id="L650">        resetEmpty();</span>
+<span class="fc bfc" id="L651" title="All 2 branches covered.">        for(int i = 0; i &lt; values.length; i++) {</span>
+<span class="fc" id="L652">            assertTrue(&quot;Empty map must not contain value&quot;,</span>
+<span class="pc bpc" id="L653" title="1 of 2 branches missed.">                       !getMap().containsValue(values[i]));</span>
+        }
+<span class="fc" id="L655">        verify();</span>
+
+<span class="fc" id="L657">        resetFull();</span>
+<span class="fc bfc" id="L658" title="All 2 branches covered.">        for (final Object value : values) {</span>
+<span class="fc" id="L659">            assertTrue(&quot;Map must contain value for a mapping in the map.&quot;,</span>
+<span class="fc" id="L660">                    getMap().containsValue(value));</span>
+        }
+<span class="fc" id="L662">        verify();</span>
+<span class="fc" id="L663">    }</span>
+
+
+    /**
+     * Tests Map.equals(Object)
+     */
+    public void testMapEquals() {
+<span class="fc" id="L670">        resetEmpty();</span>
+<span class="fc" id="L671">        assertTrue(&quot;Empty maps unequal.&quot;, getMap().equals(confirmed));</span>
+<span class="fc" id="L672">        verify();</span>
+
+<span class="fc" id="L674">        resetFull();</span>
+<span class="fc" id="L675">        assertTrue(&quot;Full maps unequal.&quot;, getMap().equals(confirmed));</span>
+<span class="fc" id="L676">        verify();</span>
+
+<span class="fc" id="L678">        resetFull();</span>
+        // modify the HashMap created from the full map and make sure this
+        // change results in map.equals() to return false.
+<span class="fc" id="L681">        final Iterator&lt;K&gt; iter = confirmed.keySet().iterator();</span>
+<span class="fc" id="L682">        iter.next();</span>
+<span class="fc" id="L683">        iter.remove();</span>
+<span class="pc bpc" id="L684" title="1 of 2 branches missed.">        assertTrue(&quot;Different maps equal.&quot;, !getMap().equals(confirmed));</span>
+
+<span class="fc" id="L686">        resetFull();</span>
+<span class="pc bpc" id="L687" title="1 of 2 branches missed.">        assertTrue(&quot;equals(null) returned true.&quot;, !getMap().equals(null));</span>
+<span class="fc" id="L688">        assertTrue(&quot;equals(new Object()) returned true.&quot;,</span>
+<span class="pc bpc" id="L689" title="1 of 2 branches missed.">                   !getMap().equals(new Object()));</span>
+<span class="fc" id="L690">        verify();</span>
+<span class="fc" id="L691">    }</span>
+
+    /**
+     * Tests Map.get(Object)
+     */
+    public void testMapGet() {
+<span class="fc" id="L697">        resetEmpty();</span>
+
+<span class="fc" id="L699">        final Object[] keys = getSampleKeys();</span>
+<span class="fc" id="L700">        final Object[] values = getSampleValues();</span>
+
+<span class="fc bfc" id="L702" title="All 2 branches covered.">        for (final Object key : keys) {</span>
+<span class="fc" id="L703">            assertTrue(&quot;Empty map.get() should return null.&quot;,</span>
+<span class="pc bpc" id="L704" title="1 of 2 branches missed.">                    getMap().get(key) == null);</span>
+        }
+<span class="fc" id="L706">        verify();</span>
+
+<span class="fc" id="L708">        resetFull();</span>
+<span class="fc bfc" id="L709" title="All 2 branches covered.">        for (int i = 0; i &lt; keys.length; i++) {</span>
+<span class="fc" id="L710">            assertEquals(&quot;Full map.get() should return value from mapping.&quot;,</span>
+<span class="fc" id="L711">                         values[i], getMap().get(keys[i]));</span>
+        }
+<span class="fc" id="L713">    }</span>
+
+    /**
+     * Tests Map.hashCode()
+     */
+    public void testMapHashCode() {
+<span class="fc" id="L719">        resetEmpty();</span>
+<span class="fc" id="L720">        assertTrue(&quot;Empty maps have different hashCodes.&quot;,</span>
+<span class="pc bpc" id="L721" title="1 of 2 branches missed.">                getMap().hashCode() == confirmed.hashCode());</span>
+
+<span class="fc" id="L723">        resetFull();</span>
+<span class="fc" id="L724">        assertTrue(&quot;Equal maps have different hashCodes.&quot;,</span>
+<span class="pc bpc" id="L725" title="1 of 2 branches missed.">                getMap().hashCode() == confirmed.hashCode());</span>
+<span class="fc" id="L726">    }</span>
+
+    /**
+     * Tests Map.toString().  Since the format of the string returned by the
+     * toString() method is not defined in the Map interface, there is no
+     * common way to test the results of the toString() method.  Thereforce,
+     * it is encouraged that Map implementations override this test with one
+     * that checks the format matches any format defined in its API.  This
+     * default implementation just verifies that the toString() method does
+     * not return null.
+     */
+    public void testMapToString() {
+<span class="fc" id="L738">        resetEmpty();</span>
+<span class="fc" id="L739">        assertTrue(&quot;Empty map toString() should not return null&quot;,</span>
+<span class="pc bpc" id="L740" title="1 of 2 branches missed.">                getMap().toString() != null);</span>
+<span class="fc" id="L741">        verify();</span>
+
+<span class="fc" id="L743">        resetFull();</span>
+<span class="fc" id="L744">        assertTrue(&quot;Empty map toString() should not return null&quot;,</span>
+<span class="pc bpc" id="L745" title="1 of 2 branches missed.">                getMap().toString() != null);</span>
+<span class="fc" id="L746">        verify();</span>
+<span class="fc" id="L747">    }</span>
+
+    /**
+     * Compare the current serialized form of the Map
+     * against the canonical version in SVN.
+     */
+    public void testEmptyMapCompatibility() throws Exception {
+        /**
+         * Create canonical objects with this code
+        Map map = makeEmptyMap();
+        if (!(map instanceof Serializable)) return;
+
+        writeExternalFormToDisk((Serializable) map, getCanonicalEmptyCollectionName(map));
+        */
+
+        // test to make sure the canonical form has been preserved
+<span class="fc" id="L763">        final Map&lt;K, V&gt; map = makeObject();</span>
+<span class="pc bpc" id="L764" title="1 of 6 branches missed.">        if (map instanceof Serializable &amp;&amp; !skipSerializedCanonicalTests() &amp;&amp; isTestSerialization()) {</span>
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L766">            final Map&lt;K, V&gt; map2 = (Map&lt;K, V&gt;) readExternalFormFromDisk(getCanonicalEmptyCollectionName(map));</span>
+<span class="fc" id="L767">            assertEquals(&quot;Map is empty&quot;, 0, map2.size());</span>
+        }
+<span class="fc" id="L769">    }</span>
+
+    /**
+     * Compare the current serialized form of the Map
+     * against the canonical version in SVN.
+     */
+    public void testFullMapCompatibility() throws Exception {
+        /**
+         * Create canonical objects with this code
+        Map map = makeFullMap();
+        if (!(map instanceof Serializable)) return;
+
+        writeExternalFormToDisk((Serializable) map, getCanonicalFullCollectionName(map));
+        */
+
+        // test to make sure the canonical form has been preserved
+<span class="fc" id="L785">        final Map&lt;K, V&gt; map = makeFullMap();</span>
+<span class="pc bpc" id="L786" title="1 of 6 branches missed.">        if (map instanceof Serializable &amp;&amp; !skipSerializedCanonicalTests() &amp;&amp; isTestSerialization()) {</span>
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L788">            final Map&lt;K, V&gt; map2 = (Map&lt;K, V&gt;) readExternalFormFromDisk(getCanonicalFullCollectionName(map));</span>
+<span class="fc" id="L789">            assertEquals(&quot;Map is the right size&quot;, getSampleKeys().length, map2.size());</span>
+        }
+<span class="fc" id="L791">    }</span>
+
+    /**
+     * Tests Map.put(Object, Object)
+     */
+    public void testMapPut() {
+<span class="fc" id="L797">        resetEmpty();</span>
+<span class="fc" id="L798">        final K[] keys = getSampleKeys();</span>
+<span class="fc" id="L799">        final V[] values = getSampleValues();</span>
+<span class="fc" id="L800">        final V[] newValues = getNewSampleValues();</span>
+
+<span class="fc bfc" id="L802" title="All 2 branches covered.">        if (isPutAddSupported()) {</span>
+<span class="fc bfc" id="L803" title="All 2 branches covered.">            for (int i = 0; i &lt; keys.length; i++) {</span>
+<span class="fc" id="L804">                final Object o = getMap().put(keys[i], values[i]);</span>
+<span class="fc" id="L805">                getConfirmed().put(keys[i], values[i]);</span>
+<span class="fc" id="L806">                verify();</span>
+<span class="pc bpc" id="L807" title="1 of 2 branches missed.">                assertTrue(&quot;First map.put should return null&quot;, o == null);</span>
+<span class="fc" id="L808">                assertTrue(&quot;Map should contain key after put&quot;,</span>
+<span class="fc" id="L809">                        getMap().containsKey(keys[i]));</span>
+<span class="fc" id="L810">                assertTrue(&quot;Map should contain value after put&quot;,</span>
+<span class="fc" id="L811">                        getMap().containsValue(values[i]));</span>
+            }
+<span class="pc bpc" id="L813" title="1 of 2 branches missed.">            if (isPutChangeSupported()) {</span>
+<span class="fc bfc" id="L814" title="All 2 branches covered.">                for (int i = 0; i &lt; keys.length; i++) {</span>
+<span class="fc" id="L815">                    final Object o = getMap().put(keys[i], newValues[i]);</span>
+<span class="fc" id="L816">                    getConfirmed().put(keys[i], newValues[i]);</span>
+<span class="fc" id="L817">                    verify();</span>
+<span class="fc" id="L818">                    assertEquals(&quot;Map.put should return previous value when changed&quot;, values[i], o);</span>
+<span class="fc" id="L819">                    assertTrue(&quot;Map should still contain key after put when changed&quot;,</span>
+<span class="fc" id="L820">                            getMap().containsKey(keys[i]));</span>
+<span class="fc" id="L821">                    assertTrue(&quot;Map should contain new value after put when changed&quot;,</span>
+<span class="fc" id="L822">                            getMap().containsValue(newValues[i]));</span>
+
+                    // if duplicates are allowed, we're not guaranteed that the value
+                    // no longer exists, so don't try checking that.
+<span class="fc bfc" id="L826" title="All 2 branches covered.">                    if (!isAllowDuplicateValues()) {</span>
+<span class="fc" id="L827">                        assertTrue(&quot;Map should not contain old value after put when changed&quot;,</span>
+<span class="pc bpc" id="L828" title="1 of 2 branches missed.">                                !getMap().containsValue(values[i]));</span>
+                    }
+                }
+<span class="fc" id="L831">            } else {</span>
+                try {
+                    // two possible exception here, either valid
+<span class="nc" id="L834">                    getMap().put(keys[0], newValues[0]);</span>
+<span class="nc" id="L835">                    fail(&quot;Expected IllegalArgumentException or UnsupportedOperationException on put (change)&quot;);</span>
+<span class="nc" id="L836">                } catch (final IllegalArgumentException ex) {</span>
+<span class="nc" id="L837">                } catch (final UnsupportedOperationException ex) {}</span>
+            }
+
+<span class="pc bfc" id="L840" title="All 2 branches covered.">        } else if (isPutChangeSupported()) {</span>
+<span class="fc" id="L841">            resetEmpty();</span>
+            try {
+<span class="nc" id="L843">                getMap().put(keys[0], values[0]);</span>
+<span class="nc" id="L844">                fail(&quot;Expected UnsupportedOperationException or IllegalArgumentException on put (add) when fixed size&quot;);</span>
+<span class="pc" id="L845">            } catch (final IllegalArgumentException ex) {</span>
+<span class="fc" id="L846">            } catch (final UnsupportedOperationException ex) {</span>
+            }
+
+<span class="fc" id="L849">            resetFull();</span>
+<span class="fc" id="L850">            int i = 0;</span>
+<span class="pc bpc" id="L851" title="1 of 4 branches missed.">            for (final Iterator&lt;K&gt; it = getMap().keySet().iterator(); it.hasNext() &amp;&amp; i &lt; newValues.length; i++) {</span>
+<span class="fc" id="L852">                final K  key = it.next();</span>
+<span class="fc" id="L853">                final V o = getMap().put(key, newValues[i]);</span>
+<span class="fc" id="L854">                final V value = getConfirmed().put(key, newValues[i]);</span>
+<span class="fc" id="L855">                verify();</span>
+<span class="fc" id="L856">                assertEquals(&quot;Map.put should return previous value when changed&quot;, value, o);</span>
+<span class="fc" id="L857">                assertTrue(&quot;Map should still contain key after put when changed&quot;, getMap()</span>
+<span class="fc" id="L858">                        .containsKey(key));</span>
+<span class="fc" id="L859">                assertTrue(&quot;Map should contain new value after put when changed&quot;, getMap()</span>
+<span class="fc" id="L860">                        .containsValue(newValues[i]));</span>
+
+                // if duplicates are allowed, we're not guaranteed that the value
+                // no longer exists, so don't try checking that.
+<span class="pc bpc" id="L864" title="1 of 2 branches missed.">                if (!isAllowDuplicateValues()) {</span>
+<span class="nc" id="L865">                    assertTrue(&quot;Map should not contain old value after put when changed&quot;,</span>
+<span class="nc bnc" id="L866" title="All 2 branches missed.">                        !getMap().containsValue(values[i]));</span>
+                }
+            }
+<span class="nc" id="L869">        } else {</span>
+            try {
+<span class="nc" id="L871">                getMap().put(keys[0], values[0]);</span>
+<span class="nc" id="L872">                fail(&quot;Expected UnsupportedOperationException on put (add)&quot;);</span>
+<span class="pc" id="L873">            } catch (final UnsupportedOperationException ex) {}</span>
+        }
+<span class="fc" id="L875">    }</span>
+
+    /**
+     * Tests Map.put(null, value)
+     */
+    public void testMapPutNullKey() {
+<span class="fc" id="L881">        resetFull();</span>
+<span class="fc" id="L882">        final V[] values = getSampleValues();</span>
+
+<span class="fc bfc" id="L884" title="All 2 branches covered.">        if (isPutAddSupported()) {</span>
+<span class="fc bfc" id="L885" title="All 2 branches covered.">            if (isAllowNullKey()) {</span>
+<span class="fc" id="L886">                getMap().put(null, values[0]);</span>
+<span class="fc" id="L887">            } else {</span>
+                try {
+<span class="nc" id="L889">                    getMap().put(null, values[0]);</span>
+<span class="nc" id="L890">                    fail(&quot;put(null, value) should throw NPE/IAE&quot;);</span>
+<span class="pc" id="L891">                } catch (final NullPointerException ex) {</span>
+<span class="fc" id="L892">                } catch (final IllegalArgumentException ex) {}</span>
+            }
+        }
+<span class="fc" id="L895">    }</span>
+
+    /**
+     * Tests Map.put(null, value)
+     */
+    public void testMapPutNullValue() {
+<span class="fc" id="L901">        resetFull();</span>
+<span class="fc" id="L902">        final K[] keys = getSampleKeys();</span>
+
+<span class="fc bfc" id="L904" title="All 2 branches covered.">        if (isPutAddSupported()) {</span>
+<span class="fc bfc" id="L905" title="All 2 branches covered.">            if (isAllowNullValue()) {</span>
+<span class="fc" id="L906">                getMap().put(keys[0], null);</span>
+<span class="fc" id="L907">            } else {</span>
+                try {
+<span class="nc" id="L909">                    getMap().put(keys[0], null);</span>
+<span class="nc" id="L910">                    fail(&quot;put(key, null) should throw NPE/IAE&quot;);</span>
+<span class="pc" id="L911">                } catch (final NullPointerException ex) {</span>
+<span class="nc" id="L912">                } catch (final IllegalArgumentException ex) {}</span>
+            }
+        }
+<span class="fc" id="L915">    }</span>
+
+    /**
+     * Tests Map.putAll(map)
+     */
+    public void testMapPutAll() {
+<span class="fc bfc" id="L921" title="All 2 branches covered.">        if (!isPutAddSupported()) {</span>
+<span class="fc bfc" id="L922" title="All 2 branches covered.">            if (!isPutChangeSupported()) {</span>
+<span class="fc" id="L923">                final Map&lt;K, V&gt; temp = makeFullMap();</span>
+<span class="fc" id="L924">                resetEmpty();</span>
+                try {
+<span class="nc" id="L926">                    getMap().putAll(temp);</span>
+<span class="nc" id="L927">                    fail(&quot;Expected UnsupportedOperationException on putAll&quot;);</span>
+<span class="pc" id="L928">                } catch (final UnsupportedOperationException ex) {}</span>
+            }
+<span class="fc" id="L930">            return;</span>
+        }
+
+        // check putAll OK adding empty map to empty map
+<span class="fc" id="L934">        resetEmpty();</span>
+<span class="fc" id="L935">        assertEquals(0, getMap().size());</span>
+<span class="fc" id="L936">        getMap().putAll(new HashMap&lt;K, V&gt;());</span>
+<span class="fc" id="L937">        assertEquals(0, getMap().size());</span>
+
+        // check putAll OK adding empty map to non-empty map
+<span class="fc" id="L940">        resetFull();</span>
+<span class="fc" id="L941">        final int size = getMap().size();</span>
+<span class="fc" id="L942">        getMap().putAll(new HashMap&lt;K, V&gt;());</span>
+<span class="fc" id="L943">        assertEquals(size, getMap().size());</span>
+
+        // check putAll OK adding non-empty map to empty map
+<span class="fc" id="L946">        resetEmpty();</span>
+<span class="fc" id="L947">        Map&lt;K, V&gt; m2 = makeFullMap();</span>
+<span class="fc" id="L948">        getMap().putAll(m2);</span>
+<span class="fc" id="L949">        getConfirmed().putAll(m2);</span>
+<span class="fc" id="L950">        verify();</span>
+
+        // check putAll OK adding non-empty JDK map to empty map
+<span class="fc" id="L953">        resetEmpty();</span>
+<span class="fc" id="L954">        m2 = makeConfirmedMap();</span>
+<span class="fc" id="L955">        final K[] keys = getSampleKeys();</span>
+<span class="fc" id="L956">        final V[] values = getSampleValues();</span>
+<span class="fc bfc" id="L957" title="All 2 branches covered.">        for(int i = 0; i &lt; keys.length; i++) {</span>
+<span class="fc" id="L958">            m2.put(keys[i], values[i]);</span>
+        }
+<span class="fc" id="L960">        getMap().putAll(m2);</span>
+<span class="fc" id="L961">        getConfirmed().putAll(m2);</span>
+<span class="fc" id="L962">        verify();</span>
+
+        // check putAll OK adding non-empty JDK map to non-empty map
+<span class="fc" id="L965">        resetEmpty();</span>
+<span class="fc" id="L966">        m2 = makeConfirmedMap();</span>
+<span class="fc" id="L967">        getMap().put(keys[0], values[0]);</span>
+<span class="fc" id="L968">        getConfirmed().put(keys[0], values[0]);</span>
+<span class="fc" id="L969">        verify();</span>
+<span class="fc bfc" id="L970" title="All 2 branches covered.">        for(int i = 1; i &lt; keys.length; i++) {</span>
+<span class="fc" id="L971">            m2.put(keys[i], values[i]);</span>
+        }
+<span class="fc" id="L973">        getMap().putAll(m2);</span>
+<span class="fc" id="L974">        getConfirmed().putAll(m2);</span>
+<span class="fc" id="L975">        verify();</span>
+<span class="fc" id="L976">    }</span>
+
+    /**
+     * Tests Map.remove(Object)
+     */
+    public void testMapRemove() {
+<span class="fc bfc" id="L982" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+            try {
+<span class="fc" id="L984">                resetFull();</span>
+<span class="nc" id="L985">                getMap().remove(getMap().keySet().iterator().next());</span>
+<span class="nc" id="L986">                fail(&quot;Expected UnsupportedOperationException on remove&quot;);</span>
+<span class="pc" id="L987">            } catch (final UnsupportedOperationException ex) {}</span>
+<span class="fc" id="L988">            return;</span>
+        }
+
+<span class="fc" id="L991">        resetEmpty();</span>
+
+<span class="fc" id="L993">        final Object[] keys = getSampleKeys();</span>
+<span class="fc" id="L994">        final Object[] values = getSampleValues();</span>
+<span class="fc bfc" id="L995" title="All 2 branches covered.">        for (final Object key : keys) {</span>
+<span class="fc" id="L996">            final Object o = getMap().remove(key);</span>
+<span class="pc bpc" id="L997" title="1 of 2 branches missed.">            assertTrue(&quot;First map.remove should return null&quot;, o == null);</span>
+        }
+<span class="fc" id="L999">        verify();</span>
+
+<span class="fc" id="L1001">        resetFull();</span>
+
+<span class="fc bfc" id="L1003" title="All 2 branches covered.">        for (int i = 0; i &lt; keys.length; i++) {</span>
+<span class="fc" id="L1004">            final Object o = getMap().remove(keys[i]);</span>
+<span class="fc" id="L1005">            getConfirmed().remove(keys[i]);</span>
+<span class="fc" id="L1006">            verify();</span>
+
+<span class="fc" id="L1008">            assertEquals(&quot;map.remove with valid key should return value&quot;,</span>
+<span class="fc" id="L1009">                         values[i], o);</span>
+        }
+
+<span class="fc" id="L1012">        final Object[] other = getOtherKeys();</span>
+
+<span class="fc" id="L1014">        resetFull();</span>
+<span class="fc" id="L1015">        final int size = getMap().size();</span>
+<span class="fc bfc" id="L1016" title="All 2 branches covered.">        for (final Object element : other) {</span>
+<span class="fc" id="L1017">            final Object o = getMap().remove(element);</span>
+<span class="fc" id="L1018">            assertNull(&quot;map.remove for nonexistent key should return null&quot;, o);</span>
+<span class="fc" id="L1019">            assertEquals(&quot;map.remove for nonexistent key should not &quot; +</span>
+<span class="fc" id="L1020">                         &quot;shrink map&quot;, size, getMap().size());</span>
+        }
+<span class="fc" id="L1022">        verify();</span>
+<span class="fc" id="L1023">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Tests that the {@link Map#values} collection is backed by
+     * the underlying map for clear().
+     */
+    public void testValuesClearChangesMap() {
+<span class="fc bfc" id="L1031" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L1032">            return;</span>
+        }
+
+        // clear values, reflected in map
+<span class="fc" id="L1036">        resetFull();</span>
+<span class="fc" id="L1037">        Collection&lt;V&gt; values = getMap().values();</span>
+<span class="pc bpc" id="L1038" title="1 of 2 branches missed.">        assertTrue(getMap().size() &gt; 0);</span>
+<span class="pc bpc" id="L1039" title="1 of 2 branches missed.">        assertTrue(values.size() &gt; 0);</span>
+<span class="fc" id="L1040">        values.clear();</span>
+<span class="pc bpc" id="L1041" title="1 of 2 branches missed.">        assertTrue(getMap().size() == 0);</span>
+<span class="pc bpc" id="L1042" title="1 of 2 branches missed.">        assertTrue(values.size() == 0);</span>
+
+        // clear map, reflected in values
+<span class="fc" id="L1045">        resetFull();</span>
+<span class="fc" id="L1046">        values = getMap().values();</span>
+<span class="pc bpc" id="L1047" title="1 of 2 branches missed.">        assertTrue(getMap().size() &gt; 0);</span>
+<span class="pc bpc" id="L1048" title="1 of 2 branches missed.">        assertTrue(values.size() &gt; 0);</span>
+<span class="fc" id="L1049">        getMap().clear();</span>
+<span class="pc bpc" id="L1050" title="1 of 2 branches missed.">        assertTrue(getMap().size() == 0);</span>
+<span class="pc bpc" id="L1051" title="1 of 2 branches missed.">        assertTrue(values.size() == 0);</span>
+<span class="fc" id="L1052">    }</span>
+
+    /**
+     * Tests that the {@link Map#keySet} collection is backed by
+     * the underlying map for clear().
+     */
+    public void testKeySetClearChangesMap() {
+<span class="fc bfc" id="L1059" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L1060">            return;</span>
+        }
+
+        // clear values, reflected in map
+<span class="fc" id="L1064">        resetFull();</span>
+<span class="fc" id="L1065">        Set&lt;K&gt; keySet = getMap().keySet();</span>
+<span class="pc bpc" id="L1066" title="1 of 2 branches missed.">        assertTrue(getMap().size() &gt; 0);</span>
+<span class="pc bpc" id="L1067" title="1 of 2 branches missed.">        assertTrue(keySet.size() &gt; 0);</span>
+<span class="fc" id="L1068">        keySet.clear();</span>
+<span class="pc bpc" id="L1069" title="1 of 2 branches missed.">        assertTrue(getMap().size() == 0);</span>
+<span class="pc bpc" id="L1070" title="1 of 2 branches missed.">        assertTrue(keySet.size() == 0);</span>
+
+        // clear map, reflected in values
+<span class="fc" id="L1073">        resetFull();</span>
+<span class="fc" id="L1074">        keySet = getMap().keySet();</span>
+<span class="pc bpc" id="L1075" title="1 of 2 branches missed.">        assertTrue(getMap().size() &gt; 0);</span>
+<span class="pc bpc" id="L1076" title="1 of 2 branches missed.">        assertTrue(keySet.size() &gt; 0);</span>
+<span class="fc" id="L1077">        getMap().clear();</span>
+<span class="pc bpc" id="L1078" title="1 of 2 branches missed.">        assertTrue(getMap().size() == 0);</span>
+<span class="pc bpc" id="L1079" title="1 of 2 branches missed.">        assertTrue(keySet.size() == 0);</span>
+<span class="fc" id="L1080">    }</span>
+
+    /**
+     * Tests that the {@link Map#entrySet()} collection is backed by
+     * the underlying map for clear().
+     */
+    public void testEntrySetClearChangesMap() {
+<span class="fc bfc" id="L1087" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L1088">            return;</span>
+        }
+
+        // clear values, reflected in map
+<span class="fc" id="L1092">        resetFull();</span>
+<span class="fc" id="L1093">        Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet = getMap().entrySet();</span>
+<span class="pc bpc" id="L1094" title="1 of 2 branches missed.">        assertTrue(getMap().size() &gt; 0);</span>
+<span class="pc bpc" id="L1095" title="1 of 2 branches missed.">        assertTrue(entrySet.size() &gt; 0);</span>
+<span class="fc" id="L1096">        entrySet.clear();</span>
+<span class="pc bpc" id="L1097" title="1 of 2 branches missed.">        assertTrue(getMap().size() == 0);</span>
+<span class="pc bpc" id="L1098" title="1 of 2 branches missed.">        assertTrue(entrySet.size() == 0);</span>
+
+        // clear map, reflected in values
+<span class="fc" id="L1101">        resetFull();</span>
+<span class="fc" id="L1102">        entrySet = getMap().entrySet();</span>
+<span class="pc bpc" id="L1103" title="1 of 2 branches missed.">        assertTrue(getMap().size() &gt; 0);</span>
+<span class="pc bpc" id="L1104" title="1 of 2 branches missed.">        assertTrue(entrySet.size() &gt; 0);</span>
+<span class="fc" id="L1105">        getMap().clear();</span>
+<span class="pc bpc" id="L1106" title="1 of 2 branches missed.">        assertTrue(getMap().size() == 0);</span>
+<span class="pc bpc" id="L1107" title="1 of 2 branches missed.">        assertTrue(entrySet.size() == 0);</span>
+<span class="fc" id="L1108">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testEntrySetContains1() {
+<span class="fc" id="L1112">        resetFull();</span>
+<span class="fc" id="L1113">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet = getMap().entrySet();</span>
+<span class="fc" id="L1114">        final Map.Entry&lt;K, V&gt; entry = entrySet.iterator().next();</span>
+<span class="fc" id="L1115">        assertEquals(true, entrySet.contains(entry));</span>
+<span class="fc" id="L1116">    }</span>
+
+    public void testEntrySetContains2() {
+<span class="fc" id="L1119">        resetFull();</span>
+<span class="fc" id="L1120">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet = getMap().entrySet();</span>
+<span class="fc" id="L1121">        final Map.Entry&lt;K, V&gt; entry = entrySet.iterator().next();</span>
+<span class="fc" id="L1122">        final Map.Entry&lt;K, V&gt; test = cloneMapEntry(entry);</span>
+<span class="fc" id="L1123">        assertEquals(true, entrySet.contains(test));</span>
+<span class="fc" id="L1124">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testEntrySetContains3() {
+<span class="fc" id="L1128">        resetFull();</span>
+<span class="fc" id="L1129">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet = getMap().entrySet();</span>
+<span class="fc" id="L1130">        final Map.Entry&lt;K, V&gt; entry = entrySet.iterator().next();</span>
+<span class="fc" id="L1131">        final HashMap&lt;K, V&gt; temp = new HashMap&lt;K, V&gt;();</span>
+<span class="fc" id="L1132">        temp.put(entry.getKey(), (V) &quot;A VERY DIFFERENT VALUE&quot;);</span>
+<span class="fc" id="L1133">        final Map.Entry&lt;K, V&gt; test = temp.entrySet().iterator().next();</span>
+<span class="fc" id="L1134">        assertEquals(false, entrySet.contains(test));</span>
+<span class="fc" id="L1135">    }</span>
+
+    public void testEntrySetRemove1() {
+<span class="fc bfc" id="L1138" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L1139">            return;</span>
+        }
+<span class="fc" id="L1141">        resetFull();</span>
+<span class="fc" id="L1142">        final int size = getMap().size();</span>
+<span class="fc" id="L1143">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet = getMap().entrySet();</span>
+<span class="fc" id="L1144">        final Map.Entry&lt;K, V&gt; entry = entrySet.iterator().next();</span>
+<span class="fc" id="L1145">        final K key = entry.getKey();</span>
+
+<span class="fc" id="L1147">        assertEquals(true, entrySet.remove(entry));</span>
+<span class="fc" id="L1148">        assertEquals(false, getMap().containsKey(key));</span>
+<span class="fc" id="L1149">        assertEquals(size - 1, getMap().size());</span>
+<span class="fc" id="L1150">    }</span>
+
+    public void testEntrySetRemove2() {
+<span class="fc bfc" id="L1153" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L1154">            return;</span>
+        }
+<span class="fc" id="L1156">        resetFull();</span>
+<span class="fc" id="L1157">        final int size = getMap().size();</span>
+<span class="fc" id="L1158">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet = getMap().entrySet();</span>
+<span class="fc" id="L1159">        final Map.Entry&lt;K, V&gt; entry = entrySet.iterator().next();</span>
+<span class="fc" id="L1160">        final K key = entry.getKey();</span>
+<span class="fc" id="L1161">        final Map.Entry&lt;K, V&gt; test = cloneMapEntry(entry);</span>
+
+<span class="fc" id="L1163">        assertEquals(true, entrySet.remove(test));</span>
+<span class="fc" id="L1164">        assertEquals(false, getMap().containsKey(key));</span>
+<span class="fc" id="L1165">        assertEquals(size - 1, getMap().size());</span>
+<span class="fc" id="L1166">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testEntrySetRemove3() {
+<span class="fc bfc" id="L1170" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L1171">            return;</span>
+        }
+<span class="fc" id="L1173">        resetFull();</span>
+<span class="fc" id="L1174">        final int size = getMap().size();</span>
+<span class="fc" id="L1175">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet = getMap().entrySet();</span>
+<span class="fc" id="L1176">        final Map.Entry&lt;K, V&gt; entry = entrySet.iterator().next();</span>
+<span class="fc" id="L1177">        final K key = entry.getKey();</span>
+<span class="fc" id="L1178">        final HashMap&lt;K, V&gt; temp = new HashMap&lt;K, V&gt;();</span>
+<span class="fc" id="L1179">        temp.put(entry.getKey(), (V) &quot;A VERY DIFFERENT VALUE&quot;);</span>
+<span class="fc" id="L1180">        final Map.Entry&lt;K, V&gt; test = temp.entrySet().iterator().next();</span>
+
+<span class="fc" id="L1182">        assertEquals(false, entrySet.remove(test));</span>
+<span class="fc" id="L1183">        assertEquals(true, getMap().containsKey(key));</span>
+<span class="fc" id="L1184">        assertEquals(size, getMap().size());</span>
+<span class="fc" id="L1185">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Tests that the {@link Map#values} collection is backed by
+     * the underlying map by removing from the values collection
+     * and testing if the value was removed from the map.
+     * &lt;p&gt;
+     * We should really test the &quot;vice versa&quot; case--that values removed
+     * from the map are removed from the values collection--also,
+     * but that's a more difficult test to construct (lacking a
+     * &quot;removeValue&quot; method.)
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * See bug &lt;a href=&quot;http://issues.apache.org/bugzilla/show_bug.cgi?id=9573&quot;&gt;
+     * 9573&lt;/a&gt;.
+     * &lt;/p&gt;
+     */
+    public void testValuesRemoveChangesMap() {
+<span class="fc" id="L1204">        resetFull();</span>
+<span class="fc" id="L1205">        final V[] sampleValues = getSampleValues();</span>
+<span class="fc" id="L1206">        final Collection&lt;V&gt; values = getMap().values();</span>
+<span class="fc bfc" id="L1207" title="All 2 branches covered.">        for (int i = 0; i &lt; sampleValues.length; i++) {</span>
+<span class="fc bfc" id="L1208" title="All 2 branches covered.">            if (map.containsValue(sampleValues[i])) {</span>
+<span class="fc" id="L1209">                int j = 0;  // loop counter prevents infinite loops when remove is broken</span>
+<span class="pc bpc" id="L1210" title="1 of 4 branches missed.">                while (values.contains(sampleValues[i]) &amp;&amp; j &lt; 10000) {</span>
+                    try {
+<span class="fc" id="L1212">                        values.remove(sampleValues[i]);</span>
+<span class="fc" id="L1213">                    } catch (final UnsupportedOperationException e) {</span>
+                        // if values.remove is unsupported, just skip this test
+<span class="fc" id="L1215">                        return;</span>
+                    }
+<span class="fc" id="L1217">                    j++;</span>
+                }
+<span class="pc bpc" id="L1219" title="1 of 2 branches missed.">                assertTrue(&quot;values().remove(obj) is broken&quot;, j &lt; 10000);</span>
+<span class="fc" id="L1220">                assertTrue(</span>
+<span class="fc" id="L1221">                    &quot;Value should have been removed from the underlying map.&quot;,</span>
+<span class="pc bpc" id="L1222" title="1 of 2 branches missed.">                    !getMap().containsValue(sampleValues[i]));</span>
+            }
+        }
+<span class="fc" id="L1225">    }</span>
+
+    /**
+     * Tests values.removeAll.
+     */
+    public void testValuesRemoveAll() {
+<span class="fc" id="L1231">        resetFull();</span>
+<span class="fc" id="L1232">        final Collection&lt;V&gt; values = getMap().values();</span>
+<span class="fc" id="L1233">        final List&lt;V&gt; sampleValuesAsList = Arrays.asList(getSampleValues());</span>
+<span class="fc bfc" id="L1234" title="All 2 branches covered.">        if (!values.equals(sampleValuesAsList)) {</span>
+<span class="fc" id="L1235">            return;</span>
+        }
+        try {
+<span class="fc" id="L1238">            assertFalse(values.removeAll(Collections.&lt;V&gt; emptySet()));</span>
+<span class="pc" id="L1239">        } catch (final UnsupportedOperationException e) {</span>
+            // if values.removeAll is unsupported, just skip this test
+<span class="nc" id="L1241">            return;</span>
+        }
+<span class="fc" id="L1243">        assertEquals(sampleValuesAsList.size(), getMap().size());</span>
+        try {
+<span class="fc" id="L1245">            assertTrue(values.removeAll(sampleValuesAsList));</span>
+<span class="pc" id="L1246">        } catch (final UnsupportedOperationException e) {</span>
+            // if values.removeAll is unsupported, just skip this test
+<span class="nc" id="L1248">            return;</span>
+        }
+<span class="fc" id="L1250">        assertTrue(getMap().isEmpty());</span>
+<span class="fc" id="L1251">    }</span>
+
+    /**
+     * Test values.retainAll.
+     */
+    public void testValuesRetainAll() {
+<span class="fc" id="L1257">        resetFull();</span>
+<span class="fc" id="L1258">        final Collection&lt;V&gt; values = getMap().values();</span>
+<span class="fc" id="L1259">        final List&lt;V&gt; sampleValuesAsList = Arrays.asList(getSampleValues());</span>
+<span class="fc bfc" id="L1260" title="All 2 branches covered.">        if (!values.equals(sampleValuesAsList)) {</span>
+<span class="fc" id="L1261">            return;</span>
+        }
+        try {
+<span class="fc" id="L1264">            assertFalse(values.retainAll(sampleValuesAsList));</span>
+<span class="pc" id="L1265">        } catch (final UnsupportedOperationException e) {</span>
+            // if values.retainAll is unsupported, just skip this test
+<span class="nc" id="L1267">            return;</span>
+        }
+<span class="fc" id="L1269">        assertEquals(sampleValuesAsList.size(), getMap().size());</span>
+        try {
+<span class="fc" id="L1271">            assertTrue(values.retainAll(Collections.&lt;V&gt; emptySet()));</span>
+<span class="pc" id="L1272">        } catch (final UnsupportedOperationException e) {</span>
+            // if values.retainAll is unsupported, just skip this test
+<span class="nc" id="L1274">            return;</span>
+        }
+<span class="fc" id="L1276">        assertTrue(getMap().isEmpty());</span>
+<span class="fc" id="L1277">    }</span>
+
+    /**
+     * Verifies that values.iterator.remove changes the underlying map.
+     */
+    @SuppressWarnings(&quot;boxing&quot;) // OK in test code
+    public void testValuesIteratorRemoveChangesMap() {
+<span class="fc" id="L1284">        resetFull();</span>
+<span class="fc" id="L1285">        final List&lt;V&gt; sampleValuesAsList = Arrays.asList(getSampleValues());</span>
+<span class="fc" id="L1286">        final Map&lt;V, Integer&gt; cardinality = CollectionUtils.getCardinalityMap(sampleValuesAsList);</span>
+<span class="fc" id="L1287">        final Collection&lt;V&gt; values = getMap().values();</span>
+<span class="fc bfc" id="L1288" title="All 2 branches covered.">        for (final Iterator&lt;V&gt; iter = values.iterator(); iter.hasNext();) {</span>
+<span class="fc" id="L1289">            final V value = iter.next();</span>
+<span class="fc" id="L1290">            Integer count = cardinality.get(value);</span>
+<span class="pc bpc" id="L1291" title="1 of 2 branches missed.">            if (count == null) {</span>
+<span class="nc" id="L1292">                return;</span>
+            }
+            try {
+<span class="fc" id="L1295">                iter.remove();</span>
+<span class="fc" id="L1296">                cardinality.put(value, --count);</span>
+<span class="fc" id="L1297">            } catch (final UnsupportedOperationException e) {</span>
+                // if values.iterator.remove is unsupported, just skip this test
+<span class="fc" id="L1299">                return;</span>
+            }
+<span class="fc bfc" id="L1301" title="All 2 branches covered.">            final boolean expected = count &gt; 0;</span>
+<span class="fc" id="L1302">            final StringBuilder msg = new StringBuilder(&quot;Value should &quot;);</span>
+<span class="fc bfc" id="L1303" title="All 2 branches covered.">            msg.append(expected ? &quot;yet &quot; : &quot;no longer &quot;);</span>
+<span class="fc" id="L1304">            msg.append(&quot;be present in the underlying map&quot;);</span>
+<span class="fc" id="L1305">            assertEquals(msg.toString(), expected, getMap().containsValue(value));</span>
+        }
+<span class="fc" id="L1307">        assertTrue(getMap().isEmpty());</span>
+<span class="fc" id="L1308">    }</span>
+
+    /**
+     * Tests that the {@link Map#keySet} set is backed by
+     * the underlying map by removing from the keySet set
+     * and testing if the key was removed from the map.
+     */
+    public void testKeySetRemoveChangesMap() {
+<span class="fc" id="L1316">        resetFull();</span>
+<span class="fc" id="L1317">        final K[] sampleKeys = getSampleKeys();</span>
+<span class="fc" id="L1318">        final Set&lt;K&gt; keys = getMap().keySet();</span>
+<span class="fc bfc" id="L1319" title="All 2 branches covered.">        for (int i = 0; i &lt; sampleKeys.length; i++) {</span>
+            try {
+<span class="fc" id="L1321">                keys.remove(sampleKeys[i]);</span>
+<span class="fc" id="L1322">            } catch (final UnsupportedOperationException e) {</span>
+                // if key.remove is unsupported, just skip this test
+<span class="fc" id="L1324">                return;</span>
+            }
+<span class="fc" id="L1326">            assertTrue(</span>
+<span class="fc" id="L1327">                &quot;Key should have been removed from the underlying map.&quot;,</span>
+<span class="pc bpc" id="L1328" title="1 of 2 branches missed.">                !getMap().containsKey(sampleKeys[i]));</span>
+        }
+<span class="fc" id="L1330">    }</span>
+
+    /**
+     * Test keySet.removeAll.
+     */
+    public void testKeySetRemoveAll() {
+<span class="fc" id="L1336">        resetFull();</span>
+<span class="fc" id="L1337">        final Set&lt;K&gt; keys = getMap().keySet();</span>
+<span class="fc" id="L1338">        final List&lt;K&gt; sampleKeysAsList = Arrays.asList(getSampleKeys());</span>
+<span class="pc bpc" id="L1339" title="1 of 2 branches missed.">        if (!keys.equals(sampleKeysAsList)) {</span>
+<span class="fc" id="L1340">            return;</span>
+        }
+        try {
+<span class="nc" id="L1343">            assertFalse(keys.removeAll(Collections.&lt;K&gt; emptySet()));</span>
+<span class="nc" id="L1344">        } catch (final UnsupportedOperationException e) {</span>
+<span class="nc" id="L1345">            return;</span>
+        }
+<span class="nc" id="L1347">        assertEquals(sampleKeysAsList, keys);</span>
+        try {
+<span class="nc" id="L1349">            assertTrue(keys.removeAll(sampleKeysAsList));</span>
+<span class="nc" id="L1350">        } catch (final UnsupportedOperationException e) {</span>
+<span class="nc" id="L1351">            return;</span>
+        }
+<span class="nc" id="L1353">        assertTrue(getMap().isEmpty());</span>
+<span class="nc" id="L1354">    }</span>
+
+    /**
+     * Test keySet.retainAll.
+     */
+    public void testKeySetRetainAll() {
+<span class="fc" id="L1360">        resetFull();</span>
+<span class="fc" id="L1361">        final Set&lt;K&gt; keys = getMap().keySet();</span>
+<span class="fc" id="L1362">        final List&lt;K&gt; sampleKeysAsList = Arrays.asList(getSampleKeys());</span>
+<span class="pc bpc" id="L1363" title="1 of 2 branches missed.">        if (!keys.equals(sampleKeysAsList)) {</span>
+<span class="fc" id="L1364">            return;</span>
+        }
+        try {
+<span class="nc" id="L1367">            assertFalse(keys.retainAll(sampleKeysAsList));</span>
+<span class="nc" id="L1368">        } catch (final UnsupportedOperationException e) {</span>
+<span class="nc" id="L1369">            return;</span>
+        }
+<span class="nc" id="L1371">        assertEquals(sampleKeysAsList, keys);</span>
+        try {
+<span class="nc" id="L1373">            assertTrue(keys.retainAll(Collections.&lt;K&gt; emptySet()));</span>
+<span class="nc" id="L1374">        } catch (final UnsupportedOperationException e) {</span>
+<span class="nc" id="L1375">            return;</span>
+        }
+<span class="nc" id="L1377">        assertTrue(getMap().isEmpty());</span>
+<span class="nc" id="L1378">    }</span>
+
+    /**
+     * Verify that keySet.iterator.remove changes the underlying map.
+     */
+    public void testKeySetIteratorRemoveChangesMap() {
+<span class="fc" id="L1384">        resetFull();</span>
+<span class="fc bfc" id="L1385" title="All 2 branches covered.">        for (final Iterator&lt;K&gt; iter = getMap().keySet().iterator(); iter.hasNext();) {</span>
+<span class="fc" id="L1386">            final K key = iter.next();</span>
+            try {
+<span class="fc" id="L1388">                iter.remove();</span>
+<span class="fc" id="L1389">            } catch (final UnsupportedOperationException e) {</span>
+<span class="fc" id="L1390">                return;</span>
+            }
+<span class="fc" id="L1392">            assertFalse(getMap().containsKey(key));</span>
+        }
+<span class="fc" id="L1394">    }</span>
+
+    /**
+     * Tests that the {@link Map#entrySet} set is backed by
+     * the underlying map by removing from the entrySet set
+     * and testing if the entry was removed from the map.
+     */
+    public void testEntrySetRemoveChangesMap() {
+<span class="fc" id="L1402">        resetFull();</span>
+<span class="fc" id="L1403">        final K[] sampleKeys = getSampleKeys();</span>
+<span class="fc" id="L1404">        final V[] sampleValues = getSampleValues();</span>
+<span class="fc" id="L1405">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet = getMap().entrySet();</span>
+<span class="fc bfc" id="L1406" title="All 2 branches covered.">        for (int i = 0; i &lt; sampleKeys.length; i++) {</span>
+            try {
+<span class="fc" id="L1408">                entrySet.remove(new DefaultMapEntry&lt;K, V&gt;(sampleKeys[i], sampleValues[i]));</span>
+<span class="fc" id="L1409">            } catch (final UnsupportedOperationException e) {</span>
+                // if entrySet removal is unsupported, just skip this test
+<span class="fc" id="L1411">                return;</span>
+            }
+<span class="fc" id="L1413">            assertTrue(</span>
+<span class="fc" id="L1414">                    &quot;Entry should have been removed from the underlying map.&quot;,</span>
+<span class="pc bpc" id="L1415" title="1 of 2 branches missed.">                    !getMap().containsKey(sampleKeys[i]));</span>
+        }
+<span class="fc" id="L1417">    }</span>
+
+    /**
+     * Test entrySet.removeAll.
+     */
+    public void testEntrySetRemoveAll() {
+<span class="fc" id="L1423">        resetFull();</span>
+<span class="fc" id="L1424">        final K[] sampleKeys = getSampleKeys();</span>
+<span class="fc" id="L1425">        final V[] sampleValues = getSampleValues();</span>
+        //verify map looks as expected:
+<span class="fc bfc" id="L1427" title="All 2 branches covered.">        for (int i = 0; i &lt; sampleKeys.length; i++) {</span>
+<span class="pc bpc" id="L1428" title="1 of 2 branches missed.">            if (!getMap().containsKey(sampleKeys[i])) {</span>
+<span class="nc" id="L1429">                return;</span>
+            }
+<span class="fc" id="L1431">            final V value = sampleValues[i];</span>
+<span class="fc" id="L1432">            final V test = getMap().get(sampleKeys[i]);</span>
+<span class="pc bpc" id="L1433" title="2 of 6 branches missed.">            if (value == test || value != null &amp;&amp; value.equals(test)) {</span>
+<span class="fc" id="L1434">                continue;</span>
+            }
+<span class="nc" id="L1436">            return;</span>
+        }
+<span class="fc" id="L1438">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet = getMap().entrySet();</span>
+<span class="fc" id="L1439">        final HashSet&lt;Map.Entry&lt;K, V&gt;&gt; comparisonSet = new HashSet&lt;Map.Entry&lt;K, V&gt;&gt;(entrySet);</span>
+        try {
+<span class="fc" id="L1441">            assertFalse(entrySet.removeAll(Collections.&lt;Map.Entry&lt;K, V&gt;&gt; emptySet()));</span>
+<span class="fc" id="L1442">        } catch (final UnsupportedOperationException e) {</span>
+<span class="fc" id="L1443">            return;</span>
+        }
+<span class="fc" id="L1445">        assertEquals(sampleKeys.length, getMap().size());</span>
+        try {
+<span class="fc" id="L1447">            assertTrue(entrySet.removeAll(comparisonSet));</span>
+<span class="fc" id="L1448">        } catch (final UnsupportedOperationException e) {</span>
+<span class="fc" id="L1449">            return;</span>
+        }
+<span class="fc" id="L1451">        assertTrue(getMap().isEmpty());</span>
+<span class="fc" id="L1452">    }</span>
+
+    /**
+     * Test entrySet.retainAll.
+     */
+    public void testEntrySetRetainAll() {
+<span class="fc" id="L1458">        resetFull();</span>
+<span class="fc" id="L1459">        final K[] sampleKeys = getSampleKeys();</span>
+<span class="fc" id="L1460">        final V[] sampleValues = getSampleValues();</span>
+        //verify map looks as expected:
+<span class="fc bfc" id="L1462" title="All 2 branches covered.">        for (int i = 0; i &lt; sampleKeys.length; i++) {</span>
+<span class="pc bpc" id="L1463" title="1 of 2 branches missed.">            if (!getMap().containsKey(sampleKeys[i])) {</span>
+<span class="nc" id="L1464">                return;</span>
+            }
+<span class="fc" id="L1466">            final V value = sampleValues[i];</span>
+<span class="fc" id="L1467">            final V test = getMap().get(sampleKeys[i]);</span>
+<span class="pc bpc" id="L1468" title="2 of 6 branches missed.">            if (value == test || value != null &amp;&amp; value.equals(test)) {</span>
+<span class="fc" id="L1469">                continue;</span>
+            }
+<span class="nc" id="L1471">            return;</span>
+        }
+<span class="fc" id="L1473">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet = getMap().entrySet();</span>
+<span class="fc" id="L1474">        final HashSet&lt;Map.Entry&lt;K, V&gt;&gt; comparisonSet = new HashSet&lt;Map.Entry&lt;K, V&gt;&gt;(entrySet);</span>
+        try {
+<span class="fc" id="L1476">            assertFalse(entrySet.retainAll(comparisonSet));</span>
+<span class="fc" id="L1477">        } catch (final UnsupportedOperationException e) {</span>
+<span class="fc" id="L1478">            return;</span>
+        }
+<span class="fc" id="L1480">        assertEquals(sampleKeys.length, getMap().size());</span>
+        try {
+<span class="fc" id="L1482">            assertTrue(entrySet.retainAll(Collections.&lt;Map.Entry&lt;K, V&gt;&gt; emptySet()));</span>
+<span class="fc" id="L1483">        } catch (final UnsupportedOperationException e) {</span>
+<span class="fc" id="L1484">            return;</span>
+        }
+<span class="fc" id="L1486">        assertTrue(getMap().isEmpty());</span>
+<span class="fc" id="L1487">    }</span>
+
+    /**
+     * Verify that entrySet.iterator.remove changes the underlying map.
+     */
+    public void testEntrySetIteratorRemoveChangesMap() {
+<span class="fc" id="L1493">        resetFull();</span>
+<span class="fc bfc" id="L1494" title="All 2 branches covered.">        for (final Iterator&lt;Map.Entry&lt;K, V&gt;&gt; iter = getMap().entrySet().iterator(); iter.hasNext();) {</span>
+<span class="fc" id="L1495">            final K key = iter.next().getKey();</span>
+            try {
+<span class="fc" id="L1497">                iter.remove();</span>
+<span class="fc" id="L1498">            } catch (final UnsupportedOperationException e) {</span>
+<span class="fc" id="L1499">                return;</span>
+            }
+<span class="fc" id="L1501">            assertFalse(getMap().containsKey(key));</span>
+        }
+<span class="fc" id="L1503">    }</span>
+
+    /**
+     * Utility methods to create an array of Map.Entry objects
+     * out of the given key and value arrays.&lt;P&gt;
+     *
+     * @param keys    the array of keys
+     * @param values  the array of values
+     * @return an array of Map.Entry of those keys to those values
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private Map.Entry&lt;K, V&gt;[] makeEntryArray(final K[] keys, final V[] values) {
+<span class="fc" id="L1515">        final Map.Entry&lt;K, V&gt;[] result = new Map.Entry[keys.length];</span>
+<span class="fc bfc" id="L1516" title="All 2 branches covered.">        for (int i = 0; i &lt; keys.length; i++) {</span>
+<span class="fc" id="L1517">            final Map&lt;K, V&gt; map = makeConfirmedMap();</span>
+<span class="fc" id="L1518">            map.put(keys[i], values[i]);</span>
+<span class="fc" id="L1519">            result[i] = map.entrySet().iterator().next();</span>
+        }
+<span class="fc" id="L1521">        return result;</span>
+    }
+
+    /**
+     * Bulk test {@link Map#entrySet()}.  This method runs through all of
+     * the tests in {@link AbstractSetTest}.
+     * After modification operations, {@link #verify()} is invoked to ensure
+     * that the map and the other collection views are still valid.
+     *
+     * @return a {@link AbstractSetTest} instance for testing the map's entry set
+     */
+    public BulkTest bulkTestMapEntrySet() {
+<span class="fc" id="L1533">        return new TestMapEntrySet();</span>
+    }
+
+    public class TestMapEntrySet extends AbstractSetTest&lt;Map.Entry&lt;K, V&gt;&gt; {
+<span class="fc" id="L1537">        public TestMapEntrySet() {</span>
+<span class="fc" id="L1538">            super(&quot;MapEntrySet&quot;);</span>
+<span class="fc" id="L1539">        }</span>
+
+        // Have to implement manually; entrySet doesn't support addAll
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Entry&lt;K, V&gt;[] getFullElements() {
+<span class="fc" id="L1547">            return getFullNonNullElements();</span>
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Map.Entry&lt;K, V&gt;[] getFullNonNullElements() {
+<span class="fc" id="L1555">            final K[] k = getSampleKeys();</span>
+<span class="fc" id="L1556">            final V[] v = getSampleValues();</span>
+<span class="fc" id="L1557">            return makeEntryArray(k, v);</span>
+        }
+
+        // Have to implement manually; entrySet doesn't support addAll
+        @Override
+        public Map.Entry&lt;K, V&gt;[] getOtherElements() {
+<span class="fc" id="L1563">            final K[] k = getOtherKeys();</span>
+<span class="fc" id="L1564">            final V[] v = getOtherValues();</span>
+<span class="fc" id="L1565">            return makeEntryArray(k, v);</span>
+        }
+
+        @Override
+        public Set&lt;Map.Entry&lt;K, V&gt;&gt; makeObject() {
+<span class="fc" id="L1570">            return AbstractMapTest.this.makeObject().entrySet();</span>
+        }
+
+        @Override
+        public Set&lt;Map.Entry&lt;K, V&gt;&gt; makeFullCollection() {
+<span class="fc" id="L1575">            return makeFullMap().entrySet();</span>
+        }
+
+        @Override
+        public boolean isAddSupported() {
+            // Collection views don't support add operations.
+<span class="fc" id="L1581">            return false;</span>
+        }
+
+        @Override
+        public boolean isRemoveSupported() {
+            // Entry set should only support remove if map does
+<span class="fc" id="L1587">            return AbstractMapTest.this.isRemoveSupported();</span>
+        }
+
+        public boolean isGetStructuralModify() {
+<span class="fc" id="L1591">            return AbstractMapTest.this.isGetStructuralModify();</span>
+        }
+
+        @Override
+        public boolean areEqualElementsDistinguishable() {
+<span class="fc" id="L1596">            return AbstractMapTest.this.areEqualElementsDistinguishable();</span>
+        }
+
+        @Override
+        public boolean isTestSerialization() {
+<span class="fc" id="L1601">            return false;</span>
+        }
+
+        @Override
+        public void resetFull() {
+<span class="fc" id="L1606">            AbstractMapTest.this.resetFull();</span>
+<span class="fc" id="L1607">            setCollection(AbstractMapTest.this.getMap().entrySet());</span>
+<span class="fc" id="L1608">            TestMapEntrySet.this.setConfirmed(AbstractMapTest.this.getConfirmed().entrySet());</span>
+<span class="fc" id="L1609">        }</span>
+
+        @Override
+        public void resetEmpty() {
+<span class="fc" id="L1613">            AbstractMapTest.this.resetEmpty();</span>
+<span class="fc" id="L1614">            setCollection(AbstractMapTest.this.getMap().entrySet());</span>
+<span class="fc" id="L1615">            TestMapEntrySet.this.setConfirmed(AbstractMapTest.this.getConfirmed().entrySet());</span>
+<span class="fc" id="L1616">        }</span>
+
+        public void testMapEntrySetIteratorEntry() {
+<span class="fc" id="L1619">            resetFull();</span>
+<span class="fc" id="L1620">            final Iterator&lt;Map.Entry&lt;K, V&gt;&gt; it = getCollection().iterator();</span>
+<span class="fc" id="L1621">            int count = 0;</span>
+<span class="fc bfc" id="L1622" title="All 2 branches covered.">            while (it.hasNext()) {</span>
+<span class="fc" id="L1623">                final Map.Entry&lt;K, V&gt; entry = it.next();</span>
+<span class="fc" id="L1624">                assertEquals(true, AbstractMapTest.this.getMap().containsKey(entry.getKey()));</span>
+<span class="fc" id="L1625">                assertEquals(true, AbstractMapTest.this.getMap().containsValue(entry.getValue()));</span>
+<span class="fc bfc" id="L1626" title="All 2 branches covered.">                if (!isGetStructuralModify()) {</span>
+<span class="fc" id="L1627">                    assertEquals(AbstractMapTest.this.getMap().get(entry.getKey()), entry.getValue());</span>
+                }
+<span class="fc" id="L1629">                count++;</span>
+            }
+<span class="fc" id="L1631">            assertEquals(getCollection().size(), count);</span>
+<span class="fc" id="L1632">        }</span>
+
+        public void testMapEntrySetIteratorEntrySetValue() {
+<span class="fc" id="L1635">            final K key1 = getSampleKeys()[0];</span>
+<span class="fc bfc" id="L1636" title="All 2 branches covered.">            final K key2 = getSampleKeys().length == 1 ? getSampleKeys()[0] : getSampleKeys()[1];</span>
+<span class="fc" id="L1637">            final V newValue1 = getNewSampleValues()[0];</span>
+<span class="fc bfc" id="L1638" title="All 2 branches covered.">            final V newValue2 = getNewSampleValues().length ==1 ? getNewSampleValues()[0] : getNewSampleValues()[1];</span>
+
+<span class="fc" id="L1640">            resetFull();</span>
+            // explicitly get entries as sample values/keys are connected for some maps
+            // such as BeanMap
+<span class="fc" id="L1643">            Iterator&lt;Map.Entry&lt;K, V&gt;&gt; it = TestMapEntrySet.this.getCollection().iterator();</span>
+<span class="fc" id="L1644">            final Map.Entry&lt;K, V&gt; entry1 = getEntry(it, key1);</span>
+<span class="fc" id="L1645">            it = TestMapEntrySet.this.getCollection().iterator();</span>
+<span class="fc" id="L1646">            final Map.Entry&lt;K, V&gt; entry2 = getEntry(it, key2);</span>
+<span class="fc" id="L1647">            Iterator&lt;Map.Entry&lt;K, V&gt;&gt; itConfirmed = TestMapEntrySet.this.getConfirmed().iterator();</span>
+<span class="fc" id="L1648">            final Map.Entry&lt;K, V&gt; entryConfirmed1 = getEntry(itConfirmed, key1);</span>
+<span class="fc" id="L1649">            itConfirmed = TestMapEntrySet.this.getConfirmed().iterator();</span>
+<span class="fc" id="L1650">            final Map.Entry&lt;K, V&gt; entryConfirmed2 = getEntry(itConfirmed, key2);</span>
+<span class="fc" id="L1651">            verify();</span>
+
+<span class="fc bfc" id="L1653" title="All 2 branches covered.">            if (!isSetValueSupported()) {</span>
+                try {
+<span class="fc" id="L1655">                    entry1.setValue(newValue1);</span>
+<span class="fc" id="L1656">                } catch (final UnsupportedOperationException ex) {</span>
+                }
+<span class="fc" id="L1658">                return;</span>
+            }
+
+<span class="fc" id="L1661">            entry1.setValue(newValue1);</span>
+<span class="fc" id="L1662">            entryConfirmed1.setValue(newValue1);</span>
+<span class="fc" id="L1663">            assertEquals(newValue1, entry1.getValue());</span>
+<span class="fc" id="L1664">            assertEquals(true, AbstractMapTest.this.getMap().containsKey(entry1.getKey()));</span>
+<span class="fc" id="L1665">            assertEquals(true, AbstractMapTest.this.getMap().containsValue(newValue1));</span>
+<span class="fc" id="L1666">            assertEquals(newValue1, AbstractMapTest.this.getMap().get(entry1.getKey()));</span>
+<span class="fc" id="L1667">            verify();</span>
+
+<span class="fc" id="L1669">            entry1.setValue(newValue1);</span>
+<span class="fc" id="L1670">            entryConfirmed1.setValue(newValue1);</span>
+<span class="fc" id="L1671">            assertEquals(newValue1, entry1.getValue());</span>
+<span class="fc" id="L1672">            assertEquals(true, AbstractMapTest.this.getMap().containsKey(entry1.getKey()));</span>
+<span class="fc" id="L1673">            assertEquals(true, AbstractMapTest.this.getMap().containsValue(newValue1));</span>
+<span class="fc" id="L1674">            assertEquals(newValue1, AbstractMapTest.this.getMap().get(entry1.getKey()));</span>
+<span class="fc" id="L1675">            verify();</span>
+
+<span class="fc" id="L1677">            entry2.setValue(newValue2);</span>
+<span class="fc" id="L1678">            entryConfirmed2.setValue(newValue2);</span>
+<span class="fc" id="L1679">            assertEquals(newValue2, entry2.getValue());</span>
+<span class="fc" id="L1680">            assertEquals(true, AbstractMapTest.this.getMap().containsKey(entry2.getKey()));</span>
+<span class="fc" id="L1681">            assertEquals(true, AbstractMapTest.this.getMap().containsValue(newValue2));</span>
+<span class="fc" id="L1682">            assertEquals(newValue2, AbstractMapTest.this.getMap().get(entry2.getKey()));</span>
+<span class="fc" id="L1683">            verify();</span>
+<span class="fc" id="L1684">        }</span>
+
+        public Map.Entry&lt;K, V&gt; getEntry(final Iterator&lt;Map.Entry&lt;K, V&gt;&gt; itConfirmed, final K key) {
+<span class="fc" id="L1687">            Map.Entry&lt;K, V&gt; entry = null;</span>
+<span class="pc bpc" id="L1688" title="1 of 2 branches missed.">            while (itConfirmed.hasNext()) {</span>
+<span class="fc" id="L1689">                final Map.Entry&lt;K, V&gt; temp = itConfirmed.next();</span>
+<span class="fc bfc" id="L1690" title="All 2 branches covered.">                if (temp.getKey() == null) {</span>
+<span class="pc bpc" id="L1691" title="1 of 2 branches missed.">                    if (key == null) {</span>
+<span class="nc" id="L1692">                        entry = temp;</span>
+<span class="nc" id="L1693">                        break;</span>
+                    }
+<span class="fc bfc" id="L1695" title="All 2 branches covered.">                } else if (temp.getKey().equals(key)) {</span>
+<span class="fc" id="L1696">                    entry = temp;</span>
+<span class="fc" id="L1697">                    break;</span>
+                }
+            }
+<span class="fc" id="L1700">            assertNotNull(&quot;No matching entry in map for key '&quot; + key + &quot;'&quot;, entry);</span>
+<span class="fc" id="L1701">            return entry;</span>
+        }
+
+        public void testMapEntrySetRemoveNonMapEntry() {
+<span class="fc bfc" id="L1705" title="All 2 branches covered.">            if (!isRemoveSupported()) {</span>
+<span class="fc" id="L1706">                return;</span>
+            }
+<span class="fc" id="L1708">            resetFull();</span>
+<span class="fc" id="L1709">            assertEquals(false, getCollection().remove(null));</span>
+<span class="fc" id="L1710">            assertEquals(false, getCollection().remove(new Object()));</span>
+<span class="fc" id="L1711">        }</span>
+
+        @Override
+        public void verify() {
+<span class="fc" id="L1715">            super.verify();</span>
+<span class="fc" id="L1716">            AbstractMapTest.this.verify();</span>
+<span class="fc" id="L1717">        }</span>
+    }
+
+
+    /**
+     * Bulk test {@link Map#keySet()}.  This method runs through all of
+     * the tests in {@link AbstractSetTest}.
+     * After modification operations, {@link #verify()} is invoked to ensure
+     * that the map and the other collection views are still valid.
+     *
+     * @return a {@link AbstractSetTest} instance for testing the map's key set
+     */
+    public BulkTest bulkTestMapKeySet() {
+<span class="fc" id="L1730">        return new TestMapKeySet();</span>
+    }
+
+    public class TestMapKeySet extends AbstractSetTest&lt;K&gt; {
+<span class="fc" id="L1734">        public TestMapKeySet() {</span>
+<span class="fc" id="L1735">            super(&quot;&quot;);</span>
+<span class="fc" id="L1736">        }</span>
+
+        @Override
+        public K[] getFullElements() {
+<span class="fc" id="L1740">            return getSampleKeys();</span>
+        }
+
+        @Override
+        public K[] getOtherElements() {
+<span class="fc" id="L1745">            return getOtherKeys();</span>
+        }
+
+        @Override
+        public Set&lt;K&gt; makeObject() {
+<span class="fc" id="L1750">            return AbstractMapTest.this.makeObject().keySet();</span>
+        }
+
+        @Override
+        public Set&lt;K&gt; makeFullCollection() {
+<span class="fc" id="L1755">            return AbstractMapTest.this.makeFullMap().keySet();</span>
+        }
+
+        @Override
+        public boolean isNullSupported() {
+<span class="nc" id="L1760">            return AbstractMapTest.this.isAllowNullKey();</span>
+        }
+
+        @Override
+        public boolean isAddSupported() {
+<span class="fc" id="L1765">            return false;</span>
+        }
+
+        @Override
+        public boolean isRemoveSupported() {
+<span class="fc" id="L1770">            return AbstractMapTest.this.isRemoveSupported();</span>
+        }
+
+        @Override
+        public boolean isTestSerialization() {
+<span class="fc" id="L1775">            return false;</span>
+        }
+
+        @Override
+        public void resetEmpty() {
+<span class="fc" id="L1780">            AbstractMapTest.this.resetEmpty();</span>
+<span class="fc" id="L1781">            setCollection(AbstractMapTest.this.getMap().keySet());</span>
+<span class="fc" id="L1782">            TestMapKeySet.this.setConfirmed(AbstractMapTest.this.getConfirmed().keySet());</span>
+<span class="fc" id="L1783">        }</span>
+
+        @Override
+        public void resetFull() {
+<span class="fc" id="L1787">            AbstractMapTest.this.resetFull();</span>
+<span class="fc" id="L1788">            setCollection(AbstractMapTest.this.getMap().keySet());</span>
+<span class="fc" id="L1789">            TestMapKeySet.this.setConfirmed(AbstractMapTest.this.getConfirmed().keySet());</span>
+<span class="fc" id="L1790">        }</span>
+
+        @Override
+        public void verify() {
+<span class="fc" id="L1794">            super.verify();</span>
+<span class="fc" id="L1795">            AbstractMapTest.this.verify();</span>
+<span class="fc" id="L1796">        }</span>
+    }
+
+    /**
+     * Bulk test {@link Map#values()}.  This method runs through all of
+     * the tests in {@link AbstractCollectionTest}.
+     * After modification operations, {@link #verify()} is invoked to ensure
+     * that the map and the other collection views are still valid.
+     *
+     * @return a {@link AbstractCollectionTest} instance for testing the map's
+     *    values collection
+     */
+    public BulkTest bulkTestMapValues() {
+<span class="fc" id="L1809">        return new TestMapValues();</span>
+    }
+
+    public class TestMapValues extends AbstractCollectionTest&lt;V&gt; {
+<span class="fc" id="L1813">        public TestMapValues() {</span>
+<span class="fc" id="L1814">            super(&quot;&quot;);</span>
+<span class="fc" id="L1815">        }</span>
+
+        @Override
+        public V[] getFullElements() {
+<span class="fc" id="L1819">            return getSampleValues();</span>
+        }
+
+        @Override
+        public V[] getOtherElements() {
+<span class="fc" id="L1824">            return getOtherValues();</span>
+        }
+
+        @Override
+        public Collection&lt;V&gt; makeObject() {
+<span class="fc" id="L1829">            return AbstractMapTest.this.makeObject().values();</span>
+        }
+
+        @Override
+        public Collection&lt;V&gt; makeFullCollection() {
+<span class="fc" id="L1834">            return AbstractMapTest.this.makeFullMap().values();</span>
+        }
+
+        @Override
+        public boolean isNullSupported() {
+<span class="nc" id="L1839">            return AbstractMapTest.this.isAllowNullKey();</span>
+        }
+
+        @Override
+        public boolean isAddSupported() {
+<span class="fc" id="L1844">            return false;</span>
+        }
+
+        @Override
+        public boolean isRemoveSupported() {
+<span class="fc" id="L1849">            return AbstractMapTest.this.isRemoveSupported();</span>
+        }
+
+        @Override
+        public boolean isTestSerialization() {
+<span class="fc" id="L1854">            return false;</span>
+        }
+
+        @Override
+        public boolean areEqualElementsDistinguishable() {
+            // equal values are associated with different keys, so they are
+            // distinguishable.
+<span class="fc" id="L1861">            return true;</span>
+        }
+
+        @Override
+        public Collection&lt;V&gt; makeConfirmedCollection() {
+            // never gets called, reset methods are overridden
+<span class="nc" id="L1867">            return null;</span>
+        }
+
+        @Override
+        public Collection&lt;V&gt; makeConfirmedFullCollection() {
+            // never gets called, reset methods are overridden
+<span class="nc" id="L1873">            return null;</span>
+        }
+
+        @Override
+        public void resetFull() {
+<span class="fc" id="L1878">            AbstractMapTest.this.resetFull();</span>
+<span class="fc" id="L1879">            setCollection(map.values());</span>
+<span class="fc" id="L1880">            TestMapValues.this.setConfirmed(AbstractMapTest.this.getConfirmed().values());</span>
+<span class="fc" id="L1881">        }</span>
+
+        @Override
+        public void resetEmpty() {
+<span class="fc" id="L1885">            AbstractMapTest.this.resetEmpty();</span>
+<span class="fc" id="L1886">            setCollection(map.values());</span>
+<span class="fc" id="L1887">            TestMapValues.this.setConfirmed(AbstractMapTest.this.getConfirmed().values());</span>
+<span class="fc" id="L1888">        }</span>
+
+        @Override
+        public void verify() {
+<span class="fc" id="L1892">            super.verify();</span>
+<span class="fc" id="L1893">            AbstractMapTest.this.verify();</span>
+<span class="fc" id="L1894">        }</span>
+
+        // TODO: should test that a remove on the values collection view
+        // removes the proper mapping and not just any mapping that may have
+        // the value equal to the value returned from the values iterator.
+    }
+
+
+    /**
+     * Resets the {@link #map}, {@link #entrySet}, {@link #keySet},
+     * {@link #values} and {@link #confirmed} fields to empty.
+     */
+    public void resetEmpty() {
+<span class="fc" id="L1907">        this.map = makeObject();</span>
+<span class="fc" id="L1908">        views();</span>
+<span class="fc" id="L1909">        this.confirmed = makeConfirmedMap();</span>
+<span class="fc" id="L1910">    }</span>
+
+    /**
+     * Resets the {@link #map}, {@link #entrySet}, {@link #keySet},
+     * {@link #values} and {@link #confirmed} fields to full.
+     */
+    public void resetFull() {
+<span class="fc" id="L1917">        this.map = makeFullMap();</span>
+<span class="fc" id="L1918">        views();</span>
+<span class="fc" id="L1919">        this.confirmed = makeConfirmedMap();</span>
+<span class="fc" id="L1920">        final K[] k = getSampleKeys();</span>
+<span class="fc" id="L1921">        final V[] v = getSampleValues();</span>
+<span class="fc bfc" id="L1922" title="All 2 branches covered.">        for (int i = 0; i &lt; k.length; i++) {</span>
+<span class="fc" id="L1923">            confirmed.put(k[i], v[i]);</span>
+        }
+<span class="fc" id="L1925">    }</span>
+
+    /**
+     * Resets the collection view fields.
+     */
+    private void views() {
+<span class="fc" id="L1931">        this.keySet = getMap().keySet();</span>
+        // see verifyValues: retrieve the values collection only when verifying them
+        // this.values = getMap().values();
+<span class="fc" id="L1934">        this.entrySet = getMap().entrySet();</span>
+<span class="fc" id="L1935">    }</span>
+
+    /**
+     * Verifies that {@link #map} is still equal to {@link #confirmed}.
+     * This method checks that the map is equal to the HashMap,
+     * &lt;I&gt;and&lt;/I&gt; that the map's collection views are still equal to
+     * the HashMap's collection views.  An &lt;Code&gt;equals&lt;/Code&gt; test
+     * is done on the maps and their collection views; their size and
+     * &lt;Code&gt;isEmpty&lt;/Code&gt; results are compared; their hashCodes are
+     * compared; and &lt;Code&gt;containsAll&lt;/Code&gt; tests are run on the
+     * collection views.
+     */
+    public void verify() {
+<span class="fc" id="L1948">        verifyMap();</span>
+<span class="fc" id="L1949">        verifyEntrySet();</span>
+<span class="fc" id="L1950">        verifyKeySet();</span>
+<span class="fc" id="L1951">        verifyValues();</span>
+<span class="fc" id="L1952">    }</span>
+
+    public void verifyMap() {
+<span class="fc" id="L1955">        final int size = getConfirmed().size();</span>
+<span class="fc" id="L1956">        final boolean empty = getConfirmed().isEmpty();</span>
+<span class="fc" id="L1957">        assertEquals(&quot;Map should be same size as HashMap&quot;, size, getMap().size());</span>
+<span class="fc" id="L1958">        assertEquals(&quot;Map should be empty if HashMap is&quot;, empty, getMap().isEmpty());</span>
+<span class="fc" id="L1959">        assertEquals(&quot;hashCodes should be the same&quot;, getConfirmed().hashCode(), getMap().hashCode());</span>
+        // this fails for LRUMap because confirmed.equals() somehow modifies
+        // map, causing concurrent modification exceptions.
+        // assertEquals(&quot;Map should still equal HashMap&quot;, confirmed, map);
+        // this works though and performs the same verification:
+<span class="fc" id="L1964">        assertTrue(&quot;Map should still equal HashMap&quot;, getMap().equals(getConfirmed()));</span>
+        // TODO: this should really be reexamined to figure out why LRU map
+        // behaves like it does (the equals shouldn't modify since all accesses
+        // by the confirmed collection should be through an iterator, thus not
+        // causing LRUMap to change).
+        // When comparing two maps, the entries in the map have to be accessed
+        // (usually with the get(Object) method). In the case of the LRUMap, this
+        // also alters the modCount as moveToMRU is called for the retrieved entry.
+        // Imho, the modCount should not be increased for a read-only operation.
+<span class="fc" id="L1973">    }</span>
+
+    public void verifyEntrySet() {
+<span class="fc" id="L1976">        final int size = getConfirmed().size();</span>
+<span class="fc" id="L1977">        final boolean empty = getConfirmed().isEmpty();</span>
+<span class="fc" id="L1978">        assertEquals(&quot;entrySet should be same size as HashMap's&quot; +</span>
+<span class="fc" id="L1979">                     &quot;\nTest: &quot; + entrySet + &quot;\nReal: &quot; + getConfirmed().entrySet(),</span>
+<span class="fc" id="L1980">                     size, entrySet.size());</span>
+<span class="fc" id="L1981">        assertEquals(&quot;entrySet should be empty if HashMap is&quot; +</span>
+<span class="fc" id="L1982">                     &quot;\nTest: &quot; + entrySet + &quot;\nReal: &quot; + getConfirmed().entrySet(),</span>
+<span class="fc" id="L1983">                     empty, entrySet.isEmpty());</span>
+<span class="fc" id="L1984">        assertTrue(&quot;entrySet should contain all HashMap's elements&quot; +</span>
+<span class="fc" id="L1985">                   &quot;\nTest: &quot; + entrySet + &quot;\nReal: &quot; + getConfirmed().entrySet(),</span>
+<span class="fc" id="L1986">                   entrySet.containsAll(getConfirmed().entrySet()));</span>
+<span class="fc" id="L1987">        assertEquals(&quot;entrySet hashCodes should be the same&quot; +</span>
+<span class="fc" id="L1988">                     &quot;\nTest: &quot; + entrySet + &quot;\nReal: &quot; + getConfirmed().entrySet(),</span>
+<span class="fc" id="L1989">                     getConfirmed().entrySet().hashCode(), entrySet.hashCode());</span>
+<span class="fc" id="L1990">        assertEquals(&quot;Map's entry set should still equal HashMap's&quot;,</span>
+<span class="fc" id="L1991">                     getConfirmed().entrySet(), entrySet);</span>
+<span class="fc" id="L1992">    }</span>
+
+    public void verifyKeySet() {
+<span class="fc" id="L1995">        final int size = getConfirmed().size();</span>
+<span class="fc" id="L1996">        final boolean empty = getConfirmed().isEmpty();</span>
+<span class="fc" id="L1997">        assertEquals(&quot;keySet should be same size as HashMap's&quot; +</span>
+<span class="fc" id="L1998">                     &quot;\nTest: &quot; + keySet + &quot;\nReal: &quot; + getConfirmed().keySet(),</span>
+<span class="fc" id="L1999">                     size, keySet.size());</span>
+<span class="fc" id="L2000">        assertEquals(&quot;keySet should be empty if HashMap is&quot; +</span>
+<span class="fc" id="L2001">                     &quot;\nTest: &quot; + keySet + &quot;\nReal: &quot; + getConfirmed().keySet(),</span>
+<span class="fc" id="L2002">                     empty, keySet.isEmpty());</span>
+<span class="fc" id="L2003">        assertTrue(&quot;keySet should contain all HashMap's elements&quot; +</span>
+<span class="fc" id="L2004">                   &quot;\nTest: &quot; + keySet + &quot;\nReal: &quot; + getConfirmed().keySet(),</span>
+<span class="fc" id="L2005">                   keySet.containsAll(getConfirmed().keySet()));</span>
+<span class="fc" id="L2006">        assertEquals(&quot;keySet hashCodes should be the same&quot; +</span>
+<span class="fc" id="L2007">                     &quot;\nTest: &quot; + keySet + &quot;\nReal: &quot; + getConfirmed().keySet(),</span>
+<span class="fc" id="L2008">                     getConfirmed().keySet().hashCode(), keySet.hashCode());</span>
+<span class="fc" id="L2009">        assertEquals(&quot;Map's key set should still equal HashMap's&quot;,</span>
+<span class="fc" id="L2010">                getConfirmed().keySet(), keySet);</span>
+<span class="fc" id="L2011">    }</span>
+
+    public void verifyValues() {
+<span class="fc" id="L2014">        final List&lt;V&gt; known = new ArrayList&lt;V&gt;(getConfirmed().values());</span>
+
+        // bug in IBM JDK: IBM J9 VM build 2.4, JRE 1.6.0 IBM J9 2.4 Linux x86-32 jvmxi3260sr12-20121024_126067
+        // a call to values() on an empty map retrieved via TreeMap#headMap or tailMap
+        // will render the values view unusable: resulting in NullPointerExceptions or missing values
+        // it will also not recover, as the value view is cached internally
+<span class="fc" id="L2020">        values = getMap().values();</span>
+
+<span class="fc" id="L2022">        final List&lt;V&gt; test = new ArrayList&lt;V&gt;(values);</span>
+
+<span class="fc" id="L2024">        final int size = getConfirmed().size();</span>
+<span class="fc" id="L2025">        final boolean empty = getConfirmed().isEmpty();</span>
+<span class="fc" id="L2026">        assertEquals(&quot;values should be same size as HashMap's&quot; +</span>
+<span class="fc" id="L2027">                     &quot;\nTest: &quot; + test + &quot;\nReal: &quot; + known,</span>
+<span class="fc" id="L2028">                     size, values.size());</span>
+<span class="fc" id="L2029">        assertEquals(&quot;values should be empty if HashMap is&quot; +</span>
+<span class="fc" id="L2030">                     &quot;\nTest: &quot; + test + &quot;\nReal: &quot; + known,</span>
+<span class="fc" id="L2031">                     empty, values.isEmpty());</span>
+<span class="fc" id="L2032">        assertTrue(&quot;values should contain all HashMap's elements&quot; +</span>
+<span class="fc" id="L2033">                   &quot;\nTest: &quot; + test + &quot;\nReal: &quot; + known,</span>
+<span class="fc" id="L2034">                    test.containsAll(known));</span>
+<span class="fc" id="L2035">        assertTrue(&quot;values should contain all HashMap's elements&quot; +</span>
+<span class="fc" id="L2036">                   &quot;\nTest: &quot; + test + &quot;\nReal: &quot; + known,</span>
+<span class="fc" id="L2037">                   known.containsAll(test));</span>
+        // originally coded to use a HashBag, but now separate jar so...
+<span class="fc bfc" id="L2039" title="All 2 branches covered.">        for (final V v : known) {</span>
+<span class="fc" id="L2040">            final boolean removed = test.remove(v);</span>
+<span class="fc" id="L2041">            assertTrue(&quot;Map's values should still equal HashMap's&quot;, removed);</span>
+        }
+<span class="fc" id="L2043">        assertTrue(&quot;Map's values should still equal HashMap's&quot;, test.isEmpty());</span>
+<span class="fc" id="L2044">    }</span>
+
+    /**
+     * Erases any leftover instance variables by setting them to null.
+     */
+    @Override
+    public void tearDown() throws Exception {
+<span class="fc" id="L2051">        map = null;</span>
+<span class="fc" id="L2052">        keySet = null;</span>
+<span class="fc" id="L2053">        entrySet = null;</span>
+<span class="fc" id="L2054">        values = null;</span>
+<span class="fc" id="L2055">        confirmed = null;</span>
+<span class="fc" id="L2056">    }</span>
+
+    /**
+     * Get the map.
+     * @return Map&lt;K,V&gt;
+     */
+    public Map&lt;K, V&gt; getMap() {
+<span class="fc" id="L2063">        return map;</span>
+    }
+
+    /**
+     * Get the confirmed.
+     * @return Map&lt;K,V&gt;
+     */
+    public Map&lt;K, V&gt; getConfirmed() {
+<span class="fc" id="L2071">        return confirmed;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

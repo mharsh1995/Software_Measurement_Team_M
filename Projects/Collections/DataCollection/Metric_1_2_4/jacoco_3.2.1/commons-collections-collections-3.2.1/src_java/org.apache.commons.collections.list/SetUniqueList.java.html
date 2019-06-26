@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SetUniqueList.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.list</a> &gt; <span class="el_source">SetUniqueList.java</span></div><h1>SetUniqueList.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.list;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
+
+import org.apache.commons.collections.iterators.AbstractIteratorDecorator;
+import org.apache.commons.collections.iterators.AbstractListIteratorDecorator;
+import org.apache.commons.collections.set.UnmodifiableSet;
+
+/**
+ * Decorates a &lt;code&gt;List&lt;/code&gt; to ensure that no duplicates are present
+ * much like a &lt;code&gt;Set&lt;/code&gt;.
+ * &lt;p&gt;
+ * The &lt;code&gt;List&lt;/code&gt; interface makes certain assumptions/requirements.
+ * This implementation breaks these in certain ways, but this is merely the
+ * result of rejecting duplicates.
+ * Each violation is explained in the method, but it should not affect you.
+ * Bear in mind that Sets require immutable objects to function correctly.
+ * &lt;p&gt;
+ * The {@link org.apache.commons.collections.set.ListOrderedSet ListOrderedSet}
+ * class provides an alternative approach, by wrapping an existing Set and
+ * retaining insertion order in the iterator.
+ * &lt;p&gt;
+ * This class is Serializable from Commons Collections 3.1.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Matthew Hawthorne
+ * @author Stephen Colebourne
+ * @author Tom Dunham
+ */
+public class SetUniqueList extends AbstractSerializableListDecorator {
+
+    /** Serialization version */
+    private static final long serialVersionUID = 7196982186153478694L;
+
+    /**
+     * Internal Set to maintain uniqueness.
+     */
+    protected final Set set;
+
+    /**
+     * Factory method to create a SetList using the supplied list to retain order.
+     * &lt;p&gt;
+     * If the list contains duplicates, these are removed (first indexed one kept).
+     * A &lt;code&gt;HashSet&lt;/code&gt; is used for the set behaviour.
+     * 
+     * @param list  the list to decorate, must not be null
+     * @throws IllegalArgumentException if list is null
+     */
+    public static SetUniqueList decorate(List list) {
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (list == null) {</span>
+<span class="nc" id="L75">            throw new IllegalArgumentException(&quot;List must not be null&quot;);</span>
+        }
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (list.isEmpty()) {</span>
+<span class="fc" id="L78">            return new SetUniqueList(list, new HashSet());</span>
+        } else {
+<span class="fc" id="L80">            List temp = new ArrayList(list);</span>
+<span class="fc" id="L81">            list.clear();</span>
+<span class="fc" id="L82">            SetUniqueList sl = new SetUniqueList(list, new HashSet());</span>
+<span class="fc" id="L83">            sl.addAll(temp);</span>
+<span class="fc" id="L84">            return sl;</span>
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Constructor that wraps (not copies) the List and specifies the set to use.
+     * &lt;p&gt;
+     * The set and list must both be correctly initialised to the same elements.
+     * 
+     * @param set  the set to decorate, must not be null
+     * @param list  the list to decorate, must not be null
+     * @throws IllegalArgumentException if set or list is null
+     */
+    protected SetUniqueList(List list, Set set) {
+<span class="fc" id="L99">        super(list);</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        if (set == null) {</span>
+<span class="nc" id="L101">            throw new IllegalArgumentException(&quot;Set must not be null&quot;);</span>
+        }
+<span class="fc" id="L103">        this.set = set;</span>
+<span class="fc" id="L104">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Gets an unmodifiable view as a Set.
+     * 
+     * @return an unmodifiable set view
+     */
+    public Set asSet() {
+<span class="nc" id="L113">        return UnmodifiableSet.decorate(set);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Adds an element to the list if it is not already present.
+     * &lt;p&gt;
+     * &lt;i&gt;(Violation)&lt;/i&gt;
+     * The &lt;code&gt;List&lt;/code&gt; interface requires that this method returns
+     * &lt;code&gt;true&lt;/code&gt; always. However this class may return &lt;code&gt;false&lt;/code&gt;
+     * because of the &lt;code&gt;Set&lt;/code&gt; behaviour.
+     * 
+     * @param object the object to add
+     * @return true if object was added
+     */
+    public boolean add(Object object) {
+        // gets initial size
+<span class="fc" id="L130">        final int sizeBefore = size();</span>
+
+        // adds element if unique
+<span class="fc" id="L133">        add(size(), object);</span>
+
+        // compares sizes to detect if collection changed
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        return (sizeBefore != size());</span>
+    }
+
+    /**
+     * Adds an element to a specific index in the list if it is not already present.
+     * &lt;p&gt;
+     * &lt;i&gt;(Violation)&lt;/i&gt;
+     * The &lt;code&gt;List&lt;/code&gt; interface makes the assumption that the element is
+     * always inserted. This may not happen with this implementation.
+     * 
+     * @param index  the index to insert at
+     * @param object  the object to add
+     */
+    public void add(int index, Object object) {
+        // adds element if it is not contained already
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if (set.contains(object) == false) {</span>
+<span class="fc" id="L152">            super.add(index, object);</span>
+<span class="fc" id="L153">            set.add(object);</span>
+        }
+<span class="fc" id="L155">    }</span>
+
+    /**
+     * Adds an element to the end of the list if it is not already present.
+     * &lt;p&gt;
+     * &lt;i&gt;(Violation)&lt;/i&gt;
+     * The &lt;code&gt;List&lt;/code&gt; interface makes the assumption that the element is
+     * always inserted. This may not happen with this implementation.
+     * 
+     * @param coll  the collection to add
+     */
+    public boolean addAll(Collection coll) {
+<span class="fc" id="L167">        return addAll(size(), coll);</span>
+    }
+
+    /**
+     * Adds a collection of objects to the end of the list avoiding duplicates.
+     * &lt;p&gt;
+     * Only elements that are not already in this list will be added, and
+     * duplicates from the specified collection will be ignored.
+     * &lt;p&gt;
+     * &lt;i&gt;(Violation)&lt;/i&gt;
+     * The &lt;code&gt;List&lt;/code&gt; interface makes the assumption that the elements
+     * are always inserted. This may not happen with this implementation.
+     * 
+     * @param index  the index to insert at
+     * @param coll  the collection to add in iterator order
+     * @return true if this collection changed
+     */
+    public boolean addAll(int index, Collection coll) {
+        // gets initial size
+<span class="fc" id="L186">        final int sizeBefore = size();</span>
+
+        // adds all elements
+<span class="fc bfc" id="L189" title="All 2 branches covered.">        for (final Iterator it = coll.iterator(); it.hasNext();) {</span>
+<span class="fc" id="L190">            add(it.next());</span>
+        }
+
+        // compares sizes to detect if collection changed
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">        return sizeBefore != size();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the value at the specified index avoiding duplicates.
+     * &lt;p&gt;
+     * The object is set into the specified index.
+     * Afterwards, any previous duplicate is removed
+     * If the object is not already in the list then a normal set occurs.
+     * If it is present, then the old version is removed.
+     * 
+     * @param index  the index to insert at
+     * @param object  the object to set
+     * @return the previous object
+     */
+    public Object set(int index, Object object) {
+<span class="fc" id="L211">        int pos = indexOf(object);</span>
+<span class="fc" id="L212">        Object removed = super.set(index, object);</span>
+<span class="fc bfc" id="L213" title="All 4 branches covered.">        if (pos == -1 || pos == index) {</span>
+<span class="fc" id="L214">            return removed;</span>
+        }
+        
+        // the object is already in the uniq list
+        // (and it hasn't been swapped with itself)
+<span class="fc" id="L219">        super.remove(pos);  // remove the duplicate by index</span>
+<span class="fc" id="L220">        set.remove(removed);  // remove the item deleted by the set</span>
+<span class="fc" id="L221">        return removed;  // return the item deleted by the set</span>
+    }
+
+    public boolean remove(Object object) {
+<span class="fc" id="L225">        boolean result = super.remove(object);</span>
+<span class="fc" id="L226">        set.remove(object);</span>
+<span class="fc" id="L227">        return result;</span>
+    }
+
+    public Object remove(int index) {
+<span class="fc" id="L231">        Object result = super.remove(index);</span>
+<span class="fc" id="L232">        set.remove(result);</span>
+<span class="fc" id="L233">        return result;</span>
+    }
+
+    public boolean removeAll(Collection coll) {
+<span class="fc" id="L237">        boolean result = super.removeAll(coll);</span>
+<span class="fc" id="L238">        set.removeAll(coll);</span>
+<span class="fc" id="L239">        return result;</span>
+    }
+
+    public boolean retainAll(Collection coll) {
+<span class="fc" id="L243">        boolean result = super.retainAll(coll);</span>
+<span class="fc" id="L244">        set.retainAll(coll);</span>
+<span class="fc" id="L245">        return result;</span>
+    }
+
+    public void clear() {
+<span class="fc" id="L249">        super.clear();</span>
+<span class="fc" id="L250">        set.clear();</span>
+<span class="fc" id="L251">    }</span>
+
+    public boolean contains(Object object) {
+<span class="fc" id="L254">        return set.contains(object);</span>
+    }
+
+    public boolean containsAll(Collection coll) {
+<span class="fc" id="L258">        return set.containsAll(coll);</span>
+    }
+
+    public Iterator iterator() {
+<span class="fc" id="L262">        return new SetListIterator(super.iterator(), set);</span>
+    }
+
+    public ListIterator listIterator() {
+<span class="fc" id="L266">        return new SetListListIterator(super.listIterator(), set);</span>
+    }
+
+    public ListIterator listIterator(int index) {
+<span class="fc" id="L270">        return new SetListListIterator(super.listIterator(index), set);</span>
+    }
+
+    public List subList(int fromIndex, int toIndex) {
+<span class="nc" id="L274">        return new SetUniqueList(super.subList(fromIndex, toIndex), set);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Inner class iterator.
+     */
+    static class SetListIterator extends AbstractIteratorDecorator {
+        
+        protected final Set set;
+<span class="fc" id="L284">        protected Object last = null;</span>
+        
+        protected SetListIterator(Iterator it, Set set) {
+<span class="fc" id="L287">            super(it);</span>
+<span class="fc" id="L288">            this.set = set;</span>
+<span class="fc" id="L289">        }</span>
+        
+        public Object next() {
+<span class="fc" id="L292">            last = super.next();</span>
+<span class="fc" id="L293">            return last;</span>
+        }
+
+        public void remove() {
+<span class="fc" id="L297">            super.remove();</span>
+<span class="fc" id="L298">            set.remove(last);</span>
+<span class="fc" id="L299">            last = null;</span>
+<span class="fc" id="L300">        }</span>
+    }
+    
+    /**
+     * Inner class iterator.
+     */
+    static class SetListListIterator extends AbstractListIteratorDecorator {
+        
+        protected final Set set;
+<span class="fc" id="L309">        protected Object last = null;</span>
+        
+        protected SetListListIterator(ListIterator it, Set set) {
+<span class="fc" id="L312">            super(it);</span>
+<span class="fc" id="L313">            this.set = set;</span>
+<span class="fc" id="L314">        }</span>
+        
+        public Object next() {
+<span class="fc" id="L317">            last = super.next();</span>
+<span class="fc" id="L318">            return last;</span>
+        }
+
+        public Object previous() {
+<span class="fc" id="L322">            last = super.previous();</span>
+<span class="fc" id="L323">            return last;</span>
+        }
+
+        public void remove() {
+<span class="fc" id="L327">            super.remove();</span>
+<span class="fc" id="L328">            set.remove(last);</span>
+<span class="fc" id="L329">            last = null;</span>
+<span class="fc" id="L330">        }</span>
+
+        public void add(Object object) {
+<span class="fc bfc" id="L333" title="All 2 branches covered.">            if (set.contains(object) == false) {</span>
+<span class="fc" id="L334">                super.add(object);</span>
+<span class="fc" id="L335">                set.add(object);</span>
+            }
+<span class="fc" id="L337">        }</span>
+        
+        public void set(Object object) {
+<span class="fc" id="L340">            throw new UnsupportedOperationException(&quot;ListIterator does not support set&quot;);</span>
+        }
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

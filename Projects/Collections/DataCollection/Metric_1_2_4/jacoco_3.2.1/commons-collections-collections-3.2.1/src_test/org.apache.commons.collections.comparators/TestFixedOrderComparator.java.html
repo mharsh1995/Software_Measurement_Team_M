@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestFixedOrderComparator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.comparators</a> &gt; <span class="el_source">TestFixedOrderComparator.java</span></div><h1>TestFixedOrderComparator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.comparators;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+/**
+ * Test class for FixedOrderComparator.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author David Leppik 
+ * @author Stephen Colebourne
+ */
+public class TestFixedOrderComparator extends TestCase {
+
+
+    /**
+     * Top cities of the world, by population including metro areas.
+     */
+<span class="fc" id="L43">    public static final String topCities[] = new String[] {</span>
+<span class="fc" id="L44">        &quot;Tokyo&quot;,</span>
+<span class="fc" id="L45">        &quot;Mexico City&quot;,</span>
+<span class="fc" id="L46">        &quot;Mumbai&quot;,</span>
+<span class="fc" id="L47">        &quot;Sao Paulo&quot;,</span>
+<span class="fc" id="L48">        &quot;New York&quot;,</span>
+<span class="fc" id="L49">        &quot;Shanghai&quot;,</span>
+<span class="fc" id="L50">        &quot;Lagos&quot;,</span>
+<span class="fc" id="L51">        &quot;Los Angeles&quot;,</span>
+<span class="fc" id="L52">        &quot;Calcutta&quot;,</span>
+<span class="fc" id="L53">        &quot;Buenos Aires&quot;</span>
+<span class="fc" id="L54">    };</span>
+
+    //
+    // Initialization and busywork
+    //
+
+    public TestFixedOrderComparator(String name) {
+<span class="fc" id="L61">        super(name);</span>
+<span class="fc" id="L62">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L65" title="All 2 branches covered.">        return new TestSuite(TestFixedOrderComparator.class);</span>
+    }
+
+    public static void main(String args[]) { 
+<span class="nc" id="L69">        junit.textui.TestRunner.run(suite());</span>
+<span class="nc" id="L70">    }</span>
+
+    //
+    // Set up and tear down
+    //
+
+
+
+    //
+    // The tests
+    //
+
+    /** 
+     * Tests that the constructor plus add method compares items properly. 
+     */
+    public void testConstructorPlusAdd() {
+<span class="fc" id="L86">        FixedOrderComparator comparator = new FixedOrderComparator();</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        for (int i = 0; i &lt; topCities.length; i++) {</span>
+<span class="fc" id="L88">            comparator.add(topCities[i]);</span>
+        }
+<span class="fc" id="L90">        String[] keys = (String[]) topCities.clone();</span>
+<span class="fc" id="L91">        assertComparatorYieldsOrder(keys, comparator);</span>
+<span class="fc" id="L92">    }</span>
+
+    /** 
+     * Tests that the array constructor compares items properly. 
+     */
+    public void testArrayConstructor() {
+<span class="fc" id="L98">        String[] keys = (String[]) topCities.clone();</span>
+<span class="fc" id="L99">        String[] topCitiesForTest = (String[]) topCities.clone();</span>
+<span class="fc" id="L100">        FixedOrderComparator comparator = new FixedOrderComparator(topCitiesForTest);</span>
+<span class="fc" id="L101">        assertComparatorYieldsOrder(keys, comparator);</span>
+        // test that changing input after constructor has no effect
+<span class="fc" id="L103">        topCitiesForTest[0] = &quot;Brighton&quot;;</span>
+<span class="fc" id="L104">        assertComparatorYieldsOrder(keys, comparator);</span>
+<span class="fc" id="L105">    }</span>
+
+    /**
+     * Tests the list constructor. 
+     */
+    public void testListConstructor() {
+<span class="fc" id="L111">        String[] keys = (String[]) topCities.clone();</span>
+<span class="fc" id="L112">        List topCitiesForTest = new LinkedList(Arrays.asList(topCities));</span>
+<span class="fc" id="L113">        FixedOrderComparator comparator = new FixedOrderComparator(topCitiesForTest);</span>
+<span class="fc" id="L114">        assertComparatorYieldsOrder(keys, comparator);</span>
+        // test that changing input after constructor has no effect
+<span class="fc" id="L116">        topCitiesForTest.set(0, &quot;Brighton&quot;);</span>
+<span class="fc" id="L117">        assertComparatorYieldsOrder(keys, comparator);</span>
+<span class="fc" id="L118">    }</span>
+
+    /**
+     * Tests addAsEqual method.
+     */
+    public void testAddAsEqual() {
+<span class="fc" id="L124">        FixedOrderComparator comparator = new FixedOrderComparator(topCities);</span>
+<span class="fc" id="L125">        comparator.addAsEqual(&quot;New York&quot;, &quot;Minneapolis&quot;);</span>
+<span class="fc" id="L126">        assertEquals(0, comparator.compare(&quot;New York&quot;, &quot;Minneapolis&quot;));</span>
+<span class="fc" id="L127">        assertEquals(-1, comparator.compare(&quot;Tokyo&quot;, &quot;Minneapolis&quot;));</span>
+<span class="fc" id="L128">        assertEquals(1, comparator.compare(&quot;Shanghai&quot;, &quot;Minneapolis&quot;));</span>
+<span class="fc" id="L129">    }</span>
+
+    /** 
+     * Tests whether or not updates are disabled after a comparison is made.
+     */
+    public void testLock() {
+<span class="fc" id="L135">        FixedOrderComparator comparator = new FixedOrderComparator(topCities);</span>
+<span class="fc" id="L136">        assertEquals(false, comparator.isLocked());</span>
+<span class="fc" id="L137">        comparator.compare(&quot;New York&quot;, &quot;Tokyo&quot;);</span>
+<span class="fc" id="L138">        assertEquals(true, comparator.isLocked());</span>
+        try {
+<span class="nc" id="L140">            comparator.add(&quot;Minneapolis&quot;);</span>
+<span class="nc" id="L141">            fail(&quot;Should have thrown an UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L142">        } catch (UnsupportedOperationException e) {</span>
+            // success -- ignore
+        }
+
+        try {
+<span class="nc" id="L147">            comparator.addAsEqual(&quot;New York&quot;, &quot;Minneapolis&quot;);</span>
+<span class="nc" id="L148">            fail(&quot;Should have thrown an UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L149">        } catch (UnsupportedOperationException e) {</span>
+            // success -- ignore
+        }
+<span class="fc" id="L152">    }</span>
+
+    public void testUnknownObjectBehavior() {
+<span class="fc" id="L155">        FixedOrderComparator comparator = new FixedOrderComparator(topCities);</span>
+        try {
+<span class="nc" id="L157">            comparator.compare(&quot;New York&quot;, &quot;Minneapolis&quot;);</span>
+<span class="nc" id="L158">            fail(&quot;Should have thrown a IllegalArgumentException&quot;);</span>
+<span class="pc" id="L159">        } catch (IllegalArgumentException e) {</span>
+            // success-- ignore
+        }
+        try {
+<span class="nc" id="L163">            comparator.compare(&quot;Minneapolis&quot;, &quot;New York&quot;);</span>
+<span class="nc" id="L164">            fail(&quot;Should have thrown a IllegalArgumentException&quot;);</span>
+<span class="pc" id="L165">        } catch (IllegalArgumentException e) {</span>
+            // success-- ignore
+        }
+<span class="fc" id="L168">        assertEquals(FixedOrderComparator.UNKNOWN_THROW_EXCEPTION, comparator.getUnknownObjectBehavior());</span>
+
+<span class="fc" id="L170">        comparator = new FixedOrderComparator(topCities);</span>
+<span class="fc" id="L171">        comparator.setUnknownObjectBehavior(FixedOrderComparator.UNKNOWN_BEFORE);</span>
+<span class="fc" id="L172">        assertEquals(FixedOrderComparator.UNKNOWN_BEFORE, comparator.getUnknownObjectBehavior());</span>
+<span class="fc" id="L173">        LinkedList keys = new LinkedList(Arrays.asList(topCities));</span>
+<span class="fc" id="L174">        keys.addFirst(&quot;Minneapolis&quot;);</span>
+<span class="fc" id="L175">        assertComparatorYieldsOrder(keys.toArray(new String[0]), comparator);</span>
+        
+<span class="fc" id="L177">        assertEquals(-1, comparator.compare(&quot;Minneapolis&quot;, &quot;New York&quot;));</span>
+<span class="fc" id="L178">        assertEquals( 1, comparator.compare(&quot;New York&quot;, &quot;Minneapolis&quot;));</span>
+<span class="fc" id="L179">        assertEquals( 0, comparator.compare(&quot;Minneapolis&quot;, &quot;St Paul&quot;));</span>
+
+<span class="fc" id="L181">        comparator = new FixedOrderComparator(topCities);</span>
+<span class="fc" id="L182">        comparator.setUnknownObjectBehavior(FixedOrderComparator.UNKNOWN_AFTER);</span>
+<span class="fc" id="L183">        keys = new LinkedList(Arrays.asList(topCities));</span>
+<span class="fc" id="L184">        keys.add(&quot;Minneapolis&quot;);</span>
+<span class="fc" id="L185">        assertComparatorYieldsOrder(keys.toArray(new String[0]), comparator);</span>
+        
+<span class="fc" id="L187">        assertEquals( 1, comparator.compare(&quot;Minneapolis&quot;, &quot;New York&quot;));</span>
+<span class="fc" id="L188">        assertEquals(-1, comparator.compare(&quot;New York&quot;, &quot;Minneapolis&quot;));</span>
+<span class="fc" id="L189">        assertEquals( 0, comparator.compare(&quot;Minneapolis&quot;, &quot;St Paul&quot;));</span>
+        
+<span class="fc" id="L191">    }</span>
+    
+    //
+    // Helper methods
+    //
+    
+    /** Shuffles the keys and asserts that the comparator sorts them back to
+     * their original order.
+     */
+    private void assertComparatorYieldsOrder(Object[] orderedObjects, 
+                                             Comparator comparator) {
+<span class="fc" id="L202">        Object[] keys = (Object[]) orderedObjects.clone();</span>
+        
+        // shuffle until the order changes.  It's extremely rare that
+        // this requires more than one shuffle.
+
+<span class="fc" id="L207">        boolean isInNewOrder = false;</span>
+<span class="pc bpc" id="L208" title="1 of 4 branches missed.">        while (keys.length &gt; 1 &amp;&amp; isInNewOrder == false) {</span>
+            shuffle: {
+<span class="fc" id="L210">                Random rand = new Random();</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">                for (int i = keys.length-1; i &gt; 0; i--) {</span>
+<span class="fc" id="L212">                        Object swap = keys[i];</span>
+<span class="fc" id="L213">                        int j = rand.nextInt(i+1);</span>
+<span class="fc" id="L214">                        keys[i] = keys[j];</span>
+<span class="fc" id="L215">                        keys[j] = swap;     </span>
+                    }
+            }
+        
+            testShuffle: {
+<span class="pc bpc" id="L220" title="1 of 4 branches missed.">                for (int i = 0; i &lt; keys.length &amp;&amp; !isInNewOrder; i++) {</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">                    if( !orderedObjects[i].equals(keys[i])) {</span>
+<span class="fc" id="L222">                        isInNewOrder = true;</span>
+                    }
+                }
+            }
+        }
+        
+        // The real test:  sort and make sure they come out right.
+        
+<span class="fc" id="L230">        Arrays.sort(keys, comparator);</span>
+
+<span class="fc bfc" id="L232" title="All 2 branches covered.">        for (int i = 0; i &lt; orderedObjects.length; i++) {</span>
+<span class="fc" id="L233">            assertEquals(orderedObjects[i], keys[i]);</span>
+        }
+<span class="fc" id="L235">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

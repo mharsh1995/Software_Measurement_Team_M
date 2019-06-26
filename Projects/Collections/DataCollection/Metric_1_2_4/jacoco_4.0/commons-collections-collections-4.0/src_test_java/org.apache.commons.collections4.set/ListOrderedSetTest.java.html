@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ListOrderedSetTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.set</a> &gt; <span class="el_source">ListOrderedSetTest.java</span></div><h1>ListOrderedSetTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.set;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Extension of {@link AbstractSetTest} for exercising the
+ * {@link ListOrderedSet} implementation.
+ * 
+ * @since 3.0
+ * @version $Id$
+ */
+public class ListOrderedSetTest&lt;E&gt;
+    extends AbstractSetTest&lt;E&gt; {
+
+<span class="fc" id="L36">    private static final Integer ZERO = Integer.valueOf(0);</span>
+
+<span class="fc" id="L38">    private static final Integer ONE = Integer.valueOf(1);</span>
+
+<span class="fc" id="L40">    private static final Integer TWO = Integer.valueOf(2);</span>
+
+<span class="fc" id="L42">    private static final Integer THREE = Integer.valueOf(3);</span>
+
+    public ListOrderedSetTest(final String testName) {
+<span class="fc" id="L45">        super(testName);</span>
+<span class="fc" id="L46">    }</span>
+
+    @Override
+    public ListOrderedSet&lt;E&gt; makeObject() {
+<span class="fc" id="L50">        return ListOrderedSet.listOrderedSet(new HashSet&lt;E&gt;());</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    protected ListOrderedSet&lt;E&gt; setupSet() {
+<span class="fc" id="L55">        final ListOrderedSet&lt;E&gt; set = makeObject();</span>
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L58">            set.add((E) Integer.toString(i));</span>
+        }
+<span class="fc" id="L60">        return set;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testOrdering() {
+<span class="fc" id="L65">        final ListOrderedSet&lt;E&gt; set = setupSet();</span>
+<span class="fc" id="L66">        Iterator&lt;E&gt; it = set.iterator();</span>
+
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L69">            assertEquals(&quot;Sequence is wrong&quot;, Integer.toString(i), it.next());</span>
+        }
+
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i += 2) {</span>
+<span class="fc" id="L73">            assertTrue(&quot;Must be able to remove int&quot;,</span>
+<span class="fc" id="L74">                       set.remove(Integer.toString(i)));</span>
+        }
+
+<span class="fc" id="L77">        it = set.iterator();</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        for (int i = 1; i &lt; 10; i += 2) {</span>
+<span class="fc" id="L79">            assertEquals(&quot;Sequence is wrong after remove &quot;,</span>
+<span class="fc" id="L80">                         Integer.toString(i), it.next());</span>
+        }
+
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L84">            set.add((E) Integer.toString(i));</span>
+        }
+
+<span class="fc" id="L87">        assertEquals(&quot;Size of set is wrong!&quot;, 10, set.size());</span>
+
+<span class="fc" id="L89">        it = set.iterator();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (int i = 1; i &lt; 10; i += 2) {</span>
+<span class="fc" id="L91">            assertEquals(&quot;Sequence is wrong&quot;, Integer.toString(i), it.next());</span>
+        }
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i += 2) {</span>
+<span class="fc" id="L94">            assertEquals(&quot;Sequence is wrong&quot;, Integer.toString(i), it.next());</span>
+        }
+<span class="fc" id="L96">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testListAddRemove() {
+<span class="fc" id="L100">        final ListOrderedSet&lt;E&gt; set = makeObject();</span>
+<span class="fc" id="L101">        final List&lt;E&gt; view = set.asList();</span>
+<span class="fc" id="L102">        set.add((E) ZERO);</span>
+<span class="fc" id="L103">        set.add((E) ONE);</span>
+<span class="fc" id="L104">        set.add((E) TWO);</span>
+
+<span class="fc" id="L106">        assertEquals(3, set.size());</span>
+<span class="fc" id="L107">        assertSame(ZERO, set.get(0));</span>
+<span class="fc" id="L108">        assertSame(ONE, set.get(1));</span>
+<span class="fc" id="L109">        assertSame(TWO, set.get(2));</span>
+<span class="fc" id="L110">        assertEquals(3, view.size());</span>
+<span class="fc" id="L111">        assertSame(ZERO, view.get(0));</span>
+<span class="fc" id="L112">        assertSame(ONE, view.get(1));</span>
+<span class="fc" id="L113">        assertSame(TWO, view.get(2));</span>
+
+<span class="fc" id="L115">        assertEquals(0, set.indexOf(ZERO));</span>
+<span class="fc" id="L116">        assertEquals(1, set.indexOf(ONE));</span>
+<span class="fc" id="L117">        assertEquals(2, set.indexOf(TWO));</span>
+
+<span class="fc" id="L119">        set.remove(1);</span>
+<span class="fc" id="L120">        assertEquals(2, set.size());</span>
+<span class="fc" id="L121">        assertSame(ZERO, set.get(0));</span>
+<span class="fc" id="L122">        assertSame(TWO, set.get(1));</span>
+<span class="fc" id="L123">        assertEquals(2, view.size());</span>
+<span class="fc" id="L124">        assertSame(ZERO, view.get(0));</span>
+<span class="fc" id="L125">        assertSame(TWO, view.get(1));</span>
+<span class="fc" id="L126">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testListAddIndexed() {
+<span class="fc" id="L130">        final ListOrderedSet&lt;E&gt; set = makeObject();</span>
+<span class="fc" id="L131">        set.add((E) ZERO);</span>
+<span class="fc" id="L132">        set.add((E) TWO);</span>
+
+<span class="fc" id="L134">        set.add(1, (E) ONE);</span>
+<span class="fc" id="L135">        assertEquals(3, set.size());</span>
+<span class="fc" id="L136">        assertSame(ZERO, set.get(0));</span>
+<span class="fc" id="L137">        assertSame(ONE, set.get(1));</span>
+<span class="fc" id="L138">        assertSame(TWO, set.get(2));</span>
+
+<span class="fc" id="L140">        set.add(0, (E) ONE);</span>
+<span class="fc" id="L141">        assertEquals(3, set.size());</span>
+<span class="fc" id="L142">        assertSame(ZERO, set.get(0));</span>
+<span class="fc" id="L143">        assertSame(ONE, set.get(1));</span>
+<span class="fc" id="L144">        assertSame(TWO, set.get(2));</span>
+
+<span class="fc" id="L146">        final List&lt;E&gt; list = new ArrayList&lt;E&gt;();</span>
+<span class="fc" id="L147">        list.add((E) ZERO);</span>
+<span class="fc" id="L148">        list.add((E) TWO);</span>
+
+<span class="fc" id="L150">        set.addAll(0, list);</span>
+<span class="fc" id="L151">        assertEquals(3, set.size());</span>
+<span class="fc" id="L152">        assertSame(ZERO, set.get(0));</span>
+<span class="fc" id="L153">        assertSame(ONE, set.get(1));</span>
+<span class="fc" id="L154">        assertSame(TWO, set.get(2));</span>
+
+<span class="fc" id="L156">        list.add(0, (E) THREE); // list = [3,0,2]</span>
+<span class="fc" id="L157">        set.remove(TWO); //  set = [0,1]</span>
+<span class="fc" id="L158">        set.addAll(1, list);</span>
+<span class="fc" id="L159">        assertEquals(4, set.size());</span>
+<span class="fc" id="L160">        assertSame(ZERO, set.get(0));</span>
+<span class="fc" id="L161">        assertSame(THREE, set.get(1));</span>
+<span class="fc" id="L162">        assertSame(TWO, set.get(2));</span>
+<span class="fc" id="L163">        assertSame(ONE, set.get(3));</span>
+<span class="fc" id="L164">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testListAddReplacing() {
+<span class="fc" id="L168">        final ListOrderedSet&lt;E&gt; set = makeObject();</span>
+<span class="fc" id="L169">        final A a = new A();</span>
+<span class="fc" id="L170">        final B b = new B();</span>
+<span class="fc" id="L171">        set.add((E) a);</span>
+<span class="fc" id="L172">        assertEquals(1, set.size());</span>
+<span class="fc" id="L173">        set.add((E) b); // will match but not replace A as equal</span>
+<span class="fc" id="L174">        assertEquals(1, set.size());</span>
+<span class="fc" id="L175">        assertSame(a, set.decorated().iterator().next());</span>
+<span class="fc" id="L176">        assertSame(a, set.iterator().next());</span>
+<span class="fc" id="L177">        assertSame(a, set.get(0));</span>
+<span class="fc" id="L178">        assertSame(a, set.asList().get(0));</span>
+<span class="fc" id="L179">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRetainAll() {
+<span class="fc" id="L183">        final List&lt;E&gt; list = new ArrayList&lt;E&gt;(10);</span>
+<span class="fc" id="L184">        final Set&lt;E&gt; set = new HashSet&lt;E&gt;(10);</span>
+<span class="fc" id="L185">        final ListOrderedSet&lt;E&gt; orderedSet = ListOrderedSet.listOrderedSet(set, list);</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; ++i) {</span>
+<span class="fc" id="L187">            orderedSet.add((E) Integer.valueOf(10 - i - 1));</span>
+        }
+
+<span class="fc" id="L190">        final Collection&lt;E&gt; retained = new ArrayList&lt;E&gt;(5);</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">        for (int i = 0; i &lt; 5; ++i) {</span>
+<span class="fc" id="L192">            retained.add((E) Integer.valueOf(i * 2));</span>
+        }
+
+<span class="fc" id="L195">        assertTrue(orderedSet.retainAll(retained));</span>
+<span class="fc" id="L196">        assertEquals(5, orderedSet.size());</span>
+        // insertion order preserved?
+<span class="fc" id="L198">        assertEquals(Integer.valueOf(8), orderedSet.get(0));</span>
+<span class="fc" id="L199">        assertEquals(Integer.valueOf(6), orderedSet.get(1));</span>
+<span class="fc" id="L200">        assertEquals(Integer.valueOf(4), orderedSet.get(2));</span>
+<span class="fc" id="L201">        assertEquals(Integer.valueOf(2), orderedSet.get(3));</span>
+<span class="fc" id="L202">        assertEquals(Integer.valueOf(0), orderedSet.get(4));</span>
+<span class="fc" id="L203">    }</span>
+
+    /*
+     * test case for https://issues.apache.org/jira/browse/COLLECTIONS-426
+     */
+    @SuppressWarnings(&quot;boxing&quot;) // OK in test code
+    public void testRetainAllCollections426() {
+<span class="fc" id="L210">        final int size = 100000;</span>
+<span class="fc" id="L211">        final ListOrderedSet&lt;Integer&gt; set = new ListOrderedSet&lt;Integer&gt;();</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L213">            set.add(i);</span>
+        }
+<span class="fc" id="L215">        final ArrayList&lt;Integer&gt; list = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        for (int i = size; i &lt; 2 * size; i++) {</span>
+<span class="fc" id="L217">            list.add(i);</span>
+        }
+
+<span class="fc" id="L220">        final long start = System.currentTimeMillis();</span>
+<span class="fc" id="L221">        set.retainAll(list);</span>
+<span class="fc" id="L222">        final long stop = System.currentTimeMillis();</span>
+
+        // make sure retainAll completes under 5 seconds
+        // TODO if test is migrated to JUnit 4, add a Timeout rule.
+        // http://kentbeck.github.com/junit/javadoc/latest/org/junit/rules/Timeout.html
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">        assertTrue(stop - start &lt; 5000);</span>
+<span class="fc" id="L228">    }</span>
+
+<span class="fc" id="L230">    static class A {</span>
+
+        @Override
+        public boolean equals(final Object obj) {
+<span class="nc bnc" id="L234" title="All 4 branches missed.">            return obj instanceof A || obj instanceof B;</span>
+        }
+
+        @Override
+        public int hashCode() {
+<span class="fc" id="L239">            return 1;</span>
+        }
+    }
+
+<span class="fc" id="L243">    static class B {</span>
+
+        @Override
+        public boolean equals(final Object obj) {
+<span class="pc bpc" id="L247" title="3 of 4 branches missed.">            return obj instanceof A || obj instanceof B;</span>
+        }
+
+        @Override
+        public int hashCode() {
+<span class="fc" id="L252">            return 1;</span>
+        }
+    }
+
+    public void testDecorator() {
+        try {
+<span class="nc" id="L258">            ListOrderedSet.listOrderedSet((List&lt;E&gt;) null);</span>
+<span class="nc" id="L259">            fail();</span>
+<span class="pc" id="L260">        } catch (final IllegalArgumentException ex) {</span>
+        }
+        try {
+<span class="nc" id="L263">            ListOrderedSet.listOrderedSet((Set&lt;E&gt;) null);</span>
+<span class="nc" id="L264">            fail();</span>
+<span class="pc" id="L265">        } catch (final IllegalArgumentException ex) {</span>
+        }
+        try {
+<span class="nc" id="L268">            ListOrderedSet.listOrderedSet(null, null);</span>
+<span class="nc" id="L269">            fail();</span>
+<span class="pc" id="L270">        } catch (final IllegalArgumentException ex) {</span>
+        }
+        try {
+<span class="nc" id="L273">            ListOrderedSet.listOrderedSet(new HashSet&lt;E&gt;(), null);</span>
+<span class="nc" id="L274">            fail();</span>
+<span class="pc" id="L275">        } catch (final IllegalArgumentException ex) {</span>
+        }
+        try {
+<span class="nc" id="L278">            ListOrderedSet.listOrderedSet(null, new ArrayList&lt;E&gt;());</span>
+<span class="nc" id="L279">            fail();</span>
+<span class="pc" id="L280">        } catch (final IllegalArgumentException ex) {</span>
+        }
+<span class="fc" id="L282">    }</span>
+
+    @Override
+    public String getCompatibilityVersion() {
+<span class="fc" id="L286">        return &quot;4&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) getCollection(), &quot;src/test/resources/data/test/ListOrderedSet.emptyCollection.version4.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) getCollection(), &quot;src/test/resources/data/test/ListOrderedSet.fullCollection.version4.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

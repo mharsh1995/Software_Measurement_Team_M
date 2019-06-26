@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestMapBackedSet2.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.set</a> &gt; <span class="el_source">TestMapBackedSet2.java</span></div><h1>TestMapBackedSet2.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.set;
+
+import java.util.Iterator;
+import java.util.Set;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.map.LinkedMap;
+
+/**
+ * JUnit test.
+ *
+ * @since Commons Collections 3.1
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class TestMapBackedSet2 extends AbstractTestSet {
+
+    public TestMapBackedSet2(String testName) {
+<span class="fc" id="L38">        super(testName);</span>
+<span class="fc" id="L39">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L42" title="All 2 branches covered.">        return new TestSuite(TestMapBackedSet2.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        String[] testCaseName = { TestMapBackedSet2.class.getName()};</span>
+<span class="nc" id="L47">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L48">    }</span>
+
+    public Set makeEmptySet() {
+<span class="fc" id="L51">        return MapBackedSet.decorate(new LinkedMap());</span>
+    }
+
+    protected Set setupSet() {
+<span class="fc" id="L55">        Set set = makeEmptySet();</span>
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L58">            set.add(Integer.toString(i));</span>
+        }
+<span class="fc" id="L60">        return set;</span>
+    }
+
+    public void testOrdering() {
+<span class="fc" id="L64">        Set set = setupSet();</span>
+<span class="fc" id="L65">        Iterator it = set.iterator();</span>
+
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L68">            assertEquals(&quot;Sequence is wrong&quot;, Integer.toString(i), it.next());</span>
+        }
+
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i += 2) {</span>
+<span class="fc" id="L72">            assertTrue(&quot;Must be able to remove int&quot;, set.remove(Integer.toString(i)));</span>
+        }
+
+<span class="fc" id="L75">        it = set.iterator();</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        for (int i = 1; i &lt; 10; i += 2) {</span>
+<span class="fc" id="L77">            assertEquals(&quot;Sequence is wrong after remove &quot;, Integer.toString(i), it.next());</span>
+        }
+
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L81">            set.add(Integer.toString(i));</span>
+        }
+
+<span class="fc" id="L84">        assertEquals(&quot;Size of set is wrong!&quot;, 10, set.size());</span>
+
+<span class="fc" id="L86">        it = set.iterator();</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        for (int i = 1; i &lt; 10; i += 2) {</span>
+<span class="fc" id="L88">            assertEquals(&quot;Sequence is wrong&quot;, Integer.toString(i), it.next());</span>
+        }
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i += 2) {</span>
+<span class="fc" id="L91">            assertEquals(&quot;Sequence is wrong&quot;, Integer.toString(i), it.next());</span>
+        }
+<span class="fc" id="L93">    }</span>
+
+    public void testCanonicalEmptyCollectionExists() {
+<span class="fc" id="L96">    }</span>
+
+    public void testCanonicalFullCollectionExists() {
+<span class="fc" id="L99">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

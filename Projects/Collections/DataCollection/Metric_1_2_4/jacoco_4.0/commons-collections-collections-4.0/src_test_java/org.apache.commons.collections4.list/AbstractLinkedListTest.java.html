@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractLinkedListTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.list</a> &gt; <span class="el_source">AbstractLinkedListTest.java</span></div><h1>AbstractLinkedListTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.list;
+
+import java.util.Arrays;
+
+/**
+ * Test case for {@link AbstractLinkedList}.
+ *
+ * @version $Id$
+ */
+public abstract class AbstractLinkedListTest&lt;E&gt; extends AbstractListTest&lt;E&gt; {
+
+    public AbstractLinkedListTest(final String testName) {
+<span class="fc" id="L29">        super(testName);</span>
+<span class="fc" id="L30">    }</span>
+
+    //-----------------------------------------------------------------------
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveFirst() {
+<span class="fc" id="L35">        resetEmpty();</span>
+<span class="fc" id="L36">        final AbstractLinkedList&lt;E&gt; list = getCollection();</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (!isRemoveSupported()) {</span>
+            try {
+<span class="nc" id="L39">                list.removeFirst();</span>
+<span class="nc" id="L40">            } catch (final UnsupportedOperationException ex) {}</span>
+        }
+
+<span class="fc" id="L43">        list.addAll(Arrays.asList((E[]) new String[] { &quot;value1&quot;, &quot;value2&quot; }));</span>
+<span class="fc" id="L44">        assertEquals(&quot;value1&quot;, list.removeFirst());</span>
+<span class="fc" id="L45">        checkNodes();</span>
+<span class="fc" id="L46">        list.addLast((E) &quot;value3&quot;);</span>
+<span class="fc" id="L47">        checkNodes();</span>
+<span class="fc" id="L48">        assertEquals(&quot;value2&quot;, list.removeFirst());</span>
+<span class="fc" id="L49">        assertEquals(&quot;value3&quot;, list.removeFirst());</span>
+<span class="fc" id="L50">        checkNodes();</span>
+<span class="fc" id="L51">        list.addLast((E) &quot;value4&quot;);</span>
+<span class="fc" id="L52">        checkNodes();</span>
+<span class="fc" id="L53">        assertEquals(&quot;value4&quot;, list.removeFirst());</span>
+<span class="fc" id="L54">        checkNodes();</span>
+<span class="fc" id="L55">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveLast() {
+<span class="fc" id="L59">        resetEmpty();</span>
+<span class="fc" id="L60">        final AbstractLinkedList&lt;E&gt; list = getCollection();</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if (!isRemoveSupported()) {</span>
+            try {
+<span class="nc" id="L63">                list.removeLast();</span>
+<span class="nc" id="L64">            } catch (final UnsupportedOperationException ex) {}</span>
+        }
+
+<span class="fc" id="L67">        list.addAll(Arrays.asList((E[]) new String[] { &quot;value1&quot;, &quot;value2&quot; }));</span>
+<span class="fc" id="L68">        assertEquals(&quot;value2&quot;, list.removeLast());</span>
+<span class="fc" id="L69">        list.addFirst((E) &quot;value3&quot;);</span>
+<span class="fc" id="L70">        checkNodes();</span>
+<span class="fc" id="L71">        assertEquals(&quot;value1&quot;, list.removeLast());</span>
+<span class="fc" id="L72">        assertEquals(&quot;value3&quot;, list.removeLast());</span>
+<span class="fc" id="L73">        list.addFirst((E) &quot;value4&quot;);</span>
+<span class="fc" id="L74">        checkNodes();</span>
+<span class="fc" id="L75">        assertEquals(&quot;value4&quot;, list.removeFirst());</span>
+<span class="fc" id="L76">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testAddNodeAfter() {
+<span class="fc" id="L80">        resetEmpty();</span>
+<span class="fc" id="L81">        final AbstractLinkedList&lt;E&gt; list = getCollection();</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (!isAddSupported()) {</span>
+            try {
+<span class="nc" id="L84">                list.addFirst(null);</span>
+<span class="nc" id="L85">            } catch (final UnsupportedOperationException ex) {}</span>
+        }
+
+<span class="fc" id="L88">        list.addFirst((E) &quot;value1&quot;);</span>
+<span class="fc" id="L89">        list.addNodeAfter(list.getNode(0, false), (E) &quot;value2&quot;);</span>
+<span class="fc" id="L90">        assertEquals(&quot;value1&quot;, list.getFirst());</span>
+<span class="fc" id="L91">        assertEquals(&quot;value2&quot;, list.getLast());</span>
+<span class="fc" id="L92">        list.removeFirst();</span>
+<span class="fc" id="L93">        checkNodes();</span>
+<span class="fc" id="L94">        list.addNodeAfter(list.getNode(0, false), (E) &quot;value3&quot;);</span>
+<span class="fc" id="L95">        checkNodes();</span>
+<span class="fc" id="L96">        assertEquals(&quot;value2&quot;, list.getFirst());</span>
+<span class="fc" id="L97">        assertEquals(&quot;value3&quot;, list.getLast());</span>
+<span class="fc" id="L98">        list.addNodeAfter(list.getNode(0, false), (E) &quot;value4&quot;);</span>
+<span class="fc" id="L99">        checkNodes();</span>
+<span class="fc" id="L100">        assertEquals(&quot;value2&quot;, list.getFirst());</span>
+<span class="fc" id="L101">        assertEquals(&quot;value3&quot;, list.getLast());</span>
+<span class="fc" id="L102">        assertEquals(&quot;value4&quot;, list.get(1));</span>
+<span class="fc" id="L103">        list.addNodeAfter(list.getNode(2, false), (E) &quot;value5&quot;);</span>
+<span class="fc" id="L104">        checkNodes();</span>
+<span class="fc" id="L105">        assertEquals(&quot;value2&quot;, list.getFirst());</span>
+<span class="fc" id="L106">        assertEquals(&quot;value4&quot;, list.get(1));</span>
+<span class="fc" id="L107">        assertEquals(&quot;value3&quot;, list.get(2));</span>
+<span class="fc" id="L108">        assertEquals(&quot;value5&quot;, list.getLast());</span>
+<span class="fc" id="L109">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveNode() {
+<span class="fc" id="L113">        resetEmpty();</span>
+<span class="pc bpc" id="L114" title="2 of 4 branches missed.">        if (!isAddSupported() || !isRemoveSupported()) {</span>
+<span class="nc" id="L115">            return;</span>
+        }
+<span class="fc" id="L117">        final AbstractLinkedList&lt;E&gt; list = getCollection();</span>
+
+<span class="fc" id="L119">        list.addAll(Arrays.asList((E[]) new String[] { &quot;value1&quot;, &quot;value2&quot; }));</span>
+<span class="fc" id="L120">        list.removeNode(list.getNode(0, false));</span>
+<span class="fc" id="L121">        checkNodes();</span>
+<span class="fc" id="L122">        assertEquals(&quot;value2&quot;, list.getFirst());</span>
+<span class="fc" id="L123">        assertEquals(&quot;value2&quot;, list.getLast());</span>
+<span class="fc" id="L124">        list.addFirst((E) &quot;value1&quot;);</span>
+<span class="fc" id="L125">        list.addFirst((E) &quot;value0&quot;);</span>
+<span class="fc" id="L126">        checkNodes();</span>
+<span class="fc" id="L127">        list.removeNode(list.getNode(1, false));</span>
+<span class="fc" id="L128">        assertEquals(&quot;value0&quot;, list.getFirst());</span>
+<span class="fc" id="L129">        assertEquals(&quot;value2&quot;, list.getLast());</span>
+<span class="fc" id="L130">        checkNodes();</span>
+<span class="fc" id="L131">        list.removeNode(list.getNode(1, false));</span>
+<span class="fc" id="L132">        assertEquals(&quot;value0&quot;, list.getFirst());</span>
+<span class="fc" id="L133">        assertEquals(&quot;value0&quot;, list.getLast());</span>
+<span class="fc" id="L134">        checkNodes();</span>
+<span class="fc" id="L135">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testGetNode() {
+<span class="fc" id="L139">        resetEmpty();</span>
+<span class="fc" id="L140">        final AbstractLinkedList&lt;E&gt; list = getCollection();</span>
+        // get marker
+<span class="fc" id="L142">        assertEquals(list.getNode(0, true).previous, list.getNode(0, true).next);</span>
+        try {
+<span class="nc" id="L144">            list.getNode(0, false);</span>
+<span class="nc" id="L145">            fail(&quot;Expecting IndexOutOfBoundsException.&quot;);</span>
+<span class="pc" id="L146">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L149">        list.addAll( Arrays.asList((E[]) new String[]{&quot;value1&quot;, &quot;value2&quot;}));</span>
+<span class="fc" id="L150">        checkNodes();</span>
+<span class="fc" id="L151">        list.addFirst((E) &quot;value0&quot;);</span>
+<span class="fc" id="L152">        checkNodes();</span>
+<span class="fc" id="L153">        list.removeNode(list.getNode(1, false));</span>
+<span class="fc" id="L154">        checkNodes();</span>
+        try {
+<span class="nc" id="L156">            list.getNode(2, false);</span>
+<span class="nc" id="L157">            fail(&quot;Expecting IndexOutOfBoundsException.&quot;);</span>
+<span class="pc" id="L158">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L162">            list.getNode(-1, false);</span>
+<span class="nc" id="L163">            fail(&quot;Expecting IndexOutOfBoundsException.&quot;);</span>
+<span class="pc" id="L164">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+         try {
+<span class="nc" id="L168">            list.getNode(3, true);</span>
+<span class="nc" id="L169">            fail(&quot;Expecting IndexOutOfBoundsException.&quot;);</span>
+<span class="pc" id="L170">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L173">    }</span>
+
+    protected void checkNodes() {
+<span class="fc" id="L176">        final AbstractLinkedList&lt;E&gt; list = getCollection();</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        for (int i = 0; i &lt; list.size; i++) {</span>
+<span class="fc" id="L178">            assertEquals(list.getNode(i, false).next, list.getNode(i + 1, true));</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">            if (i &lt; list.size - 1) {</span>
+<span class="fc" id="L180">                assertEquals(list.getNode(i + 1, false).previous,</span>
+<span class="fc" id="L181">                    list.getNode(i, false));</span>
+            }
+        }
+<span class="fc" id="L184">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AbstractLinkedList&lt;E&gt; getCollection() {
+<span class="fc" id="L191">        return (AbstractLinkedList&lt;E&gt;) super.getCollection();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

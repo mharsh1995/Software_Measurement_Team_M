@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestBlockingBuffer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.buffer</a> &gt; <span class="el_source">TestBlockingBuffer.java</span></div><h1>TestBlockingBuffer.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.buffer;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.apache.commons.collections.AbstractTestObject;
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.BufferUnderflowException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
+
+/**
+ * Extension of {@link AbstractTestObject} for exercising the {@link BlockingBuffer} implementation.
+ *
+ * @author Janek Bogucki
+ * @author Phil Steitz
+ * @version $Revision$
+ * @since Commons Collections 3.0
+ */
+public class TestBlockingBuffer extends AbstractTestObject {
+
+    public TestBlockingBuffer( String testName ) {
+<span class="fc" id="L42">        super( testName );</span>
+<span class="fc" id="L43">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L46" title="All 2 branches covered.">        return new TestSuite( TestBlockingBuffer.class );</span>
+    }
+
+    public static void main( String args[] ) {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        String[] testCaseName = {TestBlockingBuffer.class.getName()};</span>
+<span class="nc" id="L51">        junit.textui.TestRunner.main( testCaseName );</span>
+<span class="nc" id="L52">    }</span>
+
+    public Object makeObject() {
+<span class="fc" id="L55">        return BlockingBuffer.decorate( new MyBuffer() );</span>
+    }
+
+    public boolean isEqualsCheckable() {
+<span class="fc" id="L59">        return false;</span>
+    }
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Tests {@link BlockingBuffer#get()} in combination with {@link BlockingBuffer#add(Object)}.
+     */
+    public void testGetWithAdd() {
+<span class="fc" id="L68">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer() );</span>
+<span class="fc" id="L69">        Object obj = new Object();</span>
+<span class="fc" id="L70">        new DelayedAdd( blockingBuffer, obj ).start();</span>
+
+        // verify does not throw BufferUnderflowException; should block until other thread has added to the buffer .
+<span class="fc" id="L73">        assertSame( obj, blockingBuffer.get() );</span>
+<span class="fc" id="L74">    }</span>
+
+    public void testGetWithAddTimeout() {
+<span class="fc" id="L77">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer(), 500 );</span>
+<span class="fc" id="L78">        Object obj = new Object();</span>
+<span class="fc" id="L79">        new DelayedAdd( blockingBuffer, obj, 100 ).start();</span>
+
+        // verify does not throw BufferUnderflowException; should block until other thread has added to the buffer .
+<span class="fc" id="L82">        assertSame( obj, blockingBuffer.get() );</span>
+<span class="fc" id="L83">    }</span>
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Tests {@link BlockingBuffer#get()} in combination with {@link BlockingBuffer#addAll(java.util.Collection)}.
+     */
+    public void testGetWithAddAll() {
+<span class="fc" id="L91">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer() );</span>
+<span class="fc" id="L92">        Object obj = new Object();</span>
+<span class="fc" id="L93">        new DelayedAddAll( blockingBuffer, obj ).start();</span>
+
+        // verify does not throw BufferUnderflowException; should block until other thread has added to the buffer .
+<span class="fc" id="L96">        assertSame( obj, blockingBuffer.get() );</span>
+<span class="fc" id="L97">    }</span>
+
+    public void testGetWithAddAllTimeout() {
+<span class="fc" id="L100">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer(), 500 );</span>
+<span class="fc" id="L101">        Object obj = new Object();</span>
+<span class="fc" id="L102">        new DelayedAddAll( blockingBuffer, obj, 100 ).start();</span>
+
+        // verify does not throw BufferUnderflowException; should block until other thread has added to the buffer .
+<span class="fc" id="L105">        assertSame( obj, blockingBuffer.get() );</span>
+<span class="fc" id="L106">    }</span>
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Tests {@link BlockingBuffer#remove()} in combination with {@link BlockingBuffer#add(Object)}.
+     */
+    public void testRemoveWithAdd() {
+<span class="fc" id="L114">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer() );</span>
+<span class="fc" id="L115">        Object obj = new Object();</span>
+<span class="fc" id="L116">        new DelayedAdd( blockingBuffer, obj ).start();</span>
+
+        // verify does not throw BufferUnderflowException; should block until other thread has added to the buffer .
+<span class="fc" id="L119">        assertSame( obj, blockingBuffer.remove() );</span>
+<span class="fc" id="L120">    }</span>
+
+    public void testRemoveWithAddTimeout() {
+<span class="fc" id="L123">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer(), 100 );</span>
+<span class="fc" id="L124">        Object obj = new Object();</span>
+<span class="fc" id="L125">        new DelayedAdd( blockingBuffer, obj, 500 ).start();</span>
+        try {
+<span class="nc" id="L127">            blockingBuffer.remove();</span>
+<span class="nc" id="L128">        }</span>
+<span class="fc" id="L129">        catch( BufferUnderflowException e ) {</span>
+        }
+<span class="fc" id="L131">    }</span>
+    //-----------------------------------------------------------------------
+
+    /**
+     * Tests {@link BlockingBuffer#remove()} in combination with {@link BlockingBuffer#addAll(java.util.Collection)}.
+     */
+    public void testRemoveWithAddAll() {
+<span class="fc" id="L138">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer() );</span>
+<span class="fc" id="L139">        Object obj = new Object();</span>
+<span class="fc" id="L140">        new DelayedAddAll( blockingBuffer, obj ).start();</span>
+
+        // verify does not throw BufferUnderflowException; should block until other thread has added to the buffer .
+<span class="fc" id="L143">        assertSame( obj, blockingBuffer.remove() );</span>
+<span class="fc" id="L144">    }</span>
+
+    public void testRemoveWithAddAllTimeout() {
+<span class="fc" id="L147">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer(), 100 );</span>
+<span class="fc" id="L148">        Object obj = new Object();</span>
+<span class="fc" id="L149">        new DelayedAddAll( blockingBuffer, obj, 500 ).start();</span>
+        try {
+<span class="nc" id="L151">            blockingBuffer.remove();</span>
+<span class="nc" id="L152">        }</span>
+<span class="fc" id="L153">        catch( BufferUnderflowException e ) {</span>
+        }
+<span class="fc" id="L155">    }</span>
+    //-----------------------------------------------------------------------
+
+    /**
+     * Tests {@link BlockingBuffer#get()} in combination with {@link BlockingBuffer#add(Object)} using multiple read
+     * threads.
+     * &lt;p/&gt;
+     * Two read threads should block on an empty buffer until one object is added then both threads should complete.
+     */
+    public void testBlockedGetWithAdd() {
+<span class="fc" id="L165">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer() );</span>
+<span class="fc" id="L166">        Object obj = new Object();</span>
+
+        // run methods will get and compare -- must wait for add
+<span class="fc" id="L169">        Thread thread1 = new ReadThread( blockingBuffer, obj );</span>
+<span class="fc" id="L170">        Thread thread2 = new ReadThread( blockingBuffer, obj );</span>
+<span class="fc" id="L171">        thread1.start();</span>
+<span class="fc" id="L172">        thread2.start();</span>
+
+        // give hungry read threads ample time to hang
+<span class="fc" id="L175">        delay();</span>
+
+        // notifyAll should allow both read threads to complete
+<span class="fc" id="L178">        blockingBuffer.add( obj );</span>
+
+        // allow notified threads to complete 
+<span class="fc" id="L181">        delay();</span>
+
+        // There should not be any threads waiting.
+<span class="pc bpc" id="L184" title="2 of 4 branches missed.">        if( thread1.isAlive() || thread2.isAlive() ) {</span>
+<span class="nc" id="L185">            fail( &quot;Live thread(s) when both should be dead.&quot; );</span>
+        }
+<span class="fc" id="L187">    }</span>
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Tests {@link BlockingBuffer#get()} in combination with {@link BlockingBuffer#addAll(java.util.Collection)} using
+     * multiple read threads.
+     * &lt;p/&gt;
+     * Two read threads should block on an empty buffer until a singleton is added then both threads should complete.
+     */
+    public void testBlockedGetWithAddAll() {
+<span class="fc" id="L198">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer() );</span>
+<span class="fc" id="L199">        Object obj = new Object();</span>
+
+        // run methods will get and compare -- must wait for addAll
+<span class="fc" id="L202">        Thread thread1 = new ReadThread( blockingBuffer, obj );</span>
+<span class="fc" id="L203">        Thread thread2 = new ReadThread( blockingBuffer, obj );</span>
+<span class="fc" id="L204">        thread1.start();</span>
+<span class="fc" id="L205">        thread2.start();</span>
+
+        // give hungry read threads ample time to hang
+<span class="fc" id="L208">        delay();</span>
+
+        // notifyAll should allow both read threads to complete
+<span class="fc" id="L211">        blockingBuffer.addAll( Collections.singleton( obj ) );</span>
+
+        // allow notified threads to complete 
+<span class="fc" id="L214">        delay();</span>
+
+        // There should not be any threads waiting.
+<span class="pc bpc" id="L217" title="2 of 4 branches missed.">        if( thread1.isAlive() || thread2.isAlive() ) {</span>
+<span class="nc" id="L218">            fail( &quot;Live thread(s) when both should be dead.&quot; );</span>
+        }
+<span class="fc" id="L220">    }</span>
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Tests interrupted {@link BlockingBuffer#get()}.
+     */
+    public void testInterruptedGet() {
+<span class="fc" id="L228">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer() );</span>
+<span class="fc" id="L229">        Object obj = new Object();</span>
+
+        // spawn a read thread to wait on the empty buffer
+<span class="fc" id="L232">        ArrayList exceptionList = new ArrayList();</span>
+<span class="fc" id="L233">        Thread thread = new ReadThread( blockingBuffer, obj, exceptionList );</span>
+<span class="fc" id="L234">        thread.start();</span>
+
+        // Interrupting the thread should cause it to throw BufferUnderflowException
+<span class="fc" id="L237">        thread.interrupt();</span>
+
+        // Chill, so thread can throw and add message to exceptionList
+<span class="fc" id="L240">        delay();</span>
+<span class="fc" id="L241">        assertTrue( &quot;Thread interrupt should have led to underflow&quot;,</span>
+<span class="fc" id="L242">                    exceptionList.contains( &quot;BufferUnderFlow&quot; ) );</span>
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">        if( thread.isAlive() ) {</span>
+<span class="nc" id="L244">            fail( &quot;Read thread has hung.&quot; );</span>
+        }
+
+<span class="fc" id="L247">    }</span>
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Tests {@link BlockingBuffer#remove()} in combination with {@link BlockingBuffer#add(Object)} using multiple read
+     * threads.
+     * &lt;p/&gt;
+     * Two read threads should block on an empty buffer until one object is added then one thread should complete. The
+     * remaining thread should complete after the addition of a second object.
+     */
+    public void testBlockedRemoveWithAdd() {
+<span class="fc" id="L259">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer() );</span>
+<span class="fc" id="L260">        Object obj = new Object();</span>
+
+        // run methods will remove and compare -- must wait for add
+<span class="fc" id="L263">        Thread thread1 = new ReadThread( blockingBuffer, obj, null, &quot;remove&quot; );</span>
+<span class="fc" id="L264">        Thread thread2 = new ReadThread( blockingBuffer, obj, null, &quot;remove&quot; );</span>
+<span class="fc" id="L265">        thread1.start();</span>
+<span class="fc" id="L266">        thread2.start();</span>
+
+        // give hungry read threads ample time to hang
+<span class="fc" id="L269">        delay();</span>
+<span class="fc" id="L270">        blockingBuffer.add( obj );</span>
+
+        // allow notified threads to complete 
+<span class="fc" id="L273">        delay();</span>
+
+        // There should be one thread waiting.
+<span class="fc" id="L276">        assertTrue( &quot;There is one thread waiting&quot;, thread1.isAlive() ^ thread2.isAlive() );</span>
+<span class="fc" id="L277">        blockingBuffer.add( obj );</span>
+
+        // allow notified thread to complete 
+<span class="fc" id="L280">        delay();</span>
+
+        // There should not be any threads waiting.
+<span class="pc bpc" id="L283" title="2 of 4 branches missed.">        if( thread1.isAlive() || thread2.isAlive() ) {</span>
+<span class="nc" id="L284">            fail( &quot;Live thread(s) when both should be dead.&quot; );</span>
+        }
+<span class="fc" id="L286">    }</span>
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Tests {@link BlockingBuffer#remove()} in combination with {@link BlockingBuffer#addAll(java.util.Collection)}
+     * using multiple read threads.
+     * &lt;p/&gt;
+     * Two read threads should block on an empty buffer until a singleton collection is added then one thread should
+     * complete. The remaining thread should complete after the addition of a second singleton.
+     */
+    public void testBlockedRemoveWithAddAll1() {
+<span class="fc" id="L298">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer() );</span>
+<span class="fc" id="L299">        Object obj = new Object();</span>
+
+        // run methods will remove and compare -- must wait for addAll
+<span class="fc" id="L302">        Thread thread1 = new ReadThread( blockingBuffer, obj, null, &quot;remove&quot; );</span>
+<span class="fc" id="L303">        Thread thread2 = new ReadThread( blockingBuffer, obj, null, &quot;remove&quot; );</span>
+<span class="fc" id="L304">        thread1.start();</span>
+<span class="fc" id="L305">        thread2.start();</span>
+
+        // give hungry read threads ample time to hang
+<span class="fc" id="L308">        delay();</span>
+<span class="fc" id="L309">        blockingBuffer.addAll( Collections.singleton( obj ) );</span>
+
+        // allow notified threads to complete 
+<span class="fc" id="L312">        delay();</span>
+
+        // There should be one thread waiting.
+<span class="fc" id="L315">        assertTrue( &quot;There is one thread waiting&quot;, thread1.isAlive() ^ thread2.isAlive() );</span>
+<span class="fc" id="L316">        blockingBuffer.addAll( Collections.singleton( obj ) );</span>
+
+        // allow notified thread to complete 
+<span class="fc" id="L319">        delay();</span>
+
+        // There should not be any threads waiting.
+<span class="pc bpc" id="L322" title="2 of 4 branches missed.">        if( thread1.isAlive() || thread2.isAlive() ) {</span>
+<span class="nc" id="L323">            fail( &quot;Live thread(s) when both should be dead.&quot; );</span>
+        }
+<span class="fc" id="L325">    }</span>
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Tests {@link BlockingBuffer#remove()} in combination with {@link BlockingBuffer#addAll(java.util.Collection)}
+     * using multiple read threads.
+     * &lt;p/&gt;
+     * Two read threads should block on an empty buffer until a collection with two distinct objects is added then both
+     * threads should complete. Each thread should have read a different object.
+     */
+    public void testBlockedRemoveWithAddAll2() {
+<span class="fc" id="L337">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer() );</span>
+<span class="fc" id="L338">        Object obj1 = new Object();</span>
+<span class="fc" id="L339">        Object obj2 = new Object();</span>
+<span class="fc" id="L340">        Set objs = Collections.synchronizedSet( new HashSet() );</span>
+<span class="fc" id="L341">        objs.add( obj1 );</span>
+<span class="fc" id="L342">        objs.add( obj2 );</span>
+
+        // run methods will remove and compare -- must wait for addAll
+<span class="fc" id="L345">        Thread thread1 = new ReadThread( blockingBuffer, objs, &quot;remove&quot; );</span>
+<span class="fc" id="L346">        Thread thread2 = new ReadThread( blockingBuffer, objs, &quot;remove&quot; );</span>
+<span class="fc" id="L347">        thread1.start();</span>
+<span class="fc" id="L348">        thread2.start();</span>
+
+        // give hungry read threads ample time to hang
+<span class="fc" id="L351">        delay();</span>
+<span class="fc" id="L352">        blockingBuffer.addAll( objs );</span>
+
+        // allow notified threads to complete 
+<span class="fc" id="L355">        delay();</span>
+<span class="fc" id="L356">        assertEquals( &quot;Both objects were removed&quot;, 0, objs.size() );</span>
+
+        // There should not be any threads waiting.
+<span class="pc bpc" id="L359" title="2 of 4 branches missed.">        if( thread1.isAlive() || thread2.isAlive() ) {</span>
+<span class="nc" id="L360">            fail( &quot;Live thread(s) when both should be dead.&quot; );</span>
+        }
+<span class="fc" id="L362">    }</span>
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Tests interrupted remove.
+     */
+    public void testInterruptedRemove() {
+<span class="fc" id="L370">        Buffer blockingBuffer = BlockingBuffer.decorate( new MyBuffer() );</span>
+<span class="fc" id="L371">        Object obj = new Object();</span>
+
+        // spawn a read thread to wait on the empty buffer
+<span class="fc" id="L374">        ArrayList exceptionList = new ArrayList();</span>
+<span class="fc" id="L375">        Thread thread = new ReadThread( blockingBuffer, obj, exceptionList, &quot;remove&quot; );</span>
+<span class="fc" id="L376">        thread.start();</span>
+
+        // Interrupting the thread should cause it to throw BufferUnderflowException
+<span class="fc" id="L379">        thread.interrupt();</span>
+
+        // Chill, so thread can throw and add message to exceptionList
+<span class="fc" id="L382">        delay();</span>
+<span class="fc" id="L383">        assertTrue( &quot;Thread interrupt should have led to underflow&quot;,</span>
+<span class="fc" id="L384">                    exceptionList.contains( &quot;BufferUnderFlow&quot; ) );</span>
+<span class="pc bpc" id="L385" title="1 of 2 branches missed.">        if( thread.isAlive() ) {</span>
+<span class="nc" id="L386">            fail( &quot;Read thread has hung.&quot; );</span>
+        }
+
+<span class="fc" id="L389">    }</span>
+
+    public void testTimeoutGet() {
+<span class="fc" id="L392">        final BlockingBuffer buffer = new BlockingBuffer( new MyBuffer() );</span>
+        try {
+<span class="nc" id="L394">            buffer.get( 100 );</span>
+<span class="nc" id="L395">            fail( &quot;Get should have timed out.&quot; );</span>
+<span class="nc" id="L396">        }</span>
+<span class="fc" id="L397">        catch( BufferUnderflowException e ) {</span>
+        }
+<span class="fc" id="L399">    }</span>
+
+    public void testTimeoutRemove() {
+<span class="fc" id="L402">        final BlockingBuffer buffer = new BlockingBuffer( new MyBuffer() );</span>
+        try {
+<span class="nc" id="L404">            buffer.remove( 100 );</span>
+<span class="nc" id="L405">            fail( &quot;Get should have timed out.&quot; );</span>
+<span class="nc" id="L406">        }</span>
+<span class="fc" id="L407">        catch( BufferUnderflowException e ) {</span>
+        }
+<span class="fc" id="L409">    }</span>
+
+    protected static class DelayedAdd extends Thread {
+
+        Buffer buffer;
+
+        Object obj;
+
+<span class="fc" id="L417">        long delay = 1000;</span>
+
+<span class="fc" id="L419">        public DelayedAdd( Buffer buffer, Object obj, long delay ) {</span>
+<span class="fc" id="L420">            this.buffer = buffer;</span>
+<span class="fc" id="L421">            this.obj = obj;</span>
+<span class="fc" id="L422">            this.delay = delay;</span>
+<span class="fc" id="L423">        }</span>
+
+        DelayedAdd( Buffer buffer, Object obj ) {
+<span class="fc" id="L426">            super();</span>
+<span class="fc" id="L427">            this.buffer = buffer;</span>
+<span class="fc" id="L428">            this.obj = obj;</span>
+<span class="fc" id="L429">        }</span>
+
+        public void run() {
+            try {
+                // wait for other thread to block on get() or remove()
+<span class="fc" id="L434">                Thread.sleep( delay );</span>
+<span class="fc" id="L435">            }</span>
+<span class="nc" id="L436">            catch( InterruptedException e ) {</span>
+            }
+<span class="fc" id="L438">            buffer.add( obj );</span>
+<span class="fc" id="L439">        }</span>
+    }
+
+    protected static class DelayedAddAll extends Thread {
+
+        Buffer buffer;
+
+        Object obj;
+
+<span class="fc" id="L448">        long delay = 100;</span>
+
+<span class="fc" id="L450">        public DelayedAddAll( Buffer buffer, Object obj, long delay ) {</span>
+<span class="fc" id="L451">            this.buffer = buffer;</span>
+<span class="fc" id="L452">            this.obj = obj;</span>
+<span class="fc" id="L453">            this.delay = delay;</span>
+<span class="fc" id="L454">        }</span>
+
+        DelayedAddAll( Buffer buffer, Object obj ) {
+<span class="fc" id="L457">            super();</span>
+<span class="fc" id="L458">            this.buffer = buffer;</span>
+<span class="fc" id="L459">            this.obj = obj;</span>
+<span class="fc" id="L460">        }</span>
+
+        public void run() {
+            try {
+                // wait for other thread to block on get() or remove()
+<span class="fc" id="L465">                Thread.sleep( delay );</span>
+<span class="fc" id="L466">            }</span>
+<span class="nc" id="L467">            catch( InterruptedException e ) {</span>
+            }
+<span class="fc" id="L469">            buffer.addAll( Collections.singleton( obj ) );</span>
+<span class="fc" id="L470">        }</span>
+    }
+
+    protected static class ReadThread extends Thread {
+
+        Buffer buffer;
+
+        Object obj;
+
+<span class="fc" id="L479">        ArrayList exceptionList = null;</span>
+
+<span class="fc" id="L481">        String action = &quot;get&quot;;</span>
+
+        Set objs;
+
+        ReadThread( Buffer buffer, Object obj ) {
+<span class="fc" id="L486">            super();</span>
+<span class="fc" id="L487">            this.buffer = buffer;</span>
+<span class="fc" id="L488">            this.obj = obj;</span>
+<span class="fc" id="L489">        }</span>
+
+        ReadThread( Buffer buffer, Object obj, ArrayList exceptionList ) {
+<span class="fc" id="L492">            super();</span>
+<span class="fc" id="L493">            this.buffer = buffer;</span>
+<span class="fc" id="L494">            this.obj = obj;</span>
+<span class="fc" id="L495">            this.exceptionList = exceptionList;</span>
+<span class="fc" id="L496">        }</span>
+
+        ReadThread( Buffer buffer, Object obj, ArrayList exceptionList, String action ) {
+<span class="fc" id="L499">            super();</span>
+<span class="fc" id="L500">            this.buffer = buffer;</span>
+<span class="fc" id="L501">            this.obj = obj;</span>
+<span class="fc" id="L502">            this.exceptionList = exceptionList;</span>
+<span class="fc" id="L503">            this.action = action;</span>
+<span class="fc" id="L504">        }</span>
+
+        ReadThread( Buffer buffer, Set objs, String action ) {
+<span class="fc" id="L507">            super();</span>
+<span class="fc" id="L508">            this.buffer = buffer;</span>
+<span class="fc" id="L509">            this.objs = objs;</span>
+<span class="fc" id="L510">            this.action = action;</span>
+<span class="fc" id="L511">        }</span>
+
+        public void run() {
+            try {
+<span class="fc bfc" id="L515" title="All 2 branches covered.">                if( action == &quot;get&quot; ) {</span>
+<span class="fc" id="L516">                    assertSame( obj, buffer.get() );</span>
+<span class="fc" id="L517">                }</span>
+                else {
+<span class="fc bfc" id="L519" title="All 2 branches covered.">                    if( null != obj ) {</span>
+<span class="fc" id="L520">                        assertSame( obj, buffer.remove() );</span>
+<span class="fc" id="L521">                    }</span>
+                    else {
+<span class="fc" id="L523">                        assertTrue( objs.remove( buffer.remove() ) );</span>
+                    }
+                }
+<span class="fc" id="L526">            }</span>
+<span class="fc" id="L527">            catch( BufferUnderflowException ex ) {</span>
+<span class="fc" id="L528">                exceptionList.add( &quot;BufferUnderFlow&quot; );</span>
+            }
+<span class="fc" id="L530">        }</span>
+    }
+
+<span class="fc" id="L533">    protected static class MyBuffer extends LinkedList implements Buffer {</span>
+
+        public Object get() {
+<span class="pc bpc" id="L536" title="1 of 2 branches missed.">            if( isEmpty() ) {</span>
+<span class="nc" id="L537">                throw new BufferUnderflowException();</span>
+            }
+<span class="fc" id="L539">            return get( 0 );</span>
+        }
+
+        public Object remove() {
+<span class="pc bpc" id="L543" title="1 of 2 branches missed.">            if( isEmpty() ) {</span>
+<span class="nc" id="L544">                throw new BufferUnderflowException();</span>
+            }
+<span class="fc" id="L546">            return remove( 0 );</span>
+        }
+    }
+
+    private void delay() {
+        try {
+<span class="fc" id="L552">            Thread.sleep( 100 );</span>
+<span class="fc" id="L553">        }</span>
+<span class="nc" id="L554">        catch( InterruptedException e ) {</span>
+        }
+<span class="fc" id="L556">    }</span>
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L559">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        Buffer buffer = BlockingBuffer.decorate(new UnboundedFifoBuffer());
+//        writeExternalFormToDisk((java.io.Serializable) buffer,
+//        &quot;D:/dev/collections/data/test/BlockingBuffer.emptyCollection.version3.1.obj&quot;);
+//        buffer = BlockingBuffer.decorate(new UnboundedFifoBuffer());
+//        buffer.add(&quot;A&quot;);
+//        buffer.add(&quot;B&quot;);
+//        buffer.add(&quot;C&quot;);
+//        writeExternalFormToDisk((java.io.Serializable) buffer,
+//        &quot;D:/dev/collections/data/test/BlockingBuffer.fullCollection.version3.1.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

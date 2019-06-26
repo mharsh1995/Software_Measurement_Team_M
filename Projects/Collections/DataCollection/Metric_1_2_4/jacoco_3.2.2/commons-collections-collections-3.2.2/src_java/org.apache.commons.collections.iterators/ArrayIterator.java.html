@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ArrayIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">ArrayIterator.java</span></div><h1>ArrayIterator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.lang.reflect.Array;
+import java.util.NoSuchElementException;
+
+import org.apache.commons.collections.ResettableIterator;
+
+/** 
+ * Implements an {@link java.util.Iterator Iterator} over any array.
+ * &lt;p&gt;
+ * The array can be either an array of object or of primitives. If you know 
+ * that you have an object array, the 
+ * {@link org.apache.commons.collections.iterators.ObjectArrayIterator ObjectArrayIterator}
+ * class is a better choice, as it will perform better.
+ * &lt;p&gt;
+ * The iterator implements a {@link #reset} method, allowing the reset of 
+ * the iterator back to the start if required.
+ *
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ *
+ * @author James Strachan
+ * @author Mauricio S. Moura
+ * @author Michael A. Smith
+ * @author Neil O'Toole
+ * @author Stephen Colebourne
+ */
+public class ArrayIterator implements ResettableIterator {
+
+    /** The array to iterate over */    
+    protected Object array;
+    /** The start index to loop from */
+<span class="fc" id="L49">    protected int startIndex = 0;</span>
+    /** The end index to loop to */
+<span class="fc" id="L51">    protected int endIndex = 0;</span>
+    /** The current iterator index */
+<span class="fc" id="L53">    protected int index = 0;</span>
+    
+    // Constructors
+    // ----------------------------------------------------------------------
+    /**
+     * Constructor for use with &lt;code&gt;setArray&lt;/code&gt;.
+     * &lt;p&gt;
+     * Using this constructor, the iterator is equivalent to an empty iterator
+     * until {@link #setArray(Object)} is  called to establish the array to iterate over.
+     */
+    public ArrayIterator() {
+<span class="fc" id="L64">        super();</span>
+<span class="fc" id="L65">    }</span>
+   
+    /**
+     * Constructs an ArrayIterator that will iterate over the values in the
+     * specified array.
+     *
+     * @param array the array to iterate over.
+     * @throws IllegalArgumentException if &lt;code&gt;array&lt;/code&gt; is not an array.
+     * @throws NullPointerException if &lt;code&gt;array&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;
+     */
+    public ArrayIterator(final Object array) {
+<span class="fc" id="L76">        super();</span>
+<span class="fc" id="L77">        setArray(array);</span>
+<span class="fc" id="L78">    }</span>
+
+    /**
+     * Constructs an ArrayIterator that will iterate over the values in the
+     * specified array from a specific start index.
+     *
+     * @param array  the array to iterate over.
+     * @param startIndex  the index to start iterating at.
+     * @throws IllegalArgumentException if &lt;code&gt;array&lt;/code&gt; is not an array.
+     * @throws NullPointerException if &lt;code&gt;array&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
+    public ArrayIterator(final Object array, final int startIndex) {
+<span class="fc" id="L91">        super();</span>
+<span class="fc" id="L92">        setArray(array);</span>
+<span class="fc" id="L93">        checkBound(startIndex, &quot;start&quot;);</span>
+<span class="fc" id="L94">        this.startIndex = startIndex;</span>
+<span class="fc" id="L95">        this.index = startIndex;</span>
+<span class="fc" id="L96">    }</span>
+
+    /**
+     * Construct an ArrayIterator that will iterate over a range of values 
+     * in the specified array.
+     *
+     * @param array  the array to iterate over.
+     * @param startIndex  the index to start iterating at.
+     * @param endIndex  the index to finish iterating at.
+     * @throws IllegalArgumentException if &lt;code&gt;array&lt;/code&gt; is not an array.
+     * @throws NullPointerException if &lt;code&gt;array&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;
+     * @throws IndexOutOfBoundsException if either index is invalid
+     */
+    public ArrayIterator(final Object array, final int startIndex, final int endIndex) {
+<span class="fc" id="L110">        super();</span>
+<span class="fc" id="L111">        setArray(array);</span>
+<span class="fc" id="L112">        checkBound(startIndex, &quot;start&quot;);</span>
+<span class="fc" id="L113">        checkBound(endIndex, &quot;end&quot;);</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (endIndex &lt; startIndex) {</span>
+<span class="fc" id="L115">            throw new IllegalArgumentException(&quot;End index must not be less than start index.&quot;);</span>
+        }
+<span class="fc" id="L117">        this.startIndex = startIndex;</span>
+<span class="fc" id="L118">        this.endIndex = endIndex;</span>
+<span class="fc" id="L119">        this.index = startIndex;</span>
+<span class="fc" id="L120">    }</span>
+
+    /**
+     * Checks whether the index is valid or not.
+     * 
+     * @param bound  the index to check
+     * @param type  the index type (for error messages)
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
+    protected void checkBound(final int bound, final String type ) {
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (bound &gt; this.endIndex) {</span>
+<span class="fc" id="L131">            throw new ArrayIndexOutOfBoundsException(</span>
+<span class="fc" id="L132">              &quot;Attempt to make an ArrayIterator that &quot; + type +</span>
+<span class="fc" id="L133">              &quot;s beyond the end of the array. &quot;</span>
+            );
+        }
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        if (bound &lt; 0) {</span>
+<span class="fc" id="L137">            throw new ArrayIndexOutOfBoundsException(</span>
+<span class="fc" id="L138">              &quot;Attempt to make an ArrayIterator that &quot; + type +</span>
+<span class="fc" id="L139">              &quot;s before the start of the array. &quot;</span>
+            );
+        }
+<span class="fc" id="L142">    }</span>
+
+    // Iterator interface
+    //-----------------------------------------------------------------------
+    /**
+     * Returns true if there are more elements to return from the array.
+     *
+     * @return true if there is a next element to return
+     */
+    public boolean hasNext() {
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        return (index &lt; endIndex);</span>
+    }
+
+    /**
+     * Returns the next element in the array.
+     *
+     * @return the next element in the array
+     * @throws NoSuchElementException if all the elements in the array
+     *  have already been returned
+     */
+    public Object next() {
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (hasNext() == false) {</span>
+<span class="fc" id="L164">            throw new NoSuchElementException();</span>
+        }
+<span class="fc" id="L166">        return Array.get(array, index++);</span>
+    }
+
+    /**
+     * Throws {@link UnsupportedOperationException}.
+     *
+     * @throws UnsupportedOperationException always
+     */
+    public void remove() {
+<span class="fc" id="L175">        throw new UnsupportedOperationException(&quot;remove() method is not supported&quot;);</span>
+    }
+
+    // Properties
+    //-----------------------------------------------------------------------
+    /**
+     * Gets the array that this iterator is iterating over. 
+     *
+     * @return the array this iterator iterates over, or &lt;code&gt;null&lt;/code&gt; if
+     *  the no-arg constructor was used and {@link #setArray(Object)} has never
+     *  been called with a valid array.
+     */
+    public Object getArray() {
+<span class="nc" id="L188">        return array;</span>
+    }
+    
+    /**
+     * Sets the array that the ArrayIterator should iterate over.
+     * &lt;p&gt;
+     * If an array has previously been set (using the single-arg constructor
+     * or this method) then that array is discarded in favour of this one.
+     * Iteration is restarted at the start of the new array.
+     * Although this can be used to reset iteration, the {@link #reset()} method
+     * is a more effective choice.
+     *
+     * @param array the array that the iterator should iterate over.
+     * @throws IllegalArgumentException if &lt;code&gt;array&lt;/code&gt; is not an array.
+     * @throws NullPointerException if &lt;code&gt;array&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;
+     */
+    public void setArray(final Object array) {
+        // Array.getLength throws IllegalArgumentException if the object is not
+        // an array or NullPointerException if the object is null.  This call
+        // is made before saving the array and resetting the index so that the
+        // array iterator remains in a consistent state if the argument is not
+        // an array or is null.
+<span class="fc" id="L210">        this.endIndex = Array.getLength(array);</span>
+<span class="fc" id="L211">        this.startIndex = 0;</span>
+<span class="fc" id="L212">        this.array = array;</span>
+<span class="fc" id="L213">        this.index = 0;</span>
+<span class="fc" id="L214">    }</span>
+    
+    /**
+     * Resets the iterator back to the start index.
+     */
+    public void reset() {
+<span class="fc" id="L220">        this.index = this.startIndex;</span>
+<span class="fc" id="L221">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

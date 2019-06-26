@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UnboundedFifoBuffer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.buffer</a> &gt; <span class="el_source">UnboundedFifoBuffer.java</span></div><h1>UnboundedFifoBuffer.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.buffer;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.AbstractCollection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.BufferUnderflowException;
+
+/**
+ * UnboundedFifoBuffer is a very efficient implementation of
+ * &lt;code&gt;Buffer&lt;/code&gt; that can grow to any size.
+ * According to performance testing, it exhibits a constant access time, but it
+ * also outperforms ArrayList when used for the same purpose.
+ * &lt;p&gt;
+ * The removal order of an &lt;code&gt;UnboundedFifoBuffer&lt;/code&gt; is based on the insertion
+ * order; elements are removed in the same order in which they were added.
+ * The iteration order is the same as the removal order.
+ * &lt;p&gt;
+ * The {@link #remove()} and {@link #get()} operations perform in constant time.
+ * The {@link #add(Object)} operation performs in amortized constant time.  All
+ * other operations perform in linear time or worse.
+ * &lt;p&gt;
+ * Note that this implementation is not synchronized.  The following can be
+ * used to provide synchronized access to your &lt;code&gt;UnboundedFifoBuffer&lt;/code&gt;:
+ * &lt;pre&gt;
+ *   Buffer fifo = BufferUtils.synchronizedBuffer(new UnboundedFifoBuffer());
+ * &lt;/pre&gt;
+ * &lt;p&gt;
+ * This buffer prevents null objects from being added.
+ * &lt;p&gt;
+ * This class is Serializable from Commons Collections 3.1.
+ * 
+ * @since Commons Collections 3.0 (previously in main package v2.1)
+ * @version $Revision$ $Date$
+ *
+ * @author Avalon
+ * @author Federico Barbieri
+ * @author Berin Loritsch
+ * @author Paul Jack
+ * @author Stephen Colebourne
+ * @author Andreas Schlosser
+ * @author Thomas Knych
+ * @author Jordan Krey
+ */
+public class UnboundedFifoBuffer extends AbstractCollection implements Buffer, Serializable {
+    // invariant: buffer.length &gt; size()
+    //   ie.buffer always has at least one empty entry
+
+    /** Serialization vesrion */
+    private static final long serialVersionUID = -3482960336579541419L;
+
+    /** The array of objects in the buffer. */
+    protected transient Object[] buffer;
+    /** The current head index. */
+    protected transient int head;
+    /** The current tail index. */
+    protected transient int tail;
+
+    /**
+     * Constructs an UnboundedFifoBuffer with the default number of elements.
+     * It is exactly the same as performing the following:
+     *
+     * &lt;pre&gt;
+     *   new UnboundedFifoBuffer(32);
+     * &lt;/pre&gt;
+     */
+    public UnboundedFifoBuffer() {
+<span class="fc" id="L89">        this(32);</span>
+<span class="fc" id="L90">    }</span>
+
+    /**
+     * Constructs an UnboundedFifoBuffer with the specified number of elements.
+     * The integer must be a positive integer.
+     * 
+     * @param initialSize  the initial size of the buffer
+     * @throws IllegalArgumentException  if the size is less than 1
+     */
+<span class="fc" id="L99">    public UnboundedFifoBuffer(int initialSize) {</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (initialSize &lt;= 0) {</span>
+<span class="fc" id="L101">            throw new IllegalArgumentException(&quot;The size must be greater than 0&quot;);</span>
+        }
+<span class="fc" id="L103">        buffer = new Object[initialSize + 1];</span>
+<span class="fc" id="L104">        head = 0;</span>
+<span class="fc" id="L105">        tail = 0;</span>
+<span class="fc" id="L106">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Write the buffer out using a custom routine.
+     * 
+     * @param out  the output stream
+     * @throws IOException
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+<span class="fc" id="L116">        out.defaultWriteObject();</span>
+<span class="fc" id="L117">        out.writeInt(size());</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        for (Iterator it = iterator(); it.hasNext();) {</span>
+<span class="fc" id="L119">            out.writeObject(it.next());</span>
+        }
+<span class="fc" id="L121">    }</span>
+
+    /**
+     * Read the buffer in using a custom routine.
+     * 
+     * @param in  the input stream
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L131">        in.defaultReadObject();</span>
+<span class="fc" id="L132">        int size = in.readInt();</span>
+<span class="fc" id="L133">        buffer = new Object[size + 1];</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L135">            buffer[i] = in.readObject();</span>
+        }
+<span class="fc" id="L137">        head = 0;</span>
+<span class="fc" id="L138">        tail = size;</span>
+<span class="fc" id="L139">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Returns the number of elements stored in the buffer.
+     *
+     * @return this buffer's size
+     */
+    public int size() {
+<span class="fc" id="L148">        int size = 0;</span>
+
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        if (tail &lt; head) {</span>
+<span class="fc" id="L151">            size = buffer.length - head + tail;</span>
+<span class="fc" id="L152">        } else {</span>
+<span class="fc" id="L153">            size = tail - head;</span>
+        }
+
+<span class="fc" id="L156">        return size;</span>
+    }
+
+    /**
+     * Returns true if this buffer is empty; false otherwise.
+     *
+     * @return true if this buffer is empty
+     */
+    public boolean isEmpty() {
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        return (size() == 0);</span>
+    }
+
+    /**
+     * Adds the given element to this buffer.
+     *
+     * @param obj  the element to add
+     * @return true, always
+     * @throws NullPointerException  if the given element is null
+     */
+    public boolean add(final Object obj) {
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        if (obj == null) {</span>
+<span class="nc" id="L177">            throw new NullPointerException(&quot;Attempted to add null object to buffer&quot;);</span>
+        }
+
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        if (size() + 1 &gt;= buffer.length) {</span>
+            // copy contents to a new buffer array
+<span class="fc" id="L182">            Object[] tmp = new Object[((buffer.length - 1) * 2) + 1];</span>
+<span class="fc" id="L183">            int j = 0;</span>
+            // move head to element zero in the new array
+<span class="fc bfc" id="L185" title="All 2 branches covered.">            for (int i = head; i != tail;) {</span>
+<span class="fc" id="L186">                tmp[j] = buffer[i];</span>
+<span class="fc" id="L187">                buffer[i] = null;</span>
+
+<span class="fc" id="L189">                j++;</span>
+<span class="fc" id="L190">                i = increment(i);</span>
+            }
+<span class="fc" id="L192">            buffer = tmp;</span>
+<span class="fc" id="L193">            head = 0;</span>
+<span class="fc" id="L194">            tail = j;</span>
+        }
+
+<span class="fc" id="L197">        buffer[tail] = obj;</span>
+<span class="fc" id="L198">        tail = increment(tail);</span>
+<span class="fc" id="L199">        return true;</span>
+    }
+
+    /**
+     * Returns the next object in the buffer.
+     *
+     * @return the next object in the buffer
+     * @throws BufferUnderflowException  if this buffer is empty
+     */
+    public Object get() {
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">        if (isEmpty()) {</span>
+<span class="nc" id="L210">            throw new BufferUnderflowException(&quot;The buffer is already empty&quot;);</span>
+        }
+
+<span class="fc" id="L213">        return buffer[head];</span>
+    }
+
+    /**
+     * Removes the next object from the buffer
+     *
+     * @return the removed object
+     * @throws BufferUnderflowException  if this buffer is empty
+     */
+    public Object remove() {
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">        if (isEmpty()) {</span>
+<span class="nc" id="L224">            throw new BufferUnderflowException(&quot;The buffer is already empty&quot;);</span>
+        }
+
+<span class="fc" id="L227">        Object element = buffer[head];</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">        if (element != null) {</span>
+<span class="fc" id="L229">            buffer[head] = null;</span>
+<span class="fc" id="L230">            head = increment(head);</span>
+        }
+<span class="fc" id="L232">        return element;</span>
+    }
+
+    /**
+     * Increments the internal index.
+     * 
+     * @param index  the index to increment
+     * @return the updated index
+     */
+    private int increment(int index) {
+<span class="fc" id="L242">        index++;</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">        if (index &gt;= buffer.length) {</span>
+<span class="fc" id="L244">            index = 0;</span>
+        }
+<span class="fc" id="L246">        return index;</span>
+    }
+
+    /**
+     * Decrements the internal index.
+     * 
+     * @param index  the index to decrement
+     * @return the updated index
+     */
+    private int decrement(int index) {
+<span class="fc" id="L256">        index--;</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">        if (index &lt; 0) {</span>
+<span class="fc" id="L258">            index = buffer.length - 1;</span>
+        }
+<span class="fc" id="L260">        return index;</span>
+    }
+
+    /**
+     * Returns an iterator over this buffer's elements.
+     *
+     * @return an iterator over this buffer's elements
+     */
+    public Iterator iterator() {
+<span class="fc" id="L269">        return new Iterator() {</span>
+
+<span class="fc" id="L271">            private int index = head;</span>
+<span class="fc" id="L272">            private int lastReturnedIndex = -1;</span>
+
+            public boolean hasNext() {
+<span class="fc bfc" id="L275" title="All 2 branches covered.">                return index != tail;</span>
+
+            }
+
+            public Object next() {
+<span class="fc bfc" id="L280" title="All 2 branches covered.">                if (!hasNext()) {</span>
+<span class="fc" id="L281">                    throw new NoSuchElementException();</span>
+                }
+<span class="fc" id="L283">                lastReturnedIndex = index;</span>
+<span class="fc" id="L284">                index = increment(index);</span>
+<span class="fc" id="L285">                return buffer[lastReturnedIndex];</span>
+            }
+
+            public void remove() {
+<span class="fc bfc" id="L289" title="All 2 branches covered.">                if (lastReturnedIndex == -1) {</span>
+<span class="fc" id="L290">                    throw new IllegalStateException();</span>
+                }
+
+                // First element can be removed quickly
+<span class="fc bfc" id="L294" title="All 2 branches covered.">                if (lastReturnedIndex == head) {</span>
+<span class="fc" id="L295">                    UnboundedFifoBuffer.this.remove();</span>
+<span class="fc" id="L296">                    lastReturnedIndex = -1;</span>
+<span class="fc" id="L297">                    return;</span>
+                }
+
+                // Other elements require us to shift the subsequent elements
+<span class="fc" id="L301">                int i = increment(lastReturnedIndex);</span>
+<span class="fc bfc" id="L302" title="All 2 branches covered.">                while (i != tail) {</span>
+<span class="fc" id="L303">                    buffer[decrement(i)] = buffer[i];</span>
+<span class="fc" id="L304">                    i = increment(i);</span>
+                }
+
+<span class="fc" id="L307">                lastReturnedIndex = -1;</span>
+<span class="fc" id="L308">                tail = decrement(tail);</span>
+<span class="fc" id="L309">                buffer[tail] = null;</span>
+<span class="fc" id="L310">                index = decrement(index);</span>
+<span class="fc" id="L311">            }</span>
+
+        };
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

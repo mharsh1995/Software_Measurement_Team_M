@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FactoryUtilsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4</a> &gt; <span class="el_source">FactoryUtilsTest.java</span></div><h1>FactoryUtilsTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.TimeZone;
+
+import org.apache.commons.collections4.functors.ConstantFactory;
+import org.apache.commons.collections4.functors.ExceptionFactory;
+import org.junit.Test;
+
+/**
+ * Tests the org.apache.commons.collections.FactoryUtils class.
+ *
+ * @since 3.0
+ * @version $Id$
+ */
+<span class="fc" id="L39">public class FactoryUtilsTest extends junit.framework.TestCase {</span>
+
+    /**
+     * Set up instance variables required by this test case.
+     */
+    @Override
+    public void setUp() {
+<span class="fc" id="L46">    }</span>
+
+    /**
+     * Tear down instance variables required by this test case.
+     */
+    @Override
+    public void tearDown() {
+<span class="fc" id="L53">    }</span>
+
+    // exceptionFactory
+    //------------------------------------------------------------------
+
+    public void testExceptionFactory() {
+<span class="fc" id="L59">        assertNotNull(FactoryUtils.exceptionFactory());</span>
+<span class="fc" id="L60">        assertSame(FactoryUtils.exceptionFactory(), FactoryUtils.exceptionFactory());</span>
+        try {
+<span class="nc" id="L62">            FactoryUtils.exceptionFactory().create();</span>
+<span class="pc" id="L63">        } catch (final FunctorException ex) {</span>
+            try {
+<span class="nc" id="L65">                FactoryUtils.exceptionFactory().create();</span>
+<span class="pc" id="L66">            } catch (final FunctorException ex2) {</span>
+<span class="fc" id="L67">                return;</span>
+            }
+        }
+<span class="nc" id="L70">        fail();</span>
+<span class="nc" id="L71">    }</span>
+
+    // nullFactory
+    //------------------------------------------------------------------
+
+    public void testNullFactory() {
+<span class="fc" id="L77">        final Factory&lt;Object&gt; factory = FactoryUtils.nullFactory();</span>
+<span class="fc" id="L78">        assertNotNull(factory);</span>
+<span class="fc" id="L79">        final Object created = factory.create();</span>
+<span class="fc" id="L80">        assertNull(created);</span>
+<span class="fc" id="L81">    }</span>
+
+    // constantFactory
+    //------------------------------------------------------------------
+
+    public void testConstantFactoryNull() {
+<span class="fc" id="L87">        final Factory&lt;Object&gt; factory = FactoryUtils.constantFactory(null);</span>
+<span class="fc" id="L88">        assertNotNull(factory);</span>
+<span class="fc" id="L89">        final Object created = factory.create();</span>
+<span class="fc" id="L90">        assertNull(created);</span>
+<span class="fc" id="L91">    }</span>
+
+    public void testConstantFactoryConstant() {
+<span class="fc" id="L94">        final Integer constant = Integer.valueOf(9);</span>
+<span class="fc" id="L95">        final Factory&lt;Integer&gt; factory = FactoryUtils.constantFactory(constant);</span>
+<span class="fc" id="L96">        assertNotNull(factory);</span>
+<span class="fc" id="L97">        final Integer created = factory.create();</span>
+<span class="fc" id="L98">        assertSame(constant, created);</span>
+<span class="fc" id="L99">    }</span>
+
+    // prototypeFactory
+    //------------------------------------------------------------------
+
+    public void testPrototypeFactoryNull() {
+<span class="fc" id="L105">        assertSame(ConstantFactory.NULL_INSTANCE, FactoryUtils.prototypeFactory(null));</span>
+<span class="fc" id="L106">    }</span>
+
+    public void testPrototypeFactoryPublicCloneMethod() throws Exception {
+<span class="fc" id="L109">        final Date proto = new Date();</span>
+<span class="fc" id="L110">        final Factory&lt;Date&gt; factory = FactoryUtils.prototypeFactory(proto);</span>
+<span class="fc" id="L111">        assertNotNull(factory);</span>
+<span class="fc" id="L112">        final Date created = factory.create();</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        assertTrue(proto != created);</span>
+<span class="fc" id="L114">        assertEquals(proto, created);</span>
+
+        // check serialisation works
+<span class="fc" id="L117">        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();</span>
+<span class="fc" id="L118">        final ObjectOutputStream out = new ObjectOutputStream(buffer);</span>
+<span class="fc" id="L119">        out.writeObject(factory);</span>
+<span class="fc" id="L120">        out.close();</span>
+<span class="fc" id="L121">        final ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));</span>
+<span class="fc" id="L122">        in.readObject();</span>
+<span class="fc" id="L123">        in.close();</span>
+<span class="fc" id="L124">    }</span>
+
+    public void testPrototypeFactoryPublicCopyConstructor() throws Exception {
+<span class="fc" id="L127">        final Mock1 proto = new Mock1(6);</span>
+<span class="fc" id="L128">        Factory&lt;Object&gt; factory = FactoryUtils.&lt;Object&gt;prototypeFactory(proto);</span>
+<span class="fc" id="L129">        assertNotNull(factory);</span>
+<span class="fc" id="L130">        final Object created = factory.create();</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        assertTrue(proto != created);</span>
+<span class="fc" id="L132">        assertEquals(proto, created);</span>
+
+        // check serialisation works
+<span class="fc" id="L135">        ByteArrayOutputStream buffer = new ByteArrayOutputStream();</span>
+<span class="fc" id="L136">        ObjectOutputStream out = new ObjectOutputStream(buffer);</span>
+        try {
+<span class="nc" id="L138">            out.writeObject(factory);</span>
+<span class="pc" id="L139">        } catch (final NotSerializableException ex) {</span>
+<span class="fc" id="L140">            out.close();</span>
+        }
+<span class="fc" id="L142">        factory = FactoryUtils.&lt;Object&gt;prototypeFactory(new Mock2(&quot;S&quot;));</span>
+<span class="fc" id="L143">        buffer = new ByteArrayOutputStream();</span>
+<span class="fc" id="L144">        out = new ObjectOutputStream(buffer);</span>
+<span class="fc" id="L145">        out.writeObject(factory);</span>
+<span class="fc" id="L146">        out.close();</span>
+<span class="fc" id="L147">        final ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));</span>
+<span class="fc" id="L148">        in.readObject();</span>
+<span class="fc" id="L149">        in.close();</span>
+<span class="fc" id="L150">    }</span>
+
+    public void testPrototypeFactoryPublicSerialization() throws Exception {
+<span class="fc" id="L153">        final Integer proto = Integer.valueOf(9);</span>
+<span class="fc" id="L154">        final Factory&lt;Integer&gt; factory = FactoryUtils.prototypeFactory(proto);</span>
+<span class="fc" id="L155">        assertNotNull(factory);</span>
+<span class="fc" id="L156">        final Integer created = factory.create();</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        assertTrue(proto != created);</span>
+<span class="fc" id="L158">        assertEquals(proto, created);</span>
+
+        // check serialisation works
+<span class="fc" id="L161">        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();</span>
+<span class="fc" id="L162">        final ObjectOutputStream out = new ObjectOutputStream(buffer);</span>
+<span class="fc" id="L163">        out.writeObject(factory);</span>
+<span class="fc" id="L164">        out.close();</span>
+<span class="fc" id="L165">        final ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));</span>
+<span class="fc" id="L166">        in.readObject();</span>
+<span class="fc" id="L167">        in.close();</span>
+<span class="fc" id="L168">    }</span>
+
+    public void testPrototypeFactoryPublicSerializationError() {
+<span class="fc" id="L171">        final Mock2 proto = new Mock2(new Object());</span>
+<span class="fc" id="L172">        final Factory&lt;Object&gt; factory = FactoryUtils.&lt;Object&gt;prototypeFactory(proto);</span>
+<span class="fc" id="L173">        assertNotNull(factory);</span>
+        try {
+<span class="nc" id="L175">            factory.create();</span>
+<span class="pc" id="L176">        } catch (final FunctorException ex) {</span>
+<span class="fc" id="L177">            assertTrue(ex.getCause() instanceof IOException);</span>
+<span class="fc" id="L178">            return;</span>
+        }
+<span class="nc" id="L180">        fail();</span>
+<span class="nc" id="L181">    }</span>
+
+    public void testPrototypeFactoryPublicBad() {
+<span class="fc" id="L184">        final Object proto = new Object();</span>
+        try {
+<span class="nc" id="L186">            FactoryUtils.prototypeFactory(proto);</span>
+<span class="pc" id="L187">        } catch (final IllegalArgumentException ex) {</span>
+<span class="fc" id="L188">            return;</span>
+        }
+<span class="nc" id="L190">        fail();</span>
+<span class="nc" id="L191">    }</span>
+
+    public static class Mock1 {
+        private final int iVal;
+<span class="fc" id="L195">        public Mock1(final int val) {</span>
+<span class="fc" id="L196">            iVal = val;</span>
+<span class="fc" id="L197">        }</span>
+<span class="fc" id="L198">        public Mock1(final Mock1 mock) {</span>
+<span class="fc" id="L199">            iVal = mock.iVal;</span>
+<span class="fc" id="L200">        }</span>
+        @Override
+        public boolean equals(final Object obj) {
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">            if (obj instanceof Mock1) {</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">                if (iVal == ((Mock1) obj).iVal) {</span>
+<span class="fc" id="L205">                    return true;</span>
+                }
+            }
+<span class="nc" id="L208">            return false;</span>
+        }
+        @Override
+        public int hashCode() { // please Findbugs
+<span class="nc" id="L212">            return super.hashCode();</span>
+        }
+    }
+
+    public static class Mock2 implements Serializable {
+        /**
+         * Generated serial version ID.
+         */
+        private static final long serialVersionUID = 4899282162482588924L;
+        private final Object iVal;
+<span class="fc" id="L222">        public Mock2(final Object val) {</span>
+<span class="fc" id="L223">            iVal = val;</span>
+<span class="fc" id="L224">        }</span>
+        @Override
+        public boolean equals(final Object obj) {
+<span class="nc bnc" id="L227" title="All 2 branches missed.">            if (obj instanceof Mock2) {</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">                if (iVal == ((Mock2) obj).iVal) {</span>
+<span class="nc" id="L229">                    return true;</span>
+                }
+            }
+<span class="nc" id="L232">            return false;</span>
+        }
+        @Override
+        public int hashCode() { // please Findbugs
+<span class="nc" id="L236">            return super.hashCode();</span>
+        }
+    }
+
+    public static class Mock3 {
+<span class="nc" id="L241">        private static int cCounter = 0;</span>
+        private final int iVal;
+<span class="nc" id="L243">        public Mock3() {</span>
+<span class="nc" id="L244">            iVal = cCounter++;</span>
+<span class="nc" id="L245">        }</span>
+        public int getValue() {
+<span class="nc" id="L247">            return iVal;</span>
+        }
+    }
+
+    // instantiateFactory
+    //------------------------------------------------------------------
+
+    @Test(expected=IllegalArgumentException.class)
+    public void instantiateFactoryNull() {
+<span class="nc" id="L256">        FactoryUtils.instantiateFactory(null);</span>
+<span class="nc" id="L257">    }</span>
+
+    @Test
+    public void instantiateFactorySimple() {
+<span class="nc" id="L261">        final Factory&lt;Mock3&gt; factory = FactoryUtils.instantiateFactory(Mock3.class);</span>
+<span class="nc" id="L262">        assertNotNull(factory);</span>
+<span class="nc" id="L263">        Mock3 created = factory.create();</span>
+<span class="nc" id="L264">        assertEquals(0, created.getValue());</span>
+<span class="nc" id="L265">        created = factory.create();</span>
+<span class="nc" id="L266">        assertEquals(1, created.getValue());</span>
+<span class="nc" id="L267">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void instantiateFactoryMismatch() {
+<span class="nc" id="L271">        FactoryUtils.instantiateFactory(Date.class, null, new Object[] {null});</span>
+<span class="nc" id="L272">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void instantiateFactoryNoConstructor() {
+<span class="nc" id="L276">        FactoryUtils.instantiateFactory(Date.class, new Class[] {Long.class}, new Object[] {null});</span>
+<span class="nc" id="L277">    }</span>
+
+    @Test
+    public void instantiateFactoryComplex() {
+<span class="nc" id="L281">        TimeZone.setDefault(TimeZone.getTimeZone(&quot;GMT&quot;));</span>
+        // 2nd Jan 1970
+<span class="nc" id="L283">        final Factory&lt;Date&gt; factory = FactoryUtils.instantiateFactory(Date.class,</span>
+<span class="nc" id="L284">            new Class[] {Integer.TYPE, Integer.TYPE, Integer.TYPE},</span>
+<span class="nc" id="L285">            new Object[] {Integer.valueOf(70), Integer.valueOf(0), Integer.valueOf(2)});</span>
+<span class="nc" id="L286">        assertNotNull(factory);</span>
+<span class="nc" id="L287">        final Date created = factory.create();</span>
+        // long time of 1 day (== 2nd Jan 1970)
+<span class="nc" id="L289">        assertEquals(new Date(1000 * 60 * 60 * 24), created);</span>
+<span class="nc" id="L290">    }</span>
+
+    // misc tests
+    //------------------------------------------------------------------
+
+    /**
+     * Test that all Factory singletones hold singleton pattern in
+     * serialization/deserialization process.
+     */
+    public void testSingletonPatternInSerialization() {
+<span class="fc" id="L300">        final Object[] singletones = new Object[] {</span>
+<span class="fc" id="L301">                ExceptionFactory.INSTANCE,</span>
+        };
+
+<span class="fc bfc" id="L304" title="All 2 branches covered.">        for (final Object original : singletones) {</span>
+<span class="fc" id="L305">            TestUtils.assertSameAfterSerialization(</span>
+<span class="fc" id="L306">                    &quot;Singletone patern broken for &quot; + original.getClass(),</span>
+<span class="fc" id="L307">                    original</span>
+            );
+        }
+<span class="fc" id="L310">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

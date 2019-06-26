@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestCompositeMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">TestCompositeMap.java</span></div><h1>TestCompositeMap.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.framework.Assert;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collection;
+
+/**
+ * Extension of {@link AbstractTestMap} for exercising the 
+ * {@link CompositeMap} implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ *
+ * @author Brian McCallister
+ */
+public class TestCompositeMap extends AbstractTestMap {
+    /** used as a flag in MapMutator tests */
+<span class="fc" id="L38">    private boolean pass = false;</span>
+    
+    public TestCompositeMap(String testName) {
+<span class="fc" id="L41">        super(testName);</span>
+<span class="fc" id="L42">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L45" title="All 2 branches covered.">        return new TestSuite(TestCompositeMap.class);</span>
+    }
+    
+    public void setUp() throws Exception {
+<span class="fc" id="L49">        super.setUp();</span>
+<span class="fc" id="L50">        this.pass = false;</span>
+<span class="fc" id="L51">    }</span>
+    
+    public static void main(String args[]) {
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        String[] testCaseName = {TestCompositeMap.class.getName()};</span>
+<span class="nc" id="L55">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L56">    }</span>
+    
+    public Map makeEmptyMap() {
+<span class="fc" id="L59">        CompositeMap map = new CompositeMap();</span>
+<span class="fc" id="L60">        map.addComposited(new HashMap());</span>
+<span class="fc" id="L61">        map.setMutator(new CompositeMap.MapMutator() {</span>
+            public void resolveCollision(CompositeMap composite,
+            Map existing,
+            Map added,
+            Collection intersect) {
+                // Do nothing
+<span class="nc" id="L67">            }</span>
+            
+            public Object put(CompositeMap map, Map[] composited, Object key, Object value) {
+<span class="fc" id="L70">                return composited[0].put(key, value);</span>
+            }
+            
+            public void putAll(CompositeMap map, Map[] composited, Map t) {
+<span class="fc" id="L74">                composited[0].putAll(t);</span>
+<span class="fc" id="L75">            }</span>
+            
+        });
+<span class="fc" id="L78">        return map;</span>
+    }
+    
+    private Map buildOne() {
+<span class="fc" id="L82">        HashMap map = new HashMap();</span>
+<span class="fc" id="L83">        map.put(&quot;1&quot;, &quot;one&quot;);</span>
+<span class="fc" id="L84">        map.put(&quot;2&quot;, &quot;two&quot;);</span>
+<span class="fc" id="L85">        return map;</span>
+    }
+    
+    public Map buildTwo() {
+<span class="fc" id="L89">        HashMap map = new HashMap();</span>
+<span class="fc" id="L90">        map.put(&quot;3&quot;, &quot;three&quot;);</span>
+<span class="fc" id="L91">        map.put(&quot;4&quot;, &quot;four&quot;);</span>
+<span class="fc" id="L92">        return map;</span>
+    }
+    
+    public void testGet() {
+<span class="fc" id="L96">        CompositeMap map = new CompositeMap(buildOne(), buildTwo());</span>
+<span class="fc" id="L97">        Assert.assertEquals(&quot;one&quot;, map.get(&quot;1&quot;));</span>
+<span class="fc" id="L98">        Assert.assertEquals(&quot;four&quot;, map.get(&quot;4&quot;));</span>
+<span class="fc" id="L99">    }</span>
+    
+    public void testAddComposited() {
+<span class="fc" id="L102">        CompositeMap map = new CompositeMap(buildOne(), buildTwo());</span>
+<span class="fc" id="L103">        HashMap three = new HashMap();</span>
+<span class="fc" id="L104">        three.put(&quot;5&quot;, &quot;five&quot;);</span>
+<span class="fc" id="L105">        map.addComposited(three);</span>
+<span class="fc" id="L106">        assertTrue(map.containsKey(&quot;5&quot;));</span>
+        try {
+<span class="nc" id="L108">            map.addComposited(three);</span>
+<span class="nc" id="L109">            fail(&quot;Expecting IllegalArgumentException.&quot;);</span>
+<span class="pc" id="L110">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L113">    }</span>
+    
+    public void testRemoveComposited() {
+<span class="fc" id="L116">        CompositeMap map = new CompositeMap(buildOne(), buildTwo());</span>
+<span class="fc" id="L117">        HashMap three = new HashMap();</span>
+<span class="fc" id="L118">        three.put(&quot;5&quot;, &quot;five&quot;);</span>
+<span class="fc" id="L119">        map.addComposited(three);</span>
+<span class="fc" id="L120">        assertTrue(map.containsKey(&quot;5&quot;));</span>
+        
+<span class="fc" id="L122">        map.removeComposited(three);</span>
+<span class="fc" id="L123">        assertFalse(map.containsKey(&quot;5&quot;));</span>
+        
+<span class="fc" id="L125">        map.removeComposited(buildOne());</span>
+<span class="fc" id="L126">        assertFalse(map.containsKey(&quot;2&quot;));</span>
+        
+<span class="fc" id="L128">    }</span>
+    
+    public void testRemoveFromUnderlying() {
+<span class="fc" id="L131">        CompositeMap map = new CompositeMap(buildOne(), buildTwo());</span>
+<span class="fc" id="L132">        HashMap three = new HashMap();</span>
+<span class="fc" id="L133">        three.put(&quot;5&quot;, &quot;five&quot;);</span>
+<span class="fc" id="L134">        map.addComposited(three);</span>
+<span class="fc" id="L135">        assertTrue(map.containsKey(&quot;5&quot;));</span>
+        
+        //Now remove &quot;5&quot;
+<span class="fc" id="L138">        three.remove(&quot;5&quot;);</span>
+<span class="fc" id="L139">        assertFalse(map.containsKey(&quot;5&quot;));</span>
+<span class="fc" id="L140">    }</span>
+    
+    public void testRemoveFromComposited() {
+<span class="fc" id="L143">        CompositeMap map = new CompositeMap(buildOne(), buildTwo());</span>
+<span class="fc" id="L144">        HashMap three = new HashMap();</span>
+<span class="fc" id="L145">        three.put(&quot;5&quot;, &quot;five&quot;);</span>
+<span class="fc" id="L146">        map.addComposited(three);</span>
+<span class="fc" id="L147">        assertTrue(map.containsKey(&quot;5&quot;));</span>
+        
+        //Now remove &quot;5&quot;
+<span class="fc" id="L150">        map.remove(&quot;5&quot;);</span>
+<span class="fc" id="L151">        assertFalse(three.containsKey(&quot;5&quot;));</span>
+<span class="fc" id="L152">    }</span>
+    
+    public void testResolveCollision() {
+<span class="fc" id="L155">        CompositeMap map = new CompositeMap(buildOne(), buildTwo(), </span>
+<span class="fc" id="L156">            new CompositeMap.MapMutator() {</span>
+            public void resolveCollision(CompositeMap composite,
+            Map existing,
+            Map added,
+            Collection intersect) {
+<span class="fc" id="L161">                pass = true;</span>
+<span class="fc" id="L162">            }</span>
+            
+            public Object put(CompositeMap map, Map[] composited, Object key, 
+                Object value) {
+<span class="nc" id="L166">                throw new UnsupportedOperationException();</span>
+            }
+            
+            public void putAll(CompositeMap map, Map[] composited, Map t) {
+<span class="nc" id="L170">                throw new UnsupportedOperationException();</span>
+            }
+        });
+        
+<span class="fc" id="L174">        map.addComposited(buildOne());</span>
+<span class="fc" id="L175">        assertTrue(pass);</span>
+<span class="fc" id="L176">    }</span>
+    
+    public void testPut() {
+<span class="fc" id="L179">        CompositeMap map = new CompositeMap(buildOne(), buildTwo(), </span>
+<span class="fc" id="L180">            new CompositeMap.MapMutator() {</span>
+            public void resolveCollision(CompositeMap composite,
+            Map existing,
+            Map added,
+            Collection intersect) {
+<span class="nc" id="L185">                throw new UnsupportedOperationException();</span>
+            }
+            
+            public Object put(CompositeMap map, Map[] composited, Object key, 
+                Object value) {
+<span class="fc" id="L190">                pass = true;</span>
+<span class="fc" id="L191">                return &quot;foo&quot;;</span>
+            }
+            
+            public void putAll(CompositeMap map, Map[] composited, Map t) {
+<span class="nc" id="L195">                throw new UnsupportedOperationException();</span>
+            }
+        });
+        
+<span class="fc" id="L199">        map.put(&quot;willy&quot;, &quot;wonka&quot;);</span>
+<span class="fc" id="L200">        assertTrue(pass);</span>
+<span class="fc" id="L201">    }</span>
+    
+    public void testPutAll() {
+<span class="fc" id="L204">        CompositeMap map = new CompositeMap(buildOne(), buildTwo(), </span>
+<span class="fc" id="L205">            new CompositeMap.MapMutator() {</span>
+            public void resolveCollision(CompositeMap composite,
+            Map existing,
+            Map added,
+            Collection intersect) {
+<span class="nc" id="L210">                throw new UnsupportedOperationException();</span>
+            }
+            
+            public Object put(CompositeMap map, Map[] composited, Object key,
+                Object value) {
+<span class="nc" id="L215">                throw new UnsupportedOperationException();</span>
+            }
+            
+            public void putAll(CompositeMap map, Map[] composited, Map t) {
+<span class="fc" id="L219">                pass = true;</span>
+<span class="fc" id="L220">            }</span>
+        });
+        
+<span class="fc" id="L223">        map.putAll(null);</span>
+<span class="fc" id="L224">        assertTrue(pass);</span>
+<span class="fc" id="L225">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

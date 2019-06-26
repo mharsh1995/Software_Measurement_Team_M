@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CollatingIteratorTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.iterators</a> &gt; <span class="el_source">CollatingIteratorTest.java</span></div><h1>CollatingIteratorTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.iterators;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+import org.apache.commons.collections4.comparators.ComparableComparator;
+
+/**
+ * Unit test suite for {@link CollatingIterator}.
+ *
+ * @version $Id$
+ */
+@SuppressWarnings(&quot;boxing&quot;)
+public class CollatingIteratorTest extends AbstractIteratorTest&lt;Integer&gt; {
+
+    //------------------------------------------------------------ Conventional
+
+    public CollatingIteratorTest(final String testName) {
+<span class="fc" id="L37">        super(testName);</span>
+<span class="fc" id="L38">    }</span>
+
+    //--------------------------------------------------------------- Lifecycle
+
+<span class="fc" id="L42">    private Comparator&lt;Integer&gt; comparator = null;</span>
+<span class="fc" id="L43">    private ArrayList&lt;Integer&gt; evens = null;</span>
+<span class="fc" id="L44">    private ArrayList&lt;Integer&gt; odds = null;</span>
+<span class="fc" id="L45">    private ArrayList&lt;Integer&gt; fib = null;</span>
+
+    @Override
+    public void setUp() throws Exception {
+<span class="fc" id="L49">        super.setUp();</span>
+<span class="fc" id="L50">        comparator = new ComparableComparator&lt;Integer&gt;();</span>
+<span class="fc" id="L51">        evens = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L52">        odds = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        for (int i = 0; i &lt; 20; i++) {</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">            if (0 == i % 2) {</span>
+<span class="fc" id="L55">                evens.add(i);</span>
+<span class="fc" id="L56">            } else {</span>
+<span class="fc" id="L57">                odds.add(i);</span>
+            }
+        }
+<span class="fc" id="L60">        fib = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L61">        fib.add(1);</span>
+<span class="fc" id="L62">        fib.add(1);</span>
+<span class="fc" id="L63">        fib.add(2);</span>
+<span class="fc" id="L64">        fib.add(3);</span>
+<span class="fc" id="L65">        fib.add(5);</span>
+<span class="fc" id="L66">        fib.add(8);</span>
+<span class="fc" id="L67">        fib.add(13);</span>
+<span class="fc" id="L68">        fib.add(21);</span>
+<span class="fc" id="L69">    }</span>
+
+    //---------------------------------------------------- TestIterator Methods
+
+    @Override
+    public CollatingIterator&lt;Integer&gt; makeEmptyIterator() {
+<span class="fc" id="L75">        return new CollatingIterator&lt;Integer&gt;(comparator);</span>
+    }
+
+    @Override
+    public CollatingIterator&lt;Integer&gt; makeObject() {
+<span class="fc" id="L80">        final CollatingIterator&lt;Integer&gt; iter = new CollatingIterator&lt;Integer&gt;(comparator);</span>
+<span class="fc" id="L81">        iter.addIterator(evens.iterator());</span>
+<span class="fc" id="L82">        iter.addIterator(odds.iterator());</span>
+<span class="fc" id="L83">        iter.addIterator(fib.iterator());</span>
+<span class="fc" id="L84">        return iter;</span>
+    }
+
+    //------------------------------------------------------------------- Tests
+
+    public void testGetSetComparator() {
+<span class="fc" id="L90">        final CollatingIterator&lt;Integer&gt; iter = new CollatingIterator&lt;Integer&gt;();</span>
+<span class="fc" id="L91">        assertNull(iter.getComparator());</span>
+<span class="fc" id="L92">        iter.setComparator(comparator);</span>
+<span class="fc" id="L93">        assertSame(comparator, iter.getComparator());</span>
+<span class="fc" id="L94">        iter.setComparator(null);</span>
+<span class="fc" id="L95">        assertNull(iter.getComparator());</span>
+<span class="fc" id="L96">    }</span>
+
+    public void testIterateEven() {
+<span class="fc" id="L99">        final CollatingIterator&lt;Integer&gt; iter = new CollatingIterator&lt;Integer&gt;(comparator);</span>
+<span class="fc" id="L100">        iter.addIterator(evens.iterator());</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        for (int i = 0; i &lt; evens.size(); i++) {</span>
+<span class="fc" id="L102">            assertTrue(iter.hasNext());</span>
+<span class="fc" id="L103">            assertEquals(evens.get(i), iter.next());</span>
+<span class="fc" id="L104">            assertEquals(0,iter.getIteratorIndex());</span>
+        }
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">        assertTrue(!iter.hasNext());</span>
+<span class="fc" id="L107">    }</span>
+
+    public void testIterateEvenOdd() {
+<span class="fc" id="L110">        final CollatingIterator&lt;Integer&gt; iter = new CollatingIterator&lt;Integer&gt;(comparator, evens.iterator(), odds.iterator());</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (int i = 0; i &lt; 20; i++) {</span>
+<span class="fc" id="L112">            assertTrue(iter.hasNext());</span>
+<span class="fc" id="L113">            assertEquals(Integer.valueOf(i), iter.next());</span>
+<span class="fc" id="L114">            assertEquals(i % 2,iter.getIteratorIndex());</span>
+        }
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        assertTrue(!iter.hasNext());</span>
+<span class="fc" id="L117">    }</span>
+
+    public void testIterateOddEven() {
+<span class="fc" id="L120">        final CollatingIterator&lt;Integer&gt; iter = new CollatingIterator&lt;Integer&gt;(comparator, odds.iterator(), evens.iterator());</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        for (int i = 0; i &lt; 20; i++) {</span>
+<span class="fc" id="L122">            assertTrue(iter.hasNext());</span>
+<span class="fc" id="L123">            assertEquals(Integer.valueOf(i),iter.next());</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">            assertEquals(i % 2 == 0 ? 1 : 0,iter.getIteratorIndex());</span>
+        }
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        assertTrue(!iter.hasNext());</span>
+<span class="fc" id="L127">    }</span>
+
+    public void testIterateEvenEven() {
+<span class="fc" id="L130">        final CollatingIterator&lt;Integer&gt; iter = new CollatingIterator&lt;Integer&gt;(comparator);</span>
+<span class="fc" id="L131">        iter.addIterator(evens.iterator());</span>
+<span class="fc" id="L132">        iter.addIterator(evens.iterator());</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        for (int i = 0; i &lt; evens.size(); i++) {</span>
+<span class="fc" id="L134">            assertTrue(iter.hasNext());</span>
+<span class="fc" id="L135">            assertEquals(evens.get(i), iter.next());</span>
+<span class="fc" id="L136">            assertEquals(0,iter.getIteratorIndex());</span>
+<span class="fc" id="L137">            assertTrue(iter.hasNext());</span>
+<span class="fc" id="L138">            assertEquals(evens.get(i), iter.next());</span>
+<span class="fc" id="L139">            assertEquals(1,iter.getIteratorIndex());</span>
+        }
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        assertTrue(!iter.hasNext());</span>
+<span class="fc" id="L142">    }</span>
+
+    public void testIterateFibEvenOdd() {
+<span class="fc" id="L145">        final CollatingIterator&lt;Integer&gt; iter = new CollatingIterator&lt;Integer&gt;(comparator);</span>
+<span class="fc" id="L146">        iter.addIterator(fib.iterator());</span>
+<span class="fc" id="L147">        iter.addIterator(evens.iterator());</span>
+<span class="fc" id="L148">        iter.addIterator(odds.iterator());</span>
+
+<span class="fc" id="L150">        assertEquals(Integer.valueOf(0),iter.next());  // even   0</span>
+<span class="fc" id="L151">        assertEquals(1,iter.getIteratorIndex());</span>
+<span class="fc" id="L152">        assertEquals(Integer.valueOf(1),iter.next());  // fib    1</span>
+<span class="fc" id="L153">        assertEquals(0,iter.getIteratorIndex());</span>
+<span class="fc" id="L154">        assertEquals(Integer.valueOf(1),iter.next());  // fib    1</span>
+<span class="fc" id="L155">        assertEquals(0,iter.getIteratorIndex());</span>
+<span class="fc" id="L156">        assertEquals(Integer.valueOf(1),iter.next());  // odd    1</span>
+<span class="fc" id="L157">        assertEquals(2,iter.getIteratorIndex());</span>
+<span class="fc" id="L158">        assertEquals(Integer.valueOf(2),iter.next());  // fib    2</span>
+<span class="fc" id="L159">        assertEquals(0,iter.getIteratorIndex());</span>
+<span class="fc" id="L160">        assertEquals(Integer.valueOf(2),iter.next());  // even   2</span>
+<span class="fc" id="L161">        assertEquals(1,iter.getIteratorIndex());</span>
+<span class="fc" id="L162">        assertEquals(Integer.valueOf(3),iter.next());  // fib    3</span>
+<span class="fc" id="L163">        assertEquals(0,iter.getIteratorIndex());</span>
+<span class="fc" id="L164">        assertEquals(Integer.valueOf(3),iter.next());  // odd    3</span>
+<span class="fc" id="L165">        assertEquals(2,iter.getIteratorIndex());</span>
+<span class="fc" id="L166">        assertEquals(Integer.valueOf(4),iter.next());  // even   4</span>
+<span class="fc" id="L167">        assertEquals(1,iter.getIteratorIndex());</span>
+<span class="fc" id="L168">        assertEquals(Integer.valueOf(5),iter.next());  // fib    5</span>
+<span class="fc" id="L169">        assertEquals(0,iter.getIteratorIndex());</span>
+<span class="fc" id="L170">        assertEquals(Integer.valueOf(5),iter.next());  // odd    5</span>
+<span class="fc" id="L171">        assertEquals(2,iter.getIteratorIndex());</span>
+<span class="fc" id="L172">        assertEquals(Integer.valueOf(6),iter.next());  // even   6</span>
+<span class="fc" id="L173">        assertEquals(1,iter.getIteratorIndex());</span>
+<span class="fc" id="L174">        assertEquals(Integer.valueOf(7),iter.next());  // odd    7</span>
+<span class="fc" id="L175">        assertEquals(2,iter.getIteratorIndex());</span>
+<span class="fc" id="L176">        assertEquals(Integer.valueOf(8),iter.next());  // fib    8</span>
+<span class="fc" id="L177">        assertEquals(0,iter.getIteratorIndex());</span>
+<span class="fc" id="L178">        assertEquals(Integer.valueOf(8),iter.next());  // even   8</span>
+<span class="fc" id="L179">        assertEquals(1,iter.getIteratorIndex());</span>
+<span class="fc" id="L180">        assertEquals(Integer.valueOf(9),iter.next());  // odd    9</span>
+<span class="fc" id="L181">        assertEquals(2,iter.getIteratorIndex());</span>
+<span class="fc" id="L182">        assertEquals(Integer.valueOf(10),iter.next()); // even  10</span>
+<span class="fc" id="L183">        assertEquals(1,iter.getIteratorIndex());</span>
+<span class="fc" id="L184">        assertEquals(Integer.valueOf(11),iter.next()); // odd   11</span>
+<span class="fc" id="L185">        assertEquals(2,iter.getIteratorIndex());</span>
+<span class="fc" id="L186">        assertEquals(Integer.valueOf(12),iter.next()); // even  12</span>
+<span class="fc" id="L187">        assertEquals(1,iter.getIteratorIndex());</span>
+<span class="fc" id="L188">        assertEquals(Integer.valueOf(13),iter.next()); // fib   13</span>
+<span class="fc" id="L189">        assertEquals(0,iter.getIteratorIndex());</span>
+<span class="fc" id="L190">        assertEquals(Integer.valueOf(13),iter.next()); // odd   13</span>
+<span class="fc" id="L191">        assertEquals(2,iter.getIteratorIndex());</span>
+<span class="fc" id="L192">        assertEquals(Integer.valueOf(14),iter.next()); // even  14</span>
+<span class="fc" id="L193">        assertEquals(1,iter.getIteratorIndex());</span>
+<span class="fc" id="L194">        assertEquals(Integer.valueOf(15),iter.next()); // odd   15</span>
+<span class="fc" id="L195">        assertEquals(2,iter.getIteratorIndex());</span>
+<span class="fc" id="L196">        assertEquals(Integer.valueOf(16),iter.next()); // even  16</span>
+<span class="fc" id="L197">        assertEquals(1,iter.getIteratorIndex());</span>
+<span class="fc" id="L198">        assertEquals(Integer.valueOf(17),iter.next()); // odd   17</span>
+<span class="fc" id="L199">        assertEquals(2,iter.getIteratorIndex());</span>
+<span class="fc" id="L200">        assertEquals(Integer.valueOf(18),iter.next()); // even  18</span>
+<span class="fc" id="L201">        assertEquals(1,iter.getIteratorIndex());</span>
+<span class="fc" id="L202">        assertEquals(Integer.valueOf(19),iter.next()); // odd   19</span>
+<span class="fc" id="L203">        assertEquals(2,iter.getIteratorIndex());</span>
+<span class="fc" id="L204">        assertEquals(Integer.valueOf(21),iter.next()); // fib   21</span>
+<span class="fc" id="L205">        assertEquals(0,iter.getIteratorIndex());</span>
+
+<span class="pc bpc" id="L207" title="1 of 2 branches missed.">        assertTrue(!iter.hasNext());</span>
+<span class="fc" id="L208">    }</span>
+
+    public void testRemoveFromSingle() {
+<span class="fc" id="L211">        final CollatingIterator&lt;Integer&gt; iter = new CollatingIterator&lt;Integer&gt;(comparator);</span>
+<span class="fc" id="L212">        iter.addIterator(evens.iterator());</span>
+<span class="fc" id="L213">        int expectedSize = evens.size();</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L215">            final Object o = iter.next();</span>
+<span class="fc" id="L216">            final Integer val = (Integer) o;</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">            if (val.intValue() % 4 == 0) {</span>
+<span class="fc" id="L218">                expectedSize--;</span>
+<span class="fc" id="L219">                iter.remove();</span>
+            }
+        }
+<span class="fc" id="L222">        assertEquals(expectedSize,evens.size());</span>
+<span class="fc" id="L223">    }</span>
+
+    public void testRemoveFromDouble() {
+<span class="fc" id="L226">        final CollatingIterator&lt;Integer&gt; iter = new CollatingIterator&lt;Integer&gt;(comparator);</span>
+<span class="fc" id="L227">        iter.addIterator(evens.iterator());</span>
+<span class="fc" id="L228">        iter.addIterator(odds.iterator());</span>
+<span class="fc" id="L229">        int expectedSize = evens.size() + odds.size();</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L231">            final Object o = iter.next();</span>
+<span class="fc" id="L232">            final Integer val = (Integer) o;</span>
+<span class="fc bfc" id="L233" title="All 4 branches covered.">            if (val.intValue() % 4 == 0 || val.intValue() % 3 == 0) {</span>
+<span class="fc" id="L234">                expectedSize--;</span>
+<span class="fc" id="L235">                iter.remove();</span>
+            }
+        }
+<span class="fc" id="L238">        assertEquals(expectedSize, evens.size() + odds.size());</span>
+<span class="fc" id="L239">    }</span>
+
+    public void testNullComparator() {
+<span class="fc" id="L242">       final List&lt;Integer&gt; l1 = Arrays.asList(1, 3, 5);</span>
+<span class="fc" id="L243">       final List&lt;Integer&gt; l2 = Arrays.asList(2, 4, 6);</span>
+
+<span class="fc" id="L245">       final CollatingIterator&lt;Integer&gt; collatingIterator1 = new CollatingIterator&lt;Integer&gt;(null, l1.iterator(), l2.iterator());</span>
+       try {
+<span class="nc" id="L247">           collatingIterator1.next();</span>
+<span class="pc" id="L248">       } catch (final NullPointerException e) {</span>
+<span class="fc" id="L249">           assertTrue(e.getMessage().startsWith(&quot;You must invoke setComparator&quot;));</span>
+       }
+
+<span class="fc" id="L252">       int i = 0;</span>
+<span class="fc" id="L253">       final CollatingIterator&lt;Integer&gt; collatingIterator2 = new CollatingIterator&lt;Integer&gt;(null, l1.iterator(), l2.iterator());</span>
+<span class="fc" id="L254">       collatingIterator2.setComparator(new ComparableComparator&lt;Integer&gt;());</span>
+<span class="fc bfc" id="L255" title="All 2 branches covered.">       for ( ; collatingIterator2.hasNext(); i++ ) {</span>
+<span class="fc" id="L256">          final Integer n = collatingIterator2.next();</span>
+<span class="fc" id="L257">          assertEquals(&quot;wrong order&quot;, (int)n, i + 1);</span>
+       }
+<span class="fc" id="L259">       assertEquals(&quot;wrong size&quot;, i, l1.size() + l2.size());</span>
+<span class="fc" id="L260">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BoundedBuffer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.buffer</a> &gt; <span class="el_source">BoundedBuffer.java</span></div><h1>BoundedBuffer.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.buffer;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Collection;
+import java.util.Iterator;
+
+import org.apache.commons.collections.BoundedCollection;
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.BufferOverflowException;
+import org.apache.commons.collections.BufferUnderflowException;
+import org.apache.commons.collections.iterators.AbstractIteratorDecorator;
+
+/**
+ * Decorates another &lt;code&gt;Buffer&lt;/code&gt; to ensure a fixed maximum size.
+ * &lt;p&gt;
+ * Note: This class should only be used if you need to add bounded
+ * behaviour to another buffer. If you just want a bounded buffer then
+ * you should use {@link BoundedFifoBuffer} or {@link CircularFifoBuffer}.
+ * &lt;p&gt;
+ * The decoration methods allow you to specify a timeout value.
+ * This alters the behaviour of the add methods when the buffer is full.
+ * Normally, when the buffer is full, the add method will throw an exception.
+ * With a timeout, the add methods will wait for up to the timeout period
+ * to try and add the elements.
+ *
+ * @author James Carman
+ * @author Stephen Colebourne
+ * @version $Revision$ $Date$
+ * @since Commons Collections 3.2
+ */
+public class BoundedBuffer extends SynchronizedBuffer implements BoundedCollection {
+
+    /** The serialization version. */
+    private static final long serialVersionUID = 1536432911093974264L;
+
+    /** The maximum size. */
+    private final int maximumSize;
+    /** The timeout milliseconds. */
+    private final long timeout;
+
+    /**
+     * Factory method to create a bounded buffer.
+     * &lt;p&gt;
+     * When the buffer is full, it will immediately throw a
+     * &lt;code&gt;BufferOverflowException&lt;/code&gt; on calling &lt;code&gt;add()&lt;/code&gt;.
+     *
+     * @param buffer  the buffer to decorate, must not be null
+     * @param maximumSize  the maximum size, must be size one or greater
+     * @return a new bounded buffer
+     * @throws IllegalArgumentException if the buffer is null
+     * @throws IllegalArgumentException if the maximum size is zero or less
+     */
+    public static BoundedBuffer decorate(Buffer buffer, int maximumSize) {
+<span class="fc" id="L71">        return new BoundedBuffer(buffer, maximumSize, 0L);</span>
+    }
+
+    /**
+     * Factory method to create a bounded buffer that blocks for a maximum
+     * amount of time.
+     *
+     * @param buffer  the buffer to decorate, must not be null
+     * @param maximumSize  the maximum size, must be size one or greater
+     * @param timeout  the maximum amount of time to wait in milliseconds
+     * @return a new bounded buffer
+     * @throws IllegalArgumentException if the buffer is null
+     * @throws IllegalArgumentException if the maximum size is zero or less
+     */
+    public static BoundedBuffer decorate(Buffer buffer, int maximumSize, long timeout) {
+<span class="fc" id="L86">        return new BoundedBuffer(buffer, maximumSize, timeout);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Constructor that wraps (not copies) another buffer, making it bounded
+     * waiting only up to a maximum amount of time.
+     *
+     * @param buffer  the buffer to wrap, must not be null
+     * @param maximumSize  the maximum size, must be size one or greater
+     * @param timeout  the maximum amount of time to wait
+     * @throws IllegalArgumentException if the buffer is null
+     * @throws IllegalArgumentException if the maximum size is zero or less
+     */
+    protected BoundedBuffer(Buffer buffer, int maximumSize, long timeout) {
+<span class="fc" id="L101">        super(buffer);</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (maximumSize &lt; 1) {</span>
+<span class="fc" id="L103">            throw new IllegalArgumentException();</span>
+        }
+<span class="fc" id="L105">        this.maximumSize = maximumSize;</span>
+<span class="fc" id="L106">        this.timeout = timeout;</span>
+<span class="fc" id="L107">    }</span>
+
+    //-----------------------------------------------------------------------
+    public Object remove() {
+<span class="fc" id="L111">        synchronized (lock) {</span>
+<span class="fc" id="L112">            Object returnValue = getBuffer().remove();</span>
+<span class="fc" id="L113">            lock.notifyAll();</span>
+<span class="fc" id="L114">            return returnValue;</span>
+        }
+    }
+
+    public boolean add(Object o) {
+<span class="fc" id="L119">        synchronized (lock) {</span>
+<span class="fc" id="L120">            timeoutWait(1);</span>
+<span class="fc" id="L121">            return getBuffer().add(o);</span>
+        }
+    }
+
+    public boolean addAll(final Collection c) {
+<span class="fc" id="L126">        synchronized (lock) {</span>
+<span class="fc" id="L127">            timeoutWait(c.size());</span>
+<span class="fc" id="L128">            return getBuffer().addAll(c);</span>
+        }
+    }
+
+    public Iterator iterator() {
+<span class="fc" id="L133">        return new NotifyingIterator(collection.iterator());</span>
+    }
+
+    private void timeoutWait(final int nAdditions) {
+        // method synchronized by callers
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (nAdditions &gt; maximumSize) {</span>
+<span class="fc" id="L139">            throw new BufferOverflowException(</span>
+<span class="fc" id="L140">                    &quot;Buffer size cannot exceed &quot; + maximumSize);</span>
+        }
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (timeout &lt;= 0) {</span>
+            // no wait period (immediate timeout)
+<span class="fc bfc" id="L144" title="All 2 branches covered.">            if (getBuffer().size() + nAdditions &gt; maximumSize) {</span>
+<span class="fc" id="L145">                throw new BufferOverflowException(</span>
+<span class="fc" id="L146">                        &quot;Buffer size cannot exceed &quot; + maximumSize);</span>
+            }
+<span class="fc" id="L148">            return;</span>
+        }
+<span class="fc" id="L150">        final long expiration = System.currentTimeMillis() + timeout;</span>
+<span class="fc" id="L151">        long timeLeft = expiration - System.currentTimeMillis();</span>
+<span class="fc bfc" id="L152" title="All 4 branches covered.">        while (timeLeft &gt; 0 &amp;&amp; getBuffer().size() + nAdditions &gt; maximumSize) {</span>
+            try {
+<span class="fc" id="L154">                lock.wait(timeLeft);</span>
+<span class="fc" id="L155">                timeLeft = expiration - System.currentTimeMillis();</span>
+<span class="pc" id="L156">            } catch (InterruptedException ex) {</span>
+<span class="nc" id="L157">                PrintWriter out = new PrintWriter(new StringWriter());</span>
+<span class="nc" id="L158">                ex.printStackTrace(out);</span>
+<span class="nc" id="L159">                throw new BufferUnderflowException(</span>
+<span class="nc" id="L160">                    &quot;Caused by InterruptedException: &quot; + out.toString());</span>
+            }
+        }
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (getBuffer().size() + nAdditions &gt; maximumSize) {</span>
+<span class="fc" id="L164">            throw new BufferOverflowException(&quot;Timeout expired&quot;);</span>
+        }
+<span class="fc" id="L166">    }</span>
+
+    public boolean isFull() {
+        // size() is synchronized
+<span class="fc bfc" id="L170" title="All 2 branches covered.">        return (size() == maxSize());</span>
+    }
+
+    public int maxSize() {
+<span class="fc" id="L174">        return maximumSize;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * BoundedBuffer iterator.
+     */
+    private class NotifyingIterator extends AbstractIteratorDecorator {
+
+        public NotifyingIterator(Iterator it) {
+<span class="fc" id="L184">            super(it);</span>
+<span class="fc" id="L185">        }</span>
+
+        public void remove() {
+<span class="fc" id="L188">            synchronized (lock) {</span>
+<span class="fc" id="L189">                iterator.remove();</span>
+<span class="fc" id="L190">                lock.notifyAll();</span>
+            }
+<span class="fc" id="L192">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

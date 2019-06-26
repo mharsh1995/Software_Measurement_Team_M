@@ -1,0 +1,1996 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DoubleOrderedMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">DoubleOrderedMap.java</span></div><h1>DoubleOrderedMap.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.AbstractCollection;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+/**
+ * Red-Black tree-based implementation of Map. This class guarantees
+ * that the map will be in both ascending key order and ascending
+ * value order, sorted according to the natural order for the key's
+ * and value's classes.
+ * &lt;p&gt;
+ * This Map is intended for applications that need to be able to look
+ * up a key-value pairing by either key or value, and need to do so
+ * with equal efficiency.
+ * &lt;p&gt;
+ * While that goal could be accomplished by taking a pair of TreeMaps
+ * and redirecting requests to the appropriate TreeMap (e.g.,
+ * containsKey would be directed to the TreeMap that maps values to
+ * keys, containsValue would be directed to the TreeMap that maps keys
+ * to values), there are problems with that implementation,
+ * particularly when trying to keep the two TreeMaps synchronized with
+ * each other. And if the data contained in the TreeMaps is large, the
+ * cost of redundant storage becomes significant. (See also the new
+ * {@link org.apache.commons.collections.bidimap.DualTreeBidiMap DualTreeBidiMap} and
+ * {@link org.apache.commons.collections.bidimap.DualHashBidiMap DualHashBidiMap}
+ * implementations.)
+ * &lt;p&gt;
+ * This solution keeps the data properly synchronized and minimizes
+ * the data storage. The red-black algorithm is based on TreeMap's,
+ * but has been modified to simultaneously map a tree node by key and
+ * by value. This doubles the cost of put operations (but so does
+ * using two TreeMaps), and nearly doubles the cost of remove
+ * operations (there is a savings in that the lookup of the node to be
+ * removed only has to be performed once). And since only one node
+ * contains the key and value, storage is significantly less than that
+ * required by two TreeMaps.
+ * &lt;p&gt;
+ * There are some limitations placed on data kept in this Map. The
+ * biggest one is this:
+ * &lt;p&gt;
+ * When performing a put operation, neither the key nor the value may
+ * already exist in the Map. In the java.util Map implementations
+ * (HashMap, TreeMap), you can perform a put with an already mapped
+ * key, and neither cares about duplicate values at all ... but this
+ * implementation's put method with throw an IllegalArgumentException
+ * if either the key or the value is already in the Map.
+ * &lt;p&gt;
+ * Obviously, that same restriction (and consequence of failing to
+ * heed that restriction) applies to the putAll method.
+ * &lt;p&gt;
+ * The Map.Entry instances returned by the appropriate methods will
+ * not allow setValue() and will throw an
+ * UnsupportedOperationException on attempts to call that method.
+ * &lt;p&gt;
+ * New methods are added to take advantage of the fact that values are
+ * kept sorted independently of their keys:
+ * &lt;p&gt;
+ * Object getKeyForValue(Object value) is the opposite of get; it
+ * takes a value and returns its key, if any.
+ * &lt;p&gt;
+ * Object removeValue(Object value) finds and removes the specified
+ * value and returns the now un-used key.
+ * &lt;p&gt;
+ * Set entrySetByValue() returns the Map.Entry's in a Set whose
+ * iterator will iterate over the Map.Entry's in ascending order by
+ * their corresponding values.
+ * &lt;p&gt;
+ * Set keySetByValue() returns the keys in a Set whose iterator will
+ * iterate over the keys in ascending order by their corresponding
+ * values.
+ * &lt;p&gt;
+ * Collection valuesByValue() returns the values in a Collection whose
+ * iterator will iterate over the values in ascending order.
+ *
+ * @deprecated Replaced by TreeBidiMap in bidimap subpackage. Due to be removed in v4.0.
+ * @see BidiMap
+ * @see org.apache.commons.collections.bidimap.DualTreeBidiMap
+ * @see org.apache.commons.collections.bidimap.DualHashBidiMap
+ * @since Commons Collections 2.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Marc Johnson
+ */
+public final class DoubleOrderedMap extends AbstractMap {
+//  final for performance
+
+    private static final int KEY = 0;
+    private static final int VALUE = 1;
+    private static final int SUM_OF_INDICES = KEY + VALUE;
+    private static final int FIRST_INDEX = 0;
+    private static final int NUMBER_OF_INDICES = 2;
+<span class="fc" id="L115">    private static final String[] dataName = new String[] { &quot;key&quot;, &quot;value&quot; };</span>
+    
+<span class="fc" id="L117">    private Node[] rootNode = new Node[] { null, null };</span>
+<span class="fc" id="L118">    private int nodeCount = 0;</span>
+<span class="fc" id="L119">    private int modifications = 0;</span>
+<span class="fc" id="L120">    private Set[] setOfKeys = new Set[] { null, null };</span>
+<span class="fc" id="L121">    private Set[] setOfEntries = new Set[] { null, null };</span>
+<span class="fc" id="L122">    private Collection[] collectionOfValues = new Collection[] { null, null };</span>
+
+    /**
+     * Construct a new DoubleOrderedMap
+     */
+<span class="fc" id="L127">    public DoubleOrderedMap() {</span>
+<span class="fc" id="L128">    }</span>
+
+    /**
+     * Constructs a new DoubleOrderedMap from an existing Map, with keys and
+     * values sorted
+     *
+     * @param map the map whose mappings are to be placed in this map.
+     *
+     * @throws ClassCastException if the keys in the map are not
+     *                               Comparable, or are not mutually
+     *                               comparable; also if the values in
+     *                               the map are not Comparable, or
+     *                               are not mutually Comparable
+     * @throws NullPointerException if any key or value in the map
+     *                                 is null
+     * @throws IllegalArgumentException if there are duplicate keys
+     *                                     or duplicate values in the
+     *                                     map
+     */
+<span class="fc" id="L147">    public DoubleOrderedMap(final Map map)</span>
+            throws ClassCastException, NullPointerException,
+                   IllegalArgumentException {
+<span class="fc" id="L150">        putAll(map);</span>
+<span class="fc" id="L151">    }</span>
+
+    /**
+     * Returns the key to which this map maps the specified value.
+     * Returns null if the map contains no mapping for this value.
+     *
+     * @param value value whose associated key is to be returned.
+     *
+     * @return the key to which this map maps the specified value, or
+     *         null if the map contains no mapping for this value.
+     *
+     * @throws ClassCastException if the value is of an
+     *                               inappropriate type for this map.
+     * @throws NullPointerException if the value is null
+     */
+    public Object getKeyForValue(final Object value)
+            throws ClassCastException, NullPointerException {
+<span class="fc" id="L168">        return doGet((Comparable) value, VALUE);</span>
+    }
+
+    /**
+     * Removes the mapping for this value from this map if present
+     *
+     * @param value value whose mapping is to be removed from the map.
+     *
+     * @return previous key associated with specified value, or null
+     *         if there was no mapping for value.
+     */
+    public Object removeValue(final Object value) {
+<span class="fc" id="L180">        return doRemove((Comparable) value, VALUE);</span>
+    }
+
+    /**
+     * Returns a set view of the mappings contained in this map. Each
+     * element in the returned set is a Map.Entry. The set is backed
+     * by the map, so changes to the map are reflected in the set, and
+     * vice-versa.  If the map is modified while an iteration over the
+     * set is in progress, the results of the iteration are
+     * undefined. The set supports element removal, which removes the
+     * corresponding mapping from the map, via the Iterator.remove,
+     * Set.remove, removeAll, retainAll and clear operations.  It does
+     * not support the add or addAll operations.&lt;p&gt;
+     *
+     * The difference between this method and entrySet is that
+     * entrySet's iterator() method returns an iterator that iterates
+     * over the mappings in ascending order by key. This method's
+     * iterator method iterates over the mappings in ascending order
+     * by value.
+     *
+     * @return a set view of the mappings contained in this map.
+     */
+    public Set entrySetByValue() {
+
+<span class="fc bfc" id="L204" title="All 2 branches covered.">        if (setOfEntries[VALUE] == null) {</span>
+<span class="fc" id="L205">            setOfEntries[VALUE] = new AbstractSet() {</span>
+
+                public Iterator iterator() {
+
+<span class="fc" id="L209">                    return new DoubleOrderedMapIterator(VALUE) {</span>
+
+                        protected Object doGetNext() {
+<span class="fc" id="L212">                            return lastReturnedNode;</span>
+                        }
+                    };
+                }
+
+                public boolean contains(Object o) {
+
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">                    if (!(o instanceof Map.Entry)) {</span>
+<span class="nc" id="L220">                        return false;</span>
+                    }
+
+<span class="fc" id="L223">                    Map.Entry entry = (Map.Entry) o;</span>
+<span class="fc" id="L224">                    Object    key   = entry.getKey();</span>
+<span class="fc" id="L225">                    Node      node  = lookup((Comparable) entry.getValue(),</span>
+<span class="fc" id="L226">                                             VALUE);</span>
+
+<span class="pc bpc" id="L228" title="2 of 4 branches missed.">                    return (node != null) &amp;&amp; node.getData(KEY).equals(key);</span>
+                }
+
+                public boolean remove(Object o) {
+
+<span class="nc bnc" id="L233" title="All 2 branches missed.">                    if (!(o instanceof Map.Entry)) {</span>
+<span class="nc" id="L234">                        return false;</span>
+                    }
+
+<span class="nc" id="L237">                    Map.Entry entry = (Map.Entry) o;</span>
+<span class="nc" id="L238">                    Object    key   = entry.getKey();</span>
+<span class="nc" id="L239">                    Node      node  = lookup((Comparable) entry.getValue(),</span>
+<span class="nc" id="L240">                                             VALUE);</span>
+
+<span class="nc bnc" id="L242" title="All 4 branches missed.">                    if ((node != null) &amp;&amp; node.getData(KEY).equals(key)) {</span>
+<span class="nc" id="L243">                        doRedBlackDelete(node);</span>
+
+<span class="nc" id="L245">                        return true;</span>
+                    }
+
+<span class="nc" id="L248">                    return false;</span>
+                }
+
+                public int size() {
+<span class="fc" id="L252">                    return DoubleOrderedMap.this.size();</span>
+                }
+
+                public void clear() {
+<span class="fc" id="L256">                    DoubleOrderedMap.this.clear();</span>
+<span class="fc" id="L257">                }</span>
+            };
+        }
+
+<span class="fc" id="L261">        return setOfEntries[VALUE];</span>
+    }
+
+    /**
+     * Returns a set view of the keys contained in this map.  The set
+     * is backed by the map, so changes to the map are reflected in
+     * the set, and vice-versa. If the map is modified while an
+     * iteration over the set is in progress, the results of the
+     * iteration are undefined. The set supports element removal,
+     * which removes the corresponding mapping from the map, via the
+     * Iterator.remove, Set.remove, removeAll, retainAll, and clear
+     * operations. It does not support the add or addAll
+     * operations.&lt;p&gt;
+     *
+     * The difference between this method and keySet is that keySet's
+     * iterator() method returns an iterator that iterates over the
+     * keys in ascending order by key. This method's iterator method
+     * iterates over the keys in ascending order by value.
+     *
+     * @return a set view of the keys contained in this map.
+     */
+    public Set keySetByValue() {
+
+<span class="fc bfc" id="L284" title="All 2 branches covered.">        if (setOfKeys[VALUE] == null) {</span>
+<span class="fc" id="L285">            setOfKeys[VALUE] = new AbstractSet() {</span>
+
+                public Iterator iterator() {
+
+<span class="fc" id="L289">                    return new DoubleOrderedMapIterator(VALUE) {</span>
+
+                        protected Object doGetNext() {
+<span class="fc" id="L292">                            return lastReturnedNode.getData(KEY);</span>
+                        }
+                    };
+                }
+
+                public int size() {
+<span class="fc" id="L298">                    return DoubleOrderedMap.this.size();</span>
+                }
+
+                public boolean contains(Object o) {
+<span class="fc" id="L302">                    return containsKey(o);</span>
+                }
+
+                public boolean remove(Object o) {
+
+<span class="fc" id="L307">                    int oldnodeCount = nodeCount;</span>
+
+<span class="fc" id="L309">                    DoubleOrderedMap.this.remove(o);</span>
+
+<span class="pc bpc" id="L311" title="1 of 2 branches missed.">                    return nodeCount != oldnodeCount;</span>
+                }
+
+                public void clear() {
+<span class="fc" id="L315">                    DoubleOrderedMap.this.clear();</span>
+<span class="fc" id="L316">                }</span>
+            };
+        }
+
+<span class="fc" id="L320">        return setOfKeys[VALUE];</span>
+    }
+
+    /**
+     * Returns a collection view of the values contained in this
+     * map. The collection is backed by the map, so changes to the map
+     * are reflected in the collection, and vice-versa. If the map is
+     * modified while an iteration over the collection is in progress,
+     * the results of the iteration are undefined. The collection
+     * supports element removal, which removes the corresponding
+     * mapping from the map, via the Iterator.remove,
+     * Collection.remove, removeAll, retainAll and clear operations.
+     * It does not support the add or addAll operations.&lt;p&gt;
+     *
+     * The difference between this method and values is that values's
+     * iterator() method returns an iterator that iterates over the
+     * values in ascending order by key. This method's iterator method
+     * iterates over the values in ascending order by key.
+     *
+     * @return a collection view of the values contained in this map.
+     */
+    public Collection valuesByValue() {
+
+<span class="fc bfc" id="L343" title="All 2 branches covered.">        if (collectionOfValues[VALUE] == null) {</span>
+<span class="fc" id="L344">            collectionOfValues[VALUE] = new AbstractCollection() {</span>
+
+                public Iterator iterator() {
+
+<span class="fc" id="L348">                    return new DoubleOrderedMapIterator(VALUE) {</span>
+
+                        protected Object doGetNext() {
+<span class="fc" id="L351">                            return lastReturnedNode.getData(VALUE);</span>
+                        }
+                    };
+                }
+
+                public int size() {
+<span class="fc" id="L357">                    return DoubleOrderedMap.this.size();</span>
+                }
+
+                public boolean contains(Object o) {
+<span class="fc" id="L361">                    return containsValue(o);</span>
+                }
+
+                public boolean remove(Object o) {
+
+<span class="fc" id="L366">                    int oldnodeCount = nodeCount;</span>
+
+<span class="fc" id="L368">                    removeValue(o);</span>
+
+<span class="pc bpc" id="L370" title="1 of 2 branches missed.">                    return nodeCount != oldnodeCount;</span>
+                }
+
+                public boolean removeAll(Collection c) {
+
+<span class="fc" id="L375">                    boolean  modified = false;</span>
+<span class="fc" id="L376">                    Iterator iter     = c.iterator();</span>
+
+<span class="fc bfc" id="L378" title="All 2 branches covered.">                    while (iter.hasNext()) {</span>
+<span class="pc bpc" id="L379" title="1 of 2 branches missed.">                        if (removeValue(iter.next()) != null) {</span>
+<span class="fc" id="L380">                            modified = true;</span>
+                        }
+                    }
+
+<span class="fc" id="L384">                    return modified;</span>
+                }
+
+                public void clear() {
+<span class="fc" id="L388">                    DoubleOrderedMap.this.clear();</span>
+<span class="fc" id="L389">                }</span>
+            };
+        }
+
+<span class="fc" id="L393">        return collectionOfValues[VALUE];</span>
+    }
+
+    /**
+     * common remove logic (remove by key or remove by value)
+     *
+     * @param o the key, or value, that we're looking for
+     * @param index KEY or VALUE
+     *
+     * @return the key, if remove by value, or the value, if remove by
+     *         key. null if the specified key or value could not be
+     *         found
+     */
+    private Object doRemove(final Comparable o, final int index) {
+
+<span class="fc" id="L408">        Node   node = lookup(o, index);</span>
+<span class="fc" id="L409">        Object rval = null;</span>
+
+<span class="fc bfc" id="L411" title="All 2 branches covered.">        if (node != null) {</span>
+<span class="fc" id="L412">            rval = node.getData(oppositeIndex(index));</span>
+
+<span class="fc" id="L414">            doRedBlackDelete(node);</span>
+        }
+
+<span class="fc" id="L417">        return rval;</span>
+    }
+
+    /**
+     * common get logic, used to get by key or get by value
+     *
+     * @param o the key or value that we're looking for
+     * @param index KEY or VALUE
+     *
+     * @return the key (if the value was mapped) or the value (if the
+     *         key was mapped); null if we couldn't find the specified
+     *         object
+     */
+    private Object doGet(final Comparable o, final int index) {
+
+<span class="fc" id="L432">        checkNonNullComparable(o, index);</span>
+
+<span class="fc" id="L434">        Node node = lookup(o, index);</span>
+
+<span class="fc bfc" id="L436" title="All 2 branches covered.">        return ((node == null)</span>
+<span class="fc" id="L437">                ? null</span>
+<span class="fc" id="L438">                : node.getData(oppositeIndex(index)));</span>
+    }
+
+    /**
+     * Get the opposite index of the specified index
+     *
+     * @param index KEY or VALUE
+     *
+     * @return VALUE (if KEY was specified), else KEY
+     */
+    private int oppositeIndex(final int index) {
+
+        // old trick ... to find the opposite of a value, m or n,
+        // subtract the value from the sum of the two possible
+        // values. (m + n) - m = n; (m + n) - n = m
+<span class="fc" id="L453">        return SUM_OF_INDICES - index;</span>
+    }
+
+    /**
+     * do the actual lookup of a piece of data
+     *
+     * @param data the key or value to be looked up
+     * @param index KEY or VALUE
+     *
+     * @return the desired Node, or null if there is no mapping of the
+     *         specified data
+     */
+    private Node lookup(final Comparable data, final int index) {
+
+<span class="fc" id="L467">        Node rval = null;</span>
+<span class="fc" id="L468">        Node node = rootNode[index];</span>
+
+<span class="fc bfc" id="L470" title="All 2 branches covered.">        while (node != null) {</span>
+<span class="fc" id="L471">            int cmp = compare(data, node.getData(index));</span>
+
+<span class="fc bfc" id="L473" title="All 2 branches covered.">            if (cmp == 0) {</span>
+<span class="fc" id="L474">                rval = node;</span>
+
+<span class="fc" id="L476">                break;</span>
+            } else {
+<span class="fc bfc" id="L478" title="All 2 branches covered.">                node = (cmp &lt; 0)</span>
+<span class="fc" id="L479">                       ? node.getLeft(index)</span>
+<span class="fc" id="L480">                       : node.getRight(index);</span>
+            }
+        }
+
+<span class="fc" id="L484">        return rval;</span>
+    }
+
+    /**
+     * Compare two objects
+     *
+     * @param o1 the first object
+     * @param o2 the second object
+     *
+     * @return negative value if o1 &lt; o2; 0 if o1 == o2; positive
+     *         value if o1 &gt; o2
+     */
+    private static int compare(final Comparable o1, final Comparable o2) {
+<span class="fc" id="L497">        return o1.compareTo(o2);</span>
+    }
+
+    /**
+     * find the least node from a given node. very useful for starting
+     * a sorting iterator ...
+     *
+     * @param node the node from which we will start searching
+     * @param index KEY or VALUE
+     *
+     * @return the smallest node, from the specified node, in the
+     *         specified mapping
+     */
+    private static Node leastNode(final Node node, final int index) {
+
+<span class="fc" id="L512">        Node rval = node;</span>
+
+<span class="fc bfc" id="L514" title="All 2 branches covered.">        if (rval != null) {</span>
+<span class="fc bfc" id="L515" title="All 2 branches covered.">            while (rval.getLeft(index) != null) {</span>
+<span class="fc" id="L516">                rval = rval.getLeft(index);</span>
+            }
+        }
+
+<span class="fc" id="L520">        return rval;</span>
+    }
+
+    /**
+     * get the next larger node from the specified node
+     *
+     * @param node the node to be searched from
+     * @param index KEY or VALUE
+     *
+     * @return the specified node
+     */
+    private Node nextGreater(final Node node, final int index) {
+
+<span class="fc" id="L533">        Node rval = null;</span>
+
+<span class="pc bpc" id="L535" title="1 of 2 branches missed.">        if (node == null) {</span>
+<span class="nc" id="L536">            rval = null;</span>
+<span class="pc bfc" id="L537" title="All 2 branches covered.">        } else if (node.getRight(index) != null) {</span>
+
+            // everything to the node's right is larger. The least of
+            // the right node's descendants is the next larger node
+<span class="fc" id="L541">            rval = leastNode(node.getRight(index), index);</span>
+<span class="fc" id="L542">        } else {</span>
+
+            // traverse up our ancestry until we find an ancestor that
+            // is null or one whose left child is our ancestor. If we
+            // find a null, then this node IS the largest node in the
+            // tree, and there is no greater node. Otherwise, we are
+            // the largest node in the subtree on that ancestor's left
+            // ... and that ancestor is the next greatest node
+<span class="fc" id="L550">            Node parent = node.getParent(index);</span>
+<span class="fc" id="L551">            Node child  = node;</span>
+
+<span class="fc bfc" id="L553" title="All 4 branches covered.">            while ((parent != null) &amp;&amp; (child == parent.getRight(index))) {</span>
+<span class="fc" id="L554">                child  = parent;</span>
+<span class="fc" id="L555">                parent = parent.getParent(index);</span>
+            }
+
+<span class="fc" id="L558">            rval = parent;</span>
+        }
+
+<span class="fc" id="L561">        return rval;</span>
+    }
+
+    /**
+     * copy the color from one node to another, dealing with the fact
+     * that one or both nodes may, in fact, be null
+     *
+     * @param from the node whose color we're copying; may be null
+     * @param to the node whose color we're changing; may be null
+     * @param index KEY or VALUE
+     */
+    private static void copyColor(final Node from, final Node to,
+                                  final int index) {
+
+<span class="pc bpc" id="L575" title="1 of 2 branches missed.">        if (to != null) {</span>
+<span class="pc bpc" id="L576" title="1 of 2 branches missed.">            if (from == null) {</span>
+
+                // by default, make it black
+<span class="nc" id="L579">                to.setBlack(index);</span>
+<span class="nc" id="L580">            } else {</span>
+<span class="fc" id="L581">                to.copyColor(from, index);</span>
+            }
+        }
+<span class="fc" id="L584">    }</span>
+
+    /**
+     * is the specified node red? if the node does not exist, no, it's
+     * black, thank you
+     *
+     * @param node the node (may be null) in question
+     * @param index KEY or VALUE
+     */
+    private static boolean isRed(final Node node, final int index) {
+
+<span class="fc bfc" id="L595" title="All 2 branches covered.">        return ((node == null)</span>
+<span class="fc" id="L596">                ? false</span>
+<span class="fc" id="L597">                : node.isRed(index));</span>
+    }
+
+    /**
+     * is the specified black red? if the node does not exist, sure,
+     * it's black, thank you
+     *
+     * @param node the node (may be null) in question
+     * @param index KEY or VALUE
+     */
+    private static boolean isBlack(final Node node, final int index) {
+
+<span class="fc bfc" id="L609" title="All 2 branches covered.">        return ((node == null)</span>
+<span class="fc" id="L610">                ? true</span>
+<span class="fc" id="L611">                : node.isBlack(index));</span>
+    }
+
+    /**
+     * force a node (if it exists) red
+     *
+     * @param node the node (may be null) in question
+     * @param index KEY or VALUE
+     */
+    private static void makeRed(final Node node, final int index) {
+
+<span class="pc bpc" id="L622" title="1 of 2 branches missed.">        if (node != null) {</span>
+<span class="fc" id="L623">            node.setRed(index);</span>
+        }
+<span class="fc" id="L625">    }</span>
+
+    /**
+     * force a node (if it exists) black
+     *
+     * @param node the node (may be null) in question
+     * @param index KEY or VALUE
+     */
+    private static void makeBlack(final Node node, final int index) {
+
+<span class="pc bpc" id="L635" title="1 of 2 branches missed.">        if (node != null) {</span>
+<span class="fc" id="L636">            node.setBlack(index);</span>
+        }
+<span class="fc" id="L638">    }</span>
+
+    /**
+     * get a node's grandparent. mind you, the node, its parent, or
+     * its grandparent may not exist. no problem
+     *
+     * @param node the node (may be null) in question
+     * @param index KEY or VALUE
+     */
+    private static Node getGrandParent(final Node node, final int index) {
+<span class="fc" id="L648">        return getParent(getParent(node, index), index);</span>
+    }
+
+    /**
+     * get a node's parent. mind you, the node, or its parent, may not
+     * exist. no problem
+     *
+     * @param node the node (may be null) in question
+     * @param index KEY or VALUE
+     */
+    private static Node getParent(final Node node, final int index) {
+
+<span class="pc bpc" id="L660" title="1 of 2 branches missed.">        return ((node == null)</span>
+<span class="nc" id="L661">                ? null</span>
+<span class="fc" id="L662">                : node.getParent(index));</span>
+    }
+
+    /**
+     * get a node's right child. mind you, the node may not exist. no
+     * problem
+     *
+     * @param node the node (may be null) in question
+     * @param index KEY or VALUE
+     */
+    private static Node getRightChild(final Node node, final int index) {
+
+<span class="pc bpc" id="L674" title="1 of 2 branches missed.">        return (node == null)</span>
+<span class="nc" id="L675">               ? null</span>
+<span class="fc" id="L676">               : node.getRight(index);</span>
+    }
+
+    /**
+     * get a node's left child. mind you, the node may not exist. no
+     * problem
+     *
+     * @param node the node (may be null) in question
+     * @param index KEY or VALUE
+     */
+    private static Node getLeftChild(final Node node, final int index) {
+
+<span class="pc bpc" id="L688" title="1 of 2 branches missed.">        return (node == null)</span>
+<span class="nc" id="L689">               ? null</span>
+<span class="fc" id="L690">               : node.getLeft(index);</span>
+    }
+
+    /**
+     * is this node its parent's left child? mind you, the node, or
+     * its parent, may not exist. no problem. if the node doesn't
+     * exist ... it's its non-existent parent's left child. If the
+     * node does exist but has no parent ... no, we're not the
+     * non-existent parent's left child. Otherwise (both the specified
+     * node AND its parent exist), check.
+     *
+     * @param node the node (may be null) in question
+     * @param index KEY or VALUE
+     */
+    private static boolean isLeftChild(final Node node, final int index) {
+
+<span class="pc bpc" id="L706" title="1 of 2 branches missed.">        return (node == null)</span>
+<span class="nc" id="L707">               ? true</span>
+<span class="pc bpc" id="L708" title="1 of 2 branches missed.">               : ((node.getParent(index) == null)</span>
+<span class="nc" id="L709">                  ? false</span>
+<span class="fc bfc" id="L710" title="All 2 branches covered.">                  : (node == node.getParent(index).getLeft(index)));</span>
+    }
+
+    /**
+     * is this node its parent's right child? mind you, the node, or
+     * its parent, may not exist. no problem. if the node doesn't
+     * exist ... it's its non-existent parent's right child. If the
+     * node does exist but has no parent ... no, we're not the
+     * non-existent parent's right child. Otherwise (both the
+     * specified node AND its parent exist), check.
+     *
+     * @param node the node (may be null) in question
+     * @param index KEY or VALUE
+     */
+    private static boolean isRightChild(final Node node, final int index) {
+
+<span class="pc bpc" id="L726" title="1 of 2 branches missed.">        return (node == null)</span>
+<span class="nc" id="L727">               ? true</span>
+<span class="pc bpc" id="L728" title="1 of 2 branches missed.">               : ((node.getParent(index) == null)</span>
+<span class="nc" id="L729">                  ? false</span>
+<span class="fc bfc" id="L730" title="All 2 branches covered.">                  : (node == node.getParent(index).getRight(index)));</span>
+    }
+
+    /**
+     * do a rotate left. standard fare in the world of balanced trees
+     *
+     * @param node the node to be rotated
+     * @param index KEY or VALUE
+     */
+    private void rotateLeft(final Node node, final int index) {
+
+<span class="fc" id="L741">        Node rightChild = node.getRight(index);</span>
+
+<span class="fc" id="L743">        node.setRight(rightChild.getLeft(index), index);</span>
+
+<span class="fc bfc" id="L745" title="All 2 branches covered.">        if (rightChild.getLeft(index) != null) {</span>
+<span class="fc" id="L746">            rightChild.getLeft(index).setParent(node, index);</span>
+        }
+
+<span class="fc" id="L749">        rightChild.setParent(node.getParent(index), index);</span>
+
+<span class="fc bfc" id="L751" title="All 2 branches covered.">        if (node.getParent(index) == null) {</span>
+
+            // node was the root ... now its right child is the root
+<span class="fc" id="L754">            rootNode[index] = rightChild;</span>
+<span class="fc bfc" id="L755" title="All 2 branches covered.">        } else if (node.getParent(index).getLeft(index) == node) {</span>
+<span class="fc" id="L756">            node.getParent(index).setLeft(rightChild, index);</span>
+<span class="fc" id="L757">        } else {</span>
+<span class="fc" id="L758">            node.getParent(index).setRight(rightChild, index);</span>
+        }
+
+<span class="fc" id="L761">        rightChild.setLeft(node, index);</span>
+<span class="fc" id="L762">        node.setParent(rightChild, index);</span>
+<span class="fc" id="L763">    }</span>
+
+    /**
+     * do a rotate right. standard fare in the world of balanced trees
+     *
+     * @param node the node to be rotated
+     * @param index KEY or VALUE
+     */
+    private void rotateRight(final Node node, final int index) {
+
+<span class="fc" id="L773">        Node leftChild = node.getLeft(index);</span>
+
+<span class="fc" id="L775">        node.setLeft(leftChild.getRight(index), index);</span>
+
+<span class="fc bfc" id="L777" title="All 2 branches covered.">        if (leftChild.getRight(index) != null) {</span>
+<span class="fc" id="L778">            leftChild.getRight(index).setParent(node, index);</span>
+        }
+
+<span class="fc" id="L781">        leftChild.setParent(node.getParent(index), index);</span>
+
+<span class="fc bfc" id="L783" title="All 2 branches covered.">        if (node.getParent(index) == null) {</span>
+
+            // node was the root ... now its left child is the root
+<span class="fc" id="L786">            rootNode[index] = leftChild;</span>
+<span class="fc bfc" id="L787" title="All 2 branches covered.">        } else if (node.getParent(index).getRight(index) == node) {</span>
+<span class="fc" id="L788">            node.getParent(index).setRight(leftChild, index);</span>
+<span class="fc" id="L789">        } else {</span>
+<span class="fc" id="L790">            node.getParent(index).setLeft(leftChild, index);</span>
+        }
+
+<span class="fc" id="L793">        leftChild.setRight(node, index);</span>
+<span class="fc" id="L794">        node.setParent(leftChild, index);</span>
+<span class="fc" id="L795">    }</span>
+
+    /**
+     * complicated red-black insert stuff. Based on Sun's TreeMap
+     * implementation, though it's barely recognizable any more
+     *
+     * @param insertedNode the node to be inserted
+     * @param index KEY or VALUE
+     */
+    private void doRedBlackInsert(final Node insertedNode, final int index) {
+
+<span class="fc" id="L806">        Node currentNode = insertedNode;</span>
+
+<span class="fc" id="L808">        makeRed(currentNode, index);</span>
+
+<span class="pc bpc" id="L810" title="1 of 4 branches missed.">        while ((currentNode != null) &amp;&amp; (currentNode != rootNode[index])</span>
+<span class="fc bfc" id="L811" title="All 2 branches covered.">                &amp;&amp; (isRed(currentNode.getParent(index), index))) {</span>
+<span class="fc bfc" id="L812" title="All 2 branches covered.">            if (isLeftChild(getParent(currentNode, index), index)) {</span>
+<span class="fc" id="L813">                Node y = getRightChild(getGrandParent(currentNode, index),</span>
+<span class="fc" id="L814">                                       index);</span>
+
+<span class="fc bfc" id="L816" title="All 2 branches covered.">                if (isRed(y, index)) {</span>
+<span class="fc" id="L817">                    makeBlack(getParent(currentNode, index), index);</span>
+<span class="fc" id="L818">                    makeBlack(y, index);</span>
+<span class="fc" id="L819">                    makeRed(getGrandParent(currentNode, index), index);</span>
+
+<span class="fc" id="L821">                    currentNode = getGrandParent(currentNode, index);</span>
+<span class="fc" id="L822">                } else {</span>
+<span class="fc bfc" id="L823" title="All 2 branches covered.">                    if (isRightChild(currentNode, index)) {</span>
+<span class="fc" id="L824">                        currentNode = getParent(currentNode, index);</span>
+
+<span class="fc" id="L826">                        rotateLeft(currentNode, index);</span>
+                    }
+
+<span class="fc" id="L829">                    makeBlack(getParent(currentNode, index), index);</span>
+<span class="fc" id="L830">                    makeRed(getGrandParent(currentNode, index), index);</span>
+
+<span class="pc bpc" id="L832" title="1 of 2 branches missed.">                    if (getGrandParent(currentNode, index) != null) {</span>
+<span class="fc" id="L833">                        rotateRight(getGrandParent(currentNode, index),</span>
+<span class="fc" id="L834">                                    index);</span>
+                    }
+                }
+<span class="fc" id="L837">            } else {</span>
+
+                // just like clause above, except swap left for right
+<span class="fc" id="L840">                Node y = getLeftChild(getGrandParent(currentNode, index),</span>
+<span class="fc" id="L841">                                      index);</span>
+
+<span class="fc bfc" id="L843" title="All 2 branches covered.">                if (isRed(y, index)) {</span>
+<span class="fc" id="L844">                    makeBlack(getParent(currentNode, index), index);</span>
+<span class="fc" id="L845">                    makeBlack(y, index);</span>
+<span class="fc" id="L846">                    makeRed(getGrandParent(currentNode, index), index);</span>
+
+<span class="fc" id="L848">                    currentNode = getGrandParent(currentNode, index);</span>
+<span class="fc" id="L849">                } else {</span>
+<span class="fc bfc" id="L850" title="All 2 branches covered.">                    if (isLeftChild(currentNode, index)) {</span>
+<span class="fc" id="L851">                        currentNode = getParent(currentNode, index);</span>
+
+<span class="fc" id="L853">                        rotateRight(currentNode, index);</span>
+                    }
+
+<span class="fc" id="L856">                    makeBlack(getParent(currentNode, index), index);</span>
+<span class="fc" id="L857">                    makeRed(getGrandParent(currentNode, index), index);</span>
+
+<span class="pc bpc" id="L859" title="1 of 2 branches missed.">                    if (getGrandParent(currentNode, index) != null) {</span>
+<span class="fc" id="L860">                        rotateLeft(getGrandParent(currentNode, index), index);</span>
+                    }
+                }
+            }
+        }
+
+<span class="fc" id="L866">        makeBlack(rootNode[index], index);</span>
+<span class="fc" id="L867">    }</span>
+
+    /**
+     * complicated red-black delete stuff. Based on Sun's TreeMap
+     * implementation, though it's barely recognizable any more
+     *
+     * @param deletedNode the node to be deleted
+     */
+    private void doRedBlackDelete(final Node deletedNode) {
+
+<span class="fc bfc" id="L877" title="All 2 branches covered.">        for (int index = FIRST_INDEX; index &lt; NUMBER_OF_INDICES; index++) {</span>
+
+            // if deleted node has both left and children, swap with
+            // the next greater node
+<span class="fc bfc" id="L881" title="All 2 branches covered.">            if ((deletedNode.getLeft(index) != null)</span>
+<span class="fc bfc" id="L882" title="All 2 branches covered.">                    &amp;&amp; (deletedNode.getRight(index) != null)) {</span>
+<span class="fc" id="L883">                swapPosition(nextGreater(deletedNode, index), deletedNode,</span>
+<span class="fc" id="L884">                             index);</span>
+            }
+
+<span class="fc bfc" id="L887" title="All 2 branches covered.">            Node replacement = ((deletedNode.getLeft(index) != null)</span>
+<span class="fc" id="L888">                                ? deletedNode.getLeft(index)</span>
+<span class="fc" id="L889">                                : deletedNode.getRight(index));</span>
+
+<span class="fc bfc" id="L891" title="All 2 branches covered.">            if (replacement != null) {</span>
+<span class="fc" id="L892">                replacement.setParent(deletedNode.getParent(index), index);</span>
+
+<span class="fc bfc" id="L894" title="All 2 branches covered.">                if (deletedNode.getParent(index) == null) {</span>
+<span class="fc" id="L895">                    rootNode[index] = replacement;</span>
+<span class="fc" id="L896">                } else if (deletedNode</span>
+<span class="fc bfc" id="L897" title="All 2 branches covered.">                           == deletedNode.getParent(index).getLeft(index)) {</span>
+<span class="fc" id="L898">                    deletedNode.getParent(index).setLeft(replacement, index);</span>
+<span class="fc" id="L899">                } else {</span>
+<span class="fc" id="L900">                    deletedNode.getParent(index).setRight(replacement, index);</span>
+                }
+
+<span class="fc" id="L903">                deletedNode.setLeft(null, index);</span>
+<span class="fc" id="L904">                deletedNode.setRight(null, index);</span>
+<span class="fc" id="L905">                deletedNode.setParent(null, index);</span>
+
+<span class="pc bpc" id="L907" title="1 of 2 branches missed.">                if (isBlack(deletedNode, index)) {</span>
+<span class="fc" id="L908">                    doRedBlackDeleteFixup(replacement, index);</span>
+                }
+<span class="fc" id="L910">            } else {</span>
+
+                // replacement is null
+<span class="fc bfc" id="L913" title="All 2 branches covered.">                if (deletedNode.getParent(index) == null) {</span>
+
+                    // empty tree
+<span class="fc" id="L916">                    rootNode[index] = null;</span>
+<span class="fc" id="L917">                } else {</span>
+
+                    // deleted node had no children
+<span class="fc bfc" id="L920" title="All 2 branches covered.">                    if (isBlack(deletedNode, index)) {</span>
+<span class="fc" id="L921">                        doRedBlackDeleteFixup(deletedNode, index);</span>
+                    }
+
+<span class="pc bpc" id="L924" title="1 of 2 branches missed.">                    if (deletedNode.getParent(index) != null) {</span>
+<span class="fc bfc" id="L925" title="All 2 branches covered.">                        if (deletedNode</span>
+<span class="fc" id="L926">                                == deletedNode.getParent(index)</span>
+<span class="fc" id="L927">                                    .getLeft(index)) {</span>
+<span class="fc" id="L928">                            deletedNode.getParent(index).setLeft(null, index);</span>
+<span class="fc" id="L929">                        } else {</span>
+<span class="fc" id="L930">                            deletedNode.getParent(index).setRight(null,</span>
+<span class="fc" id="L931">                                                  index);</span>
+                        }
+
+<span class="fc" id="L934">                        deletedNode.setParent(null, index);</span>
+                    }
+                }
+            }
+        }
+
+<span class="fc" id="L940">        shrink();</span>
+<span class="fc" id="L941">    }</span>
+
+    /**
+     * complicated red-black delete stuff. Based on Sun's TreeMap
+     * implementation, though it's barely recognizable any more. This
+     * rebalances the tree (somewhat, as red-black trees are not
+     * perfectly balanced -- perfect balancing takes longer)
+     *
+     * @param replacementNode the node being replaced
+     * @param index KEY or VALUE
+     */
+    private void doRedBlackDeleteFixup(final Node replacementNode,
+                                       final int index) {
+
+<span class="fc" id="L955">        Node currentNode = replacementNode;</span>
+
+<span class="fc bfc" id="L957" title="All 2 branches covered.">        while ((currentNode != rootNode[index])</span>
+<span class="fc bfc" id="L958" title="All 2 branches covered.">                &amp;&amp; (isBlack(currentNode, index))) {</span>
+<span class="fc bfc" id="L959" title="All 2 branches covered.">            if (isLeftChild(currentNode, index)) {</span>
+<span class="fc" id="L960">                Node siblingNode =</span>
+<span class="fc" id="L961">                    getRightChild(getParent(currentNode, index), index);</span>
+
+<span class="fc bfc" id="L963" title="All 2 branches covered.">                if (isRed(siblingNode, index)) {</span>
+<span class="fc" id="L964">                    makeBlack(siblingNode, index);</span>
+<span class="fc" id="L965">                    makeRed(getParent(currentNode, index), index);</span>
+<span class="fc" id="L966">                    rotateLeft(getParent(currentNode, index), index);</span>
+
+<span class="fc" id="L968">                    siblingNode = getRightChild(getParent(currentNode, index), index);</span>
+                }
+
+<span class="fc bfc" id="L971" title="All 2 branches covered.">                if (isBlack(getLeftChild(siblingNode, index), index)</span>
+<span class="fc" id="L972">                        &amp;&amp; isBlack(getRightChild(siblingNode, index),</span>
+<span class="fc bfc" id="L973" title="All 2 branches covered.">                                   index)) {</span>
+<span class="fc" id="L974">                    makeRed(siblingNode, index);</span>
+
+<span class="fc" id="L976">                    currentNode = getParent(currentNode, index);</span>
+<span class="fc" id="L977">                } else {</span>
+<span class="fc bfc" id="L978" title="All 2 branches covered.">                    if (isBlack(getRightChild(siblingNode, index), index)) {</span>
+<span class="fc" id="L979">                        makeBlack(getLeftChild(siblingNode, index), index);</span>
+<span class="fc" id="L980">                        makeRed(siblingNode, index);</span>
+<span class="fc" id="L981">                        rotateRight(siblingNode, index);</span>
+
+<span class="fc" id="L983">                        siblingNode =</span>
+<span class="fc" id="L984">                            getRightChild(getParent(currentNode, index), index);</span>
+                    }
+
+<span class="fc" id="L987">                    copyColor(getParent(currentNode, index), siblingNode,</span>
+<span class="fc" id="L988">                              index);</span>
+<span class="fc" id="L989">                    makeBlack(getParent(currentNode, index), index);</span>
+<span class="fc" id="L990">                    makeBlack(getRightChild(siblingNode, index), index);</span>
+<span class="fc" id="L991">                    rotateLeft(getParent(currentNode, index), index);</span>
+
+<span class="fc" id="L993">                    currentNode = rootNode[index];</span>
+                }
+<span class="fc" id="L995">            } else {</span>
+<span class="fc" id="L996">                Node siblingNode = getLeftChild(getParent(currentNode, index), index);</span>
+
+<span class="fc bfc" id="L998" title="All 2 branches covered.">                if (isRed(siblingNode, index)) {</span>
+<span class="fc" id="L999">                    makeBlack(siblingNode, index);</span>
+<span class="fc" id="L1000">                    makeRed(getParent(currentNode, index), index);</span>
+<span class="fc" id="L1001">                    rotateRight(getParent(currentNode, index), index);</span>
+
+<span class="fc" id="L1003">                    siblingNode = getLeftChild(getParent(currentNode, index), index);</span>
+                }
+
+<span class="fc bfc" id="L1006" title="All 2 branches covered.">                if (isBlack(getRightChild(siblingNode, index), index)</span>
+<span class="fc bfc" id="L1007" title="All 2 branches covered.">                        &amp;&amp; isBlack(getLeftChild(siblingNode, index), index)) {</span>
+<span class="fc" id="L1008">                    makeRed(siblingNode, index);</span>
+
+<span class="fc" id="L1010">                    currentNode = getParent(currentNode, index);</span>
+<span class="fc" id="L1011">                } else {</span>
+<span class="fc bfc" id="L1012" title="All 2 branches covered.">                    if (isBlack(getLeftChild(siblingNode, index), index)) {</span>
+<span class="fc" id="L1013">                        makeBlack(getRightChild(siblingNode, index), index);</span>
+<span class="fc" id="L1014">                        makeRed(siblingNode, index);</span>
+<span class="fc" id="L1015">                        rotateLeft(siblingNode, index);</span>
+
+<span class="fc" id="L1017">                        siblingNode =</span>
+<span class="fc" id="L1018">                            getLeftChild(getParent(currentNode, index), index);</span>
+                    }
+
+<span class="fc" id="L1021">                    copyColor(getParent(currentNode, index), siblingNode,</span>
+<span class="fc" id="L1022">                              index);</span>
+<span class="fc" id="L1023">                    makeBlack(getParent(currentNode, index), index);</span>
+<span class="fc" id="L1024">                    makeBlack(getLeftChild(siblingNode, index), index);</span>
+<span class="fc" id="L1025">                    rotateRight(getParent(currentNode, index), index);</span>
+
+<span class="fc" id="L1027">                    currentNode = rootNode[index];</span>
+                }
+            }
+        }
+
+<span class="fc" id="L1032">        makeBlack(currentNode, index);</span>
+<span class="fc" id="L1033">    }</span>
+
+    /**
+     * swap two nodes (except for their content), taking care of
+     * special cases where one is the other's parent ... hey, it
+     * happens.
+     *
+     * @param x one node
+     * @param y another node
+     * @param index KEY or VALUE
+     */
+    private void swapPosition(final Node x, final Node y, final int index) {
+
+        // Save initial values.
+<span class="fc" id="L1047">        Node    xFormerParent     = x.getParent(index);</span>
+<span class="fc" id="L1048">        Node    xFormerLeftChild  = x.getLeft(index);</span>
+<span class="fc" id="L1049">        Node    xFormerRightChild = x.getRight(index);</span>
+<span class="fc" id="L1050">        Node    yFormerParent     = y.getParent(index);</span>
+<span class="fc" id="L1051">        Node    yFormerLeftChild  = y.getLeft(index);</span>
+<span class="fc" id="L1052">        Node    yFormerRightChild = y.getRight(index);</span>
+<span class="fc" id="L1053">        boolean xWasLeftChild     =</span>
+<span class="pc bpc" id="L1054" title="1 of 2 branches missed.">            (x.getParent(index) != null)</span>
+<span class="fc bfc" id="L1055" title="All 2 branches covered.">            &amp;&amp; (x == x.getParent(index).getLeft(index));</span>
+<span class="fc" id="L1056">        boolean yWasLeftChild     =</span>
+<span class="fc bfc" id="L1057" title="All 2 branches covered.">            (y.getParent(index) != null)</span>
+<span class="fc bfc" id="L1058" title="All 2 branches covered.">            &amp;&amp; (y == y.getParent(index).getLeft(index));</span>
+
+        // Swap, handling special cases of one being the other's parent.
+<span class="pc bpc" id="L1061" title="1 of 2 branches missed.">        if (x == yFormerParent) {    // x was y's parent</span>
+<span class="nc" id="L1062">            x.setParent(y, index);</span>
+
+<span class="nc bnc" id="L1064" title="All 2 branches missed.">            if (yWasLeftChild) {</span>
+<span class="nc" id="L1065">                y.setLeft(x, index);</span>
+<span class="nc" id="L1066">                y.setRight(xFormerRightChild, index);</span>
+<span class="nc" id="L1067">            } else {</span>
+<span class="nc" id="L1068">                y.setRight(x, index);</span>
+<span class="nc" id="L1069">                y.setLeft(xFormerLeftChild, index);</span>
+            }
+<span class="nc" id="L1071">        } else {</span>
+<span class="fc" id="L1072">            x.setParent(yFormerParent, index);</span>
+
+<span class="fc bfc" id="L1074" title="All 2 branches covered.">            if (yFormerParent != null) {</span>
+<span class="fc bfc" id="L1075" title="All 2 branches covered.">                if (yWasLeftChild) {</span>
+<span class="fc" id="L1076">                    yFormerParent.setLeft(x, index);</span>
+<span class="fc" id="L1077">                } else {</span>
+<span class="fc" id="L1078">                    yFormerParent.setRight(x, index);</span>
+                }
+            }
+
+<span class="fc" id="L1082">            y.setLeft(xFormerLeftChild, index);</span>
+<span class="fc" id="L1083">            y.setRight(xFormerRightChild, index);</span>
+        }
+
+<span class="fc bfc" id="L1086" title="All 2 branches covered.">        if (y == xFormerParent) {    // y was x's parent</span>
+<span class="fc" id="L1087">            y.setParent(x, index);</span>
+
+<span class="pc bpc" id="L1089" title="1 of 2 branches missed.">            if (xWasLeftChild) {</span>
+<span class="nc" id="L1090">                x.setLeft(y, index);</span>
+<span class="nc" id="L1091">                x.setRight(yFormerRightChild, index);</span>
+<span class="nc" id="L1092">            } else {</span>
+<span class="fc" id="L1093">                x.setRight(y, index);</span>
+<span class="fc" id="L1094">                x.setLeft(yFormerLeftChild, index);</span>
+            }
+<span class="fc" id="L1096">        } else {</span>
+<span class="fc" id="L1097">            y.setParent(xFormerParent, index);</span>
+
+<span class="pc bpc" id="L1099" title="1 of 2 branches missed.">            if (xFormerParent != null) {</span>
+<span class="pc bpc" id="L1100" title="1 of 2 branches missed.">                if (xWasLeftChild) {</span>
+<span class="fc" id="L1101">                    xFormerParent.setLeft(y, index);</span>
+<span class="fc" id="L1102">                } else {</span>
+<span class="nc" id="L1103">                    xFormerParent.setRight(y, index);</span>
+                }
+            }
+
+<span class="fc" id="L1107">            x.setLeft(yFormerLeftChild, index);</span>
+<span class="fc" id="L1108">            x.setRight(yFormerRightChild, index);</span>
+        }
+
+        // Fix children's parent pointers
+<span class="pc bpc" id="L1112" title="1 of 2 branches missed.">        if (x.getLeft(index) != null) {</span>
+<span class="fc" id="L1113">            x.getLeft(index).setParent(x, index);</span>
+        }
+
+<span class="pc bpc" id="L1116" title="1 of 2 branches missed.">        if (x.getRight(index) != null) {</span>
+<span class="fc" id="L1117">            x.getRight(index).setParent(x, index);</span>
+        }
+
+<span class="pc bpc" id="L1120" title="1 of 2 branches missed.">        if (y.getLeft(index) != null) {</span>
+<span class="nc" id="L1121">            y.getLeft(index).setParent(y, index);</span>
+        }
+
+<span class="fc bfc" id="L1124" title="All 2 branches covered.">        if (y.getRight(index) != null) {</span>
+<span class="fc" id="L1125">            y.getRight(index).setParent(y, index);</span>
+        }
+
+<span class="fc" id="L1128">        x.swapColors(y, index);</span>
+
+        // Check if root changed
+<span class="pc bpc" id="L1131" title="1 of 2 branches missed.">        if (rootNode[index] == x) {</span>
+<span class="nc" id="L1132">            rootNode[index] = y;</span>
+<span class="pc bfc" id="L1133" title="All 2 branches covered.">        } else if (rootNode[index] == y) {</span>
+<span class="fc" id="L1134">            rootNode[index] = x;</span>
+        }
+<span class="fc" id="L1136">    }</span>
+
+    /**
+     * check if an object is fit to be proper input ... has to be
+     * Comparable and non-null
+     *
+     * @param o the object being checked
+     * @param index KEY or VALUE (used to put the right word in the
+     *              exception message)
+     *
+     * @throws NullPointerException if o is null
+     * @throws ClassCastException if o is not Comparable
+     */
+    private static void checkNonNullComparable(final Object o,
+                                               final int index) {
+
+<span class="fc bfc" id="L1152" title="All 2 branches covered.">        if (o == null) {</span>
+<span class="fc" id="L1153">            throw new NullPointerException(dataName[index]</span>
+<span class="fc" id="L1154">                                           + &quot; cannot be null&quot;);</span>
+        }
+
+<span class="fc bfc" id="L1157" title="All 2 branches covered.">        if (!(o instanceof Comparable)) {</span>
+<span class="fc" id="L1158">            throw new ClassCastException(dataName[index]</span>
+<span class="fc" id="L1159">                                         + &quot; must be Comparable&quot;);</span>
+        }
+<span class="fc" id="L1161">    }</span>
+
+    /**
+     * check a key for validity (non-null and implements Comparable)
+     *
+     * @param key the key to be checked
+     *
+     * @throws NullPointerException if key is null
+     * @throws ClassCastException if key is not Comparable
+     */
+    private static void checkKey(final Object key) {
+<span class="fc" id="L1172">        checkNonNullComparable(key, KEY);</span>
+<span class="fc" id="L1173">    }</span>
+
+    /**
+     * check a value for validity (non-null and implements Comparable)
+     *
+     * @param value the value to be checked
+     *
+     * @throws NullPointerException if value is null
+     * @throws ClassCastException if value is not Comparable
+     */
+    private static void checkValue(final Object value) {
+<span class="fc" id="L1184">        checkNonNullComparable(value, VALUE);</span>
+<span class="fc" id="L1185">    }</span>
+
+    /**
+     * check a key and a value for validity (non-null and implements
+     * Comparable)
+     *
+     * @param key the key to be checked
+     * @param value the value to be checked
+     *
+     * @throws NullPointerException if key or value is null
+     * @throws ClassCastException if key or value is not Comparable
+     */
+    private static void checkKeyAndValue(final Object key,
+                                         final Object value) {
+<span class="fc" id="L1199">        checkKey(key);</span>
+<span class="fc" id="L1200">        checkValue(value);</span>
+<span class="fc" id="L1201">    }</span>
+
+    /**
+     * increment the modification count -- used to check for
+     * concurrent modification of the map through the map and through
+     * an Iterator from one of its Set or Collection views
+     */
+    private void modify() {
+<span class="fc" id="L1209">        modifications++;</span>
+<span class="fc" id="L1210">    }</span>
+
+    /**
+     * bump up the size and note that the map has changed
+     */
+    private void grow() {
+
+<span class="fc" id="L1217">        modify();</span>
+
+<span class="fc" id="L1219">        nodeCount++;</span>
+<span class="fc" id="L1220">    }</span>
+
+    /**
+     * decrement the size and note that the map has changed
+     */
+    private void shrink() {
+
+<span class="fc" id="L1227">        modify();</span>
+
+<span class="fc" id="L1229">        nodeCount--;</span>
+<span class="fc" id="L1230">    }</span>
+
+    /**
+     * insert a node by its value
+     *
+     * @param newNode the node to be inserted
+     *
+     * @throws IllegalArgumentException if the node already exists
+     *                                     in the value mapping
+     */
+    private void insertValue(final Node newNode)
+            throws IllegalArgumentException {
+
+<span class="fc" id="L1243">        Node node = rootNode[VALUE];</span>
+
+        while (true) {
+<span class="fc" id="L1246">            int cmp = compare(newNode.getData(VALUE), node.getData(VALUE));</span>
+
+<span class="fc bfc" id="L1248" title="All 2 branches covered.">            if (cmp == 0) {</span>
+<span class="fc" id="L1249">                throw new IllegalArgumentException(</span>
+<span class="fc" id="L1250">                    &quot;Cannot store a duplicate value (\&quot;&quot;</span>
+<span class="fc" id="L1251">                    + newNode.getData(VALUE) + &quot;\&quot;) in this Map&quot;);</span>
+<span class="fc bfc" id="L1252" title="All 2 branches covered.">            } else if (cmp &lt; 0) {</span>
+<span class="fc bfc" id="L1253" title="All 2 branches covered.">                if (node.getLeft(VALUE) != null) {</span>
+<span class="fc" id="L1254">                    node = node.getLeft(VALUE);</span>
+<span class="fc" id="L1255">                } else {</span>
+<span class="fc" id="L1256">                    node.setLeft(newNode, VALUE);</span>
+<span class="fc" id="L1257">                    newNode.setParent(node, VALUE);</span>
+<span class="fc" id="L1258">                    doRedBlackInsert(newNode, VALUE);</span>
+
+<span class="fc" id="L1260">                    break;</span>
+                }
+            } else {    // cmp &gt; 0
+<span class="fc bfc" id="L1263" title="All 2 branches covered.">                if (node.getRight(VALUE) != null) {</span>
+<span class="fc" id="L1264">                    node = node.getRight(VALUE);</span>
+<span class="fc" id="L1265">                } else {</span>
+<span class="fc" id="L1266">                    node.setRight(newNode, VALUE);</span>
+<span class="fc" id="L1267">                    newNode.setParent(node, VALUE);</span>
+<span class="fc" id="L1268">                    doRedBlackInsert(newNode, VALUE);</span>
+
+                    break;
+                }
+            }
+        }
+<span class="fc" id="L1274">    }</span>
+
+    /* ********** START implementation of Map ********** */
+
+    /**
+     * Returns the number of key-value mappings in this map. If the
+     * map contains more than Integer.MAXVALUE elements, returns
+     * Integer.MAXVALUE.
+     *
+     * @return the number of key-value mappings in this map.
+     */
+    public int size() {
+<span class="fc" id="L1286">        return nodeCount;</span>
+    }
+
+    /**
+     * Returns true if this map contains a mapping for the specified
+     * key.
+     *
+     * @param key key whose presence in this map is to be tested.
+     *
+     * @return true if this map contains a mapping for the specified
+     *         key.
+     *
+     * @throws ClassCastException if the key is of an inappropriate
+     *                               type for this map.
+     * @throws NullPointerException if the key is null
+     */
+    public boolean containsKey(final Object key)
+            throws ClassCastException, NullPointerException {
+
+<span class="fc" id="L1305">        checkKey(key);</span>
+
+<span class="fc bfc" id="L1307" title="All 2 branches covered.">        return lookup((Comparable) key, KEY) != null;</span>
+    }
+
+    /**
+     * Returns true if this map maps one or more keys to the
+     * specified value.
+     *
+     * @param value value whose presence in this map is to be tested.
+     *
+     * @return true if this map maps one or more keys to the specified
+     *         value.
+     */
+    public boolean containsValue(final Object value) {
+
+<span class="fc" id="L1321">        checkValue(value);</span>
+
+<span class="fc bfc" id="L1323" title="All 2 branches covered.">        return lookup((Comparable) value, VALUE) != null;</span>
+    }
+
+    /**
+     * Returns the value to which this map maps the specified
+     * key. Returns null if the map contains no mapping for this key.
+     *
+     * @param key key whose associated value is to be returned.
+     *
+     * @return the value to which this map maps the specified key, or
+     *         null if the map contains no mapping for this key.
+     *
+     * @throws ClassCastException if the key is of an inappropriate
+     *                               type for this map.
+     * @throws NullPointerException if the key is null
+     */
+    public Object get(final Object key)
+            throws ClassCastException, NullPointerException {
+<span class="fc" id="L1341">        return doGet((Comparable) key, KEY);</span>
+    }
+
+    /**
+     * Associates the specified value with the specified key in this
+     * map.
+     *
+     * @param key key with which the specified value is to be
+     *            associated.
+     * @param value value to be associated with the specified key.
+     *
+     * @return null
+     *
+     * @throws ClassCastException if the class of the specified key
+     *                               or value prevents it from being
+     *                               stored in this map.
+     * @throws NullPointerException if the specified key or value
+     *                                 is null
+     * @throws IllegalArgumentException if the key duplicates an
+     *                                     existing key, or if the
+     *                                     value duplicates an
+     *                                     existing value
+     */
+    public Object put(final Object key, final Object value)
+            throws ClassCastException, NullPointerException,
+                   IllegalArgumentException {
+
+<span class="fc" id="L1368">        checkKeyAndValue(key, value);</span>
+
+<span class="fc" id="L1370">        Node node = rootNode[KEY];</span>
+
+<span class="fc bfc" id="L1372" title="All 2 branches covered.">        if (node == null) {</span>
+<span class="fc" id="L1373">            Node root = new Node((Comparable) key, (Comparable) value);</span>
+
+<span class="fc" id="L1375">            rootNode[KEY]   = root;</span>
+<span class="fc" id="L1376">            rootNode[VALUE] = root;</span>
+
+<span class="fc" id="L1378">            grow();</span>
+<span class="fc" id="L1379">        } else {</span>
+            while (true) {
+<span class="fc" id="L1381">                int cmp = compare((Comparable) key, node.getData(KEY));</span>
+
+<span class="fc bfc" id="L1383" title="All 2 branches covered.">                if (cmp == 0) {</span>
+<span class="fc" id="L1384">                    throw new IllegalArgumentException(</span>
+<span class="fc" id="L1385">                        &quot;Cannot store a duplicate key (\&quot;&quot; + key</span>
+<span class="fc" id="L1386">                        + &quot;\&quot;) in this Map&quot;);</span>
+<span class="fc bfc" id="L1387" title="All 2 branches covered.">                } else if (cmp &lt; 0) {</span>
+<span class="fc bfc" id="L1388" title="All 2 branches covered.">                    if (node.getLeft(KEY) != null) {</span>
+<span class="fc" id="L1389">                        node = node.getLeft(KEY);</span>
+<span class="fc" id="L1390">                    } else {</span>
+<span class="fc" id="L1391">                        Node newNode = new Node((Comparable) key,</span>
+<span class="fc" id="L1392">                                                (Comparable) value);</span>
+
+<span class="fc" id="L1394">                        insertValue(newNode);</span>
+<span class="fc" id="L1395">                        node.setLeft(newNode, KEY);</span>
+<span class="fc" id="L1396">                        newNode.setParent(node, KEY);</span>
+<span class="fc" id="L1397">                        doRedBlackInsert(newNode, KEY);</span>
+<span class="fc" id="L1398">                        grow();</span>
+
+<span class="fc" id="L1400">                        break;</span>
+                    }
+                } else {    // cmp &gt; 0
+<span class="fc bfc" id="L1403" title="All 2 branches covered.">                    if (node.getRight(KEY) != null) {</span>
+<span class="fc" id="L1404">                        node = node.getRight(KEY);</span>
+<span class="fc" id="L1405">                    } else {</span>
+<span class="fc" id="L1406">                        Node newNode = new Node((Comparable) key,</span>
+<span class="fc" id="L1407">                                                (Comparable) value);</span>
+
+<span class="fc" id="L1409">                        insertValue(newNode);</span>
+<span class="fc" id="L1410">                        node.setRight(newNode, KEY);</span>
+<span class="fc" id="L1411">                        newNode.setParent(node, KEY);</span>
+<span class="fc" id="L1412">                        doRedBlackInsert(newNode, KEY);</span>
+<span class="fc" id="L1413">                        grow();</span>
+
+                        break;
+                    }
+                }
+            }
+        }
+
+<span class="fc" id="L1421">        return null;</span>
+    }
+
+    /**
+     * Removes the mapping for this key from this map if present
+     *
+     * @param key key whose mapping is to be removed from the map.
+     *
+     * @return previous value associated with specified key, or null
+     *         if there was no mapping for key.
+     */
+    public Object remove(final Object key) {
+<span class="fc" id="L1433">        return doRemove((Comparable) key, KEY);</span>
+    }
+
+    /**
+     * Removes all mappings from this map
+     */
+    public void clear() {
+
+<span class="fc" id="L1441">        modify();</span>
+
+<span class="fc" id="L1443">        nodeCount   = 0;</span>
+<span class="fc" id="L1444">        rootNode[KEY]   = null;</span>
+<span class="fc" id="L1445">        rootNode[VALUE] = null;</span>
+<span class="fc" id="L1446">    }</span>
+
+    /**
+     * Returns a set view of the keys contained in this map.  The set
+     * is backed by the map, so changes to the map are reflected in
+     * the set, and vice-versa. If the map is modified while an
+     * iteration over the set is in progress, the results of the
+     * iteration are undefined. The set supports element removal,
+     * which removes the corresponding mapping from the map, via the
+     * Iterator.remove, Set.remove, removeAll, retainAll, and clear
+     * operations.  It does not support the add or addAll operations.
+     *
+     * @return a set view of the keys contained in this map.
+     */
+    public Set keySet() {
+
+<span class="fc bfc" id="L1462" title="All 2 branches covered.">        if (setOfKeys[KEY] == null) {</span>
+<span class="fc" id="L1463">            setOfKeys[KEY] = new AbstractSet() {</span>
+
+                public Iterator iterator() {
+
+<span class="fc" id="L1467">                    return new DoubleOrderedMapIterator(KEY) {</span>
+
+                        protected Object doGetNext() {
+<span class="fc" id="L1470">                            return lastReturnedNode.getData(KEY);</span>
+                        }
+                    };
+                }
+
+                public int size() {
+<span class="fc" id="L1476">                    return DoubleOrderedMap.this.size();</span>
+                }
+
+                public boolean contains(Object o) {
+<span class="fc" id="L1480">                    return containsKey(o);</span>
+                }
+
+                public boolean remove(Object o) {
+
+<span class="fc" id="L1485">                    int oldNodeCount = nodeCount;</span>
+
+<span class="fc" id="L1487">                    DoubleOrderedMap.this.remove(o);</span>
+
+<span class="fc bfc" id="L1489" title="All 2 branches covered.">                    return nodeCount != oldNodeCount;</span>
+                }
+
+                public void clear() {
+<span class="fc" id="L1493">                    DoubleOrderedMap.this.clear();</span>
+<span class="fc" id="L1494">                }</span>
+            };
+        }
+
+<span class="fc" id="L1498">        return setOfKeys[KEY];</span>
+    }
+
+    /**
+     * Returns a collection view of the values contained in this
+     * map. The collection is backed by the map, so changes to the map
+     * are reflected in the collection, and vice-versa. If the map is
+     * modified while an iteration over the collection is in progress,
+     * the results of the iteration are undefined. The collection
+     * supports element removal, which removes the corresponding
+     * mapping from the map, via the Iterator.remove,
+     * Collection.remove, removeAll, retainAll and clear operations.
+     * It does not support the add or addAll operations.
+     *
+     * @return a collection view of the values contained in this map.
+     */
+    public Collection values() {
+
+<span class="fc bfc" id="L1516" title="All 2 branches covered.">        if (collectionOfValues[KEY] == null) {</span>
+<span class="fc" id="L1517">            collectionOfValues[KEY] = new AbstractCollection() {</span>
+
+                public Iterator iterator() {
+
+<span class="fc" id="L1521">                    return new DoubleOrderedMapIterator(KEY) {</span>
+
+                        protected Object doGetNext() {
+<span class="fc" id="L1524">                            return lastReturnedNode.getData(VALUE);</span>
+                        }
+                    };
+                }
+
+                public int size() {
+<span class="fc" id="L1530">                    return DoubleOrderedMap.this.size();</span>
+                }
+
+                public boolean contains(Object o) {
+<span class="fc" id="L1534">                    return containsValue(o);</span>
+                }
+
+                public boolean remove(Object o) {
+
+<span class="fc" id="L1539">                    int oldNodeCount = nodeCount;</span>
+
+<span class="fc" id="L1541">                    removeValue(o);</span>
+
+<span class="fc bfc" id="L1543" title="All 2 branches covered.">                    return nodeCount != oldNodeCount;</span>
+                }
+
+                public boolean removeAll(Collection c) {
+
+<span class="fc" id="L1548">                    boolean  modified = false;</span>
+<span class="fc" id="L1549">                    Iterator iter     = c.iterator();</span>
+
+<span class="fc bfc" id="L1551" title="All 2 branches covered.">                    while (iter.hasNext()) {</span>
+<span class="fc bfc" id="L1552" title="All 2 branches covered.">                        if (removeValue(iter.next()) != null) {</span>
+<span class="fc" id="L1553">                            modified = true;</span>
+                        }
+                    }
+
+<span class="fc" id="L1557">                    return modified;</span>
+                }
+
+                public void clear() {
+<span class="fc" id="L1561">                    DoubleOrderedMap.this.clear();</span>
+<span class="fc" id="L1562">                }</span>
+            };
+        }
+
+<span class="fc" id="L1566">        return collectionOfValues[KEY];</span>
+    }
+
+    /**
+     * Returns a set view of the mappings contained in this map. Each
+     * element in the returned set is a Map.Entry. The set is backed
+     * by the map, so changes to the map are reflected in the set, and
+     * vice-versa.  If the map is modified while an iteration over the
+     * set is in progress, the results of the iteration are
+     * undefined.
+     * &lt;p&gt;
+     * The set supports element removal, which removes the corresponding
+     * mapping from the map, via the Iterator.remove, Set.remove, removeAll,
+     * retainAll and clear operations.
+     * It does not support the add or addAll operations.
+     * The setValue method is not supported on the Map Entry.
+     *
+     * @return a set view of the mappings contained in this map.
+     */
+    public Set entrySet() {
+
+<span class="fc bfc" id="L1587" title="All 2 branches covered.">        if (setOfEntries[KEY] == null) {</span>
+<span class="fc" id="L1588">            setOfEntries[KEY] = new AbstractSet() {</span>
+
+                public Iterator iterator() {
+
+<span class="fc" id="L1592">                    return new DoubleOrderedMapIterator(KEY) {</span>
+
+                        protected Object doGetNext() {
+<span class="fc" id="L1595">                            return lastReturnedNode;</span>
+                        }
+                    };
+                }
+
+                public boolean contains(Object o) {
+
+<span class="pc bpc" id="L1602" title="1 of 2 branches missed.">                    if (!(o instanceof Map.Entry)) {</span>
+<span class="nc" id="L1603">                        return false;</span>
+                    }
+
+<span class="fc" id="L1606">                    Map.Entry entry = (Map.Entry) o;</span>
+<span class="fc" id="L1607">                    Object    value = entry.getValue();</span>
+<span class="fc" id="L1608">                    Node      node  = lookup((Comparable) entry.getKey(),</span>
+<span class="fc" id="L1609">                                             KEY);</span>
+
+<span class="fc bfc" id="L1611" title="All 2 branches covered.">                    return (node != null)</span>
+<span class="fc bfc" id="L1612" title="All 2 branches covered.">                           &amp;&amp; node.getData(VALUE).equals(value);</span>
+                }
+
+                public boolean remove(Object o) {
+
+<span class="fc bfc" id="L1617" title="All 2 branches covered.">                    if (!(o instanceof Map.Entry)) {</span>
+<span class="fc" id="L1618">                        return false;</span>
+                    }
+
+<span class="fc" id="L1621">                    Map.Entry entry = (Map.Entry) o;</span>
+<span class="fc" id="L1622">                    Object    value = entry.getValue();</span>
+<span class="fc" id="L1623">                    Node      node  = lookup((Comparable) entry.getKey(),</span>
+<span class="fc" id="L1624">                                             KEY);</span>
+
+<span class="fc bfc" id="L1626" title="All 4 branches covered.">                    if ((node != null) &amp;&amp; node.getData(VALUE).equals(value)) {</span>
+<span class="fc" id="L1627">                        doRedBlackDelete(node);</span>
+
+<span class="fc" id="L1629">                        return true;</span>
+                    }
+
+<span class="fc" id="L1632">                    return false;</span>
+                }
+
+                public int size() {
+<span class="fc" id="L1636">                    return DoubleOrderedMap.this.size();</span>
+                }
+
+                public void clear() {
+<span class="fc" id="L1640">                    DoubleOrderedMap.this.clear();</span>
+<span class="fc" id="L1641">                }</span>
+            };
+        }
+
+<span class="fc" id="L1645">        return setOfEntries[KEY];</span>
+    }
+
+    /* **********  END  implementation of Map ********** */
+    private abstract class DoubleOrderedMapIterator implements Iterator {
+
+        private int    expectedModifications;
+        protected Node lastReturnedNode;
+        private Node   nextNode;
+        private int    iteratorType;
+
+        /**
+         * Constructor
+         *
+         * @param type
+         */
+<span class="fc" id="L1661">        DoubleOrderedMapIterator(final int type) {</span>
+
+<span class="fc" id="L1663">            iteratorType          = type;</span>
+<span class="fc" id="L1664">            expectedModifications = DoubleOrderedMap.this.modifications;</span>
+<span class="fc" id="L1665">            lastReturnedNode      = null;</span>
+<span class="fc" id="L1666">            nextNode              = leastNode(rootNode[iteratorType],</span>
+<span class="fc" id="L1667">                                              iteratorType);</span>
+<span class="fc" id="L1668">        }</span>
+
+        /**
+         * @return 'next', whatever that means for a given kind of
+         *         DoubleOrderedMapIterator
+         */
+        protected abstract Object doGetNext();
+
+        /* ********** START implementation of Iterator ********** */
+
+        /**
+         * @return true if the iterator has more elements.
+         */
+        public final boolean hasNext() {
+<span class="fc bfc" id="L1682" title="All 2 branches covered.">            return nextNode != null;</span>
+        }
+
+        /**
+         * @return the next element in the iteration.
+         *
+         * @throws NoSuchElementException if iteration has no more
+         *                                   elements.
+         * @throws ConcurrentModificationException if the
+         *                                            DoubleOrderedMap is
+         *                                            modified behind
+         *                                            the iterator's
+         *                                            back
+         */
+        public final Object next()
+                throws NoSuchElementException,
+                       ConcurrentModificationException {
+
+<span class="fc bfc" id="L1700" title="All 2 branches covered.">            if (nextNode == null) {</span>
+<span class="fc" id="L1701">                throw new NoSuchElementException();</span>
+            }
+
+<span class="fc bfc" id="L1704" title="All 2 branches covered.">            if (modifications != expectedModifications) {</span>
+<span class="fc" id="L1705">                throw new ConcurrentModificationException();</span>
+            }
+
+<span class="fc" id="L1708">            lastReturnedNode = nextNode;</span>
+<span class="fc" id="L1709">            nextNode         = nextGreater(nextNode, iteratorType);</span>
+
+<span class="fc" id="L1711">            return doGetNext();</span>
+        }
+
+        /**
+         * Removes from the underlying collection the last element
+         * returned by the iterator. This method can be called only
+         * once per call to next. The behavior of an iterator is
+         * unspecified if the underlying collection is modified while
+         * the iteration is in progress in any way other than by
+         * calling this method.
+         *
+         * @throws IllegalStateException if the next method has not
+         *                                  yet been called, or the
+         *                                  remove method has already
+         *                                  been called after the last
+         *                                  call to the next method.
+         * @throws ConcurrentModificationException if the
+         *                                            DoubleOrderedMap is
+         *                                            modified behind
+         *                                            the iterator's
+         *                                            back
+         */
+        public final void remove()
+                throws IllegalStateException,
+                       ConcurrentModificationException {
+
+<span class="fc bfc" id="L1737" title="All 2 branches covered.">            if (lastReturnedNode == null) {</span>
+<span class="fc" id="L1738">                throw new IllegalStateException();</span>
+            }
+
+<span class="fc bfc" id="L1741" title="All 2 branches covered.">            if (modifications != expectedModifications) {</span>
+<span class="fc" id="L1742">                throw new ConcurrentModificationException();</span>
+            }
+
+<span class="fc" id="L1745">            doRedBlackDelete(lastReturnedNode);</span>
+
+<span class="fc" id="L1747">            expectedModifications++;</span>
+
+<span class="fc" id="L1749">            lastReturnedNode = null;</span>
+<span class="fc" id="L1750">        }</span>
+
+        /* **********  END  implementation of Iterator ********** */
+    }    // end private abstract class DoubleOrderedMapIterator
+
+    // final for performance
+    private static final class Node implements Map.Entry, KeyValue {
+
+        private Comparable[] data;
+        private Node[]       leftNode;
+        private Node[]       rightNode;
+        private Node[]       parentNode;
+        private boolean[]    blackColor;
+        private int          hashcodeValue;
+        private boolean      calculatedHashCode;
+
+        /**
+         * Make a new cell with given key and value, and with null
+         * links, and black (true) colors.
+         *
+         * @param key
+         * @param value
+         */
+<span class="fc" id="L1773">        Node(final Comparable key, final Comparable value) {</span>
+
+<span class="fc" id="L1775">            data               = new Comparable[]{ key, value };</span>
+<span class="fc" id="L1776">            leftNode           = new Node[]{ null, null };</span>
+<span class="fc" id="L1777">            rightNode          = new Node[]{ null, null };</span>
+<span class="fc" id="L1778">            parentNode         = new Node[]{ null, null };</span>
+<span class="fc" id="L1779">            blackColor         = new boolean[]{ true, true };</span>
+<span class="fc" id="L1780">            calculatedHashCode = false;</span>
+<span class="fc" id="L1781">        }</span>
+
+        /**
+         * get the specified data
+         *
+         * @param index KEY or VALUE
+         *
+         * @return the key or value
+         */
+        private Comparable getData(final int index) {
+<span class="fc" id="L1791">            return data[index];</span>
+        }
+
+        /**
+         * Set this node's left node
+         *
+         * @param node the new left node
+         * @param index KEY or VALUE
+         */
+        private void setLeft(final Node node, final int index) {
+<span class="fc" id="L1801">            leftNode[index] = node;</span>
+<span class="fc" id="L1802">        }</span>
+
+        /**
+         * get the left node
+         *
+         * @param index KEY or VALUE
+         *
+         * @return the left node -- may be null
+         */
+        private Node getLeft(final int index) {
+<span class="fc" id="L1812">            return leftNode[index];</span>
+        }
+
+        /**
+         * Set this node's right node
+         *
+         * @param node the new right node
+         * @param index KEY or VALUE
+         */
+        private void setRight(final Node node, final int index) {
+<span class="fc" id="L1822">            rightNode[index] = node;</span>
+<span class="fc" id="L1823">        }</span>
+
+        /**
+         * get the right node
+         *
+         * @param index KEY or VALUE
+         *
+         * @return the right node -- may be null
+         */
+        private Node getRight(final int index) {
+<span class="fc" id="L1833">            return rightNode[index];</span>
+        }
+
+        /**
+         * Set this node's parent node
+         *
+         * @param node the new parent node
+         * @param index KEY or VALUE
+         */
+        private void setParent(final Node node, final int index) {
+<span class="fc" id="L1843">            parentNode[index] = node;</span>
+<span class="fc" id="L1844">        }</span>
+
+        /**
+         * get the parent node
+         *
+         * @param index KEY or VALUE
+         *
+         * @return the parent node -- may be null
+         */
+        private Node getParent(final int index) {
+<span class="fc" id="L1854">            return parentNode[index];</span>
+        }
+
+        /**
+         * exchange colors with another node
+         *
+         * @param node the node to swap with
+         * @param index KEY or VALUE
+         */
+        private void swapColors(final Node node, final int index) {
+
+            // Swap colors -- old hacker's trick
+<span class="fc" id="L1866">            blackColor[index]      ^= node.blackColor[index];</span>
+<span class="fc" id="L1867">            node.blackColor[index] ^= blackColor[index];</span>
+<span class="fc" id="L1868">            blackColor[index]      ^= node.blackColor[index];</span>
+<span class="fc" id="L1869">        }</span>
+
+        /**
+         * is this node black?
+         *
+         * @param index KEY or VALUE
+         *
+         * @return true if black (which is represented as a true boolean)
+         */
+        private boolean isBlack(final int index) {
+<span class="fc" id="L1879">            return blackColor[index];</span>
+        }
+
+        /**
+         * is this node red?
+         *
+         * @param index KEY or VALUE
+         *
+         * @return true if non-black
+         */
+        private boolean isRed(final int index) {
+<span class="fc bfc" id="L1890" title="All 2 branches covered.">            return !blackColor[index];</span>
+        }
+
+        /**
+         * make this node black
+         *
+         * @param index KEY or VALUE
+         */
+        private void setBlack(final int index) {
+<span class="fc" id="L1899">            blackColor[index] = true;</span>
+<span class="fc" id="L1900">        }</span>
+
+        /**
+         * make this node red
+         *
+         * @param index KEY or VALUE
+         */
+        private void setRed(final int index) {
+<span class="fc" id="L1908">            blackColor[index] = false;</span>
+<span class="fc" id="L1909">        }</span>
+
+        /**
+         * make this node the same color as another
+         *
+         * @param node the node whose color we're adopting
+         * @param index KEY or VALUE
+         */
+        private void copyColor(final Node node, final int index) {
+<span class="fc" id="L1918">            blackColor[index] = node.blackColor[index];</span>
+<span class="fc" id="L1919">        }</span>
+
+        /* ********** START implementation of Map.Entry ********** */
+
+        /**
+         * @return the key corresponding to this entry.
+         */
+        public Object getKey() {
+<span class="fc" id="L1927">            return data[KEY];</span>
+        }
+
+        /**
+         * @return the value corresponding to this entry.
+         */
+        public Object getValue() {
+<span class="fc" id="L1934">            return data[VALUE];</span>
+        }
+
+        /**
+         * Optional operation that is not permitted in this
+         * implementation
+         *
+         * @param ignored
+         *
+         * @return does not return
+         *
+         * @throws UnsupportedOperationException
+         */
+        public Object setValue(Object ignored)
+                throws UnsupportedOperationException {
+<span class="fc" id="L1949">            throw new UnsupportedOperationException(</span>
+<span class="fc" id="L1950">                &quot;Map.Entry.setValue is not supported&quot;);</span>
+        }
+
+        /**
+         * Compares the specified object with this entry for equality.
+         * Returns true if the given object is also a map entry and
+         * the two entries represent the same mapping.
+         *
+         * @param o object to be compared for equality with this map
+         *          entry.
+         * @return true if the specified object is equal to this map
+         *         entry.
+         */
+        public boolean equals(Object o) {
+
+<span class="fc bfc" id="L1965" title="All 2 branches covered.">            if (this == o) {</span>
+<span class="fc" id="L1966">                return true;</span>
+            }
+
+<span class="pc bpc" id="L1969" title="1 of 2 branches missed.">            if (!(o instanceof Map.Entry)) {</span>
+<span class="nc" id="L1970">                return false;</span>
+            }
+
+<span class="fc" id="L1973">            Map.Entry e = (Map.Entry) o;</span>
+
+<span class="fc bfc" id="L1975" title="All 2 branches covered.">            return data[KEY].equals(e.getKey())</span>
+<span class="pc bpc" id="L1976" title="1 of 2 branches missed.">                   &amp;&amp; data[VALUE].equals(e.getValue());</span>
+        }
+
+        /**
+         * @return the hash code value for this map entry.
+         */
+        public int hashCode() {
+
+<span class="fc bfc" id="L1984" title="All 2 branches covered.">            if (!calculatedHashCode) {</span>
+<span class="fc" id="L1985">                hashcodeValue      = data[KEY].hashCode()</span>
+<span class="fc" id="L1986">                                     ^ data[VALUE].hashCode();</span>
+<span class="fc" id="L1987">                calculatedHashCode = true;</span>
+            }
+
+<span class="fc" id="L1990">            return hashcodeValue;</span>
+        }
+
+        /* **********  END  implementation of Map.Entry ********** */
+    }
+}    // end public class DoubleOrderedMap
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestPredicatedBag.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.bag</a> &gt; <span class="el_source">TestPredicatedBag.java</span></div><h1>TestPredicatedBag.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.bag;
+
+import java.util.Set;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.Bag;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
+
+/**
+ * Extension of {@link TestBag} for exercising the {@link PredicatedBag}
+ * implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Phil Steitz
+ */
+public class TestPredicatedBag extends AbstractTestBag {
+    
+    public TestPredicatedBag(String testName) {
+<span class="fc" id="L40">        super(testName);</span>
+<span class="fc" id="L41">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L44" title="All 2 branches covered.">        return new TestSuite(TestPredicatedBag.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        String[] testCaseName = { TestPredicatedBag.class.getName()};</span>
+<span class="nc" id="L49">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L50">    }</span>
+    
+    //--------------------------------------------------------------------------
+
+    protected Predicate stringPredicate() {
+<span class="fc" id="L55">        return new Predicate() {</span>
+            public boolean evaluate(Object o) {
+<span class="fc" id="L57">                return o instanceof String;</span>
+            }
+        };
+    }   
+    
+<span class="fc" id="L62">    protected Predicate truePredicate = PredicateUtils.truePredicate();</span>
+    
+    protected Bag decorateBag(HashBag bag, Predicate predicate) {
+<span class="fc" id="L65">        return PredicatedBag.decorate(bag, predicate);</span>
+    }
+
+    public Bag makeBag() {
+<span class="fc" id="L69">        return decorateBag(new HashBag(), truePredicate);</span>
+    }
+    
+    protected Bag makeTestBag() {
+<span class="fc" id="L73">        return decorateBag(new HashBag(), stringPredicate());</span>
+    }
+    
+    //--------------------------------------------------------------------------
+
+    public void testlegalAddRemove() {
+<span class="fc" id="L79">        Bag bag = makeTestBag();</span>
+<span class="fc" id="L80">        assertEquals(0, bag.size());</span>
+<span class="fc" id="L81">        Object[] els = new Object[] {&quot;1&quot;, &quot;3&quot;, &quot;5&quot;, &quot;7&quot;, &quot;2&quot;, &quot;4&quot;, &quot;1&quot;};</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        for (int i = 0; i &lt; els.length; i++) {</span>
+<span class="fc" id="L83">            bag.add(els[i]);</span>
+<span class="fc" id="L84">            assertEquals(i + 1, bag.size());</span>
+<span class="fc" id="L85">            assertEquals(true, bag.contains(els[i]));</span>
+        }
+<span class="fc" id="L87">        Set set = ((PredicatedBag) bag).uniqueSet();</span>
+<span class="fc" id="L88">        assertTrue(&quot;Unique set contains the first element&quot;,set.contains(els[0]));</span>
+<span class="fc" id="L89">        assertEquals(true, bag.remove(els[0])); </span>
+<span class="fc" id="L90">        set = ((PredicatedBag) bag).uniqueSet();</span>
+<span class="fc" id="L91">        assertTrue(&quot;Unique set now does not contain the first element&quot;,</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">            !set.contains(els[0])); </span>
+<span class="fc" id="L93">    }</span>
+ 
+    public void testIllegalAdd() {
+<span class="fc" id="L96">        Bag bag = makeTestBag();</span>
+<span class="fc" id="L97">        Integer i = new Integer(3);</span>
+        try {
+<span class="nc" id="L99">            bag.add(i);</span>
+<span class="nc" id="L100">            fail(&quot;Integer should fail string predicate.&quot;);</span>
+<span class="pc" id="L101">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+<span class="fc" id="L104">        assertTrue(&quot;Collection shouldn't contain illegal element&quot;, </span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">         !bag.contains(i));   </span>
+<span class="fc" id="L106">    }</span>
+
+    public void testIllegalDecorate() {
+<span class="fc" id="L109">        HashBag elements = new HashBag();</span>
+<span class="fc" id="L110">        elements.add(&quot;one&quot;);</span>
+<span class="fc" id="L111">        elements.add(&quot;two&quot;);</span>
+<span class="fc" id="L112">        elements.add(new Integer(3));</span>
+<span class="fc" id="L113">        elements.add(&quot;four&quot;);</span>
+        try {
+<span class="nc" id="L115">            Bag bag = decorateBag(elements, stringPredicate());</span>
+<span class="nc" id="L116">            fail(&quot;Bag contains an element that should fail the predicate.&quot;);</span>
+<span class="pc" id="L117">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L121">            Bag bag = decorateBag(new HashBag(), null);</span>
+<span class="nc" id="L122">            fail(&quot;Expectiing IllegalArgumentException for null predicate.&quot;);</span>
+<span class="pc" id="L123">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }              
+<span class="fc" id="L126">    }</span>
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L129">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        Bag bag = makeBag();
+//        writeExternalFormToDisk((java.io.Serializable) bag, &quot;D:/dev/collections/data/test/PredicatedBag.emptyCollection.version3.1.obj&quot;);
+//        bag = makeBag();
+//        bag.add(&quot;A&quot;);
+//        bag.add(&quot;A&quot;);
+//        bag.add(&quot;B&quot;);
+//        bag.add(&quot;B&quot;);
+//        bag.add(&quot;C&quot;);
+//        writeExternalFormToDisk((java.io.Serializable) bag, &quot;D:/dev/collections/data/test/PredicatedBag.fullCollection.version3.1.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

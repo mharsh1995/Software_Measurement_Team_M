@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ListUtilsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4</a> &gt; <span class="el_source">ListUtilsTest.java</span></div><h1>ListUtilsTest.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections4.functors.EqualPredicate;
+import org.apache.commons.collections4.list.PredicatedList;
+
+/**
+ * Tests for ListUtils.
+ *
+ * @version $Id$
+ */
+public class ListUtilsTest extends BulkTest {
+
+    private static final String a = &quot;a&quot;;
+    private static final String b = &quot;b&quot;;
+    private static final String c = &quot;c&quot;;
+    private static final String d = &quot;d&quot;;
+    private static final String e = &quot;e&quot;;
+    private static final String x = &quot;x&quot;;
+
+    private String[] fullArray;
+    private List&lt;String&gt; fullList;
+
+    public ListUtilsTest(final String name) {
+<span class="fc" id="L49">        super(name);</span>
+<span class="fc" id="L50">    }</span>
+
+    public static Test suite() {
+<span class="fc" id="L53">        return BulkTest.makeSuite(ListUtilsTest.class);</span>
+    }
+
+    @Override
+    public void setUp() {
+<span class="fc" id="L58">        fullArray = new String[]{a, b, c, d, e};</span>
+<span class="fc" id="L59">        fullList = new ArrayList&lt;String&gt;(Arrays.asList(fullArray));</span>
+<span class="fc" id="L60">    }</span>
+
+    public void testNothing() {
+<span class="fc" id="L63">    }</span>
+
+    /**
+     * Tests intersecting a non-empty list with an empty list.
+     */
+    public void testIntersectNonEmptyWithEmptyList() {
+<span class="fc" id="L69">        final List&lt;String&gt; empty = Collections.&lt;String&gt;emptyList();</span>
+<span class="fc" id="L70">        assertTrue(&quot;result not empty&quot;, ListUtils.intersection(empty, fullList).isEmpty());</span>
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * Tests intersecting a non-empty list with an empty list.
+     */
+    public void testIntersectEmptyWithEmptyList() {
+<span class="fc" id="L77">        final List&lt;?&gt; empty = Collections.EMPTY_LIST;</span>
+<span class="fc" id="L78">        assertTrue(&quot;result not empty&quot;, ListUtils.intersection(empty, empty).isEmpty());</span>
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * Tests intersecting a non-empty list with an subset of iteself.
+     */
+    public void testIntersectNonEmptySubset() {
+        // create a copy
+<span class="fc" id="L86">        final List&lt;String&gt; other = new ArrayList&lt;String&gt;(fullList);</span>
+
+        // remove a few items
+<span class="fc" id="L89">        assertNotNull(other.remove(0));</span>
+<span class="fc" id="L90">        assertNotNull(other.remove(1));</span>
+
+        // make sure the intersection is equal to the copy
+<span class="fc" id="L93">        assertEquals(other, ListUtils.intersection(fullList, other));</span>
+<span class="fc" id="L94">    }</span>
+
+    /**
+     * Tests intersecting a non-empty list with an subset of iteself.
+     */
+    public void testIntersectListWithNoOverlapAndDifferentTypes() {
+        @SuppressWarnings(&quot;boxing&quot;)
+<span class="fc" id="L101">        final List&lt;Integer&gt; other = Arrays.asList(1, 23);</span>
+<span class="fc" id="L102">        assertTrue(ListUtils.intersection(fullList, other).isEmpty());</span>
+<span class="fc" id="L103">    }</span>
+
+    /**
+     * Tests intersecting a non-empty list with iteself.
+     */
+    public void testIntersectListWithSelf() {
+<span class="fc" id="L109">        assertEquals(fullList, ListUtils.intersection(fullList, fullList));</span>
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * Tests intersecting two lists in different orders.
+     */
+    public void testIntersectionOrderInsensitivity() {
+<span class="fc" id="L116">        final List&lt;String&gt; one = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L117">        final List&lt;String&gt; two = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L118">        one.add(&quot;a&quot;);</span>
+<span class="fc" id="L119">        one.add(&quot;b&quot;);</span>
+<span class="fc" id="L120">        two.add(&quot;a&quot;);</span>
+<span class="fc" id="L121">        two.add(&quot;a&quot;);</span>
+<span class="fc" id="L122">        two.add(&quot;b&quot;);</span>
+<span class="fc" id="L123">        two.add(&quot;b&quot;);</span>
+<span class="fc" id="L124">        assertEquals(ListUtils.intersection(one,two),ListUtils.intersection(two, one));</span>
+<span class="fc" id="L125">    }</span>
+
+    public void testPredicatedList() {
+<span class="fc" id="L128">        final Predicate&lt;Object&gt; predicate = new Predicate&lt;Object&gt;() {</span>
+            public boolean evaluate(final Object o) {
+<span class="nc" id="L130">                return o instanceof String;</span>
+            }
+        };
+<span class="fc" id="L133">        List&lt;Object&gt; list = ListUtils.predicatedList(new ArrayList&lt;Object&gt;(), predicate);</span>
+<span class="fc" id="L134">        assertTrue(&quot;returned object should be a PredicatedList&quot;, list instanceof PredicatedList);</span>
+        try {
+<span class="nc" id="L136">            ListUtils.predicatedList(new ArrayList&lt;Object&gt;(), null);</span>
+<span class="nc" id="L137">            fail(&quot;Expecting IllegalArgumentException for null predicate.&quot;);</span>
+<span class="pc" id="L138">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L142">            ListUtils.predicatedList(null, predicate);</span>
+<span class="nc" id="L143">            fail(&quot;Expecting IllegalArgumentException for null list.&quot;);</span>
+<span class="pc" id="L144">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L147">    }</span>
+
+    public void testLazyList() {
+<span class="fc" id="L150">        final List&lt;Integer&gt; list = ListUtils.lazyList(new ArrayList&lt;Integer&gt;(), new Factory&lt;Integer&gt;() {</span>
+
+            private int index;
+
+            public Integer create() {
+<span class="fc" id="L155">                index++;</span>
+<span class="fc" id="L156">                return Integer.valueOf(index);</span>
+            }
+        });
+
+<span class="fc" id="L160">        assertNotNull(list.get(5));</span>
+<span class="fc" id="L161">        assertEquals(6, list.size());</span>
+
+<span class="fc" id="L163">        assertNotNull(list.get(5));</span>
+<span class="fc" id="L164">        assertEquals(6, list.size());</span>
+<span class="fc" id="L165">    }</span>
+
+    public void testEmptyIfNull() {
+<span class="fc" id="L168">        assertTrue(ListUtils.emptyIfNull(null).isEmpty());</span>
+
+<span class="fc" id="L170">        final List&lt;Long&gt; list = new ArrayList&lt;Long&gt;();</span>
+<span class="fc" id="L171">        assertSame(list, ListUtils.emptyIfNull(list));</span>
+<span class="fc" id="L172">    }</span>
+
+    public void testDefaultIfNull() {
+<span class="fc" id="L175">        assertTrue(ListUtils.defaultIfNull(null, Collections.emptyList()).isEmpty());</span>
+
+<span class="fc" id="L177">        final List&lt;Long&gt; list = new ArrayList&lt;Long&gt;();</span>
+<span class="fc" id="L178">        assertSame(list, ListUtils.defaultIfNull(list, Collections.&lt;Long&gt;emptyList()));</span>
+<span class="fc" id="L179">    }</span>
+
+    public void testEquals() {
+<span class="fc" id="L182">        final Collection&lt;String&gt; data = Arrays.asList(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;);</span>
+
+<span class="fc" id="L184">        final List&lt;String&gt; a = new ArrayList&lt;String&gt;( data );</span>
+<span class="fc" id="L185">        final List&lt;String&gt; b = new ArrayList&lt;String&gt;( data );</span>
+
+<span class="fc" id="L187">        assertEquals(true, a.equals(b));</span>
+<span class="fc" id="L188">        assertEquals(true, ListUtils.isEqualList(a, b));</span>
+<span class="fc" id="L189">        a.clear();</span>
+<span class="fc" id="L190">        assertEquals(false, ListUtils.isEqualList(a, b));</span>
+<span class="fc" id="L191">        assertEquals(false, ListUtils.isEqualList(a, null));</span>
+<span class="fc" id="L192">        assertEquals(false, ListUtils.isEqualList(null, b));</span>
+<span class="fc" id="L193">        assertEquals(true, ListUtils.isEqualList(null, null));</span>
+<span class="fc" id="L194">    }</span>
+
+    public void testHashCode() {
+<span class="fc" id="L197">        final Collection&lt;String&gt; data = Arrays.asList(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;);</span>
+
+<span class="fc" id="L199">        final List&lt;String&gt; a = new ArrayList&lt;String&gt;(data);</span>
+<span class="fc" id="L200">        final List&lt;String&gt; b = new ArrayList&lt;String&gt;(data);</span>
+
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        assertEquals(true, a.hashCode() == b.hashCode());</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">        assertEquals(true, a.hashCode() == ListUtils.hashCodeForList(a));</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">        assertEquals(true, b.hashCode() == ListUtils.hashCodeForList(b));</span>
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        assertEquals(true, ListUtils.hashCodeForList(a) == ListUtils.hashCodeForList(b));</span>
+<span class="fc" id="L206">        a.clear();</span>
+<span class="pc bpc" id="L207" title="1 of 2 branches missed.">        assertEquals(false, ListUtils.hashCodeForList(a) == ListUtils.hashCodeForList(b));</span>
+<span class="fc" id="L208">        assertEquals(0, ListUtils.hashCodeForList(null));</span>
+<span class="fc" id="L209">    }</span>
+
+    public void testRetainAll() {
+<span class="fc" id="L212">        final List&lt;String&gt; sub = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L213">        sub.add(a);</span>
+<span class="fc" id="L214">        sub.add(b);</span>
+<span class="fc" id="L215">        sub.add(x);</span>
+
+<span class="fc" id="L217">        final List&lt;String&gt; retained = ListUtils.retainAll(fullList, sub);</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">        assertTrue(retained.size() == 2);</span>
+<span class="fc" id="L219">        sub.remove(x);</span>
+<span class="fc" id="L220">        assertTrue(retained.equals(sub));</span>
+<span class="fc" id="L221">        fullList.retainAll(sub);</span>
+<span class="fc" id="L222">        assertTrue(retained.equals(fullList));</span>
+
+        try {
+<span class="nc" id="L225">            ListUtils.retainAll(null, null);</span>
+<span class="nc" id="L226">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L227">        } catch(final NullPointerException npe){} // this is what we want</span>
+<span class="fc" id="L228">    }</span>
+
+    public void testRemoveAll() {
+<span class="fc" id="L231">        final List&lt;String&gt; sub = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L232">        sub.add(a);</span>
+<span class="fc" id="L233">        sub.add(b);</span>
+<span class="fc" id="L234">        sub.add(x);</span>
+
+<span class="fc" id="L236">        final List&lt;String&gt; remainder = ListUtils.removeAll(fullList, sub);</span>
+<span class="pc bpc" id="L237" title="1 of 2 branches missed.">        assertTrue(remainder.size() == 3);</span>
+<span class="fc" id="L238">        fullList.removeAll(sub);</span>
+<span class="fc" id="L239">        assertTrue(remainder.equals(fullList));</span>
+
+        try {
+<span class="nc" id="L242">            ListUtils.removeAll(null, null);</span>
+<span class="nc" id="L243">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L244">        } catch(final NullPointerException npe) {} // this is what we want</span>
+<span class="fc" id="L245">    }</span>
+
+    public void testSubtract() {
+<span class="fc" id="L248">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L249">        list.add(a);</span>
+<span class="fc" id="L250">        list.add(b);</span>
+<span class="fc" id="L251">        list.add(a);</span>
+<span class="fc" id="L252">        list.add(x);</span>
+
+<span class="fc" id="L254">        final List&lt;String&gt; sub = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L255">        sub.add(a);</span>
+
+<span class="fc" id="L257">        final List&lt;String&gt; result = ListUtils.subtract(list, sub);</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">        assertTrue(result.size() == 3);</span>
+
+<span class="fc" id="L260">        final List&lt;String&gt; expected = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L261">        expected.add(b);</span>
+<span class="fc" id="L262">        expected.add(a);</span>
+<span class="fc" id="L263">        expected.add(x);</span>
+
+<span class="fc" id="L265">        assertEquals(expected, result);</span>
+
+        try {
+<span class="nc" id="L268">            ListUtils.subtract(list, null);</span>
+<span class="nc" id="L269">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L270">        } catch(final NullPointerException npe) {} // this is what we want</span>
+<span class="fc" id="L271">    }</span>
+
+    public void testSubtractNullElement() {
+<span class="fc" id="L274">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L275">        list.add(a);</span>
+<span class="fc" id="L276">        list.add(null);</span>
+<span class="fc" id="L277">        list.add(null);</span>
+<span class="fc" id="L278">        list.add(x);</span>
+
+<span class="fc" id="L280">        final List&lt;String&gt; sub = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L281">        sub.add(null);</span>
+
+<span class="fc" id="L283">        final List&lt;String&gt; result = ListUtils.subtract(list, sub);</span>
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">        assertTrue(result.size() == 3);</span>
+
+<span class="fc" id="L286">        final List&lt;String&gt; expected = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L287">        expected.add(a);</span>
+<span class="fc" id="L288">        expected.add(null);</span>
+<span class="fc" id="L289">        expected.add(x);</span>
+
+<span class="fc" id="L291">        assertEquals(expected, result);</span>
+<span class="fc" id="L292">    }</span>
+
+    /**
+     * Tests the &lt;code&gt;indexOf&lt;/code&gt; method in &lt;code&gt;ListUtils&lt;/code&gt; class..
+     */
+    public void testIndexOf() {
+<span class="fc" id="L298">        Predicate&lt;String&gt; testPredicate = EqualPredicate.equalPredicate(&quot;d&quot;);</span>
+<span class="fc" id="L299">        int index = ListUtils.indexOf(fullList, testPredicate);</span>
+<span class="fc" id="L300">        assertEquals(d, fullList.get(index));</span>
+
+<span class="fc" id="L302">        testPredicate = EqualPredicate.equalPredicate(&quot;de&quot;);</span>
+<span class="fc" id="L303">        index = ListUtils.indexOf(fullList, testPredicate);</span>
+<span class="fc" id="L304">        assertEquals(index, -1);</span>
+
+<span class="fc" id="L306">        assertEquals(ListUtils.indexOf(null,testPredicate), -1);</span>
+<span class="fc" id="L307">        assertEquals(ListUtils.indexOf(fullList, null), -1);</span>
+<span class="fc" id="L308">    }</span>
+
+    @SuppressWarnings(&quot;boxing&quot;) // OK in test code
+    public void testLongestCommonSubsequence() {
+
+        try {
+<span class="nc" id="L314">            ListUtils.longestCommonSubsequence((List&lt;?&gt;) null, null);</span>
+<span class="nc" id="L315">            fail(&quot;failed to check for null argument&quot;);</span>
+<span class="pc" id="L316">        } catch (final IllegalArgumentException e) {}</span>
+
+<span class="fc" id="L318">        try {</span>
+<span class="nc" id="L319">            ListUtils.longestCommonSubsequence(Arrays.asList('A'), null);</span>
+<span class="nc" id="L320">            fail(&quot;failed to check for null argument&quot;);</span>
+<span class="pc" id="L321">        } catch (final IllegalArgumentException e) {}</span>
+
+        try {
+<span class="nc" id="L324">            ListUtils.longestCommonSubsequence(null, Arrays.asList('A'));</span>
+<span class="nc" id="L325">            fail(&quot;failed to check for null argument&quot;);</span>
+<span class="pc" id="L326">        } catch (final IllegalArgumentException e) {}</span>
+
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L329">        List&lt;Character&gt; lcs = ListUtils.longestCommonSubsequence(Collections.EMPTY_LIST, Collections.EMPTY_LIST);</span>
+<span class="fc" id="L330">        assertEquals(0, lcs.size());</span>
+
+<span class="fc" id="L332">        List&lt;Character&gt; list1 = Arrays.asList('B', 'A', 'N', 'A', 'N', 'A');</span>
+<span class="fc" id="L333">        List&lt;Character&gt; list2 = Arrays.asList('A', 'N', 'A', 'N', 'A', 'S');</span>
+<span class="fc" id="L334">        lcs = ListUtils.longestCommonSubsequence(list1, list2);</span>
+
+<span class="fc" id="L336">        List&lt;Character&gt; expected = Arrays.asList('A', 'N', 'A', 'N', 'A');</span>
+<span class="fc" id="L337">        assertEquals(expected, lcs);</span>
+
+<span class="fc" id="L339">        List&lt;Character&gt; list3 = Arrays.asList('A', 'T', 'A', 'N', 'A');</span>
+<span class="fc" id="L340">        lcs = ListUtils.longestCommonSubsequence(list1, list3);</span>
+
+<span class="fc" id="L342">        expected = Arrays.asList('A', 'A', 'N', 'A');</span>
+<span class="fc" id="L343">        assertEquals(expected, lcs);</span>
+
+<span class="fc" id="L345">        List&lt;Character&gt; listZorro = Arrays.asList('Z', 'O', 'R', 'R', 'O');</span>
+<span class="fc" id="L346">        lcs = ListUtils.longestCommonSubsequence(list1, listZorro);</span>
+
+<span class="fc" id="L348">        assertTrue(lcs.isEmpty());</span>
+<span class="fc" id="L349">    }</span>
+
+    public void testLongestCommonSubsequenceWithString() {
+
+      try {
+<span class="nc" id="L354">          ListUtils.longestCommonSubsequence((String) null, null);</span>
+<span class="nc" id="L355">          fail(&quot;failed to check for null argument&quot;);</span>
+<span class="pc" id="L356">      } catch (final IllegalArgumentException e) {}</span>
+
+      try {
+<span class="nc" id="L359">          ListUtils.longestCommonSubsequence(&quot;A&quot;, null);</span>
+<span class="nc" id="L360">          fail(&quot;failed to check for null argument&quot;);</span>
+<span class="pc" id="L361">      } catch (final IllegalArgumentException e) {}</span>
+
+      try {
+<span class="nc" id="L364">          ListUtils.longestCommonSubsequence(null, &quot;A&quot;);</span>
+<span class="nc" id="L365">          fail(&quot;failed to check for null argument&quot;);</span>
+<span class="pc" id="L366">      } catch (final IllegalArgumentException e) {}</span>
+
+<span class="fc" id="L368">      String lcs = ListUtils.longestCommonSubsequence(&quot;&quot;, &quot;&quot;);</span>
+<span class="fc" id="L369">      assertEquals(0, lcs.length());</span>
+
+<span class="fc" id="L371">      String banana = &quot;BANANA&quot;;</span>
+<span class="fc" id="L372">      String ananas = &quot;ANANAS&quot;;</span>
+<span class="fc" id="L373">      lcs = ListUtils.longestCommonSubsequence(banana, ananas);</span>
+
+<span class="fc" id="L375">      assertEquals(&quot;ANANA&quot;, lcs);</span>
+
+<span class="fc" id="L377">      String atana = &quot;ATANA&quot;;</span>
+<span class="fc" id="L378">      lcs = ListUtils.longestCommonSubsequence(banana, atana);</span>
+
+<span class="fc" id="L380">      assertEquals(&quot;AANA&quot;, lcs);</span>
+
+<span class="fc" id="L382">      String zorro = &quot;ZORRO&quot;;</span>
+<span class="fc" id="L383">      lcs = ListUtils.longestCommonSubsequence(banana, zorro);</span>
+
+<span class="fc" id="L385">      assertEquals(0, lcs.length());</span>
+<span class="fc" id="L386">  }</span>
+
+    @SuppressWarnings(&quot;boxing&quot;) // OK in test code
+    public void testPartition() {
+<span class="fc" id="L390">        final List&lt;Integer&gt; strings = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc bfc" id="L391" title="All 2 branches covered.">        for (int i = 0; i &lt;= 6; i++) {</span>
+<span class="fc" id="L392">            strings.add(i);</span>
+        }
+
+<span class="fc" id="L395">        final List&lt;List&lt;Integer&gt;&gt; partition = ListUtils.partition(strings, 3);</span>
+
+<span class="fc" id="L397">        assertNotNull(partition);</span>
+<span class="fc" id="L398">        assertEquals(3, partition.size());</span>
+<span class="fc" id="L399">        assertEquals(1, partition.get(2).size());</span>
+
+        try {
+<span class="nc" id="L402">            ListUtils.partition(null, 3);</span>
+<span class="nc" id="L403">            fail(&quot;failed to check for null argument&quot;);</span>
+<span class="pc" id="L404">        } catch (final IllegalArgumentException e) {}</span>
+
+        try {
+<span class="nc" id="L407">            ListUtils.partition(strings, 0);</span>
+<span class="nc" id="L408">            fail(&quot;failed to check for size argument&quot;);</span>
+<span class="pc" id="L409">        } catch (final IllegalArgumentException e) {}</span>
+
+        try {
+<span class="nc" id="L412">            ListUtils.partition(strings, -10);</span>
+<span class="nc" id="L413">            fail(&quot;failed to check for size argument&quot;);</span>
+<span class="pc" id="L414">        } catch (final IllegalArgumentException e) {}</span>
+
+<span class="fc" id="L416">    }</span>
+
+<span class="fc" id="L418">    private static Predicate&lt;Number&gt; EQUALS_TWO = new Predicate&lt;Number&gt;() {</span>
+        public boolean evaluate(final Number input) {
+<span class="fc bfc" id="L420" title="All 2 branches covered.">            return input.intValue() == 2;</span>
+        }
+<span class="fc" id="L422">    };</span>
+
+    @SuppressWarnings(&quot;boxing&quot;) // OK in test code
+    public void testSelect() {
+<span class="fc" id="L426">        final List&lt;Integer&gt; list = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L427">        list.add(1);</span>
+<span class="fc" id="L428">        list.add(2);</span>
+<span class="fc" id="L429">        list.add(3);</span>
+<span class="fc" id="L430">        list.add(4);</span>
+        // Ensure that the collection is the input type or a super type
+<span class="fc" id="L432">        final List&lt;Integer&gt; output1 = ListUtils.select(list, EQUALS_TWO);</span>
+<span class="fc" id="L433">        final List&lt;Number&gt; output2 = ListUtils.&lt;Number&gt;select(list, EQUALS_TWO);</span>
+<span class="fc" id="L434">        final HashSet&lt;Number&gt; output3 = CollectionUtils.select(list, EQUALS_TWO, new HashSet&lt;Number&gt;());</span>
+<span class="fc" id="L435">        assertTrue(CollectionUtils.isEqualCollection(output1, output3));</span>
+<span class="fc" id="L436">        assertEquals(4, list.size());</span>
+<span class="fc" id="L437">        assertEquals(1, output1.size());</span>
+<span class="fc" id="L438">        assertEquals(2, output2.iterator().next());</span>
+<span class="fc" id="L439">    }</span>
+
+    @SuppressWarnings(&quot;boxing&quot;) // OK in test code
+    public void testSelectRejected() {
+<span class="fc" id="L443">        final List&lt;Long&gt; list = new ArrayList&lt;Long&gt;();</span>
+<span class="fc" id="L444">        list.add(1L);</span>
+<span class="fc" id="L445">        list.add(2L);</span>
+<span class="fc" id="L446">        list.add(3L);</span>
+<span class="fc" id="L447">        list.add(4L);</span>
+<span class="fc" id="L448">        final List&lt;Long&gt; output1 = ListUtils.selectRejected(list, EQUALS_TWO);</span>
+<span class="fc" id="L449">        final List&lt;? extends Number&gt; output2 = ListUtils.selectRejected(list, EQUALS_TWO);</span>
+<span class="fc" id="L450">        final HashSet&lt;Number&gt; output3 = CollectionUtils.selectRejected(list, EQUALS_TWO, new HashSet&lt;Number&gt;());</span>
+<span class="fc" id="L451">        assertTrue(CollectionUtils.isEqualCollection(output1, output2));</span>
+<span class="fc" id="L452">        assertTrue(CollectionUtils.isEqualCollection(output1, output3));</span>
+<span class="fc" id="L453">        assertEquals(4, list.size());</span>
+<span class="fc" id="L454">        assertEquals(3, output1.size());</span>
+<span class="fc" id="L455">        assertTrue(output1.contains(1L));</span>
+<span class="fc" id="L456">        assertTrue(output1.contains(3L));</span>
+<span class="fc" id="L457">        assertTrue(output1.contains(4L));</span>
+<span class="fc" id="L458">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestBag.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.bag</a> &gt; <span class="el_source">AbstractTestBag.java</span></div><h1>AbstractTestBag.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.bag;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.apache.commons.collections.AbstractTestObject;
+import org.apache.commons.collections.Bag;
+
+/**
+ * Abstract test class for {@link org.apache.commons.collections.Bag Bag} methods and contracts.
+ * &lt;p&gt;
+ * To use, simply extend this class, and implement
+ * the {@link #makeBag} method.
+ * &lt;p&gt;
+ * If your bag fails one of these tests by design,
+ * you may still use this base set of cases.  Simply override the
+ * test case (method) your bag fails.
+ *
+ * @version $Revision$ $Date$
+ * 
+ * @author Chuck Burdick
+ * @author Stephen Colebourne
+ */
+public abstract class AbstractTestBag extends AbstractTestObject {
+//  TODO: this class should really extend from TestCollection, but the bag
+//  implementations currently do not conform to the Collection interface.  Once
+//  those are fixed or at least a strategy is made for resolving the issue, this
+//  can be changed back to extend TestCollection instead.
+
+    /**
+     * JUnit constructor.
+     * 
+     * @param testName  the test class name
+     */
+    public AbstractTestBag(String testName) {
+<span class="fc" id="L57">        super(testName);</span>
+<span class="fc" id="L58">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Return a new, empty bag to used for testing.
+     * 
+     * @return the bag to be tested
+     */
+    public abstract Bag makeBag();
+
+    /**
+     * Implements the superclass method to return the Bag.
+     * 
+     * @return the bag to be tested
+     */
+    public Object makeObject() {
+<span class="fc" id="L74">        return makeBag();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testBagAdd() {
+<span class="fc" id="L79">        Bag bag = makeBag();</span>
+<span class="fc" id="L80">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L81">        assertTrue(&quot;Should contain 'A'&quot;, bag.contains(&quot;A&quot;));</span>
+<span class="fc" id="L82">        assertEquals(&quot;Should have count of 1&quot;, 1, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L83">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L84">        assertTrue(&quot;Should contain 'A'&quot;, bag.contains(&quot;A&quot;));</span>
+<span class="fc" id="L85">        assertEquals(&quot;Should have count of 2&quot;, 2, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L86">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L87">        assertTrue(bag.contains(&quot;A&quot;));</span>
+<span class="fc" id="L88">        assertTrue(bag.contains(&quot;B&quot;));</span>
+<span class="fc" id="L89">    }</span>
+
+    public void testBagEqualsSelf() {
+<span class="fc" id="L92">        Bag bag = makeBag();</span>
+<span class="fc" id="L93">        assertTrue(bag.equals(bag));</span>
+<span class="fc" id="L94">        bag.add(&quot;elt&quot;);</span>
+<span class="fc" id="L95">        assertTrue(bag.equals(bag));</span>
+<span class="fc" id="L96">        bag.add(&quot;elt&quot;); // again</span>
+<span class="fc" id="L97">        assertTrue(bag.equals(bag));</span>
+<span class="fc" id="L98">        bag.add(&quot;elt2&quot;);</span>
+<span class="fc" id="L99">        assertTrue(bag.equals(bag));</span>
+<span class="fc" id="L100">    }</span>
+
+    public void testRemove() {
+<span class="fc" id="L103">        Bag bag = makeBag();</span>
+<span class="fc" id="L104">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L105">        assertEquals(&quot;Should have count of 1&quot;, 1, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L106">        bag.remove(&quot;A&quot;);</span>
+<span class="fc" id="L107">        assertEquals(&quot;Should have count of 0&quot;, 0, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L108">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L109">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L110">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L111">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L112">        assertEquals(&quot;Should have count of 4&quot;, 4, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L113">        bag.remove(&quot;A&quot;, 0);</span>
+<span class="fc" id="L114">        assertEquals(&quot;Should have count of 4&quot;, 4, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L115">        bag.remove(&quot;A&quot;, 2);</span>
+<span class="fc" id="L116">        assertEquals(&quot;Should have count of 2&quot;, 2, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L117">        bag.remove(&quot;A&quot;);</span>
+<span class="fc" id="L118">        assertEquals(&quot;Should have count of 0&quot;, 0, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L119">    }</span>
+
+    public void testRemoveAll() {
+<span class="fc" id="L122">        Bag bag = makeBag();</span>
+<span class="fc" id="L123">        bag.add(&quot;A&quot;, 2);</span>
+<span class="fc" id="L124">        assertEquals(&quot;Should have count of 2&quot;, 2, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L125">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L126">        bag.add(&quot;C&quot;);</span>
+<span class="fc" id="L127">        assertEquals(&quot;Should have count of 4&quot;, 4, bag.size());</span>
+<span class="fc" id="L128">        List delete = new ArrayList();</span>
+<span class="fc" id="L129">        delete.add(&quot;A&quot;);</span>
+<span class="fc" id="L130">        delete.add(&quot;B&quot;);</span>
+<span class="fc" id="L131">        bag.removeAll(delete);</span>
+<span class="fc" id="L132">        assertEquals(&quot;Should have count of 1&quot;, 1, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L133">        assertEquals(&quot;Should have count of 0&quot;, 0, bag.getCount(&quot;B&quot;));</span>
+<span class="fc" id="L134">        assertEquals(&quot;Should have count of 1&quot;, 1, bag.getCount(&quot;C&quot;));</span>
+<span class="fc" id="L135">        assertEquals(&quot;Should have count of 2&quot;, 2, bag.size());</span>
+<span class="fc" id="L136">    }</span>
+    
+    public void testContains() {
+<span class="fc" id="L139">        Bag bag = makeBag();</span>
+        
+<span class="fc" id="L141">        assertEquals(&quot;Bag does not have at least 1 'A'&quot;, false, bag.contains(&quot;A&quot;));</span>
+<span class="fc" id="L142">        assertEquals(&quot;Bag does not have at least 1 'B'&quot;, false, bag.contains(&quot;B&quot;));</span>
+        
+<span class="fc" id="L144">        bag.add(&quot;A&quot;);  // bag 1A</span>
+<span class="fc" id="L145">        assertEquals(&quot;Bag has at least 1 'A'&quot;, true, bag.contains(&quot;A&quot;));</span>
+<span class="fc" id="L146">        assertEquals(&quot;Bag does not have at least 1 'B'&quot;, false, bag.contains(&quot;B&quot;));</span>
+        
+<span class="fc" id="L148">        bag.add(&quot;A&quot;);  // bag 2A</span>
+<span class="fc" id="L149">        assertEquals(&quot;Bag has at least 1 'A'&quot;, true, bag.contains(&quot;A&quot;));</span>
+<span class="fc" id="L150">        assertEquals(&quot;Bag does not have at least 1 'B'&quot;, false, bag.contains(&quot;B&quot;));</span>
+        
+<span class="fc" id="L152">        bag.add(&quot;B&quot;);  // bag 2A,1B</span>
+<span class="fc" id="L153">        assertEquals(&quot;Bag has at least 1 'A'&quot;, true, bag.contains(&quot;A&quot;));</span>
+<span class="fc" id="L154">        assertEquals(&quot;Bag has at least 1 'B'&quot;, true, bag.contains(&quot;B&quot;));</span>
+<span class="fc" id="L155">    }</span>
+
+    public void testContainsAll() {
+<span class="fc" id="L158">        Bag bag = makeBag();</span>
+<span class="fc" id="L159">        List known = new ArrayList();</span>
+<span class="fc" id="L160">        List known1A = new ArrayList();</span>
+<span class="fc" id="L161">        known1A.add(&quot;A&quot;);</span>
+<span class="fc" id="L162">        List known2A = new ArrayList();</span>
+<span class="fc" id="L163">        known2A.add(&quot;A&quot;);</span>
+<span class="fc" id="L164">        known2A.add(&quot;A&quot;);</span>
+<span class="fc" id="L165">        List known1B = new ArrayList();</span>
+<span class="fc" id="L166">        known1B.add(&quot;B&quot;);</span>
+<span class="fc" id="L167">        List known1A1B = new ArrayList();</span>
+<span class="fc" id="L168">        known1A1B.add(&quot;A&quot;);</span>
+<span class="fc" id="L169">        known1A1B.add(&quot;B&quot;);</span>
+        
+<span class="fc" id="L171">        assertEquals(&quot;Bag containsAll of empty&quot;, true, bag.containsAll(known));</span>
+<span class="fc" id="L172">        assertEquals(&quot;Bag does not containsAll of 1 'A'&quot;, false, bag.containsAll(known1A));</span>
+<span class="fc" id="L173">        assertEquals(&quot;Bag does not containsAll of 2 'A'&quot;, false, bag.containsAll(known2A));</span>
+<span class="fc" id="L174">        assertEquals(&quot;Bag does not containsAll of 1 'B'&quot;, false, bag.containsAll(known1B));</span>
+<span class="fc" id="L175">        assertEquals(&quot;Bag does not containsAll of 1 'A' 1 'B'&quot;, false, bag.containsAll(known1A1B));</span>
+        
+<span class="fc" id="L177">        bag.add(&quot;A&quot;);  // bag 1A</span>
+<span class="fc" id="L178">        assertEquals(&quot;Bag containsAll of empty&quot;, true, bag.containsAll(known));</span>
+<span class="fc" id="L179">        assertEquals(&quot;Bag containsAll of 1 'A'&quot;, true, bag.containsAll(known1A));</span>
+<span class="fc" id="L180">        assertEquals(&quot;Bag does not containsAll of 2 'A'&quot;, false, bag.containsAll(known2A));</span>
+<span class="fc" id="L181">        assertEquals(&quot;Bag does not containsAll of 1 'B'&quot;, false, bag.containsAll(known1B));</span>
+<span class="fc" id="L182">        assertEquals(&quot;Bag does not containsAll of 1 'A' 1 'B'&quot;, false, bag.containsAll(known1A1B));</span>
+        
+<span class="fc" id="L184">        bag.add(&quot;A&quot;);  // bag 2A</span>
+<span class="fc" id="L185">        assertEquals(&quot;Bag containsAll of empty&quot;, true, bag.containsAll(known));</span>
+<span class="fc" id="L186">        assertEquals(&quot;Bag containsAll of 1 'A'&quot;, true, bag.containsAll(known1A));</span>
+<span class="fc" id="L187">        assertEquals(&quot;Bag containsAll of 2 'A'&quot;, true, bag.containsAll(known2A));</span>
+<span class="fc" id="L188">        assertEquals(&quot;Bag does not containsAll of 1 'B'&quot;, false, bag.containsAll(known1B));</span>
+<span class="fc" id="L189">        assertEquals(&quot;Bag does not containsAll of 1 'A' 1 'B'&quot;, false, bag.containsAll(known1A1B));</span>
+        
+<span class="fc" id="L191">        bag.add(&quot;A&quot;);  // bag 3A</span>
+<span class="fc" id="L192">        assertEquals(&quot;Bag containsAll of empty&quot;, true, bag.containsAll(known));</span>
+<span class="fc" id="L193">        assertEquals(&quot;Bag containsAll of 1 'A'&quot;, true, bag.containsAll(known1A));</span>
+<span class="fc" id="L194">        assertEquals(&quot;Bag containsAll of 2 'A'&quot;, true, bag.containsAll(known2A));</span>
+<span class="fc" id="L195">        assertEquals(&quot;Bag does not containsAll of 1 'B'&quot;, false, bag.containsAll(known1B));</span>
+<span class="fc" id="L196">        assertEquals(&quot;Bag does not containsAll of 1 'A' 1 'B'&quot;, false, bag.containsAll(known1A1B));</span>
+        
+<span class="fc" id="L198">        bag.add(&quot;B&quot;);  // bag 3A1B</span>
+<span class="fc" id="L199">        assertEquals(&quot;Bag containsAll of empty&quot;, true, bag.containsAll(known));</span>
+<span class="fc" id="L200">        assertEquals(&quot;Bag containsAll of 1 'A'&quot;, true, bag.containsAll(known1A));</span>
+<span class="fc" id="L201">        assertEquals(&quot;Bag containsAll of 2 'A'&quot;, true, bag.containsAll(known2A));</span>
+<span class="fc" id="L202">        assertEquals(&quot;Bag containsAll of 1 'B'&quot;, true, bag.containsAll(known1B));</span>
+<span class="fc" id="L203">        assertEquals(&quot;Bag containsAll of 1 'A' 1 'B'&quot;, true, bag.containsAll(known1A1B));</span>
+<span class="fc" id="L204">    }</span>
+
+    public void testSize() {
+<span class="fc" id="L207">        Bag bag = makeBag();</span>
+<span class="fc" id="L208">        assertEquals(&quot;Should have 0 total items&quot;, 0, bag.size());</span>
+<span class="fc" id="L209">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L210">        assertEquals(&quot;Should have 1 total items&quot;, 1, bag.size());</span>
+<span class="fc" id="L211">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L212">        assertEquals(&quot;Should have 2 total items&quot;, 2, bag.size());</span>
+<span class="fc" id="L213">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L214">        assertEquals(&quot;Should have 3 total items&quot;, 3, bag.size());</span>
+<span class="fc" id="L215">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L216">        assertEquals(&quot;Should have 4 total items&quot;, 4, bag.size());</span>
+<span class="fc" id="L217">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L218">        assertEquals(&quot;Should have 5 total items&quot;, 5, bag.size());</span>
+<span class="fc" id="L219">        bag.remove(&quot;A&quot;, 2);</span>
+<span class="fc" id="L220">        assertEquals(&quot;Should have 1 'A'&quot;, 1, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L221">        assertEquals(&quot;Should have 3 total items&quot;, 3, bag.size());</span>
+<span class="fc" id="L222">        bag.remove(&quot;B&quot;);</span>
+<span class="fc" id="L223">        assertEquals(&quot;Should have 1 total item&quot;, 1, bag.size());</span>
+<span class="fc" id="L224">    }</span>
+    
+    public void testRetainAll() {
+<span class="fc" id="L227">        Bag bag = makeBag();</span>
+<span class="fc" id="L228">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L229">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L230">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L231">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L232">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L233">        bag.add(&quot;C&quot;);</span>
+<span class="fc" id="L234">        List retains = new ArrayList();</span>
+<span class="fc" id="L235">        retains.add(&quot;B&quot;);</span>
+<span class="fc" id="L236">        retains.add(&quot;C&quot;);</span>
+<span class="fc" id="L237">        bag.retainAll(retains);</span>
+<span class="fc" id="L238">        assertEquals(&quot;Should have 2 total items&quot;, 2, bag.size());</span>
+<span class="fc" id="L239">    }</span>
+
+    public void testIterator() {
+<span class="fc" id="L242">        Bag bag = makeBag();</span>
+<span class="fc" id="L243">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L244">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L245">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L246">        assertEquals(&quot;Bag should have 3 items&quot;, 3, bag.size());</span>
+<span class="fc" id="L247">        Iterator i = bag.iterator();</span>
+    
+<span class="fc" id="L249">        boolean foundA = false;</span>
+<span class="fc bfc" id="L250" title="All 2 branches covered.">        while (i.hasNext()) {</span>
+<span class="fc" id="L251">            String element = (String) i.next();</span>
+            // ignore the first A, remove the second via Iterator.remove()
+<span class="fc bfc" id="L253" title="All 2 branches covered.">            if (element.equals(&quot;A&quot;)) {</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">                if (foundA == false) {</span>
+<span class="fc" id="L255">                    foundA = true;</span>
+<span class="fc" id="L256">                } else {</span>
+<span class="fc" id="L257">                    i.remove();</span>
+                }
+            }
+        }
+    
+<span class="fc" id="L262">        assertTrue(&quot;Bag should still contain 'A'&quot;, bag.contains(&quot;A&quot;));</span>
+<span class="fc" id="L263">        assertEquals(&quot;Bag should have 2 items&quot;, 2, bag.size());</span>
+<span class="fc" id="L264">        assertEquals(&quot;Bag should have 1 'A'&quot;, 1, bag.getCount(&quot;A&quot;));</span>
+<span class="fc" id="L265">    }</span>
+
+    public void testIteratorFail() {
+<span class="fc" id="L268">        Bag bag = makeBag();</span>
+<span class="fc" id="L269">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L270">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L271">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L272">        Iterator it = bag.iterator();</span>
+<span class="fc" id="L273">        it.next();</span>
+<span class="fc" id="L274">        bag.remove(&quot;A&quot;);</span>
+        try {
+<span class="nc" id="L276">            it.next();</span>
+<span class="nc" id="L277">            fail(&quot;Should throw ConcurrentModificationException&quot;);</span>
+<span class="pc" id="L278">        } catch (ConcurrentModificationException e) {</span>
+            // expected
+        }
+<span class="fc" id="L281">    }</span>
+    
+    public void testIteratorFailNoMore() {
+<span class="fc" id="L284">        Bag bag = makeBag();</span>
+<span class="fc" id="L285">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L286">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L287">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L288">        Iterator it = bag.iterator();</span>
+<span class="fc" id="L289">        it.next();</span>
+<span class="fc" id="L290">        it.next();</span>
+<span class="fc" id="L291">        it.next();</span>
+        try {
+<span class="nc" id="L293">            it.next();</span>
+<span class="nc" id="L294">            fail(&quot;Should throw NoSuchElementException&quot;);</span>
+<span class="pc" id="L295">        } catch (NoSuchElementException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L298">    }</span>
+    
+    public void testIteratorFailDoubleRemove() {
+<span class="fc" id="L301">        Bag bag = makeBag();</span>
+<span class="fc" id="L302">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L303">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L304">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L305">        Iterator it = bag.iterator();</span>
+<span class="fc" id="L306">        it.next();</span>
+<span class="fc" id="L307">        it.next();</span>
+<span class="fc" id="L308">        assertEquals(3, bag.size());</span>
+<span class="fc" id="L309">        it.remove();</span>
+<span class="fc" id="L310">        assertEquals(2, bag.size());</span>
+        try {
+<span class="nc" id="L312">            it.remove();</span>
+<span class="nc" id="L313">            fail(&quot;Should throw IllegalStateException&quot;);</span>
+<span class="pc" id="L314">        } catch (IllegalStateException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L317">        assertEquals(2, bag.size());</span>
+<span class="fc" id="L318">        it.next();</span>
+<span class="fc" id="L319">        it.remove();</span>
+<span class="fc" id="L320">        assertEquals(1, bag.size());</span>
+<span class="fc" id="L321">    }</span>
+    
+    public void testIteratorRemoveProtectsInvariants() {
+<span class="fc" id="L324">        Bag bag = makeBag();</span>
+<span class="fc" id="L325">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L326">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L327">        assertEquals(2, bag.size());</span>
+<span class="fc" id="L328">        Iterator it = bag.iterator();</span>
+<span class="fc" id="L329">        assertEquals(&quot;A&quot;, it.next());</span>
+<span class="fc" id="L330">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L331">        it.remove();</span>
+<span class="fc" id="L332">        assertEquals(1, bag.size());</span>
+<span class="fc" id="L333">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L334">        assertEquals(&quot;A&quot;, it.next());</span>
+<span class="fc" id="L335">        assertEquals(false, it.hasNext());</span>
+<span class="fc" id="L336">        it.remove();</span>
+<span class="fc" id="L337">        assertEquals(0, bag.size());</span>
+<span class="fc" id="L338">        assertEquals(false, it.hasNext());</span>
+        
+<span class="fc" id="L340">        Iterator it2 = bag.iterator();</span>
+<span class="fc" id="L341">        assertEquals(false, it2.hasNext());</span>
+<span class="fc" id="L342">    }</span>
+    
+    public void testToArray() {
+<span class="fc" id="L345">        Bag bag = makeBag();</span>
+<span class="fc" id="L346">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L347">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L348">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L349">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L350">        bag.add(&quot;C&quot;);</span>
+<span class="fc" id="L351">        Object[] array = bag.toArray();</span>
+<span class="fc" id="L352">        int a = 0, b = 0, c = 0;</span>
+<span class="fc bfc" id="L353" title="All 2 branches covered.">        for (int i = 0; i &lt; array.length; i++) {</span>
+<span class="fc bfc" id="L354" title="All 2 branches covered.">            a += (array[i].equals(&quot;A&quot;) ? 1 : 0);</span>
+<span class="fc bfc" id="L355" title="All 2 branches covered.">            b += (array[i].equals(&quot;B&quot;) ? 1 : 0);</span>
+<span class="fc bfc" id="L356" title="All 2 branches covered.">            c += (array[i].equals(&quot;C&quot;) ? 1 : 0);</span>
+        }
+<span class="fc" id="L358">        assertEquals(2, a);</span>
+<span class="fc" id="L359">        assertEquals(2, b);</span>
+<span class="fc" id="L360">        assertEquals(1, c);</span>
+<span class="fc" id="L361">    }</span>
+
+    public void testToArrayPopulate() {
+<span class="fc" id="L364">        Bag bag = makeBag();</span>
+<span class="fc" id="L365">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L366">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L367">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L368">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L369">        bag.add(&quot;C&quot;);</span>
+<span class="fc" id="L370">        String[] array = (String[]) bag.toArray(new String[0]);</span>
+<span class="fc" id="L371">        int a = 0, b = 0, c = 0;</span>
+<span class="fc bfc" id="L372" title="All 2 branches covered.">        for (int i = 0; i &lt; array.length; i++) {</span>
+<span class="fc bfc" id="L373" title="All 2 branches covered.">            a += (array[i].equals(&quot;A&quot;) ? 1 : 0);</span>
+<span class="fc bfc" id="L374" title="All 2 branches covered.">            b += (array[i].equals(&quot;B&quot;) ? 1 : 0);</span>
+<span class="fc bfc" id="L375" title="All 2 branches covered.">            c += (array[i].equals(&quot;C&quot;) ? 1 : 0);</span>
+        }
+<span class="fc" id="L377">        assertEquals(2, a);</span>
+<span class="fc" id="L378">        assertEquals(2, b);</span>
+<span class="fc" id="L379">        assertEquals(1, c);</span>
+<span class="fc" id="L380">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testEquals() {
+<span class="fc" id="L384">        Bag bag = makeBag();</span>
+<span class="fc" id="L385">        Bag bag2 = makeBag();</span>
+<span class="fc" id="L386">        assertEquals(true, bag.equals(bag2));</span>
+<span class="fc" id="L387">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L388">        assertEquals(false, bag.equals(bag2));</span>
+<span class="fc" id="L389">        bag2.add(&quot;A&quot;);</span>
+<span class="fc" id="L390">        assertEquals(true, bag.equals(bag2));</span>
+<span class="fc" id="L391">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L392">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L393">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L394">        bag.add(&quot;C&quot;);</span>
+<span class="fc" id="L395">        bag2.add(&quot;A&quot;);</span>
+<span class="fc" id="L396">        bag2.add(&quot;B&quot;);</span>
+<span class="fc" id="L397">        bag2.add(&quot;B&quot;);</span>
+<span class="fc" id="L398">        bag2.add(&quot;C&quot;);</span>
+<span class="fc" id="L399">        assertEquals(true, bag.equals(bag2));</span>
+<span class="fc" id="L400">    }</span>
+
+    public void testEqualsHashBag() {
+<span class="fc" id="L403">        Bag bag = makeBag();</span>
+<span class="fc" id="L404">        Bag bag2 = new HashBag();</span>
+<span class="fc" id="L405">        assertEquals(true, bag.equals(bag2));</span>
+<span class="fc" id="L406">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L407">        assertEquals(false, bag.equals(bag2));</span>
+<span class="fc" id="L408">        bag2.add(&quot;A&quot;);</span>
+<span class="fc" id="L409">        assertEquals(true, bag.equals(bag2));</span>
+<span class="fc" id="L410">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L411">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L412">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L413">        bag.add(&quot;C&quot;);</span>
+<span class="fc" id="L414">        bag2.add(&quot;A&quot;);</span>
+<span class="fc" id="L415">        bag2.add(&quot;B&quot;);</span>
+<span class="fc" id="L416">        bag2.add(&quot;B&quot;);</span>
+<span class="fc" id="L417">        bag2.add(&quot;C&quot;);</span>
+<span class="fc" id="L418">        assertEquals(true, bag.equals(bag2));</span>
+<span class="fc" id="L419">    }</span>
+
+    public void testHashCode() {
+<span class="fc" id="L422">        Bag bag = makeBag();</span>
+<span class="fc" id="L423">        Bag bag2 = makeBag();</span>
+<span class="fc" id="L424">        assertEquals(0, bag.hashCode());</span>
+<span class="fc" id="L425">        assertEquals(0, bag2.hashCode());</span>
+<span class="fc" id="L426">        assertEquals(bag.hashCode(), bag2.hashCode());</span>
+<span class="fc" id="L427">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L428">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L429">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L430">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L431">        bag.add(&quot;C&quot;);</span>
+<span class="fc" id="L432">        bag2.add(&quot;A&quot;);</span>
+<span class="fc" id="L433">        bag2.add(&quot;A&quot;);</span>
+<span class="fc" id="L434">        bag2.add(&quot;B&quot;);</span>
+<span class="fc" id="L435">        bag2.add(&quot;B&quot;);</span>
+<span class="fc" id="L436">        bag2.add(&quot;C&quot;);</span>
+<span class="fc" id="L437">        assertEquals(bag.hashCode(), bag2.hashCode());</span>
+        
+<span class="fc" id="L439">        int total = 0;</span>
+<span class="fc" id="L440">        total += (&quot;A&quot;.hashCode() ^ 2);</span>
+<span class="fc" id="L441">        total += (&quot;B&quot;.hashCode() ^ 2);</span>
+<span class="fc" id="L442">        total += (&quot;C&quot;.hashCode() ^ 1);</span>
+<span class="fc" id="L443">        assertEquals(total, bag.hashCode());</span>
+<span class="fc" id="L444">        assertEquals(total, bag2.hashCode());</span>
+<span class="fc" id="L445">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testEmptyBagSerialization() throws IOException, ClassNotFoundException {
+<span class="fc" id="L449">        Bag bag = makeBag();</span>
+<span class="pc bpc" id="L450" title="1 of 4 branches missed.">        if (!(bag instanceof Serializable &amp;&amp; isTestSerialization())) return;</span>
+        
+<span class="fc" id="L452">        byte[] objekt = writeExternalFormToBytes((Serializable) bag);</span>
+<span class="fc" id="L453">        Bag bag2 = (Bag) readExternalFormFromBytes(objekt);</span>
+
+<span class="fc" id="L455">        assertEquals(&quot;Bag should be empty&quot;,0, bag.size());</span>
+<span class="fc" id="L456">        assertEquals(&quot;Bag should be empty&quot;,0, bag2.size());</span>
+<span class="fc" id="L457">    }</span>
+
+    public void testFullBagSerialization() throws IOException, ClassNotFoundException {
+<span class="fc" id="L460">        Bag bag = makeBag();</span>
+<span class="fc" id="L461">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L462">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L463">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L464">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L465">        bag.add(&quot;C&quot;);</span>
+<span class="fc" id="L466">        int size = bag.size();</span>
+<span class="pc bpc" id="L467" title="1 of 4 branches missed.">        if (!(bag instanceof Serializable &amp;&amp; isTestSerialization())) return;</span>
+        
+<span class="fc" id="L469">        byte[] objekt = writeExternalFormToBytes((Serializable) bag);</span>
+<span class="fc" id="L470">        Bag bag2 = (Bag) readExternalFormFromBytes(objekt);</span>
+
+<span class="fc" id="L472">        assertEquals(&quot;Bag should be same size&quot;, size, bag.size());</span>
+<span class="fc" id="L473">        assertEquals(&quot;Bag should be same size&quot;, size, bag2.size());</span>
+<span class="fc" id="L474">    }</span>
+
+    /**
+     * Compare the current serialized form of the Bag
+     * against the canonical version in CVS.
+     */
+    public void testEmptyBagCompatibility() throws IOException, ClassNotFoundException {
+        // test to make sure the canonical form has been preserved
+<span class="fc" id="L482">        Bag bag = makeBag();</span>
+<span class="pc bpc" id="L483" title="1 of 6 branches missed.">        if(bag instanceof Serializable &amp;&amp; !skipSerializedCanonicalTests() &amp;&amp; isTestSerialization()) {</span>
+<span class="fc" id="L484">            Bag bag2 = (Bag) readExternalFormFromDisk(getCanonicalEmptyCollectionName(bag));</span>
+<span class="pc bpc" id="L485" title="1 of 2 branches missed.">            assertTrue(&quot;Bag is empty&quot;,bag2.size()  == 0);</span>
+<span class="fc" id="L486">            assertEquals(bag, bag2);</span>
+        }
+<span class="fc" id="L488">    }</span>
+
+    /**
+     * Compare the current serialized form of the Bag
+     * against the canonical version in CVS.
+     */
+    public void testFullBagCompatibility() throws IOException, ClassNotFoundException {
+        // test to make sure the canonical form has been preserved
+<span class="fc" id="L496">        Bag bag = makeBag();</span>
+<span class="fc" id="L497">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L498">        bag.add(&quot;A&quot;);</span>
+<span class="fc" id="L499">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L500">        bag.add(&quot;B&quot;);</span>
+<span class="fc" id="L501">        bag.add(&quot;C&quot;);</span>
+<span class="pc bpc" id="L502" title="1 of 6 branches missed.">        if(bag instanceof Serializable &amp;&amp; !skipSerializedCanonicalTests() &amp;&amp; isTestSerialization()) {</span>
+<span class="fc" id="L503">            Bag bag2 = (Bag) readExternalFormFromDisk(getCanonicalFullCollectionName(bag));</span>
+<span class="fc" id="L504">            assertEquals(&quot;Bag is the right size&quot;,bag.size(), bag2.size());</span>
+<span class="fc" id="L505">            assertEquals(bag, bag2);</span>
+        }
+<span class="fc" id="L507">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

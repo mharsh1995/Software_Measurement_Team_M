@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DefaultMapEntry.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">DefaultMapEntry.java</span></div><h1>DefaultMapEntry.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.Map;
+
+/**
+ * A default implementation of {@link java.util.Map.Entry}
+ *
+ * @deprecated Use the version in the keyvalue subpackage. Will be removed in v4.0
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ * 
+ * @author James Strachan
+ * @author Michael A. Smith
+ * @author Neil O'Toole
+ * @author Stephen Colebourne
+ */
+public class DefaultMapEntry implements Map.Entry, KeyValue {
+    
+    /** The key */
+    private Object key;
+    /** The value */
+    private Object value;
+    
+    /**
+     * Constructs a new &lt;code&gt;DefaultMapEntry&lt;/code&gt; with a null key
+     * and null value.
+     */
+    public DefaultMapEntry() {
+<span class="nc" id="L45">        super();</span>
+<span class="nc" id="L46">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;DefaultMapEntry&lt;/code&gt; with the given
+     * key and given value.
+     *
+     * @param entry  the entry to copy, must not be null
+     * @throws NullPointerException if the entry is null
+     */
+    public DefaultMapEntry(Map.Entry entry) {
+<span class="nc" id="L56">        super();</span>
+<span class="nc" id="L57">        this.key = entry.getKey();</span>
+<span class="nc" id="L58">        this.value = entry.getValue();</span>
+<span class="nc" id="L59">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;DefaultMapEntry&lt;/code&gt; with the given
+     * key and given value.
+     *
+     * @param key  the key for the entry, may be null
+     * @param value  the value for the entry, may be null
+     */
+    public DefaultMapEntry(Object key, Object value) {
+<span class="nc" id="L69">        super();</span>
+<span class="nc" id="L70">        this.key = key;</span>
+<span class="nc" id="L71">        this.value = value;</span>
+<span class="nc" id="L72">    }</span>
+
+    // Map.Entry interface
+    //-------------------------------------------------------------------------
+    /**
+     * Gets the key from the Map Entry.
+     *
+     * @return the key 
+     */
+    public Object getKey() {
+<span class="nc" id="L82">        return key;</span>
+    }
+
+    /**
+     * Sets the key stored in this Map Entry.
+     * &lt;p&gt;
+     * This Map Entry is not connected to a Map, so only the local data is changed.
+     *
+     * @param key  the new key
+     */
+    public void setKey(Object key) {
+<span class="nc" id="L93">        this.key = key;</span>
+<span class="nc" id="L94">    }</span>
+    
+    /**
+     * Gets the value from the Map Entry.
+     *
+     * @return the value
+     */
+    public Object getValue() {
+<span class="nc" id="L102">        return value;</span>
+    }
+
+    /** 
+     * Sets the value stored in this Map Entry.
+     * &lt;p&gt;
+     * This Map Entry is not connected to a Map, so only the local data is changed.
+     *
+     * @param value  the new value
+     * @return the previous value
+     */
+    public Object setValue(Object value) {
+<span class="nc" id="L114">        Object answer = this.value;</span>
+<span class="nc" id="L115">        this.value = value;</span>
+<span class="nc" id="L116">        return answer;</span>
+    }
+
+    // Basics
+    //-----------------------------------------------------------------------
+    /**
+     * Compares this Map Entry with another Map Entry.
+     * &lt;p&gt;
+     * Implemented per API documentation of {@link java.util.Map.Entry#equals(Object)}
+     * 
+     * @param obj  the object to compare to
+     * @return true if equal key and value
+     */
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (obj == this) {</span>
+<span class="nc" id="L131">            return true;</span>
+        }
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (obj instanceof Map.Entry == false) {</span>
+<span class="nc" id="L134">            return false;</span>
+        }
+<span class="nc" id="L136">        Map.Entry other = (Map.Entry) obj;</span>
+<span class="nc" id="L137">        return</span>
+<span class="nc bnc" id="L138" title="All 6 branches missed.">            (getKey() == null ? other.getKey() == null : getKey().equals(other.getKey())) &amp;&amp;</span>
+<span class="nc bnc" id="L139" title="All 6 branches missed.">            (getValue() == null ? other.getValue() == null : getValue().equals(other.getValue()));</span>
+    }
+     
+    /**
+     * Gets a hashCode compatible with the equals method.
+     * &lt;p&gt;
+     * Implemented per API documentation of {@link java.util.Map.Entry#hashCode()}
+     * 
+     * @return a suitable hash code
+     */
+    public int hashCode() {
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        return (getKey() == null ? 0 : getKey().hashCode()) ^</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">               (getValue() == null ? 0 : getValue().hashCode()); </span>
+    }
+
+    /**
+     * Written to match the output of the Map.Entry's used in 
+     * a {@link java.util.HashMap}. 
+     * @since 3.0
+     */
+    public String toString() {
+<span class="nc" id="L160">        return &quot;&quot;+getKey()+&quot;=&quot;+getValue();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

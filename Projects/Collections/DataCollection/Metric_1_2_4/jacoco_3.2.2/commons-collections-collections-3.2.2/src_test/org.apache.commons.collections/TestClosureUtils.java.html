@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestClosureUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestClosureUtils.java</span></div><h1>TestClosureUtils.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
+import org.apache.commons.collections.functors.NOPClosure;
+
+/**
+ * Tests the org.apache.commons.collections.ClosureUtils class.
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ *
+ * @author Stephen Colebourne
+ */
+public class TestClosureUtils extends junit.framework.TestCase {
+
+<span class="fc" id="L41">    private static final Object cString = &quot;Hello&quot;;</span>
+
+    /**
+     * Construct
+     */
+    public TestClosureUtils(String name) {
+<span class="fc" id="L47">        super(name);</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * Main.
+     * @param args
+     */    
+    public static void main(String[] args) {
+<span class="nc" id="L55">        TestRunner.run(suite());</span>
+<span class="nc" id="L56">    }</span>
+
+    /**
+     * Return class as a test suite.
+     */
+    public static Test suite() {
+<span class="pc bfc" id="L62" title="All 2 branches covered.">        return new TestSuite(TestClosureUtils.class);</span>
+    }
+
+    /**
+     * Set up instance variables required by this test case.
+     */
+    public void setUp() {
+<span class="fc" id="L69">    }</span>
+
+    /**
+     * Tear down instance variables required by this test case.
+     */
+    public void tearDown() {
+<span class="fc" id="L75">    }</span>
+    
+<span class="fc" id="L77">    static class MockClosure implements Closure {</span>
+<span class="fc" id="L78">        int count = 0;</span>
+        
+        public void execute(Object object) {
+<span class="fc" id="L81">            count++;</span>
+<span class="fc" id="L82">        }</span>
+    }
+<span class="fc" id="L84">    static class MockTransformer implements Transformer {</span>
+<span class="fc" id="L85">        int count = 0;</span>
+        
+        public Object transform(Object object) {
+<span class="fc" id="L88">            count++;</span>
+<span class="fc" id="L89">            return object;</span>
+        }
+    }
+
+    // exceptionClosure
+    //------------------------------------------------------------------
+
+    public void testExceptionClosure() {
+<span class="fc" id="L97">        assertNotNull(ClosureUtils.exceptionClosure());</span>
+<span class="fc" id="L98">        assertSame(ClosureUtils.exceptionClosure(), ClosureUtils.exceptionClosure());</span>
+        try {
+<span class="nc" id="L100">            ClosureUtils.exceptionClosure().execute(null);</span>
+<span class="pc" id="L101">        } catch (FunctorException ex) {</span>
+            try {
+<span class="nc" id="L103">                ClosureUtils.exceptionClosure().execute(cString);</span>
+<span class="pc" id="L104">            } catch (FunctorException ex2) {</span>
+<span class="fc" id="L105">                return;</span>
+            }
+        }
+<span class="nc" id="L108">        fail();</span>
+<span class="nc" id="L109">    }</span>
+    
+    // nopClosure
+    //------------------------------------------------------------------
+
+    public void testNopClosure() {
+<span class="fc" id="L115">        StringBuffer buf = new StringBuffer(&quot;Hello&quot;);</span>
+<span class="fc" id="L116">        ClosureUtils.nopClosure().execute(null);</span>
+<span class="fc" id="L117">        assertEquals(&quot;Hello&quot;, buf.toString());</span>
+<span class="fc" id="L118">        ClosureUtils.nopClosure().execute(&quot;Hello&quot;);</span>
+<span class="fc" id="L119">        assertEquals(&quot;Hello&quot;, buf.toString());</span>
+<span class="fc" id="L120">    }</span>
+
+    // invokeClosure
+    //------------------------------------------------------------------
+
+    public void testInvokeClosure() {
+<span class="fc" id="L126">        StringBuffer buf = new StringBuffer(&quot;Hello&quot;);</span>
+<span class="fc" id="L127">        ClosureUtils.invokerClosure(&quot;reverse&quot;).execute(buf);</span>
+<span class="fc" id="L128">        assertEquals(&quot;olleH&quot;, buf.toString());</span>
+<span class="fc" id="L129">        buf = new StringBuffer(&quot;Hello&quot;);</span>
+<span class="fc" id="L130">        ClosureUtils.invokerClosure(&quot;setLength&quot;, new Class[] {Integer.TYPE}, new Object[] {new Integer(2)}).execute(buf);</span>
+<span class="fc" id="L131">        assertEquals(&quot;He&quot;, buf.toString());</span>
+<span class="fc" id="L132">    }</span>
+
+    // forClosure
+    //------------------------------------------------------------------
+
+    public void testForClosure() {
+<span class="fc" id="L138">        MockClosure cmd = new MockClosure();</span>
+<span class="fc" id="L139">        ClosureUtils.forClosure(5, cmd).execute(null);</span>
+<span class="fc" id="L140">        assertEquals(5, cmd.count);</span>
+<span class="fc" id="L141">        assertSame(NOPClosure.INSTANCE, ClosureUtils.forClosure(0, new MockClosure()));</span>
+<span class="fc" id="L142">        assertSame(NOPClosure.INSTANCE, ClosureUtils.forClosure(-1, new MockClosure()));</span>
+<span class="fc" id="L143">        assertSame(NOPClosure.INSTANCE, ClosureUtils.forClosure(1, null));</span>
+<span class="fc" id="L144">        assertSame(NOPClosure.INSTANCE, ClosureUtils.forClosure(3, null));</span>
+<span class="fc" id="L145">        assertSame(cmd, ClosureUtils.forClosure(1, cmd));</span>
+<span class="fc" id="L146">    }</span>
+
+    // whileClosure
+    //------------------------------------------------------------------
+
+    public void testWhileClosure() {
+<span class="fc" id="L152">        MockClosure cmd = new MockClosure();</span>
+<span class="fc" id="L153">        ClosureUtils.whileClosure(PredicateUtils.falsePredicate(), cmd).execute(null);</span>
+<span class="fc" id="L154">        assertEquals(0, cmd.count);</span>
+        
+<span class="fc" id="L156">        cmd = new MockClosure();</span>
+<span class="fc" id="L157">        ClosureUtils.whileClosure(PredicateUtils.uniquePredicate(), cmd).execute(null);</span>
+<span class="fc" id="L158">        assertEquals(1, cmd.count);</span>
+        
+        try {
+<span class="nc" id="L161">            ClosureUtils.whileClosure(null, ClosureUtils.nopClosure());</span>
+<span class="nc" id="L162">            fail();</span>
+<span class="pc" id="L163">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L165">            ClosureUtils.whileClosure(PredicateUtils.falsePredicate(), null);</span>
+<span class="nc" id="L166">            fail();</span>
+<span class="pc" id="L167">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L169">            ClosureUtils.whileClosure(null, null);</span>
+<span class="nc" id="L170">            fail();</span>
+<span class="pc" id="L171">        } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L172">    }</span>
+
+    // doWhileClosure
+    //------------------------------------------------------------------
+
+    public void testDoWhileClosure() {
+<span class="fc" id="L178">        MockClosure cmd = new MockClosure();</span>
+<span class="fc" id="L179">        ClosureUtils.doWhileClosure(cmd, PredicateUtils.falsePredicate()).execute(null);</span>
+<span class="fc" id="L180">        assertEquals(1, cmd.count);</span>
+        
+<span class="fc" id="L182">        cmd = new MockClosure();</span>
+<span class="fc" id="L183">        ClosureUtils.doWhileClosure(cmd, PredicateUtils.uniquePredicate()).execute(null);</span>
+<span class="fc" id="L184">        assertEquals(2, cmd.count);</span>
+        
+        try {
+<span class="nc" id="L187">            ClosureUtils.doWhileClosure(null, null);</span>
+<span class="nc" id="L188">            fail();</span>
+<span class="pc" id="L189">        } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L190">    }</span>
+
+    // chainedClosure
+    //------------------------------------------------------------------
+
+    public void testChainedClosure() {
+<span class="fc" id="L196">        MockClosure a = new MockClosure();</span>
+<span class="fc" id="L197">        MockClosure b = new MockClosure();</span>
+<span class="fc" id="L198">        ClosureUtils.chainedClosure(a, b).execute(null);</span>
+<span class="fc" id="L199">        assertEquals(1, a.count);</span>
+<span class="fc" id="L200">        assertEquals(1, b.count);</span>
+        
+<span class="fc" id="L202">        a = new MockClosure();</span>
+<span class="fc" id="L203">        b = new MockClosure();</span>
+<span class="fc" id="L204">        ClosureUtils.chainedClosure(new Closure[] {a, b, a}).execute(null);</span>
+<span class="fc" id="L205">        assertEquals(2, a.count);</span>
+<span class="fc" id="L206">        assertEquals(1, b.count);</span>
+        
+<span class="fc" id="L208">        a = new MockClosure();</span>
+<span class="fc" id="L209">        b = new MockClosure();</span>
+<span class="fc" id="L210">        Collection coll = new ArrayList();</span>
+<span class="fc" id="L211">        coll.add(b);</span>
+<span class="fc" id="L212">        coll.add(a);</span>
+<span class="fc" id="L213">        coll.add(b);</span>
+<span class="fc" id="L214">        ClosureUtils.chainedClosure(coll).execute(null);</span>
+<span class="fc" id="L215">        assertEquals(1, a.count);</span>
+<span class="fc" id="L216">        assertEquals(2, b.count);</span>
+        
+<span class="fc" id="L218">        assertSame(NOPClosure.INSTANCE, ClosureUtils.chainedClosure(new Closure[0]));</span>
+<span class="fc" id="L219">        assertSame(NOPClosure.INSTANCE, ClosureUtils.chainedClosure(Collections.EMPTY_LIST));</span>
+        
+        try {
+<span class="nc" id="L222">            ClosureUtils.chainedClosure(null, null);</span>
+<span class="nc" id="L223">            fail();</span>
+<span class="pc" id="L224">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L226">            ClosureUtils.chainedClosure((Closure[]) null);</span>
+<span class="nc" id="L227">            fail();</span>
+<span class="pc" id="L228">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L230">            ClosureUtils.chainedClosure((Collection) null);</span>
+<span class="nc" id="L231">            fail();</span>
+<span class="pc" id="L232">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L234">            ClosureUtils.chainedClosure(new Closure[] {null, null});</span>
+<span class="nc" id="L235">            fail();</span>
+<span class="pc" id="L236">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="fc" id="L238">            coll = new ArrayList();</span>
+<span class="fc" id="L239">            coll.add(null);</span>
+<span class="fc" id="L240">            coll.add(null);</span>
+<span class="nc" id="L241">            ClosureUtils.chainedClosure(coll);</span>
+<span class="nc" id="L242">            fail();</span>
+<span class="pc" id="L243">        } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L244">    }</span>
+    
+    // ifClosure
+    //------------------------------------------------------------------
+
+    public void testIfClosure() {
+<span class="fc" id="L250">        MockClosure a = new MockClosure();</span>
+<span class="fc" id="L251">        MockClosure b = null;</span>
+<span class="fc" id="L252">        ClosureUtils.ifClosure(PredicateUtils.truePredicate(), a).execute(null);</span>
+<span class="fc" id="L253">        assertEquals(1, a.count);</span>
+
+<span class="fc" id="L255">        a = new MockClosure();</span>
+<span class="fc" id="L256">        ClosureUtils.ifClosure(PredicateUtils.falsePredicate(), a).execute(null);</span>
+<span class="fc" id="L257">        assertEquals(0, a.count);</span>
+
+<span class="fc" id="L259">        a = new MockClosure();</span>
+<span class="fc" id="L260">        b = new MockClosure();</span>
+<span class="fc" id="L261">        ClosureUtils.ifClosure(PredicateUtils.truePredicate(), a, b).execute(null);</span>
+<span class="fc" id="L262">        assertEquals(1, a.count);</span>
+<span class="fc" id="L263">        assertEquals(0, b.count);</span>
+        
+<span class="fc" id="L265">        a = new MockClosure();</span>
+<span class="fc" id="L266">        b = new MockClosure();</span>
+<span class="fc" id="L267">        ClosureUtils.ifClosure(PredicateUtils.falsePredicate(), a, b).execute(null);</span>
+<span class="fc" id="L268">        assertEquals(0, a.count);</span>
+<span class="fc" id="L269">        assertEquals(1, b.count);</span>
+<span class="fc" id="L270">    }        </span>
+
+    // switchClosure
+    //------------------------------------------------------------------
+
+    public void testSwitchClosure() {
+<span class="fc" id="L276">        MockClosure a = new MockClosure();</span>
+<span class="fc" id="L277">        MockClosure b = new MockClosure();</span>
+<span class="fc" id="L278">        ClosureUtils.switchClosure(</span>
+<span class="fc" id="L279">            new Predicate[] {PredicateUtils.equalPredicate(&quot;HELLO&quot;), PredicateUtils.equalPredicate(&quot;THERE&quot;)}, </span>
+<span class="fc" id="L280">            new Closure[] {a, b}).execute(&quot;WELL&quot;);</span>
+<span class="fc" id="L281">        assertEquals(0, a.count);</span>
+<span class="fc" id="L282">        assertEquals(0, b.count);</span>
+        
+<span class="fc" id="L284">        a = new MockClosure();</span>
+<span class="fc" id="L285">        b = new MockClosure();</span>
+<span class="fc" id="L286">        ClosureUtils.switchClosure(</span>
+<span class="fc" id="L287">            new Predicate[] {PredicateUtils.equalPredicate(&quot;HELLO&quot;), PredicateUtils.equalPredicate(&quot;THERE&quot;)}, </span>
+<span class="fc" id="L288">            new Closure[] {a, b}).execute(&quot;HELLO&quot;);</span>
+<span class="fc" id="L289">        assertEquals(1, a.count);</span>
+<span class="fc" id="L290">        assertEquals(0, b.count);</span>
+        
+<span class="fc" id="L292">        a = new MockClosure();</span>
+<span class="fc" id="L293">        b = new MockClosure();</span>
+<span class="fc" id="L294">        MockClosure c = new MockClosure();</span>
+<span class="fc" id="L295">        ClosureUtils.switchClosure(</span>
+<span class="fc" id="L296">            new Predicate[] {PredicateUtils.equalPredicate(&quot;HELLO&quot;), PredicateUtils.equalPredicate(&quot;THERE&quot;)}, </span>
+<span class="fc" id="L297">            new Closure[] {a, b}, c).execute(&quot;WELL&quot;);</span>
+<span class="fc" id="L298">        assertEquals(0, a.count);</span>
+<span class="fc" id="L299">        assertEquals(0, b.count);</span>
+<span class="fc" id="L300">        assertEquals(1, c.count);</span>
+        
+<span class="fc" id="L302">        a = new MockClosure();</span>
+<span class="fc" id="L303">        b = new MockClosure();</span>
+<span class="fc" id="L304">        Map map = new HashMap();</span>
+<span class="fc" id="L305">        map.put(PredicateUtils.equalPredicate(&quot;HELLO&quot;), a);</span>
+<span class="fc" id="L306">        map.put(PredicateUtils.equalPredicate(&quot;THERE&quot;), b);</span>
+<span class="fc" id="L307">        ClosureUtils.switchClosure(map).execute(null);</span>
+<span class="fc" id="L308">        assertEquals(0, a.count);</span>
+<span class="fc" id="L309">        assertEquals(0, b.count);</span>
+
+<span class="fc" id="L311">        a = new MockClosure();</span>
+<span class="fc" id="L312">        b = new MockClosure();</span>
+<span class="fc" id="L313">        map = new HashMap();</span>
+<span class="fc" id="L314">        map.put(PredicateUtils.equalPredicate(&quot;HELLO&quot;), a);</span>
+<span class="fc" id="L315">        map.put(PredicateUtils.equalPredicate(&quot;THERE&quot;), b);</span>
+<span class="fc" id="L316">        ClosureUtils.switchClosure(map).execute(&quot;THERE&quot;);</span>
+<span class="fc" id="L317">        assertEquals(0, a.count);</span>
+<span class="fc" id="L318">        assertEquals(1, b.count);</span>
+
+<span class="fc" id="L320">        a = new MockClosure();</span>
+<span class="fc" id="L321">        b = new MockClosure();</span>
+<span class="fc" id="L322">        c = new MockClosure();</span>
+<span class="fc" id="L323">        map = new HashMap();</span>
+<span class="fc" id="L324">        map.put(PredicateUtils.equalPredicate(&quot;HELLO&quot;), a);</span>
+<span class="fc" id="L325">        map.put(PredicateUtils.equalPredicate(&quot;THERE&quot;), b);</span>
+<span class="fc" id="L326">        map.put(null, c);</span>
+<span class="fc" id="L327">        ClosureUtils.switchClosure(map).execute(&quot;WELL&quot;);</span>
+<span class="fc" id="L328">        assertEquals(0, a.count);</span>
+<span class="fc" id="L329">        assertEquals(0, b.count);</span>
+<span class="fc" id="L330">        assertEquals(1, c.count);</span>
+        
+<span class="fc" id="L332">        assertSame(NOPClosure.INSTANCE, ClosureUtils.switchClosure(new Predicate[0], new Closure[0]));</span>
+<span class="fc" id="L333">        assertSame(NOPClosure.INSTANCE, ClosureUtils.switchClosure(new HashMap()));</span>
+<span class="fc" id="L334">        map = new HashMap();</span>
+<span class="fc" id="L335">        map.put(null, null);</span>
+<span class="fc" id="L336">        assertSame(NOPClosure.INSTANCE, ClosureUtils.switchClosure(map));</span>
+
+        try {
+<span class="nc" id="L339">            ClosureUtils.switchClosure(null, null);</span>
+<span class="nc" id="L340">            fail();</span>
+<span class="pc" id="L341">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L343">            ClosureUtils.switchClosure((Predicate[]) null, (Closure[]) null);</span>
+<span class="nc" id="L344">            fail();</span>
+<span class="pc" id="L345">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L347">            ClosureUtils.switchClosure((Map) null);</span>
+<span class="nc" id="L348">            fail();</span>
+<span class="pc" id="L349">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L351">            ClosureUtils.switchClosure(new Predicate[2], new Closure[2]);</span>
+<span class="nc" id="L352">            fail();</span>
+<span class="pc" id="L353">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L355">            ClosureUtils.switchClosure(</span>
+<span class="fc" id="L356">                    new Predicate[] {PredicateUtils.truePredicate()},</span>
+<span class="fc" id="L357">                    new Closure[] {a,b});</span>
+<span class="nc" id="L358">            fail();</span>
+<span class="pc" id="L359">        } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L360">    }</span>
+    
+    // switchMapClosure
+    //------------------------------------------------------------------
+
+    public void testSwitchMapClosure() {
+<span class="fc" id="L366">        MockClosure a = new MockClosure();</span>
+<span class="fc" id="L367">        MockClosure b = new MockClosure();</span>
+<span class="fc" id="L368">        Map map = new HashMap();</span>
+<span class="fc" id="L369">        map.put(&quot;HELLO&quot;, a);</span>
+<span class="fc" id="L370">        map.put(&quot;THERE&quot;, b);</span>
+<span class="fc" id="L371">        ClosureUtils.switchMapClosure(map).execute(null);</span>
+<span class="fc" id="L372">        assertEquals(0, a.count);</span>
+<span class="fc" id="L373">        assertEquals(0, b.count);</span>
+
+<span class="fc" id="L375">        a = new MockClosure();</span>
+<span class="fc" id="L376">        b = new MockClosure();</span>
+<span class="fc" id="L377">        map = new HashMap();</span>
+<span class="fc" id="L378">        map.put(&quot;HELLO&quot;, a);</span>
+<span class="fc" id="L379">        map.put(&quot;THERE&quot;, b);</span>
+<span class="fc" id="L380">        ClosureUtils.switchMapClosure(map).execute(&quot;THERE&quot;);</span>
+<span class="fc" id="L381">        assertEquals(0, a.count);</span>
+<span class="fc" id="L382">        assertEquals(1, b.count);</span>
+
+<span class="fc" id="L384">        a = new MockClosure();</span>
+<span class="fc" id="L385">        b = new MockClosure();</span>
+<span class="fc" id="L386">        MockClosure c = new MockClosure();</span>
+<span class="fc" id="L387">        map = new HashMap();</span>
+<span class="fc" id="L388">        map.put(&quot;HELLO&quot;, a);</span>
+<span class="fc" id="L389">        map.put(&quot;THERE&quot;, b);</span>
+<span class="fc" id="L390">        map.put(null, c);</span>
+<span class="fc" id="L391">        ClosureUtils.switchMapClosure(map).execute(&quot;WELL&quot;);</span>
+<span class="fc" id="L392">        assertEquals(0, a.count);</span>
+<span class="fc" id="L393">        assertEquals(0, b.count);</span>
+<span class="fc" id="L394">        assertEquals(1, c.count);</span>
+
+<span class="fc" id="L396">        assertSame(NOPClosure.INSTANCE, ClosureUtils.switchMapClosure(new HashMap()));</span>
+        
+        try {
+<span class="nc" id="L399">            ClosureUtils.switchMapClosure(null);</span>
+<span class="nc" id="L400">            fail();</span>
+<span class="pc" id="L401">        } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L402">    }</span>
+    
+    // asClosure
+    //------------------------------------------------------------------
+
+    public void testTransformerClosure() {
+<span class="fc" id="L408">        MockTransformer mock = new MockTransformer();</span>
+<span class="fc" id="L409">        Closure closure = ClosureUtils.asClosure(mock);</span>
+<span class="fc" id="L410">        closure.execute(null);</span>
+<span class="fc" id="L411">        assertEquals(1, mock.count);</span>
+<span class="fc" id="L412">        closure.execute(null);</span>
+<span class="fc" id="L413">        assertEquals(2, mock.count);</span>
+        
+<span class="fc" id="L415">        assertSame(ClosureUtils.nopClosure(), ClosureUtils.asClosure(null));</span>
+<span class="fc" id="L416">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

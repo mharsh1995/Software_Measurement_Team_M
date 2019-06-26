@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ListOrderedMapTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.map</a> &gt; <span class="el_source">ListOrderedMapTest.java</span></div><h1>ListOrderedMapTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.map;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections4.BulkTest;
+import org.apache.commons.collections4.MapIterator;
+import org.apache.commons.collections4.list.AbstractListTest;
+
+/**
+ * Extension of {@link AbstractOrderedMapTest} for exercising the {@link ListOrderedMap}
+ * implementation.
+ *
+ * @since 3.0
+ * @version $Id$
+ */
+public class ListOrderedMapTest&lt;K, V&gt; extends AbstractOrderedMapTest&lt;K, V&gt; {
+
+    public ListOrderedMapTest(final String testName) {
+<span class="fc" id="L41">        super(testName);</span>
+<span class="fc" id="L42">    }</span>
+
+    public static Test suite() {
+<span class="fc" id="L45">        return BulkTest.makeSuite(ListOrderedMapTest.class);</span>
+    }
+
+    @Override
+    public ListOrderedMap&lt;K, V&gt; makeObject() {
+<span class="fc" id="L50">        return ListOrderedMap.listOrderedMap(new HashMap&lt;K, V&gt;());</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ListOrderedMap&lt;K, V&gt; makeFullMap() {
+<span class="fc" id="L58">        return (ListOrderedMap&lt;K, V&gt;) super.makeFullMap();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testGetByIndex() {
+<span class="fc" id="L63">        resetEmpty();</span>
+<span class="fc" id="L64">        ListOrderedMap&lt;K, V&gt; lom = getMap();</span>
+        try {
+<span class="nc" id="L66">            lom.get(0);</span>
+<span class="pc" id="L67">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L69">            lom.get(-1);</span>
+<span class="pc" id="L70">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L72">        resetFull();</span>
+<span class="fc" id="L73">        lom = getMap();</span>
+        try {
+<span class="nc" id="L75">            lom.get(-1);</span>
+<span class="pc" id="L76">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L78">            lom.get(lom.size());</span>
+<span class="pc" id="L79">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L81">        int i = 0;</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        for (final MapIterator&lt;K, V&gt; it = lom.mapIterator(); it.hasNext(); i++) {</span>
+<span class="fc" id="L83">            assertSame(it.next(), lom.get(i));</span>
+        }
+<span class="fc" id="L85">    }</span>
+
+    public void testGetValueByIndex() {
+<span class="fc" id="L88">        resetEmpty();</span>
+<span class="fc" id="L89">        ListOrderedMap&lt;K, V&gt; lom = getMap();</span>
+        try {
+<span class="nc" id="L91">            lom.getValue(0);</span>
+<span class="pc" id="L92">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L94">            lom.getValue(-1);</span>
+<span class="pc" id="L95">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L97">        resetFull();</span>
+<span class="fc" id="L98">        lom = getMap();</span>
+        try {
+<span class="nc" id="L100">            lom.getValue(-1);</span>
+<span class="pc" id="L101">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L103">            lom.getValue(lom.size());</span>
+<span class="pc" id="L104">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L106">        int i = 0;</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        for (final MapIterator&lt;K, V&gt; it = lom.mapIterator(); it.hasNext(); i++) {</span>
+<span class="fc" id="L108">            it.next();</span>
+<span class="fc" id="L109">            assertSame(it.getValue(), lom.getValue(i));</span>
+        }
+<span class="fc" id="L111">    }</span>
+
+    public void testIndexOf() {
+<span class="fc" id="L114">        resetEmpty();</span>
+<span class="fc" id="L115">        ListOrderedMap&lt;K, V&gt; lom = getMap();</span>
+<span class="fc" id="L116">        assertEquals(-1, lom.indexOf(getOtherKeys()));</span>
+
+<span class="fc" id="L118">        resetFull();</span>
+<span class="fc" id="L119">        lom = getMap();</span>
+<span class="fc" id="L120">        final List&lt;K&gt; list = new ArrayList&lt;K&gt;();</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        for (final MapIterator&lt;K, V&gt; it = lom.mapIterator(); it.hasNext();) {</span>
+<span class="fc" id="L122">            list.add(it.next());</span>
+        }
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        for (int i = 0; i &lt; list.size(); i++) {</span>
+<span class="fc" id="L125">            assertEquals(i, lom.indexOf(list.get(i)));</span>
+        }
+<span class="fc" id="L127">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testSetValueByIndex() {
+<span class="fc" id="L131">        resetEmpty();</span>
+<span class="fc" id="L132">        ListOrderedMap&lt;K, V&gt; lom = getMap();</span>
+        try {
+<span class="nc" id="L134">            lom.setValue(0, (V) &quot;&quot;);</span>
+<span class="pc" id="L135">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L137">            lom.setValue(-1, (V) &quot;&quot;);</span>
+<span class="pc" id="L138">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L140">        resetFull();</span>
+<span class="fc" id="L141">        lom = getMap();</span>
+        try {
+<span class="nc" id="L143">            lom.setValue(-1, (V) &quot;&quot;);</span>
+<span class="pc" id="L144">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L146">            lom.setValue(lom.size(), (V) &quot;&quot;);</span>
+<span class="pc" id="L147">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        for (int i = 0; i &lt; lom.size(); i++) {</span>
+<span class="fc" id="L150">            final V value = lom.getValue(i);</span>
+<span class="fc" id="L151">            final Object input = Integer.valueOf(i);</span>
+<span class="fc" id="L152">            assertEquals(value, lom.setValue(i, (V) input));</span>
+<span class="fc" id="L153">            assertEquals(input, lom.getValue(i));</span>
+        }
+<span class="fc" id="L155">    }</span>
+
+    public void testRemoveByIndex() {
+<span class="fc" id="L158">        resetEmpty();</span>
+<span class="fc" id="L159">        ListOrderedMap&lt;K, V&gt; lom = getMap();</span>
+        try {
+<span class="nc" id="L161">            lom.remove(0);</span>
+<span class="pc" id="L162">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L164">            lom.remove(-1);</span>
+<span class="pc" id="L165">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L167">        resetFull();</span>
+<span class="fc" id="L168">        lom = getMap();</span>
+        try {
+<span class="nc" id="L170">            lom.remove(-1);</span>
+<span class="pc" id="L171">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L173">            lom.remove(lom.size());</span>
+<span class="pc" id="L174">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+<span class="fc" id="L176">        final List&lt;K&gt; list = new ArrayList&lt;K&gt;();</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        for (final MapIterator&lt;K, V&gt; it = lom.mapIterator(); it.hasNext();) {</span>
+<span class="fc" id="L178">            list.add(it.next());</span>
+        }
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        for (int i = 0; i &lt; list.size(); i++) {</span>
+<span class="fc" id="L181">            final Object key = list.get(i);</span>
+<span class="fc" id="L182">            final Object value = lom.get(key);</span>
+<span class="fc" id="L183">            assertEquals(value, lom.remove(i));</span>
+<span class="fc" id="L184">            list.remove(i);</span>
+<span class="fc" id="L185">            assertEquals(false, lom.containsKey(key));</span>
+        }
+<span class="fc" id="L187">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testPut_intObjectObject() {
+<span class="fc" id="L191">        resetEmpty();</span>
+<span class="fc" id="L192">        ListOrderedMap&lt;K, V&gt; lom = getMap();</span>
+
+        try {
+<span class="nc" id="L195">            lom.put(1, (K) &quot;testInsert1&quot;, (V) &quot;testInsert1v&quot;);</span>
+<span class="nc" id="L196">            fail(&quot;should not be able to insert at pos 1 in empty Map&quot;);</span>
+<span class="pc" id="L197">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L199">            lom.put(-1, (K) &quot;testInsert-1&quot;, (V) &quot;testInsert-1v&quot;);</span>
+<span class="nc" id="L200">            fail(&quot;should not be able to insert at pos -1 in empty Map&quot;);</span>
+<span class="pc" id="L201">        } catch (final IndexOutOfBoundsException ex) {}</span>
+
+        // put where key doesn't exist
+<span class="fc" id="L204">        lom.put(0, (K) &quot;testInsert1&quot;, (V) &quot;testInsert1v&quot;);</span>
+<span class="fc" id="L205">        assertEquals(&quot;testInsert1v&quot;, lom.getValue(0));</span>
+
+<span class="fc" id="L207">        lom.put((K) &quot;testInsertPut&quot;, (V) &quot;testInsertPutv&quot;);</span>
+<span class="fc" id="L208">        assertEquals(&quot;testInsert1v&quot;, lom.getValue(0));</span>
+<span class="fc" id="L209">        assertEquals(&quot;testInsertPutv&quot;, lom.getValue(1));</span>
+
+<span class="fc" id="L211">        lom.put(0, (K) &quot;testInsert0&quot;, (V) &quot;testInsert0v&quot;);</span>
+<span class="fc" id="L212">        assertEquals(&quot;testInsert0v&quot;, lom.getValue(0));</span>
+<span class="fc" id="L213">        assertEquals(&quot;testInsert1v&quot;, lom.getValue(1));</span>
+<span class="fc" id="L214">        assertEquals(&quot;testInsertPutv&quot;, lom.getValue(2));</span>
+
+<span class="fc" id="L216">        lom.put(3, (K) &quot;testInsert3&quot;, (V) &quot;testInsert3v&quot;);</span>
+<span class="fc" id="L217">        assertEquals(&quot;testInsert0v&quot;, lom.getValue(0));</span>
+<span class="fc" id="L218">        assertEquals(&quot;testInsert1v&quot;, lom.getValue(1));</span>
+<span class="fc" id="L219">        assertEquals(&quot;testInsertPutv&quot;, lom.getValue(2));</span>
+<span class="fc" id="L220">        assertEquals(&quot;testInsert3v&quot;, lom.getValue(3));</span>
+
+        // put in a full map
+<span class="fc" id="L223">        resetFull();</span>
+<span class="fc" id="L224">        lom = getMap();</span>
+<span class="fc" id="L225">        final ListOrderedMap&lt;K, V&gt; lom2 = new ListOrderedMap&lt;K, V&gt;();</span>
+<span class="fc" id="L226">        lom2.putAll(lom);</span>
+
+<span class="fc" id="L228">        lom2.put(0, (K) &quot;testInsert0&quot;, (V) &quot;testInsert0v&quot;);</span>
+<span class="fc" id="L229">        assertEquals(&quot;testInsert0v&quot;, lom2.getValue(0));</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">        for (int i = 0; i &lt; lom.size(); i++) {</span>
+<span class="fc" id="L231">            assertEquals(lom2.getValue(i + 1), lom.getValue(i));</span>
+        }
+
+        // put where key does exist
+<span class="fc" id="L235">        final Integer i1 = Integer.valueOf(1);</span>
+<span class="fc" id="L236">        final Integer i1b = Integer.valueOf(1);</span>
+<span class="fc" id="L237">        final Integer i2 = Integer.valueOf(2);</span>
+<span class="fc" id="L238">        final Integer i3 = Integer.valueOf(3);</span>
+
+<span class="fc" id="L240">        resetEmpty();</span>
+<span class="fc" id="L241">        lom = getMap();</span>
+<span class="fc" id="L242">        lom.put((K) i1, (V) &quot;1&quot;);</span>
+<span class="fc" id="L243">        lom.put((K) i2, (V) &quot;2&quot;);</span>
+<span class="fc" id="L244">        lom.put((K) i3, (V) &quot;3&quot;);</span>
+<span class="fc" id="L245">        lom.put(0, (K) i1, (V) &quot;One&quot;);</span>
+<span class="fc" id="L246">        assertEquals(3, lom.size());</span>
+<span class="fc" id="L247">        assertEquals(3, lom.map.size());</span>
+<span class="fc" id="L248">        assertEquals(3, lom.keyList().size());</span>
+<span class="fc" id="L249">        assertEquals(&quot;One&quot;, lom.getValue(0));</span>
+<span class="fc" id="L250">        assertSame(i1, lom.get(0));</span>
+
+<span class="fc" id="L252">        resetEmpty();</span>
+<span class="fc" id="L253">        lom = getMap();</span>
+<span class="fc" id="L254">        lom.put((K) i1, (V) &quot;1&quot;);</span>
+<span class="fc" id="L255">        lom.put((K) i2, (V) &quot;2&quot;);</span>
+<span class="fc" id="L256">        lom.put((K) i3, (V) &quot;3&quot;);</span>
+<span class="fc" id="L257">        lom.put(0, (K) i1b, (V) &quot;One&quot;);</span>
+<span class="fc" id="L258">        assertEquals(3, lom.size());</span>
+<span class="fc" id="L259">        assertEquals(3, lom.map.size());</span>
+<span class="fc" id="L260">        assertEquals(3, lom.keyList().size());</span>
+<span class="fc" id="L261">        assertEquals(&quot;One&quot;, lom.getValue(0));</span>
+<span class="fc" id="L262">        assertEquals(&quot;2&quot;, lom.getValue(1));</span>
+<span class="fc" id="L263">        assertEquals(&quot;3&quot;, lom.getValue(2));</span>
+<span class="fc" id="L264">        assertSame(i1b, lom.get(0));</span>
+
+<span class="fc" id="L266">        resetEmpty();</span>
+<span class="fc" id="L267">        lom = getMap();</span>
+<span class="fc" id="L268">        lom.put((K) i1, (V) &quot;1&quot;);</span>
+<span class="fc" id="L269">        lom.put((K) i2, (V) &quot;2&quot;);</span>
+<span class="fc" id="L270">        lom.put((K) i3, (V) &quot;3&quot;);</span>
+<span class="fc" id="L271">        lom.put(1, (K) i1b, (V) &quot;One&quot;);</span>
+<span class="fc" id="L272">        assertEquals(3, lom.size());</span>
+<span class="fc" id="L273">        assertEquals(3, lom.map.size());</span>
+<span class="fc" id="L274">        assertEquals(3, lom.keyList().size());</span>
+<span class="fc" id="L275">        assertEquals(&quot;One&quot;, lom.getValue(0));</span>
+<span class="fc" id="L276">        assertEquals(&quot;2&quot;, lom.getValue(1));</span>
+<span class="fc" id="L277">        assertEquals(&quot;3&quot;, lom.getValue(2));</span>
+
+<span class="fc" id="L279">        resetEmpty();</span>
+<span class="fc" id="L280">        lom = getMap();</span>
+<span class="fc" id="L281">        lom.put((K) i1, (V) &quot;1&quot;);</span>
+<span class="fc" id="L282">        lom.put((K) i2, (V) &quot;2&quot;);</span>
+<span class="fc" id="L283">        lom.put((K) i3, (V) &quot;3&quot;);</span>
+<span class="fc" id="L284">        lom.put(2, (K) i1b, (V) &quot;One&quot;);</span>
+<span class="fc" id="L285">        assertEquals(3, lom.size());</span>
+<span class="fc" id="L286">        assertEquals(3, lom.map.size());</span>
+<span class="fc" id="L287">        assertEquals(3, lom.keyList().size());</span>
+<span class="fc" id="L288">        assertEquals(&quot;2&quot;, lom.getValue(0));</span>
+<span class="fc" id="L289">        assertEquals(&quot;One&quot;, lom.getValue(1));</span>
+<span class="fc" id="L290">        assertEquals(&quot;3&quot;, lom.getValue(2));</span>
+
+<span class="fc" id="L292">        resetEmpty();</span>
+<span class="fc" id="L293">        lom = getMap();</span>
+<span class="fc" id="L294">        lom.put((K) i1, (V) &quot;1&quot;);</span>
+<span class="fc" id="L295">        lom.put((K) i2, (V) &quot;2&quot;);</span>
+<span class="fc" id="L296">        lom.put((K) i3, (V) &quot;3&quot;);</span>
+<span class="fc" id="L297">        lom.put(3, (K) i1b, (V) &quot;One&quot;);</span>
+<span class="fc" id="L298">        assertEquals(3, lom.size());</span>
+<span class="fc" id="L299">        assertEquals(3, lom.map.size());</span>
+<span class="fc" id="L300">        assertEquals(3, lom.keyList().size());</span>
+<span class="fc" id="L301">        assertEquals(&quot;2&quot;, lom.getValue(0));</span>
+<span class="fc" id="L302">        assertEquals(&quot;3&quot;, lom.getValue(1));</span>
+<span class="fc" id="L303">        assertEquals(&quot;One&quot;, lom.getValue(2));</span>
+<span class="fc" id="L304">    }</span>
+
+    public void testPutAllWithIndex() {
+<span class="fc" id="L307">        resetEmpty();</span>
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L309">        final ListOrderedMap&lt;String, String&gt; lom = (ListOrderedMap&lt;String, String&gt;) map;</span>
+
+        // Create Initial Data
+<span class="fc" id="L312">        lom.put(&quot;testInsert0&quot;, &quot;testInsert0v&quot;);</span>
+<span class="fc" id="L313">        lom.put(&quot;testInsert1&quot;, &quot;testInsert1v&quot;);</span>
+<span class="fc" id="L314">        lom.put(&quot;testInsert2&quot;, &quot;testInsert2v&quot;);</span>
+<span class="fc" id="L315">        assertEquals(&quot;testInsert0v&quot;, lom.getValue(0));</span>
+<span class="fc" id="L316">        assertEquals(&quot;testInsert1v&quot;, lom.getValue(1));</span>
+<span class="fc" id="L317">        assertEquals(&quot;testInsert2v&quot;, lom.getValue(2));</span>
+
+        // Create New Test Map and Add using putAll(int, Object, Object)
+<span class="fc" id="L320">        final Map&lt;String, String&gt; values = new ListOrderedMap&lt;String, String&gt;();</span>
+<span class="fc" id="L321">        values.put(&quot;NewInsert0&quot;, &quot;NewInsert0v&quot;);</span>
+<span class="fc" id="L322">        values.put(&quot;NewInsert1&quot;, &quot;NewInsert1v&quot;);</span>
+<span class="fc" id="L323">        lom.putAll(1, values);</span>
+
+        // Perform Asserts
+<span class="fc" id="L326">        assertEquals(&quot;testInsert0v&quot;, lom.getValue(0));</span>
+<span class="fc" id="L327">        assertEquals(&quot;NewInsert0v&quot;, lom.getValue(1));</span>
+<span class="fc" id="L328">        assertEquals(&quot;NewInsert1v&quot;, lom.getValue(2));</span>
+<span class="fc" id="L329">        assertEquals(&quot;testInsert1v&quot;, lom.getValue(3));</span>
+<span class="fc" id="L330">        assertEquals(&quot;testInsert2v&quot;, lom.getValue(4));</span>
+<span class="fc" id="L331">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testPutAllWithIndexBug441() {
+        // see COLLECTIONS-441
+<span class="fc" id="L336">        resetEmpty();</span>
+<span class="fc" id="L337">        final ListOrderedMap&lt;K, V&gt; lom = getMap();</span>
+
+<span class="fc" id="L339">        final int size = 5;</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L341">            lom.put((K) Integer.valueOf(i), (V) Boolean.TRUE);</span>
+        }
+
+<span class="fc" id="L344">        final Map&lt;K, V&gt; map = new TreeMap&lt;K, V&gt;();</span>
+<span class="fc bfc" id="L345" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L346">            map.put((K) Integer.valueOf(i), (V) Boolean.FALSE);</span>
+        }
+
+<span class="fc" id="L349">        lom.putAll(3, map);</span>
+
+<span class="fc" id="L351">        final List&lt;K&gt; orderedList = lom.asList();</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L353">            assertEquals(Integer.valueOf(i), orderedList.get(i));</span>
+        }
+<span class="fc" id="L355">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testValueList_getByIndex() {
+<span class="fc" id="L359">        resetFull();</span>
+<span class="fc" id="L360">        final ListOrderedMap&lt;K, V&gt; lom = getMap();</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">        for (int i = 0; i &lt; lom.size(); i++) {</span>
+<span class="fc" id="L362">            final V expected = lom.getValue(i);</span>
+<span class="fc" id="L363">            assertEquals(expected, lom.valueList().get(i));</span>
+        }
+<span class="fc" id="L365">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testValueList_setByIndex() {
+<span class="fc" id="L369">        resetFull();</span>
+<span class="fc" id="L370">        final ListOrderedMap&lt;K, V&gt; lom = getMap();</span>
+<span class="fc bfc" id="L371" title="All 2 branches covered.">        for (int i = 0; i &lt; lom.size(); i++) {</span>
+<span class="fc" id="L372">            final Object input = Integer.valueOf(i);</span>
+<span class="fc" id="L373">            final V expected = lom.getValue(i);</span>
+<span class="fc" id="L374">            assertEquals(expected, lom.valueList().set(i, (V) input));</span>
+<span class="fc" id="L375">            assertEquals(input, lom.getValue(i));</span>
+<span class="fc" id="L376">            assertEquals(input, lom.valueList().get(i));</span>
+        }
+<span class="fc" id="L378">    }</span>
+
+    public void testValueList_removeByIndex() {
+<span class="fc" id="L381">        resetFull();</span>
+<span class="fc" id="L382">        final ListOrderedMap&lt;K, V&gt; lom = getMap();</span>
+<span class="fc bfc" id="L383" title="All 2 branches covered.">        while (lom.size() &gt; 1) {</span>
+<span class="fc" id="L384">            final V expected = lom.getValue(1);</span>
+<span class="fc" id="L385">            assertEquals(expected, lom.valueList().remove(1));</span>
+        }
+<span class="fc" id="L387">    }</span>
+
+    public void testCOLLECTIONS_474_nullValues () {
+<span class="fc" id="L390">        Object key1 = new Object();</span>
+<span class="fc" id="L391">        Object key2 = new Object();</span>
+<span class="fc" id="L392">        HashMap&lt;Object, Object&gt; hmap = new HashMap&lt;Object, Object&gt;();</span>
+<span class="fc" id="L393">        hmap.put(key1, null);</span>
+<span class="fc" id="L394">        hmap.put(key2, null);</span>
+<span class="fc" id="L395">        assertEquals(&quot;Should have two elements&quot;, 2, hmap.size());</span>
+<span class="fc" id="L396">        ListOrderedMap&lt;Object, Object&gt; listMap = new ListOrderedMap&lt;Object, Object&gt;();</span>
+<span class="fc" id="L397">        listMap.put(key1, null);</span>
+<span class="fc" id="L398">        listMap.put(key2, null);</span>
+<span class="fc" id="L399">        assertEquals(&quot;Should have two elements&quot;, 2, listMap.size());</span>
+<span class="fc" id="L400">        listMap.putAll(2, hmap);</span>
+<span class="fc" id="L401">    }</span>
+
+    public void testCOLLECTIONS_474_nonNullValues () {
+<span class="fc" id="L404">        Object key1 = new Object();</span>
+<span class="fc" id="L405">        Object key2 = new Object();</span>
+<span class="fc" id="L406">        HashMap&lt;Object, Object&gt; hmap = new HashMap&lt;Object, Object&gt;();</span>
+<span class="fc" id="L407">        hmap.put(key1, &quot;1&quot;);</span>
+<span class="fc" id="L408">        hmap.put(key2, &quot;2&quot;);</span>
+<span class="fc" id="L409">        assertEquals(&quot;Should have two elements&quot;, 2, hmap.size());</span>
+<span class="fc" id="L410">        ListOrderedMap&lt;Object, Object&gt; listMap = new ListOrderedMap&lt;Object, Object&gt;();</span>
+<span class="fc" id="L411">        listMap.put(key1, &quot;3&quot;);</span>
+<span class="fc" id="L412">        listMap.put(key2, &quot;4&quot;);</span>
+<span class="fc" id="L413">        assertEquals(&quot;Should have two elements&quot;, 2, listMap.size());</span>
+<span class="fc" id="L414">        listMap.putAll(2, hmap);</span>
+<span class="fc" id="L415">    }</span>
+
+    //-----------------------------------------------------------------------
+    public BulkTest bulkTestKeyListView() {
+<span class="fc" id="L419">        return new TestKeyListView();</span>
+    }
+
+    public BulkTest bulkTestValueListView() {
+<span class="fc" id="L423">        return new TestValueListView();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public class TestKeyListView extends AbstractListTest&lt;K&gt; {
+<span class="fc" id="L428">        TestKeyListView() {</span>
+<span class="fc" id="L429">            super(&quot;TestKeyListView&quot;);</span>
+<span class="fc" id="L430">        }</span>
+
+        @Override
+        public List&lt;K&gt; makeObject() {
+<span class="fc" id="L434">            return ListOrderedMapTest.this.makeObject().keyList();</span>
+        }
+        @Override
+        public List&lt;K&gt; makeFullCollection() {
+<span class="fc" id="L438">            return ListOrderedMapTest.this.makeFullMap().keyList();</span>
+        }
+
+        @Override
+        public K[] getFullElements() {
+<span class="fc" id="L443">            return ListOrderedMapTest.this.getSampleKeys();</span>
+        }
+        @Override
+        public boolean isAddSupported() {
+<span class="fc" id="L447">            return false;</span>
+        }
+        @Override
+        public boolean isRemoveSupported() {
+<span class="fc" id="L451">            return false;</span>
+        }
+        @Override
+        public boolean isSetSupported() {
+<span class="fc" id="L455">            return false;</span>
+        }
+        @Override
+        public boolean isNullSupported() {
+<span class="nc" id="L459">            return ListOrderedMapTest.this.isAllowNullKey();</span>
+        }
+        @Override
+        public boolean isTestSerialization() {
+<span class="fc" id="L463">            return false;</span>
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    public class TestValueListView extends AbstractListTest&lt;V&gt; {
+<span class="fc" id="L469">        TestValueListView() {</span>
+<span class="fc" id="L470">            super(&quot;TestValueListView&quot;);</span>
+<span class="fc" id="L471">        }</span>
+
+        @Override
+        public List&lt;V&gt; makeObject() {
+<span class="fc" id="L475">            return ListOrderedMapTest.this.makeObject().valueList();</span>
+        }
+        @Override
+        public List&lt;V&gt; makeFullCollection() {
+<span class="fc" id="L479">            return ListOrderedMapTest.this.makeFullMap().valueList();</span>
+        }
+
+        @Override
+        public V[] getFullElements() {
+<span class="fc" id="L484">            return ListOrderedMapTest.this.getSampleValues();</span>
+        }
+        @Override
+        public boolean isAddSupported() {
+<span class="fc" id="L488">            return false;</span>
+        }
+        @Override
+        public boolean isRemoveSupported() {
+<span class="fc" id="L492">            return true;</span>
+        }
+        @Override
+        public boolean isSetSupported() {
+<span class="fc" id="L496">            return true;</span>
+        }
+        @Override
+        public boolean isNullSupported() {
+<span class="nc" id="L500">            return ListOrderedMapTest.this.isAllowNullKey();</span>
+        }
+        @Override
+        public boolean isTestSerialization() {
+<span class="fc" id="L504">            return false;</span>
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public String getCompatibilityVersion() {
+<span class="fc" id="L511">        return &quot;4&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;src/test/resources/data/test/ListOrderedMap.emptyCollection.version4.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;src/test/resources/data/test/ListOrderedMap.fullCollection.version4.obj&quot;);
+//    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ListOrderedMap&lt;K, V&gt; getMap() {
+<span class="fc" id="L530">        return (ListOrderedMap&lt;K, V&gt;) super.getMap();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

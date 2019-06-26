@@ -1,0 +1,1094 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>IteratorUtilsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4</a> &gt; <span class="el_source">IteratorUtilsTest.java</span></div><h1>IteratorUtilsTest.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4;
+
+import static org.apache.commons.collections4.functors.EqualPredicate.equalPredicate;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+
+import org.apache.commons.collections4.iterators.EmptyIterator;
+import org.apache.commons.collections4.iterators.EmptyListIterator;
+import org.apache.commons.collections4.iterators.EmptyMapIterator;
+import org.apache.commons.collections4.iterators.EmptyOrderedIterator;
+import org.apache.commons.collections4.iterators.EmptyOrderedMapIterator;
+import org.junit.Before;
+import org.junit.Test;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+/**
+ * Tests for IteratorUtils.
+ *
+ * @version $Id$
+ */
+<span class="fc" id="L55">public class IteratorUtilsTest {</span>
+
+    /**
+     * Collection of {@link Integer}s
+     */
+<span class="fc" id="L60">    private List&lt;Integer&gt; collectionA = null;</span>
+
+    /**
+     * Collection of even {@link Integer}s
+     */
+<span class="fc" id="L65">    private List&lt;Integer&gt; collectionEven = null;</span>
+
+    /**
+     * Collection of odd {@link Integer}s
+     */
+<span class="fc" id="L70">    private List&lt;Integer&gt; collectionOdd = null;</span>
+
+<span class="fc" id="L72">    private Iterable&lt;Integer&gt; iterableA = null;</span>
+
+<span class="fc" id="L74">    private final Collection&lt;Integer&gt; emptyCollection = new ArrayList&lt;Integer&gt;(1);</span>
+
+    @Before
+    public void setUp() {
+<span class="fc" id="L78">        collectionA = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L79">        collectionA.add(1);</span>
+<span class="fc" id="L80">        collectionA.add(2);</span>
+<span class="fc" id="L81">        collectionA.add(2);</span>
+<span class="fc" id="L82">        collectionA.add(3);</span>
+<span class="fc" id="L83">        collectionA.add(3);</span>
+<span class="fc" id="L84">        collectionA.add(3);</span>
+<span class="fc" id="L85">        collectionA.add(4);</span>
+<span class="fc" id="L86">        collectionA.add(4);</span>
+<span class="fc" id="L87">        collectionA.add(4);</span>
+<span class="fc" id="L88">        collectionA.add(4);</span>
+
+<span class="fc" id="L90">        iterableA = collectionA;</span>
+
+<span class="fc" id="L92">        collectionEven = Arrays.asList(2, 4, 6, 8, 10, 12);</span>
+<span class="fc" id="L93">        collectionOdd = Arrays.asList(1, 3, 5, 7, 9, 11);</span>
+<span class="fc" id="L94">    }</span>
+
+    @Test
+    public void testAsIterable() {
+<span class="fc" id="L98">        final List&lt;Integer&gt; list = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L99">        list.add(Integer.valueOf(0));</span>
+<span class="fc" id="L100">        list.add(Integer.valueOf(1));</span>
+<span class="fc" id="L101">        list.add(Integer.valueOf(2));</span>
+<span class="fc" id="L102">        final Iterator&lt;Integer&gt; iterator = list.iterator();</span>
+
+<span class="fc" id="L104">        final Iterable&lt;Integer&gt; iterable = IteratorUtils.asIterable(iterator);</span>
+<span class="fc" id="L105">        int expected = 0;</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        for(final Integer actual : iterable) {</span>
+<span class="fc" id="L107">            assertEquals(expected, actual.intValue());</span>
+<span class="fc" id="L108">            ++expected;</span>
+        }
+        // insure iteration occurred
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        assertTrue(expected &gt; 0);</span>
+
+        // single use iterator
+<span class="fc" id="L114">        assertFalse(&quot;should not be able to iterate twice&quot;, IteratorUtils.asIterable(iterator).iterator().hasNext());</span>
+<span class="fc" id="L115">    }</span>
+
+    @Test
+    public void testAsIterableNull() {
+        try {
+<span class="nc" id="L120">            IteratorUtils.asIterable(null);</span>
+<span class="nc" id="L121">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L122">        } catch (final NullPointerException ex) {</span>
+            // success
+        }
+<span class="fc" id="L125">    }</span>
+
+    @Test
+    public void testAsMultipleIterable() {
+<span class="fc" id="L129">        final List&lt;Integer&gt; list = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L130">        list.add(Integer.valueOf(0));</span>
+<span class="fc" id="L131">        list.add(Integer.valueOf(1));</span>
+<span class="fc" id="L132">        list.add(Integer.valueOf(2));</span>
+<span class="fc" id="L133">        final Iterator&lt;Integer&gt; iterator = list.iterator();</span>
+
+<span class="fc" id="L135">        final Iterable&lt;Integer&gt; iterable = IteratorUtils.asMultipleUseIterable(iterator);</span>
+<span class="fc" id="L136">        int expected = 0;</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        for(final Integer actual : iterable) {</span>
+<span class="fc" id="L138">            assertEquals(expected, actual.intValue());</span>
+<span class="fc" id="L139">            ++expected;</span>
+        }
+        // insure iteration occurred
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        assertTrue(expected &gt; 0);</span>
+
+        // multiple use iterator
+<span class="fc" id="L145">        expected = 0;</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        for(final Integer actual : iterable) {</span>
+<span class="fc" id="L147">            assertEquals(expected, actual.intValue());</span>
+<span class="fc" id="L148">            ++expected;</span>
+        }
+        // insure iteration occurred
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        assertTrue(expected &gt; 0);</span>
+<span class="fc" id="L152">    }</span>
+
+    @Test
+    public void testAsMultipleIterableNull() {
+        try {
+<span class="nc" id="L157">            IteratorUtils.asMultipleUseIterable(null);</span>
+<span class="nc" id="L158">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L159">        } catch (final NullPointerException ex) {</span>
+            // success
+        }
+<span class="fc" id="L162">    }</span>
+
+    @Test
+    public void testToList() {
+<span class="fc" id="L166">        final List&lt;Object&gt; list = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L167">        list.add(Integer.valueOf(1));</span>
+<span class="fc" id="L168">        list.add(&quot;Two&quot;);</span>
+<span class="fc" id="L169">        list.add(null);</span>
+<span class="fc" id="L170">        final List&lt;Object&gt; result = IteratorUtils.toList(list.iterator());</span>
+<span class="fc" id="L171">        assertEquals(list, result);</span>
+<span class="fc" id="L172">    }</span>
+
+    @Test
+    public void testToArray() {
+<span class="fc" id="L176">        final List&lt;Object&gt; list = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L177">        list.add(Integer.valueOf(1));</span>
+<span class="fc" id="L178">        list.add(&quot;Two&quot;);</span>
+<span class="fc" id="L179">        list.add(null);</span>
+<span class="fc" id="L180">        final Object[] result = IteratorUtils.toArray(list.iterator());</span>
+<span class="fc" id="L181">        assertEquals(list, Arrays.asList(result));</span>
+<span class="fc" id="L182">    }</span>
+
+    @Test
+    public void testToArray2() {
+<span class="fc" id="L186">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L187">        list.add(&quot;One&quot;);</span>
+<span class="fc" id="L188">        list.add(&quot;Two&quot;);</span>
+<span class="fc" id="L189">        list.add(null);</span>
+<span class="fc" id="L190">        final String[] result = IteratorUtils.toArray(list.iterator(), String.class);</span>
+<span class="fc" id="L191">        assertEquals(list, Arrays.asList(result));</span>
+<span class="fc" id="L192">    }</span>
+
+    @Test
+    public void testArrayIterator() {
+<span class="fc" id="L196">        final Object[] objArray = {&quot;a&quot;, &quot;b&quot;, &quot;c&quot;};</span>
+<span class="fc" id="L197">        ResettableIterator&lt;Object&gt; iterator = IteratorUtils.arrayIterator(objArray);</span>
+<span class="fc" id="L198">        assertTrue(iterator.next().equals(&quot;a&quot;));</span>
+<span class="fc" id="L199">        assertTrue(iterator.next().equals(&quot;b&quot;));</span>
+<span class="fc" id="L200">        iterator.reset();</span>
+<span class="fc" id="L201">        assertTrue(iterator.next().equals(&quot;a&quot;));</span>
+
+        try {
+<span class="nc" id="L204">            iterator = IteratorUtils.arrayIterator(Integer.valueOf(0));</span>
+<span class="nc" id="L205">            fail(&quot;Expecting IllegalArgumentException&quot;);</span>
+<span class="pc" id="L206">        } catch (final IllegalArgumentException ex) {</span>
+                // expected
+        }
+
+        try {
+<span class="nc" id="L211">            iterator = IteratorUtils.arrayIterator((Object[]) null);</span>
+<span class="nc" id="L212">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L213">        } catch (final NullPointerException ex) {</span>
+                // expected
+        }
+
+<span class="fc" id="L217">        iterator = IteratorUtils.arrayIterator(objArray, 1);</span>
+<span class="fc" id="L218">        assertTrue(iterator.next().equals(&quot;b&quot;));</span>
+
+        try {
+<span class="nc" id="L221">            iterator = IteratorUtils.arrayIterator(objArray, -1);</span>
+<span class="nc" id="L222">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L223">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+<span class="fc" id="L227">        iterator = IteratorUtils.arrayIterator(objArray, 3);</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">        assertTrue(!iterator.hasNext());</span>
+<span class="fc" id="L229">        iterator.reset();</span>
+
+        try {
+<span class="nc" id="L232">            iterator = IteratorUtils.arrayIterator(objArray, 4);</span>
+<span class="nc" id="L233">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L234">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+<span class="fc" id="L238">        iterator = IteratorUtils.arrayIterator(objArray, 2, 3);</span>
+<span class="fc" id="L239">        assertTrue(iterator.next().equals(&quot;c&quot;));</span>
+
+        try {
+<span class="nc" id="L242">            iterator = IteratorUtils.arrayIterator(objArray, 2, 4);</span>
+<span class="nc" id="L243">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L244">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L249">            iterator = IteratorUtils.arrayIterator(objArray, -1, 1);</span>
+<span class="nc" id="L250">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L251">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L256">            iterator = IteratorUtils.arrayIterator(objArray, 2, 1);</span>
+<span class="nc" id="L257">            fail(&quot;Expecting IllegalArgumentException&quot;);</span>
+<span class="pc" id="L258">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+
+<span class="fc" id="L262">        final int[] intArray = {0, 1, 2};</span>
+<span class="fc" id="L263">        iterator = IteratorUtils.arrayIterator(intArray);</span>
+<span class="fc" id="L264">        assertTrue(iterator.next().equals(Integer.valueOf(0)));</span>
+<span class="fc" id="L265">        assertTrue(iterator.next().equals(Integer.valueOf(1)));</span>
+<span class="fc" id="L266">        iterator.reset();</span>
+<span class="fc" id="L267">        assertTrue(iterator.next().equals(Integer.valueOf(0)));</span>
+
+<span class="fc" id="L269">        iterator = IteratorUtils.arrayIterator(intArray, 1);</span>
+<span class="fc" id="L270">        assertTrue(iterator.next().equals(Integer.valueOf(1)));</span>
+
+        try {
+<span class="nc" id="L273">            iterator = IteratorUtils.arrayIterator(intArray, -1);</span>
+<span class="nc" id="L274">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L275">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+<span class="fc" id="L279">        iterator = IteratorUtils.arrayIterator(intArray, 3);</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">        assertTrue(!iterator.hasNext());</span>
+<span class="fc" id="L281">        iterator.reset();</span>
+
+        try {
+<span class="nc" id="L284">            iterator = IteratorUtils.arrayIterator(intArray, 4);</span>
+<span class="nc" id="L285">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L286">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+<span class="fc" id="L290">        iterator = IteratorUtils.arrayIterator(intArray, 2, 3);</span>
+<span class="fc" id="L291">        assertTrue(iterator.next().equals(Integer.valueOf(2)));</span>
+
+        try {
+<span class="nc" id="L294">            iterator = IteratorUtils.arrayIterator(intArray, 2, 4);</span>
+<span class="nc" id="L295">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L296">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L301">            iterator = IteratorUtils.arrayIterator(intArray, -1, 1);</span>
+<span class="nc" id="L302">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L303">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L308">            iterator = IteratorUtils.arrayIterator(intArray, 2, 1);</span>
+<span class="nc" id="L309">            fail(&quot;Expecting IllegalArgumentException&quot;);</span>
+<span class="pc" id="L310">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L313">    }</span>
+
+    @Test
+    public void testArrayListIterator() {
+<span class="fc" id="L317">        final Object[] objArray = {&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;};</span>
+<span class="fc" id="L318">        ResettableListIterator&lt;Object&gt; iterator = IteratorUtils.arrayListIterator(objArray);</span>
+<span class="pc bpc" id="L319" title="1 of 2 branches missed.">        assertTrue(!iterator.hasPrevious());</span>
+<span class="pc bpc" id="L320" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == -1);</span>
+<span class="pc bpc" id="L321" title="1 of 2 branches missed.">        assertTrue(iterator.nextIndex() == 0);</span>
+<span class="fc" id="L322">        assertTrue(iterator.next().equals(&quot;a&quot;));</span>
+<span class="fc" id="L323">        assertTrue(iterator.previous().equals(&quot;a&quot;));</span>
+<span class="fc" id="L324">        assertTrue(iterator.next().equals(&quot;a&quot;));</span>
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == 0);</span>
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">        assertTrue(iterator.nextIndex() == 1);</span>
+<span class="fc" id="L327">        assertTrue(iterator.next().equals(&quot;b&quot;));</span>
+<span class="fc" id="L328">        assertTrue(iterator.next().equals(&quot;c&quot;));</span>
+<span class="fc" id="L329">        assertTrue(iterator.next().equals(&quot;d&quot;));</span>
+<span class="pc bpc" id="L330" title="1 of 2 branches missed.">        assertTrue(iterator.nextIndex() == 4); // size of list</span>
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == 3);</span>
+
+        try {
+<span class="nc" id="L334">            iterator = IteratorUtils.arrayListIterator(Integer.valueOf(0));</span>
+<span class="nc" id="L335">            fail(&quot;Expecting IllegalArgumentException&quot;);</span>
+<span class="pc" id="L336">        } catch (final IllegalArgumentException ex) {</span>
+                // expected
+        }
+
+        try {
+<span class="nc" id="L341">            iterator = IteratorUtils.arrayListIterator((Object[]) null);</span>
+<span class="nc" id="L342">            fail(&quot;Expecting NullPointerException&quot;);</span>
+<span class="pc" id="L343">        } catch (final NullPointerException ex) {</span>
+                // expected
+        }
+
+<span class="fc" id="L347">        iterator = IteratorUtils.arrayListIterator(objArray, 1);</span>
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == -1);</span>
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">        assertTrue(!iterator.hasPrevious());</span>
+<span class="pc bpc" id="L350" title="1 of 2 branches missed.">        assertTrue(iterator.nextIndex() == 0);</span>
+<span class="fc" id="L351">        assertTrue(iterator.next().equals(&quot;b&quot;));</span>
+<span class="pc bpc" id="L352" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == 0);</span>
+
+        try {
+<span class="nc" id="L355">            iterator = IteratorUtils.arrayListIterator(objArray, -1);</span>
+<span class="nc" id="L356">            fail(&quot;Expecting IndexOutOfBoundsException.&quot;);</span>
+<span class="pc" id="L357">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+<span class="fc" id="L361">        iterator = IteratorUtils.arrayListIterator(objArray, 3);</span>
+<span class="fc" id="L362">        assertTrue(iterator.hasNext());</span>
+        try {
+<span class="nc" id="L364">            iterator.previous();</span>
+<span class="nc" id="L365">            fail(&quot;Expecting NoSuchElementException.&quot;);</span>
+<span class="pc" id="L366">        } catch (final NoSuchElementException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L371">            iterator = IteratorUtils.arrayListIterator(objArray, 5);</span>
+<span class="nc" id="L372">            fail(&quot;Expecting IndexOutOfBoundsException.&quot;);</span>
+<span class="pc" id="L373">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+<span class="fc" id="L377">        iterator = IteratorUtils.arrayListIterator(objArray, 2, 3);</span>
+<span class="fc" id="L378">        assertTrue(iterator.next().equals(&quot;c&quot;));</span>
+
+        try {
+<span class="nc" id="L381">            iterator = IteratorUtils.arrayListIterator(objArray, 2, 5);</span>
+<span class="nc" id="L382">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L383">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L388">            iterator = IteratorUtils.arrayListIterator(objArray, -1, 1);</span>
+<span class="nc" id="L389">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L390">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L395">            iterator = IteratorUtils.arrayListIterator(objArray, 2, 1);</span>
+<span class="nc" id="L396">            fail(&quot;Expecting IllegalArgumentException&quot;);</span>
+<span class="pc" id="L397">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+
+<span class="fc" id="L401">        final int[] intArray = {0, 1, 2};</span>
+<span class="fc" id="L402">        iterator = IteratorUtils.arrayListIterator(intArray);</span>
+<span class="pc bpc" id="L403" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == -1);</span>
+<span class="pc bpc" id="L404" title="1 of 2 branches missed.">        assertTrue(!iterator.hasPrevious());</span>
+<span class="pc bpc" id="L405" title="1 of 2 branches missed.">        assertTrue(iterator.nextIndex() == 0);</span>
+<span class="fc" id="L406">        assertTrue(iterator.next().equals(Integer.valueOf(0)));</span>
+<span class="pc bpc" id="L407" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == 0);</span>
+<span class="pc bpc" id="L408" title="1 of 2 branches missed.">        assertTrue(iterator.nextIndex() == 1);</span>
+<span class="fc" id="L409">        assertTrue(iterator.next().equals(Integer.valueOf(1)));</span>
+<span class="pc bpc" id="L410" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == 1);</span>
+<span class="pc bpc" id="L411" title="1 of 2 branches missed.">        assertTrue(iterator.nextIndex() == 2);</span>
+<span class="fc" id="L412">        assertTrue(iterator.previous().equals(Integer.valueOf(1)));</span>
+<span class="fc" id="L413">        assertTrue(iterator.next().equals(Integer.valueOf(1)));</span>
+
+<span class="fc" id="L415">        iterator = IteratorUtils.arrayListIterator(intArray, 1);</span>
+<span class="pc bpc" id="L416" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == -1);</span>
+<span class="pc bpc" id="L417" title="1 of 2 branches missed.">        assertTrue(!iterator.hasPrevious());</span>
+<span class="pc bpc" id="L418" title="1 of 2 branches missed.">        assertTrue(iterator.nextIndex() == 0);</span>
+<span class="fc" id="L419">        assertTrue(iterator.next().equals(Integer.valueOf(1)));</span>
+<span class="fc" id="L420">        assertTrue(iterator.previous().equals(Integer.valueOf(1)));</span>
+<span class="fc" id="L421">        assertTrue(iterator.next().equals(Integer.valueOf(1)));</span>
+<span class="pc bpc" id="L422" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == 0);</span>
+<span class="pc bpc" id="L423" title="1 of 2 branches missed.">        assertTrue(iterator.nextIndex() == 1);</span>
+<span class="fc" id="L424">        assertTrue(iterator.next().equals(Integer.valueOf(2)));</span>
+<span class="pc bpc" id="L425" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == 1);</span>
+<span class="pc bpc" id="L426" title="1 of 2 branches missed.">        assertTrue(iterator.nextIndex() == 2);</span>
+<span class="fc" id="L427">        assertTrue(iterator.previous().equals(Integer.valueOf(2)));</span>
+<span class="pc bpc" id="L428" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == 0);</span>
+<span class="pc bpc" id="L429" title="1 of 2 branches missed.">        assertTrue(iterator.nextIndex() == 1);</span>
+
+        try {
+<span class="nc" id="L432">            iterator = IteratorUtils.arrayListIterator(intArray, -1);</span>
+<span class="nc" id="L433">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L434">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+<span class="fc" id="L438">        iterator = IteratorUtils.arrayListIterator(intArray, 3);</span>
+<span class="pc bpc" id="L439" title="1 of 2 branches missed.">        assertTrue(!iterator.hasNext());</span>
+
+        try {
+<span class="nc" id="L442">            iterator = IteratorUtils.arrayListIterator(intArray, 4);</span>
+<span class="nc" id="L443">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L444">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+<span class="fc" id="L448">        iterator = IteratorUtils.arrayListIterator(intArray, 2, 3);</span>
+<span class="pc bpc" id="L449" title="1 of 2 branches missed.">        assertTrue(!iterator.hasPrevious());</span>
+<span class="pc bpc" id="L450" title="1 of 2 branches missed.">        assertTrue(iterator.previousIndex() == -1);</span>
+<span class="fc" id="L451">        assertTrue(iterator.next().equals(Integer.valueOf(2)));</span>
+<span class="fc" id="L452">        assertTrue(iterator.hasPrevious());</span>
+<span class="pc bpc" id="L453" title="1 of 2 branches missed.">        assertTrue(!iterator.hasNext());</span>
+
+
+        try {
+<span class="nc" id="L457">            iterator = IteratorUtils.arrayListIterator(intArray, 2, 4);</span>
+<span class="nc" id="L458">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L459">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L464">            iterator = IteratorUtils.arrayListIterator(intArray, -1, 1);</span>
+<span class="nc" id="L465">            fail(&quot;Expecting IndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L466">        } catch (final IndexOutOfBoundsException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L471">            iterator = IteratorUtils.arrayListIterator(intArray, 2, 1);</span>
+<span class="nc" id="L472">            fail(&quot;Expecting IllegalArgumentException&quot;);</span>
+<span class="pc" id="L473">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L476">    }</span>
+
+
+    /**
+     * Gets an immutable Iterator operating on the elements [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;].
+     */
+    private Iterator&lt;String&gt; getImmutableIterator() {
+<span class="fc" id="L483">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L484">        list.add(&quot;a&quot;);</span>
+<span class="fc" id="L485">        list.add(&quot;b&quot;);</span>
+<span class="fc" id="L486">        list.add(&quot;c&quot;);</span>
+<span class="fc" id="L487">        list.add(&quot;d&quot;);</span>
+<span class="fc" id="L488">        return IteratorUtils.unmodifiableIterator(list.iterator());</span>
+    }
+
+    /**
+     * Gets an immutable ListIterator operating on the elements [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;].
+     */
+    private ListIterator&lt;String&gt; getImmutableListIterator() {
+<span class="fc" id="L495">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L496">        list.add(&quot;a&quot;);</span>
+<span class="fc" id="L497">        list.add(&quot;b&quot;);</span>
+<span class="fc" id="L498">        list.add(&quot;c&quot;);</span>
+<span class="fc" id="L499">        list.add(&quot;d&quot;);</span>
+<span class="fc" id="L500">        return IteratorUtils.unmodifiableListIterator(list.listIterator());</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test empty iterator
+     */
+    @Test
+    public void testEmptyIterator() {
+<span class="fc" id="L509">        assertSame(EmptyIterator.INSTANCE, IteratorUtils.EMPTY_ITERATOR);</span>
+<span class="fc" id="L510">        assertSame(EmptyIterator.RESETTABLE_INSTANCE, IteratorUtils.EMPTY_ITERATOR);</span>
+<span class="fc" id="L511">        assertEquals(true, IteratorUtils.EMPTY_ITERATOR instanceof Iterator);</span>
+<span class="fc" id="L512">        assertEquals(true, IteratorUtils.EMPTY_ITERATOR instanceof ResettableIterator);</span>
+<span class="fc" id="L513">        assertEquals(false, IteratorUtils.EMPTY_ITERATOR instanceof OrderedIterator);</span>
+<span class="fc" id="L514">        assertEquals(false, IteratorUtils.EMPTY_ITERATOR instanceof ListIterator);</span>
+<span class="fc" id="L515">        assertEquals(false, IteratorUtils.EMPTY_ITERATOR instanceof MapIterator);</span>
+<span class="fc" id="L516">        assertEquals(false, IteratorUtils.EMPTY_ITERATOR.hasNext());</span>
+<span class="fc" id="L517">        IteratorUtils.EMPTY_ITERATOR.reset();</span>
+<span class="fc" id="L518">        assertSame(IteratorUtils.EMPTY_ITERATOR, IteratorUtils.EMPTY_ITERATOR);</span>
+<span class="fc" id="L519">        assertSame(IteratorUtils.EMPTY_ITERATOR, IteratorUtils.emptyIterator());</span>
+        try {
+<span class="nc" id="L521">            IteratorUtils.EMPTY_ITERATOR.next();</span>
+<span class="nc" id="L522">            fail();</span>
+<span class="pc" id="L523">        } catch (final NoSuchElementException ex) {}</span>
+        try {
+<span class="nc" id="L525">            IteratorUtils.EMPTY_ITERATOR.remove();</span>
+<span class="nc" id="L526">            fail();</span>
+<span class="pc" id="L527">        } catch (final IllegalStateException ex) {}</span>
+<span class="fc" id="L528">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test empty list iterator
+     */
+    @Test
+    public void testEmptyListIterator() {
+<span class="fc" id="L536">        assertSame(EmptyListIterator.INSTANCE, IteratorUtils.EMPTY_LIST_ITERATOR);</span>
+<span class="fc" id="L537">        assertSame(EmptyListIterator.RESETTABLE_INSTANCE, IteratorUtils.EMPTY_LIST_ITERATOR);</span>
+<span class="fc" id="L538">        assertEquals(true, IteratorUtils.EMPTY_LIST_ITERATOR instanceof Iterator);</span>
+<span class="fc" id="L539">        assertEquals(true, IteratorUtils.EMPTY_LIST_ITERATOR instanceof ListIterator);</span>
+<span class="fc" id="L540">        assertEquals(true, IteratorUtils.EMPTY_LIST_ITERATOR instanceof ResettableIterator);</span>
+<span class="fc" id="L541">        assertEquals(true, IteratorUtils.EMPTY_LIST_ITERATOR instanceof ResettableListIterator);</span>
+<span class="fc" id="L542">        assertEquals(false, IteratorUtils.EMPTY_LIST_ITERATOR instanceof MapIterator);</span>
+<span class="fc" id="L543">        assertEquals(false, IteratorUtils.EMPTY_LIST_ITERATOR.hasNext());</span>
+<span class="fc" id="L544">        assertEquals(0, IteratorUtils.EMPTY_LIST_ITERATOR.nextIndex());</span>
+<span class="fc" id="L545">        assertEquals(-1, IteratorUtils.EMPTY_LIST_ITERATOR.previousIndex());</span>
+<span class="fc" id="L546">        IteratorUtils.EMPTY_LIST_ITERATOR.reset();</span>
+<span class="fc" id="L547">        assertSame(IteratorUtils.EMPTY_LIST_ITERATOR, IteratorUtils.EMPTY_LIST_ITERATOR);</span>
+<span class="fc" id="L548">        assertSame(IteratorUtils.EMPTY_LIST_ITERATOR, IteratorUtils.emptyListIterator());</span>
+        try {
+<span class="nc" id="L550">            IteratorUtils.EMPTY_LIST_ITERATOR.next();</span>
+<span class="nc" id="L551">            fail();</span>
+<span class="pc" id="L552">        } catch (final NoSuchElementException ex) {}</span>
+        try {
+<span class="nc" id="L554">            IteratorUtils.EMPTY_LIST_ITERATOR.previous();</span>
+<span class="nc" id="L555">            fail();</span>
+<span class="pc" id="L556">        } catch (final NoSuchElementException ex) {}</span>
+        try {
+<span class="nc" id="L558">            IteratorUtils.EMPTY_LIST_ITERATOR.remove();</span>
+<span class="nc" id="L559">            fail();</span>
+<span class="pc" id="L560">        } catch (final IllegalStateException ex) {}</span>
+        try {
+<span class="nc" id="L562">            IteratorUtils.emptyListIterator().set(null);</span>
+<span class="nc" id="L563">            fail();</span>
+<span class="pc" id="L564">        } catch (final IllegalStateException ex) {}</span>
+        try {
+<span class="nc" id="L566">            IteratorUtils.emptyListIterator().add(null);</span>
+<span class="nc" id="L567">            fail();</span>
+<span class="pc" id="L568">        } catch (final UnsupportedOperationException ex) {}</span>
+<span class="fc" id="L569">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test empty map iterator
+     */
+    @Test
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testEmptyMapIterator() {
+<span class="fc" id="L578">        assertSame(EmptyMapIterator.INSTANCE, IteratorUtils.EMPTY_MAP_ITERATOR);</span>
+<span class="fc" id="L579">        assertEquals(true, IteratorUtils.EMPTY_MAP_ITERATOR instanceof Iterator);</span>
+<span class="fc" id="L580">        assertEquals(true, IteratorUtils.EMPTY_MAP_ITERATOR instanceof MapIterator);</span>
+<span class="fc" id="L581">        assertEquals(true, IteratorUtils.EMPTY_MAP_ITERATOR instanceof ResettableIterator);</span>
+<span class="fc" id="L582">        assertEquals(false, IteratorUtils.EMPTY_MAP_ITERATOR instanceof ListIterator);</span>
+<span class="fc" id="L583">        assertEquals(false, IteratorUtils.EMPTY_MAP_ITERATOR instanceof OrderedIterator);</span>
+<span class="fc" id="L584">        assertEquals(false, IteratorUtils.EMPTY_MAP_ITERATOR instanceof OrderedMapIterator);</span>
+<span class="fc" id="L585">        assertEquals(false, IteratorUtils.EMPTY_MAP_ITERATOR.hasNext());</span>
+<span class="fc" id="L586">        ((ResettableIterator&lt;Object&gt;) IteratorUtils.EMPTY_MAP_ITERATOR).reset();</span>
+<span class="fc" id="L587">        assertSame(IteratorUtils.EMPTY_MAP_ITERATOR, IteratorUtils.EMPTY_MAP_ITERATOR);</span>
+<span class="fc" id="L588">        assertSame(IteratorUtils.EMPTY_MAP_ITERATOR, IteratorUtils.emptyMapIterator());</span>
+        try {
+<span class="nc" id="L590">            IteratorUtils.EMPTY_MAP_ITERATOR.next();</span>
+<span class="nc" id="L591">            fail();</span>
+<span class="pc" id="L592">        } catch (final NoSuchElementException ex) {}</span>
+        try {
+<span class="nc" id="L594">            IteratorUtils.EMPTY_MAP_ITERATOR.remove();</span>
+<span class="nc" id="L595">            fail();</span>
+<span class="pc" id="L596">        } catch (final IllegalStateException ex) {}</span>
+        try {
+<span class="nc" id="L598">            IteratorUtils.EMPTY_MAP_ITERATOR.getKey();</span>
+<span class="nc" id="L599">            fail();</span>
+<span class="pc" id="L600">        } catch (final IllegalStateException ex) {}</span>
+        try {
+<span class="nc" id="L602">            IteratorUtils.EMPTY_MAP_ITERATOR.getValue();</span>
+<span class="nc" id="L603">            fail();</span>
+<span class="pc" id="L604">        } catch (final IllegalStateException ex) {}</span>
+        try {
+<span class="nc" id="L606">            IteratorUtils.EMPTY_MAP_ITERATOR.setValue(null);</span>
+<span class="nc" id="L607">            fail();</span>
+<span class="pc" id="L608">        } catch (final IllegalStateException ex) {}</span>
+<span class="fc" id="L609">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test empty map iterator
+     */
+    @Test
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testEmptyOrderedIterator() {
+<span class="fc" id="L618">        assertSame(EmptyOrderedIterator.INSTANCE, IteratorUtils.EMPTY_ORDERED_ITERATOR);</span>
+<span class="fc" id="L619">        assertEquals(true, IteratorUtils.EMPTY_ORDERED_ITERATOR instanceof Iterator);</span>
+<span class="fc" id="L620">        assertEquals(true, IteratorUtils.EMPTY_ORDERED_ITERATOR instanceof OrderedIterator);</span>
+<span class="fc" id="L621">        assertEquals(true, IteratorUtils.EMPTY_ORDERED_ITERATOR instanceof ResettableIterator);</span>
+<span class="fc" id="L622">        assertEquals(false, IteratorUtils.EMPTY_ORDERED_ITERATOR instanceof ListIterator);</span>
+<span class="fc" id="L623">        assertEquals(false, IteratorUtils.EMPTY_ORDERED_ITERATOR instanceof MapIterator);</span>
+<span class="fc" id="L624">        assertEquals(false, IteratorUtils.EMPTY_ORDERED_ITERATOR.hasNext());</span>
+<span class="fc" id="L625">        assertEquals(false, IteratorUtils.EMPTY_ORDERED_ITERATOR.hasPrevious());</span>
+<span class="fc" id="L626">        ((ResettableIterator&lt;Object&gt;) IteratorUtils.EMPTY_ORDERED_ITERATOR).reset();</span>
+<span class="fc" id="L627">        assertSame(IteratorUtils.EMPTY_ORDERED_ITERATOR, IteratorUtils.EMPTY_ORDERED_ITERATOR);</span>
+<span class="fc" id="L628">        assertSame(IteratorUtils.EMPTY_ORDERED_ITERATOR, IteratorUtils.emptyOrderedIterator());</span>
+        try {
+<span class="nc" id="L630">            IteratorUtils.EMPTY_ORDERED_ITERATOR.next();</span>
+<span class="nc" id="L631">            fail();</span>
+<span class="pc" id="L632">        } catch (final NoSuchElementException ex) {}</span>
+        try {
+<span class="nc" id="L634">            IteratorUtils.EMPTY_ORDERED_ITERATOR.previous();</span>
+<span class="nc" id="L635">            fail();</span>
+<span class="pc" id="L636">        } catch (final NoSuchElementException ex) {}</span>
+        try {
+<span class="nc" id="L638">            IteratorUtils.EMPTY_ORDERED_ITERATOR.remove();</span>
+<span class="nc" id="L639">            fail();</span>
+<span class="pc" id="L640">        } catch (final IllegalStateException ex) {}</span>
+<span class="fc" id="L641">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test empty map iterator
+     */
+    @Test
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testEmptyOrderedMapIterator() {
+<span class="fc" id="L650">        assertSame(EmptyOrderedMapIterator.INSTANCE, IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR);</span>
+<span class="fc" id="L651">        assertEquals(true, IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR instanceof Iterator);</span>
+<span class="fc" id="L652">        assertEquals(true, IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR instanceof MapIterator);</span>
+<span class="fc" id="L653">        assertEquals(true, IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR instanceof OrderedMapIterator);</span>
+<span class="fc" id="L654">        assertEquals(true, IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR instanceof ResettableIterator);</span>
+<span class="fc" id="L655">        assertEquals(false, IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR instanceof ListIterator);</span>
+<span class="fc" id="L656">        assertEquals(false, IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR.hasNext());</span>
+<span class="fc" id="L657">        assertEquals(false, IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR.hasPrevious());</span>
+<span class="fc" id="L658">        ((ResettableIterator&lt;Object&gt;) IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR).reset();</span>
+<span class="fc" id="L659">        assertSame(IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR, IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR);</span>
+<span class="fc" id="L660">        assertSame(IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR, IteratorUtils.emptyOrderedMapIterator());</span>
+        try {
+<span class="nc" id="L662">            IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR.next();</span>
+<span class="nc" id="L663">            fail();</span>
+<span class="pc" id="L664">        } catch (final NoSuchElementException ex) {}</span>
+        try {
+<span class="nc" id="L666">            IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR.previous();</span>
+<span class="nc" id="L667">            fail();</span>
+<span class="pc" id="L668">        } catch (final NoSuchElementException ex) {}</span>
+        try {
+<span class="nc" id="L670">            IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR.remove();</span>
+<span class="nc" id="L671">            fail();</span>
+<span class="pc" id="L672">        } catch (final IllegalStateException ex) {}</span>
+        try {
+<span class="nc" id="L674">            IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR.getKey();</span>
+<span class="nc" id="L675">            fail();</span>
+<span class="pc" id="L676">        } catch (final IllegalStateException ex) {}</span>
+        try {
+<span class="nc" id="L678">            IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR.getValue();</span>
+<span class="nc" id="L679">            fail();</span>
+<span class="pc" id="L680">        } catch (final IllegalStateException ex) {}</span>
+        try {
+<span class="nc" id="L682">            IteratorUtils.EMPTY_ORDERED_MAP_ITERATOR.setValue(null);</span>
+<span class="nc" id="L683">            fail();</span>
+<span class="pc" id="L684">        } catch (final IllegalStateException ex) {}</span>
+<span class="fc" id="L685">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test next() and hasNext() for an immutable Iterator.
+     */
+    @Test
+    public void testUnmodifiableIteratorIteration() {
+<span class="fc" id="L693">        final Iterator&lt;String&gt; iterator = getImmutableIterator();</span>
+
+<span class="fc" id="L695">        assertTrue(iterator.hasNext());</span>
+
+<span class="fc" id="L697">        assertEquals(&quot;a&quot;, iterator.next());</span>
+
+<span class="fc" id="L699">        assertTrue(iterator.hasNext());</span>
+
+<span class="fc" id="L701">        assertEquals(&quot;b&quot;, iterator.next());</span>
+
+<span class="fc" id="L703">        assertTrue(iterator.hasNext());</span>
+
+<span class="fc" id="L705">        assertEquals(&quot;c&quot;, iterator.next());</span>
+
+<span class="fc" id="L707">        assertTrue(iterator.hasNext());</span>
+
+<span class="fc" id="L709">        assertEquals(&quot;d&quot;, iterator.next());</span>
+
+<span class="pc bpc" id="L711" title="1 of 2 branches missed.">        assertTrue(!iterator.hasNext());</span>
+<span class="fc" id="L712">    }</span>
+
+    /**
+     * Test next(), hasNext(), previous() and hasPrevious() for an immutable
+     * ListIterator.
+     */
+    @Test
+    public void testUnmodifiableListIteratorIteration() {
+<span class="fc" id="L720">        final ListIterator&lt;String&gt; listIterator = getImmutableListIterator();</span>
+
+<span class="pc bpc" id="L722" title="1 of 2 branches missed.">        assertTrue(!listIterator.hasPrevious());</span>
+<span class="fc" id="L723">        assertTrue(listIterator.hasNext());</span>
+
+<span class="fc" id="L725">        assertEquals(&quot;a&quot;, listIterator.next());</span>
+
+<span class="fc" id="L727">        assertTrue(listIterator.hasPrevious());</span>
+<span class="fc" id="L728">        assertTrue(listIterator.hasNext());</span>
+
+<span class="fc" id="L730">        assertEquals(&quot;b&quot;, listIterator.next());</span>
+
+<span class="fc" id="L732">        assertTrue(listIterator.hasPrevious());</span>
+<span class="fc" id="L733">        assertTrue(listIterator.hasNext());</span>
+
+<span class="fc" id="L735">        assertEquals(&quot;c&quot;, listIterator.next());</span>
+
+<span class="fc" id="L737">        assertTrue(listIterator.hasPrevious());</span>
+<span class="fc" id="L738">        assertTrue(listIterator.hasNext());</span>
+
+<span class="fc" id="L740">        assertEquals(&quot;d&quot;, listIterator.next());</span>
+
+<span class="fc" id="L742">        assertTrue(listIterator.hasPrevious());</span>
+<span class="pc bpc" id="L743" title="1 of 2 branches missed.">        assertTrue(!listIterator.hasNext());</span>
+
+<span class="fc" id="L745">        assertEquals(&quot;d&quot;, listIterator.previous());</span>
+
+<span class="fc" id="L747">        assertTrue(listIterator.hasPrevious());</span>
+<span class="fc" id="L748">        assertTrue(listIterator.hasNext());</span>
+
+<span class="fc" id="L750">        assertEquals(&quot;c&quot;, listIterator.previous());</span>
+
+<span class="fc" id="L752">        assertTrue(listIterator.hasPrevious());</span>
+<span class="fc" id="L753">        assertTrue(listIterator.hasNext());</span>
+
+<span class="fc" id="L755">        assertEquals(&quot;b&quot;, listIterator.previous());</span>
+
+<span class="fc" id="L757">        assertTrue(listIterator.hasPrevious());</span>
+<span class="fc" id="L758">        assertTrue(listIterator.hasNext());</span>
+
+<span class="fc" id="L760">        assertEquals(&quot;a&quot;, listIterator.previous());</span>
+
+<span class="pc bpc" id="L762" title="1 of 2 branches missed.">        assertTrue(!listIterator.hasPrevious());</span>
+<span class="fc" id="L763">        assertTrue(listIterator.hasNext());</span>
+<span class="fc" id="L764">    }</span>
+
+    /**
+     * Test remove() for an immutable Iterator.
+     */
+    @Test
+    public void testUnmodifiableIteratorImmutability() {
+<span class="fc" id="L771">        final Iterator&lt;String&gt; iterator = getImmutableIterator();</span>
+
+        try {
+<span class="nc" id="L774">            iterator.remove();</span>
+            // We shouldn't get to here.
+<span class="nc" id="L776">            fail(&quot;remove() should throw an UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L777">        } catch (final UnsupportedOperationException e) {</span>
+            // This is correct; ignore the exception.
+        }
+
+<span class="fc" id="L781">        iterator.next();</span>
+
+        try {
+<span class="nc" id="L784">            iterator.remove();</span>
+            // We shouldn't get to here.
+<span class="nc" id="L786">            fail(&quot;remove() should throw an UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L787">        } catch (final UnsupportedOperationException e) {</span>
+            // This is correct; ignore the exception.
+        }
+
+<span class="fc" id="L791">    }</span>
+
+    /**
+     * Test remove() for an immutable ListIterator.
+     */
+    @Test
+    public void testUnmodifiableListIteratorImmutability() {
+<span class="fc" id="L798">        final ListIterator&lt;String&gt; listIterator = getImmutableListIterator();</span>
+
+        try {
+<span class="nc" id="L801">            listIterator.remove();</span>
+            // We shouldn't get to here.
+<span class="nc" id="L803">            fail(&quot;remove() should throw an UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L804">        } catch (final UnsupportedOperationException e) {</span>
+            // This is correct; ignore the exception.
+        }
+
+        try {
+<span class="nc" id="L809">            listIterator.set(&quot;a&quot;);</span>
+            // We shouldn't get to here.
+<span class="nc" id="L811">            fail(&quot;set(Object) should throw an UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L812">        } catch (final UnsupportedOperationException e) {</span>
+            // This is correct; ignore the exception.
+        }
+
+        try {
+<span class="nc" id="L817">            listIterator.add(&quot;a&quot;);</span>
+            // We shouldn't get to here.
+<span class="nc" id="L819">            fail(&quot;add(Object) should throw an UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L820">        } catch (final UnsupportedOperationException e) {</span>
+            // This is correct; ignore the exception.
+        }
+
+<span class="fc" id="L824">        listIterator.next();</span>
+
+        try {
+<span class="nc" id="L827">            listIterator.remove();</span>
+            // We shouldn't get to here.
+<span class="nc" id="L829">            fail(&quot;remove() should throw an UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L830">        } catch (final UnsupportedOperationException e) {</span>
+            // This is correct; ignore the exception.
+        }
+
+        try {
+<span class="nc" id="L835">            listIterator.set(&quot;a&quot;);</span>
+            // We shouldn't get to here.
+<span class="nc" id="L837">            fail(&quot;set(Object) should throw an UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L838">        } catch (final UnsupportedOperationException e) {</span>
+            // This is correct; ignore the exception.
+        }
+
+        try {
+<span class="nc" id="L843">            listIterator.add(&quot;a&quot;);</span>
+            // We shouldn't get to here.
+<span class="nc" id="L845">            fail(&quot;add(Object) should throw an UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L846">        } catch (final UnsupportedOperationException e) {</span>
+            // This is correct; ignore the exception.
+        }
+<span class="fc" id="L849">    }</span>
+
+    /**
+     * Tests method nodeListIterator(NodeList)
+     */
+    @Test
+    public void testNodeListIterator() {
+<span class="fc" id="L856">        final Node[] nodes = createNodes();</span>
+<span class="fc" id="L857">        final NodeList nodeList = createNodeList(nodes);</span>
+
+<span class="fc" id="L859">        final Iterator&lt;Node&gt; iterator = IteratorUtils.nodeListIterator(nodeList);</span>
+<span class="fc" id="L860">        int expectedNodeIndex = 0;</span>
+<span class="fc bfc" id="L861" title="All 2 branches covered.">        for (final Node actual : IteratorUtils.asIterable(iterator)) {</span>
+<span class="fc" id="L862">            assertEquals(nodes[expectedNodeIndex], actual);</span>
+<span class="fc" id="L863">            ++expectedNodeIndex;</span>
+        }
+
+        // insure iteration occurred
+<span class="pc bpc" id="L867" title="1 of 2 branches missed.">        assertTrue(expectedNodeIndex &gt; 0);</span>
+
+        // single use iterator
+<span class="fc" id="L870">        assertFalse(&quot;should not be able to iterate twice&quot;, IteratorUtils.asIterable(iterator).iterator().hasNext());</span>
+<span class="fc" id="L871">    }</span>
+    /**
+     * Tests method nodeListIterator(Node)
+     */
+    @Test
+    public void testNodeIterator() {
+<span class="fc" id="L877">        final Node[] nodes = createNodes();</span>
+<span class="fc" id="L878">        final NodeList nodeList = createNodeList(nodes);</span>
+<span class="fc" id="L879">        final Node parentNode = createMock(Node.class);</span>
+<span class="fc" id="L880">        expect(parentNode.getChildNodes()).andStubReturn(nodeList);</span>
+<span class="fc" id="L881">        replay(parentNode);</span>
+
+<span class="fc" id="L883">        final Iterator&lt;Node&gt; iterator = IteratorUtils.nodeListIterator(parentNode);</span>
+<span class="fc" id="L884">        int expectedNodeIndex = 0;</span>
+<span class="fc bfc" id="L885" title="All 2 branches covered.">        for (final Node actual : IteratorUtils.asIterable(iterator)) {</span>
+<span class="fc" id="L886">            assertEquals(nodes[expectedNodeIndex], actual);</span>
+<span class="fc" id="L887">            ++expectedNodeIndex;</span>
+        }
+
+        // insure iteration occurred
+<span class="pc bpc" id="L891" title="1 of 2 branches missed.">        assertTrue(expectedNodeIndex &gt; 0);</span>
+
+        // single use iterator
+<span class="fc" id="L894">        assertFalse(&quot;should not be able to iterate twice&quot;, IteratorUtils.asIterable(iterator).iterator().hasNext());</span>
+<span class="fc" id="L895">    }</span>
+
+    /**
+     * creates an array of four Node instances, mocked by EasyMock.
+     */
+    private Node[] createNodes() {
+<span class="fc" id="L901">        final Node node1 = createMock(Node.class);</span>
+<span class="fc" id="L902">        final Node node2 = createMock(Node.class);</span>
+<span class="fc" id="L903">        final Node node3 = createMock(Node.class);</span>
+<span class="fc" id="L904">        final Node node4 = createMock(Node.class);</span>
+<span class="fc" id="L905">        replay(node1);</span>
+<span class="fc" id="L906">        replay(node2);</span>
+<span class="fc" id="L907">        replay(node3);</span>
+<span class="fc" id="L908">        replay(node4);</span>
+
+<span class="fc" id="L910">        return new Node[]{node1, node2, node3, node4};</span>
+}
+
+    /**
+     * Creates a NodeList containing the specified nodes.
+     */
+    private NodeList createNodeList(final Node[] nodes) {
+<span class="fc" id="L917">        return new NodeList() {</span>
+            @Override
+            public Node item(final int index) {
+<span class="fc" id="L920">                return nodes[index];</span>
+            }
+            @Override
+            public int getLength() {
+<span class="fc" id="L924">                return nodes.length;</span>
+            }
+        };
+    }
+
+    /**
+     * Tests methods collatedIterator(...)
+     */
+    @Test
+    public void testCollatedIterator() {
+        try {
+<span class="nc" id="L935">            IteratorUtils.collatedIterator(null, collectionOdd.iterator(), null);</span>
+<span class="nc" id="L936">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L937">        } catch (NullPointerException npe) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L942">            IteratorUtils.collatedIterator(null, null, collectionEven.iterator());</span>
+<span class="nc" id="L943">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L944">        } catch (NullPointerException npe) {</span>
+            // expected
+        }
+
+        // natural ordering
+<span class="fc" id="L949">        Iterator&lt;Integer&gt; it = </span>
+<span class="fc" id="L950">                IteratorUtils.collatedIterator(null, collectionOdd.iterator(), collectionEven.iterator());</span>
+
+<span class="fc" id="L952">        List&lt;Integer&gt; result = IteratorUtils.toList(it);</span>
+<span class="fc" id="L953">        assertEquals(12, result.size());</span>
+
+<span class="fc" id="L955">        List&lt;Integer&gt; combinedList = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L956">        combinedList.addAll(collectionOdd);</span>
+<span class="fc" id="L957">        combinedList.addAll(collectionEven);</span>
+<span class="fc" id="L958">        Collections.sort(combinedList);</span>
+
+<span class="fc" id="L960">        assertEquals(combinedList, result);</span>
+
+<span class="fc" id="L962">        it = IteratorUtils.collatedIterator(null, collectionOdd.iterator(), emptyCollection.iterator());</span>
+<span class="fc" id="L963">        result = IteratorUtils.toList(it);</span>
+<span class="fc" id="L964">        assertEquals(collectionOdd, result);</span>
+
+<span class="fc" id="L966">        final Comparator&lt;Integer&gt; reverseComparator =</span>
+<span class="fc" id="L967">                ComparatorUtils.reversedComparator(ComparatorUtils.&lt;Integer&gt;naturalComparator());</span>
+
+<span class="fc" id="L969">        Collections.reverse(collectionOdd);</span>
+<span class="fc" id="L970">        Collections.reverse(collectionEven);</span>
+<span class="fc" id="L971">        Collections.reverse(combinedList);</span>
+
+<span class="fc" id="L973">        it = IteratorUtils.collatedIterator(reverseComparator,</span>
+<span class="fc" id="L974">                                            collectionOdd.iterator(),</span>
+<span class="fc" id="L975">                                            collectionEven.iterator());</span>
+<span class="fc" id="L976">        result = IteratorUtils.toList(it);</span>
+<span class="fc" id="L977">        assertEquals(combinedList, result);</span>
+<span class="fc" id="L978">    }</span>
+
+    // -----------------------------------------------------------------------
+    @Test
+    public void forEach() {
+<span class="fc" id="L983">        final List&lt;Integer&gt; listA = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L984">        listA.add(1);</span>
+
+<span class="fc" id="L986">        final List&lt;Integer&gt; listB = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L987">        listB.add(2);</span>
+
+<span class="fc" id="L989">        final Closure&lt;List&lt;Integer&gt;&gt; testClosure = ClosureUtils.invokerClosure(&quot;clear&quot;);</span>
+<span class="fc" id="L990">        final Collection&lt;List&lt;Integer&gt;&gt; col = new ArrayList&lt;List&lt;Integer&gt;&gt;();</span>
+<span class="fc" id="L991">        col.add(listA);</span>
+<span class="fc" id="L992">        col.add(listB);</span>
+<span class="fc" id="L993">        IteratorUtils.forEach(col.iterator(), testClosure);</span>
+<span class="pc bpc" id="L994" title="2 of 4 branches missed.">        assertTrue(listA.isEmpty() &amp;&amp; listB.isEmpty());</span>
+        try {
+<span class="nc" id="L996">            IteratorUtils.forEach(col.iterator(), null);</span>
+<span class="nc" id="L997">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L998">        } catch (NullPointerException npe) {</span>
+            // expected
+        }
+
+<span class="fc" id="L1002">        IteratorUtils.forEach(null, testClosure);</span>
+
+        // null should be OK
+<span class="fc" id="L1005">        col.add(null);</span>
+<span class="fc" id="L1006">        IteratorUtils.forEach(col.iterator(), testClosure);</span>
+<span class="fc" id="L1007">    }</span>
+
+    @Test
+    public void forEachButLast() {
+<span class="fc" id="L1011">        final List&lt;Integer&gt; listA = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L1012">        listA.add(1);</span>
+
+<span class="fc" id="L1014">        final List&lt;Integer&gt; listB = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L1015">        listB.add(2);</span>
+
+<span class="fc" id="L1017">        final Closure&lt;List&lt;Integer&gt;&gt; testClosure = ClosureUtils.invokerClosure(&quot;clear&quot;);</span>
+<span class="fc" id="L1018">        final Collection&lt;List&lt;Integer&gt;&gt; col = new ArrayList&lt;List&lt;Integer&gt;&gt;();</span>
+<span class="fc" id="L1019">        col.add(listA);</span>
+<span class="fc" id="L1020">        col.add(listB);</span>
+<span class="fc" id="L1021">        List&lt;Integer&gt; last = IteratorUtils.forEachButLast(col.iterator(), testClosure);</span>
+<span class="pc bpc" id="L1022" title="2 of 4 branches missed.">        assertTrue(listA.isEmpty() &amp;&amp; !listB.isEmpty());</span>
+<span class="fc" id="L1023">        assertSame(listB, last);</span>
+
+        try {
+<span class="nc" id="L1026">            IteratorUtils.forEachButLast(col.iterator(), null);</span>
+<span class="nc" id="L1027">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L1028">        } catch (NullPointerException npe) {</span>
+            // expected
+        }
+
+<span class="fc" id="L1032">        IteratorUtils.forEachButLast(null, testClosure);</span>
+
+        // null should be OK
+<span class="fc" id="L1035">        col.add(null);</span>
+<span class="fc" id="L1036">        col.add(null);</span>
+<span class="fc" id="L1037">        last = IteratorUtils.forEachButLast(col.iterator(), testClosure);</span>
+<span class="fc" id="L1038">        assertNull(last);</span>
+<span class="fc" id="L1039">    }</span>
+
+    @Test
+    public void find() {
+<span class="fc" id="L1043">        Predicate&lt;Number&gt; testPredicate = equalPredicate((Number) 4);</span>
+<span class="fc" id="L1044">        Integer test = IteratorUtils.find(iterableA.iterator(), testPredicate);</span>
+<span class="fc" id="L1045">        assertTrue(test.equals(4));</span>
+<span class="fc" id="L1046">        testPredicate = equalPredicate((Number) 45);</span>
+<span class="fc" id="L1047">        test = IteratorUtils.find(iterableA.iterator(), testPredicate);</span>
+<span class="pc bpc" id="L1048" title="1 of 2 branches missed.">        assertTrue(test == null);</span>
+<span class="fc" id="L1049">        assertNull(IteratorUtils.find(null,testPredicate));</span>
+        try {
+<span class="nc" id="L1051">            assertNull(IteratorUtils.find(iterableA.iterator(), null));</span>
+<span class="nc" id="L1052">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L1053">        } catch (final NullPointerException npe) {</span>
+            // expected
+        }
+<span class="fc" id="L1056">    }</span>
+
+    @Test
+    public void indexOf() {
+<span class="fc" id="L1060">        Predicate&lt;Number&gt; testPredicate = equalPredicate((Number) 4);</span>
+<span class="fc" id="L1061">        int index = IteratorUtils.indexOf(iterableA.iterator(), testPredicate);</span>
+<span class="fc" id="L1062">        assertEquals(6, index);</span>
+<span class="fc" id="L1063">        testPredicate = equalPredicate((Number) 45);</span>
+<span class="fc" id="L1064">        index = IteratorUtils.indexOf(iterableA.iterator(), testPredicate);</span>
+<span class="fc" id="L1065">        assertEquals(-1, index);</span>
+<span class="fc" id="L1066">        assertEquals(-1, IteratorUtils.indexOf(null, testPredicate));</span>
+        try {
+<span class="nc" id="L1068">            assertNull(IteratorUtils.indexOf(iterableA.iterator(), null));</span>
+<span class="nc" id="L1069">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L1070">        } catch (final NullPointerException npe) {</span>
+            // expected
+        }
+<span class="fc" id="L1073">    }</span>
+
+    @Test
+    public void getFromIterator() throws Exception {
+        // Iterator, entry exists
+<span class="fc" id="L1078">        Iterator&lt;Integer&gt; iterator = iterableA.iterator();</span>
+<span class="fc" id="L1079">        assertEquals(1, (int) IteratorUtils.get(iterator, 0));</span>
+<span class="fc" id="L1080">        iterator = iterableA.iterator();</span>
+<span class="fc" id="L1081">        assertEquals(2, (int) IteratorUtils.get(iterator, 1));</span>
+
+        // Iterator, non-existent entry
+        try {
+<span class="nc" id="L1085">            IteratorUtils.get(iterator, 10);</span>
+<span class="nc" id="L1086">            fail(&quot;Expecting IndexOutOfBoundsException.&quot;);</span>
+<span class="pc" id="L1087">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="pc bpc" id="L1090" title="1 of 2 branches missed.">        assertTrue(!iterator.hasNext());</span>
+<span class="fc" id="L1091">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

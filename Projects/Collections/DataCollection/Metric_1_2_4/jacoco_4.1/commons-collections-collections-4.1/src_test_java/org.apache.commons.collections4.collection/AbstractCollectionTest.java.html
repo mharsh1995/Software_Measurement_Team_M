@@ -1,0 +1,1390 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractCollectionTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.collection</a> &gt; <span class="el_source">AbstractCollectionTest.java</span></div><h1>AbstractCollectionTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.collection;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import org.apache.commons.collections4.AbstractObjectTest;
+
+/**
+ * Abstract test class for {@link java.util.Collection} methods and contracts.
+ * &lt;p&gt;
+ * You should create a concrete subclass of this class to test any custom
+ * {@link Collection} implementation.  At minimum, you'll have to
+ * implement the @{@link #makeObject()}, {@link #makeConfirmedCollection()}
+ * and {@link #makeConfirmedFullCollection()} methods.
+ * You might want to override some of the additional public methods as well:
+ * &lt;p&gt;
+ * &lt;b&gt;Element Population Methods&lt;/b&gt;
+ * &lt;p&gt;
+ * Override these if your collection restricts what kind of elements are
+ * allowed (for instance, if &lt;code&gt;null&lt;/code&gt; is not permitted):
+ * &lt;ul&gt;
+ * &lt;li&gt;{@link #getFullElements()}
+ * &lt;li&gt;{@link #getOtherElements()}
+ * &lt;/ul&gt;
+ * &lt;p&gt;
+ * &lt;b&gt;Supported Operation Methods&lt;/b&gt;
+ * &lt;p&gt;
+ * Override these if your collection doesn't support certain operations:
+ * &lt;ul&gt;
+ * &lt;li&gt;{@link #isAddSupported()}
+ * &lt;li&gt;{@link #isRemoveSupported()}
+ * &lt;li&gt;{@link #areEqualElementsDistinguishable()}
+ * &lt;li&gt;{@link #isNullSupported()}
+ * &lt;li&gt;{@link #isFailFastSupported()}
+ * &lt;/ul&gt;
+ * &lt;p&gt;
+ * &lt;b&gt;Fixture Methods&lt;/b&gt;
+ * &lt;p&gt;
+ * Fixtures are used to verify that the the operation results in correct state
+ * for the collection.  Basically, the operation is performed against your
+ * collection implementation, and an identical operation is performed against a
+ * &lt;i&gt;confirmed&lt;/i&gt; collection implementation.  A confirmed collection
+ * implementation is something like &lt;code&gt;java.util.ArrayList&lt;/code&gt;, which is
+ * known to conform exactly to its collection interface's contract.  After the
+ * operation takes place on both your collection implementation and the
+ * confirmed collection implementation, the two collections are compared to see
+ * if their state is identical.  The comparison is usually much more involved
+ * than a simple &lt;code&gt;equals&lt;/code&gt; test.  This verification is used to ensure
+ * proper modifications are made along with ensuring that the collection does
+ * not change when read-only modifications are made.
+ * &lt;p&gt;
+ * The {@link #collection} field holds an instance of your collection
+ * implementation; the {@link #confirmed} field holds an instance of the
+ * confirmed collection implementation.  The {@link #resetEmpty()} and
+ * {@link #resetFull()} methods set these fields to empty or full collections,
+ * so that tests can proceed from a known state.
+ * &lt;p&gt;
+ * After a modification operation to both {@link #collection} and
+ * {@link #confirmed}, the {@link #verify()} method is invoked to compare
+ * the results.  You may want to override {@link #verify()} to perform
+ * additional verifications.  For instance, when testing the collection
+ * views of a map, {@link org.apache.commons.collections4.map.AbstractMapTest AbstractTestMap} 
+ * would override {@link #verify()} to make
+ * sure the map is changed after the collection view is changed.
+ * &lt;p&gt;
+ * If you're extending this class directly, you will have to provide
+ * implementations for the following:
+ * &lt;ul&gt;
+ * &lt;li&gt;{@link #makeConfirmedCollection()}
+ * &lt;li&gt;{@link #makeConfirmedFullCollection()}
+ * &lt;/ul&gt;
+ * &lt;p&gt;
+ * Those methods should provide a confirmed collection implementation
+ * that's compatible with your collection implementation.
+ * &lt;p&gt;
+ * If you're extending {@link org.apache.commons.collections4.list.AbstractListTest AbstractListTest},
+ * {@link org.apache.commons.collections4.set.AbstractSetTest AbstractTestSet},
+ * or {@link org.apache.commons.collections4.bag.AbstractBagTest AbstractBagTest}, 
+ * you probably don't have to worry about the
+ * above methods, because those three classes already override the methods
+ * to provide standard JDK confirmed collections.&lt;P&gt;
+ * &lt;p&gt;
+ * &lt;b&gt;Other notes&lt;/b&gt;
+ * &lt;p&gt;
+ * If your {@link Collection} fails one of these tests by design,
+ * you may still use this base set of cases.  Simply override the
+ * test case (method) your {@link Collection} fails.
+ *
+ * @version $Id$
+ */
+public abstract class AbstractCollectionTest&lt;E&gt; extends AbstractObjectTest {
+
+    //
+    // NOTE:
+    //
+    // Collection doesn't define any semantics for equals, and recommends you
+    // use reference-based default behavior of Object.equals.  (And a test for
+    // that already exists in AbstractTestObject).  Tests for equality of lists, sets
+    // and bags will have to be written in test subclasses.  Thus, there is no
+    // tests on Collection.equals nor any for Collection.hashCode.
+    //
+
+    // These fields are used by reset() and verify(), and any test
+    // method that tests a modification.
+
+    /**
+     *  A collection instance that will be used for testing.
+     */
+    private Collection&lt;E&gt; collection;
+
+    /**
+     *  Confirmed collection.  This is an instance of a collection that is
+     *  confirmed to conform exactly to the java.util.Collection contract.
+     *  Modification operations are tested by performing a mod on your
+     *  collection, performing the exact same mod on an equivalent confirmed
+     *  collection, and then calling verify() to make sure your collection
+     *  still matches the confirmed collection.
+     */
+    private Collection&lt;E&gt; confirmed;
+
+    /**
+     * JUnit constructor.
+     *
+     * @param testName  the test class name
+     */
+    public AbstractCollectionTest(final String testName) {
+<span class="fc" id="L158">        super(testName);</span>
+<span class="fc" id="L159">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Specifies whether equal elements in the collection are, in fact,
+     *  distinguishable with information not readily available.  That is, if a
+     *  particular value is to be removed from the collection, then there is
+     *  one and only one value that can be removed, even if there are other
+     *  elements which are equal to it.
+     *
+     *  &lt;P&gt;In most collection cases, elements are not distinguishable (equal is
+     *  equal), thus this method defaults to return false.  In some cases,
+     *  however, they are.  For example, the collection returned from the map's
+     *  values() collection view are backed by the map, so while there may be
+     *  two values that are equal, their associated keys are not.  Since the
+     *  keys are distinguishable, the values are.
+     *
+     *  &lt;P&gt;This flag is used to skip some verifications for iterator.remove()
+     *  where it is impossible to perform an equivalent modification on the
+     *  confirmed collection because it is not possible to determine which
+     *  value in the confirmed collection to actually remove.  Tests that
+     *  override the default (i.e. where equal elements are distinguishable),
+     *  should provide additional tests on iterator.remove() to make sure the
+     *  proper elements are removed when remove() is called on the iterator.
+     **/
+    public boolean areEqualElementsDistinguishable() {
+<span class="fc" id="L185">        return false;</span>
+    }
+
+    /**
+     *  Returns true if the collections produced by
+     *  {@link #makeObject()} and {@link #makeFullCollection()}
+     *  support the &lt;code&gt;add&lt;/code&gt; and &lt;code&gt;addAll&lt;/code&gt;
+     *  operations.&lt;P&gt;
+     *  Default implementation returns true.  Override if your collection
+     *  class does not support add or addAll.
+     */
+    public boolean isAddSupported() {
+<span class="fc" id="L197">        return true;</span>
+    }
+
+    /**
+     *  Returns true if the collections produced by
+     *  {@link #makeObject()} and {@link #makeFullCollection()}
+     *  support the &lt;code&gt;remove&lt;/code&gt;, &lt;code&gt;removeAll&lt;/code&gt;,
+     *  &lt;code&gt;retainAll&lt;/code&gt;, &lt;code&gt;clear&lt;/code&gt; and
+     *  &lt;code&gt;iterator().remove()&lt;/code&gt; methods.
+     *  Default implementation returns true.  Override if your collection
+     *  class does not support removal operations.
+     */
+    public boolean isRemoveSupported() {
+<span class="fc" id="L210">        return true;</span>
+    }
+
+    /**
+     * Returns true to indicate that the collection supports holding null.
+     * The default implementation returns true;
+     */
+    public boolean isNullSupported() {
+<span class="fc" id="L218">        return true;</span>
+    }
+
+    /**
+     * Returns true to indicate that the collection supports fail fast iterators.
+     * The default implementation returns true;
+     */
+    public boolean isFailFastSupported() {
+<span class="fc" id="L226">        return false;</span>
+    }
+
+    /**
+     * Returns true to indicate that the collection supports equals() comparisons.
+     * This implementation returns false;
+     */
+    @Override
+    public boolean isEqualsCheckable() {
+<span class="fc" id="L235">        return false;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Verifies that {@link #collection} and {@link #confirmed} have
+     *  identical state.
+     */
+    public void verify() {
+<span class="fc" id="L244">        final int confirmedSize = getConfirmed().size();</span>
+<span class="fc" id="L245">        assertEquals(&quot;Collection size should match confirmed collection's&quot;, confirmedSize,</span>
+<span class="fc" id="L246">                getCollection().size());</span>
+<span class="fc" id="L247">        assertEquals(&quot;Collection isEmpty() result should match confirmed collection's&quot;,</span>
+<span class="fc" id="L248">                getConfirmed().isEmpty(), getCollection().isEmpty());</span>
+
+        // verify the collections are the same by attempting to match each
+        // object in the collection and confirmed collection.  To account for
+        // duplicates and differing orders, each confirmed element is copied
+        // into an array and a flag is maintained for each element to determine
+        // whether it has been matched once and only once.  If all elements in
+        // the confirmed collection are matched once and only once and there
+        // aren't any elements left to be matched in the collection,
+        // verification is a success.
+
+        // copy each collection value into an array
+<span class="fc" id="L260">        final Object[] confirmedValues = new Object[confirmedSize];</span>
+
+        Iterator&lt;E&gt; iter;
+
+<span class="fc" id="L264">        iter = getConfirmed().iterator();</span>
+<span class="fc" id="L265">        int pos = 0;</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L267">            confirmedValues[pos++] = iter.next();</span>
+        }
+
+        // allocate an array of boolean flags for tracking values that have
+        // been matched once and only once.
+<span class="fc" id="L272">        final boolean[] matched = new boolean[confirmedSize];</span>
+
+        // now iterate through the values of the collection and try to match
+        // the value with one in the confirmed array.
+<span class="fc" id="L276">        iter = getCollection().iterator();</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L278">            final Object o = iter.next();</span>
+<span class="fc" id="L279">            boolean match = false;</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">            for (int i = 0; i &lt; confirmedSize; i++) {</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">                if (matched[i]) {</span>
+                    // skip values already matched
+<span class="fc" id="L283">                    continue;</span>
+                }
+<span class="fc bfc" id="L285" title="All 6 branches covered.">                if (o == confirmedValues[i] || o != null &amp;&amp; o.equals(confirmedValues[i])) {</span>
+                    // values matched
+<span class="fc" id="L287">                    matched[i] = true;</span>
+<span class="fc" id="L288">                    match = true;</span>
+<span class="fc" id="L289">                    break;</span>
+                }
+            }
+            // no match found!
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">            if (!match) {</span>
+<span class="nc" id="L294">                fail(&quot;Collection should not contain a value that the &quot;</span>
+<span class="nc" id="L295">                        + &quot;confirmed collection does not have: &quot; + o + &quot;\nTest: &quot; + getCollection()</span>
+<span class="nc" id="L296">                        + &quot;\nReal: &quot; + getConfirmed());</span>
+            }
+        }
+
+        // make sure there aren't any unmatched values
+<span class="fc bfc" id="L301" title="All 2 branches covered.">        for (int i = 0; i &lt; confirmedSize; i++) {</span>
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">            if (!matched[i]) {</span>
+                // the collection didn't match all the confirmed values
+<span class="nc" id="L304">                fail(&quot;Collection should contain all values that are in the confirmed collection&quot;</span>
+<span class="nc" id="L305">                        + &quot;\nTest: &quot; + getCollection() + &quot;\nReal: &quot; + getConfirmed());</span>
+            }
+        }
+<span class="fc" id="L308">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Resets the {@link #collection} and {@link #confirmed} fields to empty
+     *  collections.  Invoke this method before performing a modification
+     *  test.
+     */
+    public void resetEmpty() {
+<span class="fc" id="L317">        this.setCollection(makeObject());</span>
+<span class="fc" id="L318">        this.setConfirmed(makeConfirmedCollection());</span>
+<span class="fc" id="L319">    }</span>
+
+    /**
+     *  Resets the {@link #collection} and {@link #confirmed} fields to full
+     *  collections.  Invoke this method before performing a modification
+     *  test.
+     */
+    public void resetFull() {
+<span class="fc" id="L327">        this.setCollection(makeFullCollection());</span>
+<span class="fc" id="L328">        this.setConfirmed(makeConfirmedFullCollection());</span>
+<span class="fc" id="L329">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Returns a confirmed empty collection.
+     *  For instance, an {@link java.util.ArrayList} for lists or a
+     *  {@link java.util.HashSet} for sets.
+     *
+     *  @return a confirmed empty collection
+     */
+    public abstract Collection&lt;E&gt; makeConfirmedCollection();
+
+    /**
+     *  Returns a confirmed full collection.
+     *  For instance, an {@link java.util.ArrayList} for lists or a
+     *  {@link java.util.HashSet} for sets.  The returned collection
+     *  should contain the elements returned by {@link #getFullElements()}.
+     *
+     *  @return a confirmed full collection
+     */
+    public abstract Collection&lt;E&gt; makeConfirmedFullCollection();
+
+    /**
+     * Return a new, empty {@link Collection} to be used for testing.
+     */
+    @Override
+    public abstract Collection&lt;E&gt; makeObject();
+
+    /**
+     *  Returns a full collection to be used for testing.  The collection
+     *  returned by this method should contain every element returned by
+     *  {@link #getFullElements()}.  The default implementation, in fact,
+     *  simply invokes &lt;code&gt;addAll&lt;/code&gt; on an empty collection with
+     *  the results of {@link #getFullElements()}.  Override this default
+     *  if your collection doesn't support addAll.
+     */
+    public Collection&lt;E&gt; makeFullCollection() {
+<span class="fc" id="L366">        final Collection&lt;E&gt; c = makeObject();</span>
+<span class="fc" id="L367">        c.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L368">        return c;</span>
+    }
+
+    /**
+     * Creates a new Map Entry that is independent of the first and the map.
+     */
+    public Map.Entry&lt;E, E&gt; cloneMapEntry(final Map.Entry&lt;E, E&gt; entry) {
+<span class="fc" id="L375">        final HashMap&lt;E, E&gt; map = new HashMap&lt;E, E&gt;();</span>
+<span class="fc" id="L376">        map.put(entry.getKey(), entry.getValue());</span>
+<span class="fc" id="L377">        return map.entrySet().iterator().next();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Returns an array of objects that are contained in a collection
+     *  produced by {@link #makeFullCollection()}.  Every element in the
+     *  returned array &lt;I&gt;must&lt;/I&gt; be an element in a full collection.&lt;P&gt;
+     *  The default implementation returns a heterogenous array of
+     *  objects with some duplicates. null is added if allowed.
+     *  Override if you require specific testing elements.  Note that if you
+     *  override {@link #makeFullCollection()}, you &lt;I&gt;must&lt;/I&gt; override
+     *  this method to reflect the contents of a full collection.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public E[] getFullElements() {
+<span class="fc bfc" id="L393" title="All 2 branches covered.">        if (isNullSupported()) {</span>
+<span class="fc" id="L394">            final ArrayList&lt;E&gt; list = new ArrayList&lt;E&gt;();</span>
+<span class="fc" id="L395">            list.addAll(Arrays.asList(getFullNonNullElements()));</span>
+<span class="fc" id="L396">            list.add(4, null);</span>
+<span class="fc" id="L397">            return (E[]) list.toArray();</span>
+        }
+<span class="fc" id="L399">        return getFullNonNullElements().clone();</span>
+    }
+
+    /**
+     *  Returns an array of elements that are &lt;I&gt;not&lt;/I&gt; contained in a
+     *  full collection.  Every element in the returned array must
+     *  not exist in a collection returned by {@link #makeFullCollection()}.
+     *  The default implementation returns a heterogenous array of elements
+     *  without null.  Note that some of the tests add these elements
+     *  to an empty or full collection, so if your collection restricts
+     *  certain kinds of elements, you should override this method.
+     */
+    public E[] getOtherElements() {
+<span class="fc" id="L412">        return getOtherNonNullElements();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Returns a list of elements suitable for return by
+     *  {@link #getFullElements()}.  The array returned by this method
+     *  does not include null, but does include a variety of objects
+     *  of different types.  Override getFullElements to return
+     *  the results of this method if your collection does not support
+     *  the null element.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public E[] getFullNonNullElements() {
+<span class="fc" id="L426">        return (E[]) new Object[] {</span>
+<span class="fc" id="L427">            new String(&quot;&quot;),</span>
+<span class="fc" id="L428">            new String(&quot;One&quot;),</span>
+<span class="fc" id="L429">            Integer.valueOf(2),</span>
+<span class="fc" id="L430">            &quot;Three&quot;,</span>
+<span class="fc" id="L431">            Integer.valueOf(4),</span>
+<span class="fc" id="L432">            &quot;One&quot;,</span>
+<span class="fc" id="L433">            new Double(5),</span>
+<span class="fc" id="L434">            new Float(6),</span>
+<span class="fc" id="L435">            &quot;Seven&quot;,</span>
+<span class="fc" id="L436">            &quot;Eight&quot;,</span>
+<span class="fc" id="L437">            new String(&quot;Nine&quot;),</span>
+<span class="fc" id="L438">            Integer.valueOf(10),</span>
+<span class="fc" id="L439">            new Short((short)11),</span>
+<span class="fc" id="L440">            new Long(12),</span>
+<span class="fc" id="L441">            &quot;Thirteen&quot;,</span>
+<span class="fc" id="L442">            &quot;14&quot;,</span>
+<span class="fc" id="L443">            &quot;15&quot;,</span>
+<span class="fc" id="L444">            new Byte((byte)16)</span>
+        };
+    }
+
+    /**
+     *  Returns the default list of objects returned by
+     *  {@link #getOtherElements()}.  Includes many objects
+     *  of different types.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public E[] getOtherNonNullElements() {
+<span class="fc" id="L455">        return (E[]) new Object[] {</span>
+<span class="fc" id="L456">            Integer.valueOf(0),</span>
+<span class="fc" id="L457">            new Float(0),</span>
+<span class="fc" id="L458">            new Double(0),</span>
+<span class="fc" id="L459">            &quot;Zero&quot;,</span>
+<span class="fc" id="L460">            new Short((short)0),</span>
+<span class="fc" id="L461">            new Byte((byte)0),</span>
+<span class="fc" id="L462">            new Long(0),</span>
+<span class="fc" id="L463">            new Character('\u0000'),</span>
+<span class="fc" id="L464">            &quot;0&quot;</span>
+        };
+    }
+
+    /**
+     *  Returns a list of string elements suitable for return by
+     *  {@link #getFullElements()}.  Override getFullElements to return
+     *  the results of this method if your collection does not support
+     *  heterogenous elements or the null element.
+     */
+    public Object[] getFullNonNullStringElements() {
+<span class="nc" id="L475">        return new Object[] {</span>
+<span class="nc" id="L476">            &quot;If&quot;, &quot;the&quot;, &quot;dull&quot;, &quot;substance&quot;, &quot;of&quot;, &quot;my&quot;, &quot;flesh&quot;, &quot;were&quot;,</span>
+<span class="nc" id="L477">                &quot;thought&quot;, &quot;Injurious&quot;, &quot;distance&quot;, &quot;could&quot;, &quot;not&quot;, &quot;stop&quot;, &quot;my&quot;, &quot;way&quot;,</span>
+        };
+    }
+
+    /**
+     *  Returns a list of string elements suitable for return by
+     *  {@link #getOtherElements()}.  Override getOtherElements to return
+     *  the results of this method if your collection does not support
+     *  heterogenous elements or the null element.
+     */
+    public Object[] getOtherNonNullStringElements() {
+<span class="nc" id="L488">        return new Object[] {</span>
+<span class="nc" id="L489">            &quot;For&quot;, &quot;then&quot;, &quot;despite&quot;,/* of */&quot;space&quot;, &quot;I&quot;, &quot;would&quot;, &quot;be&quot;,</span>
+<span class="nc" id="L490">                &quot;brought&quot;, &quot;From&quot;, &quot;limits&quot;, &quot;far&quot;, &quot;remote&quot;, &quot;where&quot;, &quot;thou&quot;, &quot;dost&quot;, &quot;stay&quot;</span>
+        };
+    }
+
+    // Tests
+    //-----------------------------------------------------------------------
+    /**
+     *  Tests {@link Collection#add(Object)}.
+     */
+    public void testCollectionAdd() {
+<span class="fc bfc" id="L500" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L501">            return;</span>
+        }
+
+<span class="fc" id="L504">        final E[] elements = getFullElements();</span>
+<span class="fc bfc" id="L505" title="All 2 branches covered.">        for (final E element : elements) {</span>
+<span class="fc" id="L506">            resetEmpty();</span>
+<span class="fc" id="L507">            final boolean r = getCollection().add(element);</span>
+<span class="fc" id="L508">            getConfirmed().add(element);</span>
+<span class="fc" id="L509">            verify();</span>
+<span class="fc" id="L510">            assertTrue(&quot;Empty collection changed after add&quot;, r);</span>
+<span class="fc" id="L511">            assertEquals(&quot;Collection size is 1 after first add&quot;, 1, getCollection().size());</span>
+        }
+
+<span class="fc" id="L514">        resetEmpty();</span>
+<span class="fc" id="L515">        int size = 0;</span>
+<span class="fc bfc" id="L516" title="All 2 branches covered.">        for (final E element : elements) {</span>
+<span class="fc" id="L517">            final boolean r = getCollection().add(element);</span>
+<span class="fc" id="L518">            getConfirmed().add(element);</span>
+<span class="fc" id="L519">            verify();</span>
+<span class="fc bfc" id="L520" title="All 2 branches covered.">            if (r) {</span>
+<span class="fc" id="L521">                size++;</span>
+            }
+<span class="fc" id="L523">            assertEquals(&quot;Collection size should grow after add&quot;, size, getCollection().size());</span>
+<span class="fc" id="L524">            assertTrue(&quot;Collection should contain added element&quot;, getCollection().contains(element));</span>
+        }
+<span class="fc" id="L526">    }</span>
+
+    /**
+     *  Tests {@link Collection#addAll(Collection)}.
+     */
+    public void testCollectionAddAll() {
+<span class="fc bfc" id="L532" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L533">            return;</span>
+        }
+
+<span class="fc" id="L536">        resetEmpty();</span>
+<span class="fc" id="L537">        E[] elements = getFullElements();</span>
+<span class="fc" id="L538">        boolean r = getCollection().addAll(Arrays.asList(elements));</span>
+<span class="fc" id="L539">        getConfirmed().addAll(Arrays.asList(elements));</span>
+<span class="fc" id="L540">        verify();</span>
+<span class="fc" id="L541">        assertTrue(&quot;Empty collection should change after addAll&quot;, r);</span>
+<span class="fc bfc" id="L542" title="All 2 branches covered.">        for (final E element : elements) {</span>
+<span class="fc" id="L543">            assertTrue(&quot;Collection should contain added element&quot;, getCollection().contains(element));</span>
+        }
+
+<span class="fc" id="L546">        resetFull();</span>
+<span class="fc" id="L547">        int size = getCollection().size();</span>
+<span class="fc" id="L548">        elements = getOtherElements();</span>
+<span class="fc" id="L549">        r = getCollection().addAll(Arrays.asList(elements));</span>
+<span class="fc" id="L550">        getConfirmed().addAll(Arrays.asList(elements));</span>
+<span class="fc" id="L551">        verify();</span>
+<span class="fc" id="L552">        assertTrue(&quot;Full collection should change after addAll&quot;, r);</span>
+<span class="fc bfc" id="L553" title="All 2 branches covered.">        for (final E element : elements) {</span>
+<span class="fc" id="L554">            assertTrue(&quot;Full collection should contain added element&quot;,</span>
+<span class="fc" id="L555">                    getCollection().contains(element));</span>
+        }
+<span class="fc" id="L557">        assertEquals(&quot;Size should increase after addAll&quot;, size + elements.length, getCollection().size());</span>
+
+<span class="fc" id="L559">        resetFull();</span>
+<span class="fc" id="L560">        size = getCollection().size();</span>
+<span class="fc" id="L561">        r = getCollection().addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L562">        getConfirmed().addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L563">        verify();</span>
+<span class="fc bfc" id="L564" title="All 2 branches covered.">        if (r) {</span>
+<span class="pc bpc" id="L565" title="1 of 2 branches missed.">            assertTrue(&quot;Size should increase if addAll returns true&quot;, size &lt; getCollection().size());</span>
+<span class="fc" id="L566">        } else {</span>
+<span class="fc" id="L567">            assertEquals(&quot;Size should not change if addAll returns false&quot;, size, getCollection().size());</span>
+        }
+<span class="fc" id="L569">    }</span>
+
+    /**
+     *  If {@link #isAddSupported()} returns false, tests that add operations
+     *  raise &lt;code&gt;UnsupportedOperationException.
+     */
+    public void testUnsupportedAdd() {
+<span class="fc bfc" id="L576" title="All 2 branches covered.">        if (isAddSupported()) {</span>
+<span class="fc" id="L577">            return;</span>
+        }
+
+<span class="fc" id="L580">        resetEmpty();</span>
+        try {
+<span class="nc" id="L582">            getCollection().add(getFullNonNullElements()[0]);</span>
+<span class="nc" id="L583">            fail(&quot;Empty collection should not support add.&quot;);</span>
+<span class="pc" id="L584">        } catch (final UnsupportedOperationException e) {</span>
+            // expected
+        }
+        // make sure things didn't change even if the expected exception was
+        // thrown.
+<span class="fc" id="L589">        verify();</span>
+
+        try {
+<span class="nc" id="L592">            getCollection().addAll(Arrays.asList(getFullElements()));</span>
+<span class="nc" id="L593">            fail(&quot;Empty collection should not support addAll.&quot;);</span>
+<span class="pc" id="L594">        } catch (final UnsupportedOperationException e) {</span>
+            // expected
+        }
+        // make sure things didn't change even if the expected exception was
+        // thrown.
+<span class="fc" id="L599">        verify();</span>
+
+<span class="fc" id="L601">        resetFull();</span>
+        try {
+<span class="nc" id="L603">            getCollection().add(getFullNonNullElements()[0]);</span>
+<span class="nc" id="L604">            fail(&quot;Full collection should not support add.&quot;);</span>
+<span class="pc" id="L605">        } catch (final UnsupportedOperationException e) {</span>
+            // expected
+        }
+        // make sure things didn't change even if the expected exception was
+        // thrown.
+<span class="fc" id="L610">        verify();</span>
+
+        try {
+<span class="nc" id="L613">            getCollection().addAll(Arrays.asList(getOtherElements()));</span>
+<span class="nc" id="L614">            fail(&quot;Full collection should not support addAll.&quot;);</span>
+<span class="pc" id="L615">        } catch (final UnsupportedOperationException e) {</span>
+            // expected
+        }
+        // make sure things didn't change even if the expected exception was
+        // thrown.
+<span class="fc" id="L620">        verify();</span>
+<span class="fc" id="L621">    }</span>
+
+    /**
+     *  Test {@link Collection#clear()}.
+     */
+    public void testCollectionClear() {
+<span class="fc bfc" id="L627" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L628">            return;</span>
+        }
+
+<span class="fc" id="L631">        resetEmpty();</span>
+<span class="fc" id="L632">        getCollection().clear(); // just to make sure it doesn't raise anything</span>
+<span class="fc" id="L633">        verify();</span>
+
+<span class="fc" id="L635">        resetFull();</span>
+<span class="fc" id="L636">        getCollection().clear();</span>
+<span class="fc" id="L637">        getConfirmed().clear();</span>
+<span class="fc" id="L638">        verify();</span>
+<span class="fc" id="L639">    }</span>
+
+    /**
+     *  Tests {@link Collection#contains(Object)}.
+     */
+    public void testCollectionContains() {
+        Object[] elements;
+
+<span class="fc" id="L647">        resetEmpty();</span>
+<span class="fc" id="L648">        elements = getFullElements();</span>
+<span class="fc bfc" id="L649" title="All 2 branches covered.">        for (int i = 0; i &lt; elements.length; i++) {</span>
+<span class="fc" id="L650">            assertTrue(&quot;Empty collection shouldn't contain element[&quot; + i + &quot;]&quot;,</span>
+<span class="pc bpc" id="L651" title="1 of 2 branches missed.">                    !getCollection().contains(elements[i]));</span>
+        }
+        // make sure calls to &quot;contains&quot; don't change anything
+<span class="fc" id="L654">        verify();</span>
+
+<span class="fc" id="L656">        elements = getOtherElements();</span>
+<span class="fc bfc" id="L657" title="All 2 branches covered.">        for (int i = 0; i &lt; elements.length; i++) {</span>
+<span class="fc" id="L658">            assertTrue(&quot;Empty collection shouldn't contain element[&quot; + i + &quot;]&quot;,</span>
+<span class="pc bpc" id="L659" title="1 of 2 branches missed.">                    !getCollection().contains(elements[i]));</span>
+        }
+        // make sure calls to &quot;contains&quot; don't change anything
+<span class="fc" id="L662">        verify();</span>
+
+<span class="fc" id="L664">        resetFull();</span>
+<span class="fc" id="L665">        elements = getFullElements();</span>
+<span class="fc bfc" id="L666" title="All 2 branches covered.">        for (int i = 0; i &lt; elements.length; i++) {</span>
+<span class="fc" id="L667">            assertTrue(&quot;Full collection should contain element[&quot; + i + &quot;]&quot;,</span>
+<span class="fc" id="L668">                    getCollection().contains(elements[i]));</span>
+        }
+        // make sure calls to &quot;contains&quot; don't change anything
+<span class="fc" id="L671">        verify();</span>
+
+<span class="fc" id="L673">        resetFull();</span>
+<span class="fc" id="L674">        elements = getOtherElements();</span>
+<span class="fc bfc" id="L675" title="All 2 branches covered.">        for (Object element : elements) {</span>
+<span class="fc" id="L676">            assertTrue(&quot;Full collection shouldn't contain element&quot;,</span>
+<span class="pc bpc" id="L677" title="1 of 2 branches missed.">                    !getCollection().contains(element));</span>
+        }
+<span class="fc" id="L679">    }</span>
+
+    /**
+     *  Tests {@link Collection#containsAll(Collection)}.
+     */
+    public void testCollectionContainsAll() {
+<span class="fc" id="L685">        resetEmpty();</span>
+<span class="fc" id="L686">        Collection&lt;E&gt; col = new HashSet&lt;E&gt;();</span>
+<span class="fc" id="L687">        assertTrue(&quot;Every Collection should contain all elements of an &quot; +</span>
+<span class="fc" id="L688">                &quot;empty Collection.&quot;, getCollection().containsAll(col));</span>
+<span class="fc" id="L689">        col.addAll(Arrays.asList(getOtherElements()));</span>
+<span class="fc" id="L690">        assertTrue(&quot;Empty Collection shouldn't contain all elements of &quot; +</span>
+<span class="pc bpc" id="L691" title="1 of 2 branches missed.">                &quot;a non-empty Collection.&quot;, !getCollection().containsAll(col));</span>
+        // make sure calls to &quot;containsAll&quot; don't change anything
+<span class="fc" id="L693">        verify();</span>
+
+<span class="fc" id="L695">        resetFull();</span>
+<span class="fc" id="L696">        assertTrue(&quot;Full collection shouldn't contain other elements&quot;,</span>
+<span class="pc bpc" id="L697" title="1 of 2 branches missed.">                !getCollection().containsAll(col));</span>
+
+<span class="fc" id="L699">        col.clear();</span>
+<span class="fc" id="L700">        col.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L701">        assertTrue(&quot;Full collection should containAll full elements&quot;,</span>
+<span class="fc" id="L702">                getCollection().containsAll(col));</span>
+        // make sure calls to &quot;containsAll&quot; don't change anything
+<span class="fc" id="L704">        verify();</span>
+
+<span class="fc bfc" id="L706" title="All 2 branches covered.">        final int min = getFullElements().length &lt; 4 ? 0 : 2;</span>
+<span class="fc bfc" id="L707" title="All 2 branches covered.">        final int max = getFullElements().length == 1 ? 1 :</span>
+<span class="fc bfc" id="L708" title="All 2 branches covered.">                getFullElements().length &lt;= 5 ? getFullElements().length - 1 : 5;</span>
+<span class="fc" id="L709">        col = Arrays.asList(getFullElements()).subList(min, max);</span>
+<span class="fc" id="L710">        assertTrue(&quot;Full collection should containAll partial full elements&quot;,</span>
+<span class="fc" id="L711">                getCollection().containsAll(col));</span>
+<span class="fc" id="L712">        assertTrue(&quot;Full collection should containAll itself&quot;, getCollection().containsAll(getCollection()));</span>
+        // make sure calls to &quot;containsAll&quot; don't change anything
+<span class="fc" id="L714">        verify();</span>
+
+<span class="fc" id="L716">        col = new ArrayList&lt;E&gt;();</span>
+<span class="fc" id="L717">        col.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L718">        col.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L719">        assertTrue(&quot;Full collection should containAll duplicate full elements&quot;,</span>
+<span class="fc" id="L720">                getCollection().containsAll(col));</span>
+
+        // make sure calls to &quot;containsAll&quot; don't change anything
+<span class="fc" id="L723">        verify();</span>
+<span class="fc" id="L724">    }</span>
+
+    /**
+     *  Tests {@link Collection#isEmpty()}.
+     */
+    public void testCollectionIsEmpty() {
+<span class="fc" id="L730">        resetEmpty();</span>
+<span class="fc" id="L731">        assertEquals(&quot;New Collection should be empty.&quot;, true, getCollection().isEmpty());</span>
+        // make sure calls to &quot;isEmpty() don't change anything
+<span class="fc" id="L733">        verify();</span>
+
+<span class="fc" id="L735">        resetFull();</span>
+<span class="fc" id="L736">        assertEquals(&quot;Full collection shouldn't be empty&quot;, false, getCollection().isEmpty());</span>
+        // make sure calls to &quot;isEmpty() don't change anything
+<span class="fc" id="L738">        verify();</span>
+<span class="fc" id="L739">    }</span>
+
+    /**
+     *  Tests the read-only functionality of {@link Collection#iterator()}.
+     */
+    public void testCollectionIterator() {
+<span class="fc" id="L745">        resetEmpty();</span>
+<span class="fc" id="L746">        Iterator&lt;E&gt; it1 = getCollection().iterator();</span>
+<span class="fc" id="L747">        assertEquals(&quot;Iterator for empty Collection shouldn't have next.&quot;, false, it1.hasNext());</span>
+        try {
+<span class="nc" id="L749">            it1.next();</span>
+<span class="nc" id="L750">            fail(&quot;Iterator at end of Collection should throw &quot;</span>
+                    + &quot;NoSuchElementException when next is called.&quot;);
+<span class="pc" id="L752">        } catch (final NoSuchElementException e) {</span>
+            // expected
+        }
+        // make sure nothing has changed after non-modification
+<span class="fc" id="L756">        verify();</span>
+
+<span class="fc" id="L758">        resetFull();</span>
+<span class="fc" id="L759">        it1 = getCollection().iterator();</span>
+<span class="fc bfc" id="L760" title="All 2 branches covered.">        for (int i = 0; i &lt; getCollection().size(); i++) {</span>
+<span class="fc" id="L761">            assertTrue(&quot;Iterator for full collection should haveNext&quot;, it1.hasNext());</span>
+<span class="fc" id="L762">            it1.next();</span>
+        }
+<span class="pc bpc" id="L764" title="1 of 2 branches missed.">        assertTrue(&quot;Iterator should be finished&quot;, !it1.hasNext());</span>
+
+<span class="fc" id="L766">        final ArrayList&lt;E&gt; list = new ArrayList&lt;E&gt;();</span>
+<span class="fc" id="L767">        it1 = getCollection().iterator();</span>
+<span class="fc bfc" id="L768" title="All 2 branches covered.">        for (int i = 0; i &lt; getCollection().size(); i++) {</span>
+<span class="fc" id="L769">            final E next = it1.next();</span>
+<span class="fc" id="L770">            assertTrue(&quot;Collection should contain element returned by its iterator&quot;,</span>
+<span class="fc" id="L771">                    getCollection().contains(next));</span>
+<span class="fc" id="L772">            list.add(next);</span>
+        }
+        try {
+<span class="nc" id="L775">            it1.next();</span>
+<span class="nc" id="L776">            fail(&quot;iterator.next() should raise NoSuchElementException after it finishes&quot;);</span>
+<span class="pc" id="L777">        } catch (final NoSuchElementException e) {</span>
+            // expected
+        }
+        // make sure nothing has changed after non-modification
+<span class="fc" id="L781">        verify();</span>
+<span class="fc" id="L782">    }</span>
+
+    /**
+     *  Tests removals from {@link Collection#iterator()}.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testCollectionIteratorRemove() {
+<span class="fc bfc" id="L789" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L790">            return;</span>
+        }
+
+<span class="fc" id="L793">        resetEmpty();</span>
+        try {
+<span class="nc" id="L795">            getCollection().iterator().remove();</span>
+<span class="nc" id="L796">            fail(&quot;New iterator.remove should raise IllegalState&quot;);</span>
+<span class="pc" id="L797">        } catch (final IllegalStateException e) {</span>
+            // expected
+        }
+<span class="fc" id="L800">        verify();</span>
+
+        try {
+<span class="fc" id="L803">            final Iterator&lt;E&gt; iter = getCollection().iterator();</span>
+<span class="fc" id="L804">            iter.hasNext();</span>
+<span class="nc" id="L805">            iter.remove();</span>
+<span class="nc" id="L806">            fail(&quot;New iterator.remove should raise IllegalState even after hasNext&quot;);</span>
+<span class="pc" id="L807">        } catch (final IllegalStateException e) {</span>
+            // expected
+        }
+<span class="fc" id="L810">        verify();</span>
+
+<span class="fc" id="L812">        resetFull();</span>
+<span class="fc" id="L813">        int size = getCollection().size();</span>
+<span class="fc" id="L814">        Iterator&lt;E&gt; iter = getCollection().iterator();</span>
+<span class="fc bfc" id="L815" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L816">            Object o = iter.next();</span>
+            // TreeMap reuses the Map Entry, so the verify below fails
+            // Clone it here if necessary
+<span class="fc bfc" id="L819" title="All 2 branches covered.">            if (o instanceof Map.Entry) {</span>
+<span class="fc" id="L820">                o = cloneMapEntry((Map.Entry&lt;E, E&gt;) o);</span>
+            }
+<span class="fc" id="L822">            iter.remove();</span>
+
+            // if the elements aren't distinguishable, we can just remove a
+            // matching element from the confirmed collection and verify
+            // contents are still the same.  Otherwise, we don't have the
+            // ability to distinguish the elements and determine which to
+            // remove from the confirmed collection (in which case, we don't
+            // verify because we don't know how).
+            //
+            // see areEqualElementsDistinguishable()
+<span class="fc bfc" id="L832" title="All 2 branches covered.">            if (!areEqualElementsDistinguishable()) {</span>
+<span class="fc" id="L833">                getConfirmed().remove(o);</span>
+<span class="fc" id="L834">                verify();</span>
+            }
+
+<span class="fc" id="L837">            size--;</span>
+<span class="fc" id="L838">            assertEquals(&quot;Collection should shrink by one after iterator.remove&quot;, size,</span>
+<span class="fc" id="L839">                    getCollection().size());</span>
+        }
+<span class="fc" id="L841">        assertTrue(&quot;Collection should be empty after iterator purge&quot;, getCollection().isEmpty());</span>
+
+<span class="fc" id="L843">        resetFull();</span>
+<span class="fc" id="L844">        iter = getCollection().iterator();</span>
+<span class="fc" id="L845">        iter.next();</span>
+<span class="fc" id="L846">        iter.remove();</span>
+        try {
+<span class="nc" id="L848">            iter.remove();</span>
+<span class="nc" id="L849">            fail(&quot;Second iter.remove should raise IllegalState&quot;);</span>
+<span class="pc" id="L850">        } catch (final IllegalStateException e) {</span>
+            // expected
+        }
+<span class="fc" id="L853">    }</span>
+
+    /**
+     *  Tests {@link Collection#remove(Object)}.
+     */
+    public void testCollectionRemove() {
+<span class="fc bfc" id="L859" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L860">            return;</span>
+        }
+
+<span class="fc" id="L863">        resetEmpty();</span>
+<span class="fc" id="L864">        final E[] elements = getFullElements();</span>
+<span class="fc bfc" id="L865" title="All 2 branches covered.">        for (E element : elements) {</span>
+<span class="pc bpc" id="L866" title="1 of 2 branches missed.">            assertTrue(&quot;Shouldn't remove nonexistent element&quot;, !getCollection().remove(element));</span>
+<span class="fc" id="L867">            verify();</span>
+        }
+
+<span class="fc" id="L870">        final E[] other = getOtherElements();</span>
+
+<span class="fc" id="L872">        resetFull();</span>
+<span class="fc bfc" id="L873" title="All 2 branches covered.">        for (E element : other) {</span>
+<span class="pc bpc" id="L874" title="1 of 2 branches missed.">            assertTrue(&quot;Shouldn't remove nonexistent other element&quot;, !getCollection().remove(element));</span>
+<span class="fc" id="L875">            verify();</span>
+        }
+
+<span class="fc" id="L878">        final int size = getCollection().size();</span>
+<span class="fc bfc" id="L879" title="All 2 branches covered.">        for (final E element : elements) {</span>
+<span class="fc" id="L880">            resetFull();</span>
+<span class="fc" id="L881">            assertTrue(&quot;Collection should remove extant element: &quot; + element,</span>
+<span class="fc" id="L882">                    getCollection().remove(element));</span>
+
+            // if the elements aren't distinguishable, we can just remove a
+            // matching element from the confirmed collection and verify
+            // contents are still the same.  Otherwise, we don't have the
+            // ability to distinguish the elements and determine which to
+            // remove from the confirmed collection (in which case, we don't
+            // verify because we don't know how).
+            //
+            // see areEqualElementsDistinguishable()
+<span class="fc bfc" id="L892" title="All 2 branches covered.">            if (!areEqualElementsDistinguishable()) {</span>
+<span class="fc" id="L893">                getConfirmed().remove(element);</span>
+<span class="fc" id="L894">                verify();</span>
+            }
+
+<span class="fc" id="L897">            assertEquals(&quot;Collection should shrink after remove&quot;, size - 1, getCollection().size());</span>
+        }
+<span class="fc" id="L899">    }</span>
+
+    /**
+     *  Tests {@link Collection#removeAll(Collection)}.
+     */
+    public void testCollectionRemoveAll() {
+<span class="fc bfc" id="L905" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L906">            return;</span>
+        }
+
+<span class="fc" id="L909">        resetEmpty();</span>
+<span class="fc" id="L910">        assertTrue(&quot;Empty collection removeAll should return false for empty input&quot;,</span>
+<span class="pc bpc" id="L911" title="1 of 2 branches missed.">                !getCollection().removeAll(Collections.EMPTY_SET));</span>
+<span class="fc" id="L912">        verify();</span>
+
+<span class="fc" id="L914">        assertTrue(&quot;Empty collection removeAll should return false for nonempty input&quot;,</span>
+<span class="pc bpc" id="L915" title="1 of 2 branches missed.">                   !getCollection().removeAll(new ArrayList&lt;E&gt;(getCollection())));</span>
+<span class="fc" id="L916">        verify();</span>
+
+<span class="fc" id="L918">        resetFull();</span>
+<span class="fc" id="L919">        assertTrue(&quot;Full collection removeAll should return false for empty input&quot;,</span>
+<span class="pc bpc" id="L920" title="1 of 2 branches missed.">                   !getCollection().removeAll(Collections.EMPTY_SET));</span>
+<span class="fc" id="L921">        verify();</span>
+
+<span class="fc" id="L923">        assertTrue(&quot;Full collection removeAll should return false for other elements&quot;,</span>
+<span class="pc bpc" id="L924" title="1 of 2 branches missed.">                   !getCollection().removeAll(Arrays.asList(getOtherElements())));</span>
+<span class="fc" id="L925">        verify();</span>
+
+<span class="fc" id="L927">        assertTrue(&quot;Full collection removeAll should return true for full elements&quot;,</span>
+<span class="fc" id="L928">                getCollection().removeAll(new HashSet&lt;E&gt;(getCollection())));</span>
+<span class="fc" id="L929">        getConfirmed().removeAll(new HashSet&lt;E&gt;(getConfirmed()));</span>
+<span class="fc" id="L930">        verify();</span>
+
+<span class="fc" id="L932">        resetFull();</span>
+<span class="fc" id="L933">        final int size = getCollection().size();</span>
+<span class="fc bfc" id="L934" title="All 2 branches covered.">        final int min = getFullElements().length &lt; 4 ? 0 : 2;</span>
+<span class="pc bpc" id="L935" title="1 of 2 branches missed.">        final int max = getFullElements().length == 1 ? 1 :</span>
+<span class="fc bfc" id="L936" title="All 2 branches covered.">                getFullElements().length &lt;= 5 ? getFullElements().length - 1 : 5;</span>
+<span class="fc" id="L937">        final Collection&lt;E&gt; all = Arrays.asList(getFullElements()).subList(min, max);</span>
+<span class="fc" id="L938">        assertTrue(&quot;Full collection removeAll should work&quot;, getCollection().removeAll(all));</span>
+<span class="fc" id="L939">        getConfirmed().removeAll(all);</span>
+<span class="fc" id="L940">        verify();</span>
+
+<span class="pc bpc" id="L942" title="1 of 2 branches missed.">        assertTrue(&quot;Collection should shrink after removeAll&quot;, getCollection().size() &lt; size);</span>
+<span class="fc bfc" id="L943" title="All 2 branches covered.">        for (E element : all) {</span>
+<span class="pc bpc" id="L944" title="1 of 2 branches missed.">            assertTrue(&quot;Collection shouldn't contain removed element&quot;, !getCollection().contains(element));</span>
+        }
+<span class="fc" id="L946">    }</span>
+
+    /**
+     *  Tests {@link Collection#retainAll(Collection)}.
+     */
+    public void testCollectionRetainAll() {
+<span class="fc bfc" id="L952" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L953">            return;</span>
+        }
+
+<span class="fc" id="L956">        resetEmpty();</span>
+<span class="fc" id="L957">        final List&lt;E&gt; elements = Arrays.asList(getFullElements());</span>
+<span class="fc" id="L958">        final List&lt;E&gt; other = Arrays.asList(getOtherElements());</span>
+
+<span class="fc" id="L960">        assertTrue(&quot;Empty retainAll() should return false&quot;,</span>
+<span class="pc bpc" id="L961" title="1 of 2 branches missed.">                !getCollection().retainAll(Collections.EMPTY_SET));</span>
+<span class="fc" id="L962">        verify();</span>
+
+<span class="pc bpc" id="L964" title="1 of 2 branches missed.">        assertTrue(&quot;Empty retainAll() should return false&quot;, !getCollection().retainAll(elements));</span>
+<span class="fc" id="L965">        verify();</span>
+
+<span class="fc" id="L967">        resetFull();</span>
+<span class="fc" id="L968">        assertTrue(&quot;Collection should change from retainAll empty&quot;,</span>
+<span class="fc" id="L969">                getCollection().retainAll(Collections.EMPTY_SET));</span>
+<span class="fc" id="L970">        getConfirmed().retainAll(Collections.EMPTY_SET);</span>
+<span class="fc" id="L971">        verify();</span>
+
+<span class="fc" id="L973">        resetFull();</span>
+<span class="fc" id="L974">        assertTrue(&quot;Collection changed from retainAll other&quot;, getCollection().retainAll(other));</span>
+<span class="fc" id="L975">        getConfirmed().retainAll(other);</span>
+<span class="fc" id="L976">        verify();</span>
+
+<span class="fc" id="L978">        resetFull();</span>
+<span class="fc" id="L979">        int size = getCollection().size();</span>
+<span class="fc" id="L980">        assertTrue(&quot;Collection shouldn't change from retainAll elements&quot;,</span>
+<span class="pc bpc" id="L981" title="1 of 2 branches missed.">                   !getCollection().retainAll(elements));</span>
+<span class="fc" id="L982">        verify();</span>
+<span class="fc" id="L983">        assertEquals(&quot;Collection size shouldn't change&quot;, size, getCollection().size());</span>
+
+<span class="pc bpc" id="L985" title="1 of 2 branches missed.">        if (getFullElements().length &gt; 1) {</span>
+<span class="fc" id="L986">            resetFull();</span>
+<span class="fc" id="L987">            size = getCollection().size();</span>
+<span class="fc bfc" id="L988" title="All 2 branches covered.">            final int min = getFullElements().length &lt; 4 ? 0 : 2;</span>
+<span class="fc bfc" id="L989" title="All 2 branches covered.">            final int max = getFullElements().length &lt;= 5 ? getFullElements().length - 1 : 5;</span>
+<span class="fc" id="L990">            assertTrue(&quot;Collection should changed by partial retainAll&quot;,</span>
+<span class="fc" id="L991">                    getCollection().retainAll(elements.subList(min, max)));</span>
+<span class="fc" id="L992">            getConfirmed().retainAll(elements.subList(min, max));</span>
+<span class="fc" id="L993">            verify();</span>
+
+<span class="fc bfc" id="L995" title="All 2 branches covered.">            for (E element : getCollection()) {</span>
+<span class="fc" id="L996">                assertTrue(&quot;Collection only contains retained element&quot;, elements.subList(min, max).contains(element));</span>
+            }
+        }
+
+<span class="fc" id="L1000">        resetFull();</span>
+<span class="fc" id="L1001">        final HashSet&lt;E&gt; set = new HashSet&lt;E&gt;(elements);</span>
+<span class="fc" id="L1002">        size = getCollection().size();</span>
+<span class="fc" id="L1003">        assertTrue(&quot;Collection shouldn't change from retainAll without &quot; +</span>
+<span class="pc bpc" id="L1004" title="1 of 2 branches missed.">                   &quot;duplicate elements&quot;, !getCollection().retainAll(set));</span>
+<span class="fc" id="L1005">        verify();</span>
+<span class="fc" id="L1006">        assertEquals(&quot;Collection size didn't change from nonduplicate &quot; +</span>
+<span class="fc" id="L1007">                     &quot;retainAll&quot;, size, getCollection().size());</span>
+<span class="fc" id="L1008">    }</span>
+
+    /**
+     *  Tests {@link Collection#size()}.
+     */
+    public void testCollectionSize() {
+<span class="fc" id="L1014">        resetEmpty();</span>
+<span class="fc" id="L1015">        assertEquals(&quot;Size of new Collection is 0.&quot;, 0, getCollection().size());</span>
+
+<span class="fc" id="L1017">        resetFull();</span>
+<span class="pc bpc" id="L1018" title="1 of 2 branches missed.">        assertTrue(&quot;Size of full collection should be greater than zero&quot;, getCollection().size() &gt; 0);</span>
+<span class="fc" id="L1019">    }</span>
+
+    /**
+     *  Tests {@link Collection#toArray()}.
+     */
+    public void testCollectionToArray() {
+<span class="fc" id="L1025">        resetEmpty();</span>
+<span class="fc" id="L1026">        assertEquals(&quot;Empty Collection should return empty array for toArray&quot;,</span>
+<span class="fc" id="L1027">                     0, getCollection().toArray().length);</span>
+
+<span class="fc" id="L1029">        resetFull();</span>
+<span class="fc" id="L1030">        final Object[] array = getCollection().toArray();</span>
+<span class="fc" id="L1031">        assertEquals(&quot;Full collection toArray should be same size as collection&quot;,</span>
+<span class="fc" id="L1032">                array.length, getCollection().size());</span>
+<span class="fc" id="L1033">        final Object[] confirmedArray = getConfirmed().toArray();</span>
+<span class="fc" id="L1034">        assertEquals(&quot;length of array from confirmed collection should &quot;</span>
+<span class="fc" id="L1035">                + &quot;match the length of the collection's array&quot;, confirmedArray.length, array.length);</span>
+<span class="fc" id="L1036">        final boolean[] matched = new boolean[array.length];</span>
+
+<span class="fc bfc" id="L1038" title="All 2 branches covered.">        for (int i = 0; i &lt; array.length; i++) {</span>
+<span class="fc" id="L1039">            assertTrue(&quot;Collection should contain element in toArray&quot;,</span>
+<span class="fc" id="L1040">                    getCollection().contains(array[i]));</span>
+
+<span class="fc" id="L1042">            boolean match = false;</span>
+            // find a match in the confirmed array
+<span class="pc bpc" id="L1044" title="1 of 2 branches missed.">            for (int j = 0; j &lt; array.length; j++) {</span>
+                // skip already matched
+<span class="fc bfc" id="L1046" title="All 2 branches covered.">                if (matched[j]) {</span>
+<span class="fc" id="L1047">                    continue;</span>
+                }
+<span class="fc bfc" id="L1049" title="All 2 branches covered.">                if (array[i] == confirmedArray[j]</span>
+<span class="fc bfc" id="L1050" title="All 4 branches covered.">                        || array[i] != null &amp;&amp; array[i].equals(confirmedArray[j])) {</span>
+<span class="fc" id="L1051">                    matched[j] = true;</span>
+<span class="fc" id="L1052">                    match = true;</span>
+<span class="fc" id="L1053">                    break;</span>
+                }
+            }
+<span class="pc bpc" id="L1056" title="1 of 2 branches missed.">            if (!match) {</span>
+<span class="nc" id="L1057">                fail(&quot;element &quot; + i + &quot; in returned array should be found &quot;</span>
+<span class="nc" id="L1058">                        + &quot;in the confirmed collection's array&quot;);</span>
+            }
+        }
+<span class="fc bfc" id="L1061" title="All 2 branches covered.">        for (final boolean element : matched) {</span>
+<span class="fc" id="L1062">            assertEquals(&quot;Collection should return all its elements in &quot; + &quot;toArray&quot;, true,</span>
+<span class="fc" id="L1063">                    element);</span>
+        }
+<span class="fc" id="L1065">    }</span>
+
+    /**
+     *  Tests {@link Collection#toArray(Object[])}.
+     */
+    public void testCollectionToArray2() {
+<span class="fc" id="L1071">        resetEmpty();</span>
+<span class="fc" id="L1072">        Object[] a = new Object[] { new Object(), null, null };</span>
+<span class="fc" id="L1073">        Object[] array = getCollection().toArray(a);</span>
+<span class="fc" id="L1074">        assertEquals(&quot;Given array shouldn't shrink&quot;, array, a);</span>
+<span class="fc" id="L1075">        assertNull(&quot;Last element should be set to null&quot;, a[0]);</span>
+<span class="fc" id="L1076">        verify();</span>
+
+<span class="fc" id="L1078">        resetFull();</span>
+        try {
+<span class="nc" id="L1080">            array = getCollection().toArray(new Void[0]);</span>
+<span class="nc" id="L1081">            fail(&quot;toArray(new Void[0]) should raise ArrayStore&quot;);</span>
+<span class="pc" id="L1082">        } catch (final ArrayStoreException e) {</span>
+            // expected
+        }
+<span class="fc" id="L1085">        verify();</span>
+
+        try {
+<span class="nc" id="L1088">            array = getCollection().toArray(null);</span>
+<span class="nc" id="L1089">            fail(&quot;toArray(null) should raise NPE&quot;);</span>
+<span class="pc" id="L1090">        } catch (final NullPointerException e) {</span>
+            // expected
+        }
+<span class="fc" id="L1093">        verify();</span>
+
+<span class="fc" id="L1095">        array = getCollection().toArray(new Object[0]);</span>
+<span class="fc" id="L1096">        a = getCollection().toArray();</span>
+<span class="fc" id="L1097">        assertEquals(&quot;toArrays should be equal&quot;,</span>
+<span class="fc" id="L1098">                     Arrays.asList(array), Arrays.asList(a));</span>
+
+        // Figure out if they're all the same class
+        // TODO: It'd be nicer to detect a common superclass
+<span class="fc" id="L1102">        final HashSet&lt;Class&lt;?&gt;&gt; classes = new HashSet&lt;Class&lt;?&gt;&gt;();</span>
+<span class="fc bfc" id="L1103" title="All 2 branches covered.">        for (final Object element : array) {</span>
+<span class="fc bfc" id="L1104" title="All 2 branches covered.">            classes.add(element == null ? null : element.getClass());</span>
+        }
+<span class="fc bfc" id="L1106" title="All 2 branches covered.">        if (classes.size() &gt; 1) {</span>
+<span class="fc" id="L1107">            return;</span>
+        }
+
+<span class="fc" id="L1110">        Class&lt;?&gt; cl = classes.iterator().next();</span>
+<span class="fc bfc" id="L1111" title="All 2 branches covered.">        if (Map.Entry.class.isAssignableFrom(cl)) {  // check needed for protective cases like Predicated/Unmod map entrySet</span>
+<span class="fc" id="L1112">            cl = Map.Entry.class;</span>
+        }
+<span class="fc" id="L1114">        a = (Object[]) Array.newInstance(cl, 0);</span>
+<span class="fc" id="L1115">        array = getCollection().toArray(a);</span>
+<span class="fc" id="L1116">        assertEquals(&quot;toArray(Object[]) should return correct array type&quot;,</span>
+<span class="fc" id="L1117">                a.getClass(), array.getClass());</span>
+<span class="fc" id="L1118">        assertEquals(&quot;type-specific toArrays should be equal&quot;,</span>
+<span class="fc" id="L1119">                Arrays.asList(array),</span>
+<span class="fc" id="L1120">                Arrays.asList(getCollection().toArray()));</span>
+<span class="fc" id="L1121">        verify();</span>
+<span class="fc" id="L1122">    }</span>
+
+    /**
+     *  Tests &lt;code&gt;toString&lt;/code&gt; on a collection.
+     */
+    public void testCollectionToString() {
+<span class="fc" id="L1128">        resetEmpty();</span>
+<span class="pc bpc" id="L1129" title="1 of 2 branches missed.">        assertTrue(&quot;toString shouldn't return null&quot;, getCollection().toString() != null);</span>
+
+<span class="fc" id="L1131">        resetFull();</span>
+<span class="pc bpc" id="L1132" title="1 of 2 branches missed.">        assertTrue(&quot;toString shouldn't return null&quot;, getCollection().toString() != null);</span>
+<span class="fc" id="L1133">    }</span>
+
+    /**
+     *  If isRemoveSupported() returns false, tests to see that remove
+     *  operations raise an UnsupportedOperationException.
+     */
+    public void testUnsupportedRemove() {
+<span class="fc bfc" id="L1140" title="All 2 branches covered.">        if (isRemoveSupported()) {</span>
+<span class="fc" id="L1141">            return;</span>
+        }
+
+<span class="fc" id="L1144">        resetEmpty();</span>
+        try {
+<span class="nc" id="L1146">            getCollection().clear();</span>
+<span class="nc" id="L1147">            fail(&quot;clear should raise UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L1148">        } catch (final UnsupportedOperationException e) {</span>
+            // expected
+        }
+<span class="fc" id="L1151">        verify();</span>
+
+        try {
+<span class="nc" id="L1154">            getCollection().remove(null);</span>
+<span class="nc" id="L1155">            fail(&quot;remove should raise UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L1156">        } catch (final UnsupportedOperationException e) {</span>
+            // expected
+        }
+<span class="fc" id="L1159">        verify();</span>
+
+        try {
+<span class="nc" id="L1162">            getCollection().removeAll(null);</span>
+<span class="nc" id="L1163">            fail(&quot;removeAll should raise UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L1164">        } catch (final UnsupportedOperationException e) {</span>
+            // expected
+        }
+<span class="fc" id="L1167">        verify();</span>
+
+        try {
+<span class="nc" id="L1170">            getCollection().retainAll(null);</span>
+<span class="nc" id="L1171">            fail(&quot;retainAll should raise UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L1172">        } catch (final UnsupportedOperationException e) {</span>
+            // expected
+        }
+<span class="fc" id="L1175">        verify();</span>
+
+<span class="fc" id="L1177">        resetFull();</span>
+        try {
+<span class="fc" id="L1179">            final Iterator&lt;E&gt; iterator = getCollection().iterator();</span>
+<span class="fc" id="L1180">            iterator.next();</span>
+<span class="nc" id="L1181">            iterator.remove();</span>
+<span class="nc" id="L1182">            fail(&quot;iterator.remove should raise UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L1183">        } catch (final UnsupportedOperationException e) {</span>
+            // expected
+        }
+<span class="fc" id="L1186">        verify();</span>
+
+<span class="fc" id="L1188">    }</span>
+
+    /**
+     *  Tests that the collection's iterator is fail-fast.
+     */
+    public void testCollectionIteratorFailFast() {
+<span class="pc bpc" id="L1194" title="1 of 2 branches missed.">        if (!isFailFastSupported()) {</span>
+<span class="fc" id="L1195">            return;</span>
+        }
+
+<span class="nc bnc" id="L1198" title="All 2 branches missed.">        if (isAddSupported()) {</span>
+<span class="nc" id="L1199">            resetFull();</span>
+            try {
+<span class="nc" id="L1201">                final Iterator&lt;E&gt; iter = getCollection().iterator();</span>
+<span class="nc" id="L1202">                final E o = getOtherElements()[0];</span>
+<span class="nc" id="L1203">                getCollection().add(o);</span>
+<span class="nc" id="L1204">                getConfirmed().add(o);</span>
+<span class="nc" id="L1205">                iter.next();</span>
+<span class="nc" id="L1206">                fail(&quot;next after add should raise ConcurrentModification&quot;);</span>
+<span class="nc" id="L1207">            } catch (final ConcurrentModificationException e) {</span>
+                // expected
+            }
+<span class="nc" id="L1210">            verify();</span>
+
+<span class="nc" id="L1212">            resetFull();</span>
+            try {
+<span class="nc" id="L1214">                final Iterator&lt;E&gt; iter = getCollection().iterator();</span>
+<span class="nc" id="L1215">                getCollection().addAll(Arrays.asList(getOtherElements()));</span>
+<span class="nc" id="L1216">                getConfirmed().addAll(Arrays.asList(getOtherElements()));</span>
+<span class="nc" id="L1217">                iter.next();</span>
+<span class="nc" id="L1218">                fail(&quot;next after addAll should raise ConcurrentModification&quot;);</span>
+<span class="nc" id="L1219">            } catch (final ConcurrentModificationException e) {</span>
+                // expected
+            }
+<span class="nc" id="L1222">            verify();</span>
+        }
+
+<span class="nc bnc" id="L1225" title="All 2 branches missed.">        if (!isRemoveSupported()) {</span>
+<span class="nc" id="L1226">            return;</span>
+        }
+
+<span class="nc" id="L1229">        resetFull();</span>
+        try {
+<span class="nc" id="L1231">            final Iterator&lt;E&gt; iter = getCollection().iterator();</span>
+<span class="nc" id="L1232">            getCollection().clear();</span>
+<span class="nc" id="L1233">            iter.next();</span>
+<span class="nc" id="L1234">            fail(&quot;next after clear should raise ConcurrentModification&quot;);</span>
+<span class="nc" id="L1235">        } catch (final ConcurrentModificationException e) {</span>
+            // expected
+<span class="nc" id="L1237">        } catch (final NoSuchElementException e) {</span>
+            // (also legal given spec)
+        }
+
+<span class="nc" id="L1241">        resetFull();</span>
+        try {
+<span class="nc" id="L1243">            final Iterator&lt;E&gt; iter = getCollection().iterator();</span>
+<span class="nc" id="L1244">            getCollection().remove(getFullElements()[0]);</span>
+<span class="nc" id="L1245">            iter.next();</span>
+<span class="nc" id="L1246">            fail(&quot;next after remove should raise ConcurrentModification&quot;);</span>
+<span class="nc" id="L1247">        } catch (final ConcurrentModificationException e) {</span>
+            // expected
+        }
+
+<span class="nc" id="L1251">        resetFull();</span>
+        try {
+<span class="nc" id="L1253">            final Iterator&lt;E&gt; iter = getCollection().iterator();</span>
+<span class="nc" id="L1254">            final List&lt;E&gt; sublist = Arrays.asList(getFullElements()).subList(2,5);</span>
+<span class="nc" id="L1255">            getCollection().removeAll(sublist);</span>
+<span class="nc" id="L1256">            iter.next();</span>
+<span class="nc" id="L1257">            fail(&quot;next after removeAll should raise ConcurrentModification&quot;);</span>
+<span class="nc" id="L1258">        } catch (final ConcurrentModificationException e) {</span>
+            // expected
+        }
+
+<span class="nc" id="L1262">        resetFull();</span>
+        try {
+<span class="nc" id="L1264">            final Iterator&lt;E&gt; iter = getCollection().iterator();</span>
+<span class="nc" id="L1265">            final List&lt;E&gt; sublist = Arrays.asList(getFullElements()).subList(2,5);</span>
+<span class="nc" id="L1266">            getCollection().retainAll(sublist);</span>
+<span class="nc" id="L1267">            iter.next();</span>
+<span class="nc" id="L1268">            fail(&quot;next after retainAll should raise ConcurrentModification&quot;);</span>
+<span class="nc" id="L1269">        } catch (final ConcurrentModificationException e) {</span>
+            // expected
+        }
+<span class="nc" id="L1272">    }</span>
+
+    @Override
+    public void testSerializeDeserializeThenCompare() throws Exception {
+<span class="fc" id="L1276">        Object obj = makeObject();</span>
+<span class="fc bfc" id="L1277" title="All 4 branches covered.">        if (obj instanceof Serializable &amp;&amp; isTestSerialization()) {</span>
+<span class="fc" id="L1278">            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();</span>
+<span class="fc" id="L1279">            final ObjectOutputStream out = new ObjectOutputStream(buffer);</span>
+<span class="fc" id="L1280">            out.writeObject(obj);</span>
+<span class="fc" id="L1281">            out.close();</span>
+
+<span class="fc" id="L1283">            final ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));</span>
+<span class="fc" id="L1284">            final Object dest = in.readObject();</span>
+<span class="fc" id="L1285">            in.close();</span>
+<span class="fc bfc" id="L1286" title="All 2 branches covered.">            if (isEqualsCheckable()) {</span>
+<span class="fc" id="L1287">                assertEquals(&quot;obj != deserialize(serialize(obj)) - EMPTY Collection&quot;, obj, dest);</span>
+            }
+        }
+<span class="fc" id="L1290">        obj = makeFullCollection();</span>
+<span class="fc bfc" id="L1291" title="All 4 branches covered.">        if (obj instanceof Serializable &amp;&amp; isTestSerialization()) {</span>
+<span class="fc" id="L1292">            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();</span>
+<span class="fc" id="L1293">            final ObjectOutputStream out = new ObjectOutputStream(buffer);</span>
+<span class="fc" id="L1294">            out.writeObject(obj);</span>
+<span class="fc" id="L1295">            out.close();</span>
+
+<span class="fc" id="L1297">            final ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));</span>
+<span class="fc" id="L1298">            final Object dest = in.readObject();</span>
+<span class="fc" id="L1299">            in.close();</span>
+<span class="fc bfc" id="L1300" title="All 2 branches covered.">            if (isEqualsCheckable()) {</span>
+<span class="fc" id="L1301">                assertEquals(&quot;obj != deserialize(serialize(obj)) - FULL Collection&quot;, obj, dest);</span>
+            }
+        }
+<span class="fc" id="L1304">    }</span>
+
+    public Collection&lt;E&gt; getCollection() {
+<span class="fc" id="L1307">        return collection;</span>
+    }
+
+    /**
+     * Set the collection.
+     * @param collection the Collection&lt;E&gt; to set
+     */
+    public void setCollection(final Collection&lt;E&gt; collection) {
+<span class="fc" id="L1315">        this.collection = collection;</span>
+<span class="fc" id="L1316">    }</span>
+
+    public Collection&lt;E&gt; getConfirmed() {
+<span class="fc" id="L1319">        return confirmed;</span>
+    }
+
+    /**
+     * Set the confirmed.
+     * @param confirmed the Collection&lt;E&gt; to set
+     */
+    public void setConfirmed(final Collection&lt;E&gt; confirmed) {
+<span class="fc" id="L1327">        this.confirmed = confirmed;</span>
+<span class="fc" id="L1328">    }</span>
+
+    /**
+     * Handle the optional exceptions declared by {@link Collection#contains(Object)}
+     * @param coll
+     * @param element
+     */
+    protected static void assertNotCollectionContains(final Collection&lt;?&gt; coll, final Object element) {
+        try {
+<span class="nc" id="L1337">            assertFalse(coll.contains(element));</span>
+<span class="nc" id="L1338">        } catch (final ClassCastException e) {</span>
+            //apparently not
+<span class="nc" id="L1340">        } catch (final NullPointerException e) {</span>
+            //apparently not
+        }
+<span class="nc" id="L1343">    }</span>
+
+    /**
+     * Handle the optional exceptions declared by {@link Collection#containsAll(Collection)}
+     * @param coll
+     * @param sub
+     */
+    protected static void assertNotCollectionContainsAll(final Collection&lt;?&gt; coll, final Collection&lt;?&gt; sub) {
+        try {
+<span class="nc" id="L1352">            assertFalse(coll.containsAll(sub));</span>
+<span class="nc" id="L1353">        } catch (final ClassCastException cce) {</span>
+            //apparently not
+<span class="nc" id="L1355">        } catch (final NullPointerException e) {</span>
+            //apparently not
+        }
+<span class="nc" id="L1358">    }</span>
+
+    /**
+     * Handle optional exceptions of {@link Collection#remove(Object)}
+     * @param coll
+     * @param element
+     */
+    protected static void assertNotRemoveFromCollection(final Collection&lt;?&gt; coll, final Object element) {
+        try {
+<span class="nc" id="L1367">            assertFalse(coll.remove(element));</span>
+<span class="nc" id="L1368">        } catch (final ClassCastException cce) {</span>
+            //apparently not
+<span class="nc" id="L1370">        } catch (final NullPointerException e) {</span>
+            //apparently not
+        }
+<span class="nc" id="L1373">    }</span>
+
+    /**
+     * Handle optional exceptions of {@link Collection#removeAll(Collection)}
+     * @param coll
+     * @param sub
+     */
+    protected static void assertNotRemoveAllFromCollection(final Collection&lt;?&gt; coll, final Collection&lt;?&gt; sub) {
+        try {
+<span class="nc" id="L1382">            assertFalse(coll.removeAll(sub));</span>
+<span class="nc" id="L1383">        } catch (final ClassCastException cce) {</span>
+            //apparently not
+<span class="nc" id="L1385">        } catch (final NullPointerException e) {</span>
+            //apparently not
+        }
+<span class="nc" id="L1388">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

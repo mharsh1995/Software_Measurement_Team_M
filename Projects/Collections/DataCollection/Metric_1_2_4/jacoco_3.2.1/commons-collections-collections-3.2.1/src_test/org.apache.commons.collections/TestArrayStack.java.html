@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestArrayStack.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestArrayStack.java</span></div><h1>TestArrayStack.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.EmptyStackException;
+import java.util.List;
+
+import junit.framework.Test;
+
+/**
+ * Tests ArrayStack.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Craig McClanahan
+ */
+public class TestArrayStack extends TestArrayList {
+    
+<span class="fc" id="L33">    protected ArrayStack stack = null;</span>
+
+    public TestArrayStack(String testName) {
+<span class="fc" id="L36">        super(testName);</span>
+<span class="fc" id="L37">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L40" title="All 2 branches covered.">        return BulkTest.makeSuite(TestArrayStack.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        String[] testCaseName = { TestArrayStack.class.getName() };</span>
+<span class="nc" id="L45">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L46">    }</span>
+
+    public List makeEmptyList() {
+<span class="fc" id="L49">        return new ArrayStack();</span>
+    }
+
+    public void setUp() {
+<span class="fc" id="L53">        stack = (ArrayStack) makeEmptyList();</span>
+<span class="fc" id="L54">        list = stack;</span>
+<span class="fc" id="L55">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testNewStack() {
+
+<span class="fc" id="L60">        assertTrue(&quot;New stack is empty&quot;, stack.empty());</span>
+<span class="fc" id="L61">        assertEquals(&quot;New stack has size zero&quot;, stack.size(), 0);</span>
+
+        try {
+<span class="nc" id="L64">            stack.peek();</span>
+<span class="nc" id="L65">            fail(&quot;peek() should have thrown EmptyStackException&quot;);</span>
+<span class="pc" id="L66">        } catch (EmptyStackException e) {</span>
+            ; // Expected result
+        }
+
+        try {
+<span class="nc" id="L71">            stack.pop();</span>
+<span class="nc" id="L72">            fail(&quot;pop() should have thrown EmptyStackException&quot;);</span>
+<span class="pc" id="L73">        } catch (EmptyStackException e) {</span>
+            ; // Expected result
+        }
+
+<span class="fc" id="L77">    }</span>
+
+    public void testPushPeekPop() {
+
+<span class="fc" id="L81">        stack.push(&quot;First Item&quot;);</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        assertTrue(&quot;Stack is not empty&quot;, !stack.empty());</span>
+<span class="fc" id="L83">        assertEquals(&quot;Stack size is one&quot;, stack.size(), 1);</span>
+<span class="fc" id="L84">        assertEquals(&quot;Top item is 'First Item'&quot;,</span>
+<span class="fc" id="L85">                     (String) stack.peek(), &quot;First Item&quot;);</span>
+<span class="fc" id="L86">        assertEquals(&quot;Stack size is one&quot;, stack.size(), 1);</span>
+
+<span class="fc" id="L88">        stack.push(&quot;Second Item&quot;);</span>
+<span class="fc" id="L89">        assertEquals(&quot;Stack size is two&quot;, stack.size(), 2);</span>
+<span class="fc" id="L90">        assertEquals(&quot;Top item is 'Second Item'&quot;,</span>
+<span class="fc" id="L91">                     (String) stack.peek(), &quot;Second Item&quot;);</span>
+<span class="fc" id="L92">        assertEquals(&quot;Stack size is two&quot;, stack.size(), 2);</span>
+
+<span class="fc" id="L94">        assertEquals(&quot;Popped item is 'Second Item'&quot;,</span>
+<span class="fc" id="L95">                     (String) stack.pop(), &quot;Second Item&quot;);</span>
+<span class="fc" id="L96">        assertEquals(&quot;Top item is 'First Item'&quot;,</span>
+<span class="fc" id="L97">                     (String) stack.peek(), &quot;First Item&quot;);</span>
+<span class="fc" id="L98">        assertEquals(&quot;Stack size is one&quot;, stack.size(), 1);</span>
+
+<span class="fc" id="L100">        assertEquals(&quot;Popped item is 'First Item'&quot;,</span>
+<span class="fc" id="L101">                     (String) stack.pop(), &quot;First Item&quot;);</span>
+<span class="fc" id="L102">        assertEquals(&quot;Stack size is zero&quot;, stack.size(), 0);</span>
+
+<span class="fc" id="L104">    }</span>
+
+    public void testSearch() {
+
+<span class="fc" id="L108">        stack.push(&quot;First Item&quot;);</span>
+<span class="fc" id="L109">        stack.push(&quot;Second Item&quot;);</span>
+<span class="fc" id="L110">        assertEquals(&quot;Top item is 'Second Item'&quot;,</span>
+<span class="fc" id="L111">                     stack.search(&quot;Second Item&quot;), 1);</span>
+<span class="fc" id="L112">        assertEquals(&quot;Next Item is 'First Item'&quot;,</span>
+<span class="fc" id="L113">                     stack.search(&quot;First Item&quot;), 2);</span>
+<span class="fc" id="L114">        assertEquals(&quot;Cannot find 'Missing Item'&quot;,</span>
+<span class="fc" id="L115">                     stack.search(&quot;Missing Item&quot;), -1);</span>
+
+<span class="fc" id="L117">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

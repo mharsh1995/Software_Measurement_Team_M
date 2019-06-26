@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestUnboundedFifoBuffer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestUnboundedFifoBuffer.java</span></div><h1>TestUnboundedFifoBuffer.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.collection.AbstractTestCollection;
+
+/**
+ * Test cases for UnboundedFifoBuffer.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Unknown
+ */
+public class TestUnboundedFifoBuffer extends AbstractTestCollection {
+
+    public TestUnboundedFifoBuffer(String n) {
+<span class="fc" id="L37">        super(n);</span>
+<span class="fc" id="L38">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L41" title="All 2 branches covered.">        return BulkTest.makeSuite(TestUnboundedFifoBuffer.class);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Verifies that the ArrayList has the same elements in the same 
+     *  sequence as the UnboundedFifoBuffer.
+     */
+    public void verify() {
+<span class="fc" id="L50">        super.verify();</span>
+<span class="fc" id="L51">        Iterator iterator1 = collection.iterator();</span>
+<span class="fc" id="L52">        Iterator iterator2 = confirmed.iterator();</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        while (iterator2.hasNext()) {</span>
+<span class="fc" id="L54">            assertTrue(iterator1.hasNext());</span>
+<span class="fc" id="L55">            Object o1 = iterator1.next();</span>
+<span class="fc" id="L56">            Object o2 = iterator2.next();</span>
+<span class="fc" id="L57">            assertEquals(o1, o2);</span>
+        }
+<span class="fc" id="L59">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Overridden because UnboundedFifoBuffer doesn't allow null elements.
+     * @return false
+     */
+    public boolean isNullSupported() {
+<span class="fc" id="L67">        return false;</span>
+    }
+
+    /**
+     * Overridden because UnboundedFifoBuffer isn't fail fast.
+     * @return false
+     */
+    public boolean isFailFastSupported() {
+<span class="fc" id="L75">        return false;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Returns an empty ArrayList.
+     *
+     *  @return an empty ArrayList
+     */
+    public Collection makeConfirmedCollection() {
+<span class="fc" id="L85">        return new ArrayList();</span>
+    }
+
+    /**
+     *  Returns a full ArrayList.
+     *
+     *  @return a full ArrayList
+     */
+    public Collection makeConfirmedFullCollection() {
+<span class="fc" id="L94">        Collection c = makeConfirmedCollection();</span>
+<span class="fc" id="L95">        c.addAll(java.util.Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L96">        return c;</span>
+    }
+
+    /**
+     *  Returns an empty UnboundedFifoBuffer with a small capacity.
+     *
+     *  @return an empty UnboundedFifoBuffer
+     */
+    public Collection makeCollection() {
+<span class="fc" id="L105">        return new UnboundedFifoBuffer(5);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Tests that UnboundedFifoBuffer removes elements in the right order.
+     */
+    public void testUnboundedFifoBufferRemove() {
+<span class="fc" id="L113">        resetFull();</span>
+<span class="fc" id="L114">        int size = confirmed.size();</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L116">            Object o1 = ((UnboundedFifoBuffer)collection).remove();</span>
+<span class="fc" id="L117">            Object o2 = ((ArrayList)confirmed).remove(0);</span>
+<span class="fc" id="L118">            assertEquals(&quot;Removed objects should be equal&quot;, o1, o2);</span>
+<span class="fc" id="L119">            verify();</span>
+        }
+<span class="fc" id="L121">    }</span>
+
+    /**
+     * Tests that the constructor correctly throws an exception.
+     */
+    public void testConstructorException1() {
+        try {
+<span class="nc" id="L128">            new UnboundedFifoBuffer(0);</span>
+<span class="pc" id="L129">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L130">            return;</span>
+        }
+<span class="nc" id="L132">        fail();</span>
+<span class="nc" id="L133">    }</span>
+    
+    /**
+     * Tests that the constructor correctly throws an exception.
+     */
+    public void testConstructorException2() {
+        try {
+<span class="nc" id="L140">            new UnboundedFifoBuffer(-20);</span>
+<span class="pc" id="L141">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L142">            return;</span>
+        }
+<span class="nc" id="L144">        fail();</span>
+<span class="nc" id="L145">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testInternalStateAdd() {
+<span class="fc" id="L149">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(2);</span>
+<span class="fc" id="L150">        assertEquals(3, test.m_buffer.length);</span>
+<span class="fc" id="L151">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L152">        assertEquals(0, test.m_tail);</span>
+<span class="fc" id="L153">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L154">        assertEquals(3, test.m_buffer.length);</span>
+<span class="fc" id="L155">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L156">        assertEquals(1, test.m_tail);</span>
+<span class="fc" id="L157">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L158">        assertEquals(3, test.m_buffer.length);</span>
+<span class="fc" id="L159">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L160">        assertEquals(2, test.m_tail);</span>
+<span class="fc" id="L161">        test.add(&quot;C&quot;);  // forces m_buffer increase</span>
+<span class="fc" id="L162">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L163">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L164">        assertEquals(3, test.m_tail);</span>
+<span class="fc" id="L165">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L166">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L167">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L168">        assertEquals(4, test.m_tail);</span>
+<span class="fc" id="L169">    }</span>
+
+    public void testInternalStateAddWithWrap() {
+<span class="fc" id="L172">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(3);</span>
+<span class="fc" id="L173">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L174">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L175">        assertEquals(0, test.m_tail);</span>
+<span class="fc" id="L176">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L177">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L178">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L179">        assertEquals(1, test.m_tail);</span>
+<span class="fc" id="L180">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L181">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L182">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L183">        assertEquals(2, test.m_tail);</span>
+<span class="fc" id="L184">        test.add(&quot;C&quot;);</span>
+<span class="fc" id="L185">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L186">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L187">        assertEquals(3, test.m_tail);</span>
+<span class="fc" id="L188">        test.remove(&quot;A&quot;);</span>
+<span class="fc" id="L189">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L190">        assertEquals(1, test.m_head);</span>
+<span class="fc" id="L191">        assertEquals(3, test.m_tail);</span>
+<span class="fc" id="L192">        test.remove(&quot;B&quot;);</span>
+<span class="fc" id="L193">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L194">        assertEquals(2, test.m_head);</span>
+<span class="fc" id="L195">        assertEquals(3, test.m_tail);</span>
+<span class="fc" id="L196">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L197">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L198">        assertEquals(2, test.m_head);</span>
+<span class="fc" id="L199">        assertEquals(0, test.m_tail);</span>
+<span class="fc" id="L200">        test.add(&quot;E&quot;);</span>
+<span class="fc" id="L201">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L202">        assertEquals(2, test.m_head);</span>
+<span class="fc" id="L203">        assertEquals(1, test.m_tail);</span>
+<span class="fc" id="L204">    }</span>
+
+    public void testInternalStateRemove1() {
+<span class="fc" id="L207">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(4);</span>
+<span class="fc" id="L208">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L209">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L210">        test.add(&quot;C&quot;);</span>
+<span class="fc" id="L211">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L212">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L213">        assertEquals(3, test.m_tail);</span>
+        
+<span class="fc" id="L215">        test.remove(&quot;A&quot;);</span>
+<span class="fc" id="L216">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L217">        assertEquals(1, test.m_head);</span>
+<span class="fc" id="L218">        assertEquals(3, test.m_tail);</span>
+        
+<span class="fc" id="L220">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L221">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L222">        assertEquals(1, test.m_head);</span>
+<span class="fc" id="L223">        assertEquals(4, test.m_tail);</span>
+<span class="fc" id="L224">    }</span>
+
+    public void testInternalStateRemove2() {
+<span class="fc" id="L227">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(4);</span>
+<span class="fc" id="L228">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L229">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L230">        test.add(&quot;C&quot;);</span>
+<span class="fc" id="L231">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L232">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L233">        assertEquals(3, test.m_tail);</span>
+        
+<span class="fc" id="L235">        test.remove(&quot;B&quot;);</span>
+<span class="fc" id="L236">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L237">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L238">        assertEquals(2, test.m_tail);</span>
+        
+<span class="fc" id="L240">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L241">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L242">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L243">        assertEquals(3, test.m_tail);</span>
+<span class="fc" id="L244">    }</span>
+
+    public void testInternalStateIteratorRemove1() {
+<span class="fc" id="L247">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(4);</span>
+<span class="fc" id="L248">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L249">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L250">        test.add(&quot;C&quot;);</span>
+<span class="fc" id="L251">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L252">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L253">        assertEquals(3, test.m_tail);</span>
+        
+<span class="fc" id="L255">        Iterator it = test.iterator();</span>
+<span class="fc" id="L256">        it.next();</span>
+<span class="fc" id="L257">        it.remove();</span>
+<span class="fc" id="L258">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L259">        assertEquals(1, test.m_head);</span>
+<span class="fc" id="L260">        assertEquals(3, test.m_tail);</span>
+        
+<span class="fc" id="L262">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L263">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L264">        assertEquals(1, test.m_head);</span>
+<span class="fc" id="L265">        assertEquals(4, test.m_tail);</span>
+<span class="fc" id="L266">    }</span>
+
+    public void testInternalStateIteratorRemove2() {
+<span class="fc" id="L269">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(4);</span>
+<span class="fc" id="L270">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L271">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L272">        test.add(&quot;C&quot;);</span>
+        
+<span class="fc" id="L274">        Iterator it = test.iterator();</span>
+<span class="fc" id="L275">        it.next();</span>
+<span class="fc" id="L276">        it.next();</span>
+<span class="fc" id="L277">        it.remove();</span>
+<span class="fc" id="L278">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L279">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L280">        assertEquals(2, test.m_tail);</span>
+        
+<span class="fc" id="L282">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L283">        assertEquals(5, test.m_buffer.length);</span>
+<span class="fc" id="L284">        assertEquals(0, test.m_head);</span>
+<span class="fc" id="L285">        assertEquals(3, test.m_tail);</span>
+<span class="fc" id="L286">    }</span>
+
+    public void testInternalStateIteratorRemoveWithTailAtEnd1() {
+<span class="fc" id="L289">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(3);</span>
+<span class="fc" id="L290">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L291">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L292">        test.add(&quot;C&quot;);</span>
+<span class="fc" id="L293">        test.remove(&quot;A&quot;);</span>
+<span class="fc" id="L294">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L295">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L296">        assertEquals(1, test.m_head);</span>
+<span class="fc" id="L297">        assertEquals(0, test.m_tail);</span>
+        
+<span class="fc" id="L299">        Iterator it = test.iterator();</span>
+<span class="fc" id="L300">        assertEquals(&quot;B&quot;, it.next());</span>
+<span class="fc" id="L301">        it.remove();</span>
+<span class="fc" id="L302">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L303">        assertEquals(2, test.m_head);</span>
+<span class="fc" id="L304">        assertEquals(0, test.m_tail);</span>
+<span class="fc" id="L305">    }</span>
+
+    public void testInternalStateIteratorRemoveWithTailAtEnd2() {
+<span class="fc" id="L308">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(3);</span>
+<span class="fc" id="L309">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L310">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L311">        test.add(&quot;C&quot;);</span>
+<span class="fc" id="L312">        test.remove(&quot;A&quot;);</span>
+<span class="fc" id="L313">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L314">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L315">        assertEquals(1, test.m_head);</span>
+<span class="fc" id="L316">        assertEquals(0, test.m_tail);</span>
+        
+<span class="fc" id="L318">        Iterator it = test.iterator();</span>
+<span class="fc" id="L319">        assertEquals(&quot;B&quot;, it.next());</span>
+<span class="fc" id="L320">        assertEquals(&quot;C&quot;, it.next());</span>
+<span class="fc" id="L321">        it.remove();</span>
+<span class="fc" id="L322">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L323">        assertEquals(1, test.m_head);</span>
+<span class="fc" id="L324">        assertEquals(3, test.m_tail);</span>
+<span class="fc" id="L325">    }</span>
+
+    public void testInternalStateIteratorRemoveWithTailAtEnd3() {
+<span class="fc" id="L328">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(3);</span>
+<span class="fc" id="L329">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L330">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L331">        test.add(&quot;C&quot;);</span>
+<span class="fc" id="L332">        test.remove(&quot;A&quot;);</span>
+<span class="fc" id="L333">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L334">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L335">        assertEquals(1, test.m_head);</span>
+<span class="fc" id="L336">        assertEquals(0, test.m_tail);</span>
+        
+<span class="fc" id="L338">        Iterator it = test.iterator();</span>
+<span class="fc" id="L339">        assertEquals(&quot;B&quot;, it.next());</span>
+<span class="fc" id="L340">        assertEquals(&quot;C&quot;, it.next());</span>
+<span class="fc" id="L341">        assertEquals(&quot;D&quot;, it.next());</span>
+<span class="fc" id="L342">        it.remove();</span>
+<span class="fc" id="L343">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L344">        assertEquals(1, test.m_head);</span>
+<span class="fc" id="L345">        assertEquals(3, test.m_tail);</span>
+<span class="fc" id="L346">    }</span>
+
+    public void testInternalStateIteratorRemoveWithWrap1() {
+<span class="fc" id="L349">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(3);</span>
+<span class="fc" id="L350">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L351">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L352">        test.add(&quot;C&quot;);</span>
+<span class="fc" id="L353">        test.remove(&quot;A&quot;);</span>
+<span class="fc" id="L354">        test.remove(&quot;B&quot;);</span>
+<span class="fc" id="L355">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L356">        test.add(&quot;E&quot;);</span>
+<span class="fc" id="L357">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L358">        assertEquals(2, test.m_head);</span>
+<span class="fc" id="L359">        assertEquals(1, test.m_tail);</span>
+        
+<span class="fc" id="L361">        Iterator it = test.iterator();</span>
+<span class="fc" id="L362">        assertEquals(&quot;C&quot;, it.next());</span>
+<span class="fc" id="L363">        it.remove();</span>
+<span class="fc" id="L364">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L365">        assertEquals(3, test.m_head);</span>
+<span class="fc" id="L366">        assertEquals(1, test.m_tail);</span>
+<span class="fc" id="L367">    }</span>
+
+    public void testInternalStateIteratorRemoveWithWrap2() {
+<span class="fc" id="L370">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(3);</span>
+<span class="fc" id="L371">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L372">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L373">        test.add(&quot;C&quot;);</span>
+<span class="fc" id="L374">        test.remove(&quot;A&quot;);</span>
+<span class="fc" id="L375">        test.remove(&quot;B&quot;);</span>
+<span class="fc" id="L376">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L377">        test.add(&quot;E&quot;);</span>
+<span class="fc" id="L378">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L379">        assertEquals(2, test.m_head);</span>
+<span class="fc" id="L380">        assertEquals(1, test.m_tail);</span>
+        
+<span class="fc" id="L382">        Iterator it = test.iterator();</span>
+<span class="fc" id="L383">        assertEquals(&quot;C&quot;, it.next());</span>
+<span class="fc" id="L384">        assertEquals(&quot;D&quot;, it.next());</span>
+<span class="fc" id="L385">        it.remove();</span>
+<span class="fc" id="L386">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L387">        assertEquals(2, test.m_head);</span>
+<span class="fc" id="L388">        assertEquals(0, test.m_tail);</span>
+<span class="fc" id="L389">    }</span>
+
+    public void testInternalStateIteratorRemoveWithWrap3() {
+<span class="fc" id="L392">        UnboundedFifoBuffer test = new UnboundedFifoBuffer(3);</span>
+<span class="fc" id="L393">        test.add(&quot;A&quot;);</span>
+<span class="fc" id="L394">        test.add(&quot;B&quot;);</span>
+<span class="fc" id="L395">        test.add(&quot;C&quot;);</span>
+<span class="fc" id="L396">        test.remove(&quot;A&quot;);</span>
+<span class="fc" id="L397">        test.remove(&quot;B&quot;);</span>
+<span class="fc" id="L398">        test.add(&quot;D&quot;);</span>
+<span class="fc" id="L399">        test.add(&quot;E&quot;);</span>
+<span class="fc" id="L400">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L401">        assertEquals(2, test.m_head);</span>
+<span class="fc" id="L402">        assertEquals(1, test.m_tail);</span>
+        
+<span class="fc" id="L404">        Iterator it = test.iterator();</span>
+<span class="fc" id="L405">        assertEquals(&quot;C&quot;, it.next());</span>
+<span class="fc" id="L406">        assertEquals(&quot;D&quot;, it.next());</span>
+<span class="fc" id="L407">        assertEquals(&quot;E&quot;, it.next());</span>
+<span class="fc" id="L408">        it.remove();</span>
+<span class="fc" id="L409">        assertEquals(4, test.m_buffer.length);</span>
+<span class="fc" id="L410">        assertEquals(2, test.m_head);</span>
+<span class="fc" id="L411">        assertEquals(0, test.m_tail);</span>
+<span class="fc" id="L412">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

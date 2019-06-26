@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestSequencedHashMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestSequencedHashMap.java</span></div><h1>TestSequencedHashMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.map.AbstractTestMap;
+
+/**
+ * Unit tests 
+ * {@link org.apache.commons.collections.SequencedHashMap}.
+ * Be sure to use the &quot;labRat&quot; instance whenever possible,
+ * so that subclasses will be tested correctly.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Morgan Delagrange
+ * @author Daniel Rall
+ * @author Henning P. Schmiedehausen
+ * @author James Strachan
+ */
+public class TestSequencedHashMap extends AbstractTestMap {
+    /**
+     * The instance to experiment on.
+     */
+    protected SequencedHashMap labRat;
+
+    public TestSequencedHashMap(String name) {
+<span class="fc" id="L49">        super(name);</span>
+<span class="fc" id="L50">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L53" title="All 2 branches covered.">        return BulkTest.makeSuite(TestSequencedHashMap.class);</span>
+    }
+
+    // current versions of SequencedHashMap and subclasses are not
+    // compatible with Collections 1.x
+    public String getCompatibilityVersion() {
+<span class="fc" id="L59">        return &quot;2&quot;;</span>
+    }
+
+    public static void main(String[] args) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        String[] testCaseName = { TestSequencedHashMap.class.getName() };</span>
+<span class="nc" id="L64">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L65">    }</span>
+
+    public void setUp() throws Exception {
+<span class="fc" id="L68">        super.setUp();</span>
+        // use makeMap and cast the result to a SeqHashMap
+        // so that subclasses of SeqHashMap can share these tests
+<span class="fc" id="L71">        labRat = (SequencedHashMap) makeEmptyMap();</span>
+<span class="fc" id="L72">    }</span>
+
+    public Map makeEmptyMap() {
+<span class="fc" id="L75">        return new SequencedHashMap();</span>
+    }
+
+    protected Object[] getKeys() {
+<span class="fc" id="L79">        return new Object[] { &quot;foo&quot;, &quot;baz&quot;, &quot;eek&quot; };</span>
+    }
+
+    protected Object[] getValues() {
+<span class="fc" id="L83">        return new Object[] { &quot;bar&quot;, &quot;frob&quot;, new Object() };</span>
+    }
+ 
+    public void testSequenceMap() throws Throwable {
+<span class="fc" id="L87">        Object[] keys = getKeys();</span>
+<span class="fc" id="L88">        int expectedSize = keys.length;</span>
+<span class="fc" id="L89">        Object[] values = getValues();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (int i = 0; i &lt; expectedSize; i++) {</span>
+<span class="fc" id="L91">            labRat.put(keys[i], values[i]);</span>
+        }
+
+        // Test size().
+<span class="fc" id="L95">        assertEquals(&quot;size() does not match expected size&quot;,</span>
+<span class="fc" id="L96">                     expectedSize, labRat.size());</span>
+
+        // Test clone(), iterator(), and get(Object).
+<span class="fc" id="L99">        SequencedHashMap clone = (SequencedHashMap) labRat.clone();</span>
+<span class="fc" id="L100">        assertEquals(&quot;Size of clone does not match original&quot;,</span>
+<span class="fc" id="L101">                     labRat.size(), clone.size());</span>
+<span class="fc" id="L102">        Iterator origEntries = labRat.entrySet().iterator();</span>
+<span class="fc" id="L103">        Iterator copiedEntries = clone.entrySet().iterator();</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        while (origEntries.hasNext()) {</span>
+<span class="fc" id="L105">            Map.Entry origEntry = (Map.Entry)origEntries.next();</span>
+<span class="fc" id="L106">            Map.Entry copiedEntry = (Map.Entry)copiedEntries.next();</span>
+<span class="fc" id="L107">            assertEquals(&quot;Cloned key does not match original&quot;,</span>
+<span class="fc" id="L108">                         origEntry.getKey(), copiedEntry.getKey());</span>
+<span class="fc" id="L109">            assertEquals(&quot;Cloned value does not match original&quot;,</span>
+<span class="fc" id="L110">                         origEntry.getValue(), copiedEntry.getValue());</span>
+<span class="fc" id="L111">            assertEquals(&quot;Cloned entry does not match original&quot;,</span>
+<span class="fc" id="L112">                         origEntry, copiedEntry);</span>
+        }
+<span class="fc" id="L114">        assertTrue(&quot;iterator() returned different number of elements than keys()&quot;,</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">               !copiedEntries.hasNext());</span>
+
+        // Test sequence()
+<span class="fc" id="L118">        List seq = labRat.sequence();</span>
+<span class="fc" id="L119">        assertEquals(&quot;sequence() returns more keys than in the Map&quot;,</span>
+<span class="fc" id="L120">                     expectedSize, seq.size());</span>
+
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        for (int i = 0; i &lt; seq.size(); i++) {</span>
+<span class="fc" id="L123">            assertEquals(&quot;Key &quot; + i + &quot; is not the same as the key in the Map&quot;,</span>
+<span class="fc" id="L124">                         keys[i], seq.get(i));</span>
+        }
+<span class="fc" id="L126">    }</span>
+
+    public void testYoungest() {
+<span class="fc" id="L129">        labRat.put(new Integer(1),&quot;foo&quot;);</span>
+<span class="fc" id="L130">        labRat.put(new Integer(2),&quot;bar&quot;);</span>
+<span class="fc" id="L131">        assertTrue(&quot;first key is correct&quot;,labRat.get(0).equals(new Integer(1)));</span>
+<span class="fc" id="L132">        labRat.put(new Integer(1),&quot;boo&quot;);</span>
+<span class="fc" id="L133">        assertTrue(&quot;second key is reassigned to first&quot;,labRat.get(0).equals(new Integer(2)));</span>
+<span class="fc" id="L134">    }</span>
+
+    public void testYoungestReplaceNullWithValue() {
+<span class="fc" id="L137">        labRat.put(new Integer(1),null);</span>
+<span class="fc" id="L138">        labRat.put(new Integer(2),&quot;foo&quot;);</span>
+<span class="fc" id="L139">        assertTrue(&quot;first key is correct&quot;,labRat.get(0).equals(new Integer(1)));</span>
+<span class="fc" id="L140">        labRat.put(new Integer(1),&quot;bar&quot;);</span>
+<span class="fc" id="L141">        assertTrue(&quot;second key is reassigned to first&quot;,labRat.get(0).equals(new Integer(2)));</span>
+<span class="fc" id="L142">    }</span>
+
+    public void testYoungestReplaceValueWithNull() {
+<span class="fc" id="L145">        labRat.put(new Integer(1),&quot;bar&quot;);</span>
+<span class="fc" id="L146">        labRat.put(new Integer(2),&quot;foo&quot;);</span>
+<span class="fc" id="L147">        assertTrue(&quot;first key is correct&quot;,labRat.get(0).equals(new Integer(1)));</span>
+<span class="fc" id="L148">        labRat.put(new Integer(1),null);</span>
+<span class="fc" id="L149">        assertTrue(&quot;second key is reassigned to first&quot;,labRat.get(0).equals(new Integer(2)));</span>
+<span class="fc" id="L150">    }</span>
+
+    // override TestMap method with more specific tests
+    public void testFullMapSerialization() 
+    throws IOException, ClassNotFoundException {
+<span class="fc" id="L155">        SequencedHashMap map = (SequencedHashMap) makeFullMap();</span>
+
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (!(map instanceof Serializable)) return;  </span>
+
+<span class="fc" id="L159">        byte[] objekt = writeExternalFormToBytes((Serializable) map);</span>
+<span class="fc" id="L160">        SequencedHashMap map2 = (SequencedHashMap) readExternalFormFromBytes(objekt);</span>
+
+<span class="fc" id="L162">        assertEquals(&quot;Both maps are same size&quot;,map.size(), getSampleKeys().length);</span>
+<span class="fc" id="L163">        assertEquals(&quot;Both maps are same size&quot;,map2.size(),getSampleKeys().length);</span>
+
+<span class="fc" id="L165">        assertEquals(&quot;Both maps have the same first key&quot;,</span>
+<span class="fc" id="L166">                     map.getFirstKey(),getSampleKeys()[0]);</span>
+<span class="fc" id="L167">        assertEquals(&quot;Both maps have the same first key&quot;,</span>
+<span class="fc" id="L168">                     map2.getFirstKey(),getSampleKeys()[0]);</span>
+<span class="fc" id="L169">        assertEquals(&quot;Both maps have the same last key&quot;,</span>
+<span class="fc" id="L170">                     map.getLastKey(),getSampleKeys()[getSampleKeys().length - 1]);</span>
+<span class="fc" id="L171">        assertEquals(&quot;Both maps have the same last key&quot;,</span>
+<span class="fc" id="L172">                     map2.getLastKey(),getSampleKeys()[getSampleKeys().length - 1]);</span>
+<span class="fc" id="L173">    }</span>
+
+    public void testIndexOf() throws Exception {
+<span class="fc" id="L176">        Object[] keys = getKeys();</span>
+<span class="fc" id="L177">        int expectedSize = keys.length;</span>
+<span class="fc" id="L178">        Object[] values = getValues();</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        for (int i = 0; i &lt; expectedSize; i++) {</span>
+<span class="fc" id="L180">            labRat.put(keys[i], values[i]);</span>
+        }
+        // test that the index returned are in the same order that they were 
+        // placed in the map
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        for (int i = 0; i &lt; keys.length; i++) {</span>
+<span class="fc" id="L185">            assertEquals(&quot;indexOf with existing key failed&quot;, i, labRat.indexOf(keys[i]));</span>
+        }
+        // test non existing key..
+<span class="fc" id="L188">        assertEquals(&quot;test with non-existing key failed&quot;, -1, labRat.indexOf(&quot;NonExistingKey&quot;));</span>
+<span class="fc" id="L189">    }</span>
+    
+    public void tearDown() throws Exception {
+<span class="fc" id="L192">        labRat = null;</span>
+<span class="fc" id="L193">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

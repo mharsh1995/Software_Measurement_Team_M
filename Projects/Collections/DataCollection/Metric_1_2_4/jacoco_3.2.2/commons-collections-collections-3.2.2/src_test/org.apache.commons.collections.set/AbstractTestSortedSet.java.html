@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestSortedSet.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.set</a> &gt; <span class="el_source">AbstractTestSortedSet.java</span></div><h1>AbstractTestSortedSet.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.set;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.apache.commons.collections.BulkTest;
+
+/**
+ * Abstract test class for {@link SortedSet} methods and contracts.
+ * &lt;p&gt;
+ * To use, subclass and override the {@link #makeEmptySet()}
+ * method.  You may have to override other protected methods if your
+ * set is not modifiable, or if your set restricts what kinds of
+ * elements may be added; see {@link AbstractTestCollection} for more details.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ * @author Dieter Wimberger
+ */
+public abstract class AbstractTestSortedSet extends AbstractTestSet {
+
+    /**
+     * JUnit constructor.
+     *
+     * @param name  name for test
+     */
+    public AbstractTestSortedSet(String name) {
+<span class="fc" id="L49">        super(name);</span>
+<span class="fc" id="L50">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Verification extension, will check the order of elements,
+     * the sets should already be verified equal.
+     */
+    public void verify() {
+<span class="fc" id="L58">        super.verify();</span>
+        
+        // Check that iterator returns elements in order and first() and last()
+        // are consistent
+<span class="fc" id="L62">        Iterator colliter = collection.iterator();</span>
+<span class="fc" id="L63">        Iterator confiter = confirmed.iterator();</span>
+<span class="fc" id="L64">        Object first = null;</span>
+<span class="fc" id="L65">        Object last = null;</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        while (colliter.hasNext()) {</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">            if (first == null) {</span>
+<span class="fc" id="L68">                first = colliter.next();</span>
+<span class="fc" id="L69">                last = first;</span>
+<span class="fc" id="L70">            } else {</span>
+<span class="fc" id="L71">              last = colliter.next();</span>
+            }  
+<span class="fc" id="L73">            assertEquals(&quot;Element appears to be out of order.&quot;, last, confiter.next());</span>
+        }
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (collection.size() &gt; 0) {</span>
+<span class="fc" id="L76">            assertEquals(&quot;Incorrect element returned by first().&quot;, first,</span>
+<span class="fc" id="L77">                ((SortedSet) collection).first());</span>
+<span class="fc" id="L78">            assertEquals(&quot;Incorrect element returned by last().&quot;, last,</span>
+<span class="fc" id="L79">                ((SortedSet) collection).last());</span>
+        }
+<span class="fc" id="L81">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Overridden because SortedSets don't allow null elements (normally).
+     * @return false
+     */
+    public boolean isNullSupported() {
+<span class="fc" id="L89">        return false;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Returns an empty {@link TreeSet} for use in modification testing.
+     *
+     * @return a confirmed empty collection
+     */
+    public Collection makeConfirmedCollection() {
+<span class="fc" id="L99">        return new TreeSet();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Return the {@link AbstractTestCollection#confirmed} fixture, but cast as a
+     * SortedSet.
+     */
+    public SortedSet getConfirmedSortedSet() {
+<span class="nc" id="L108">        return (SortedSet) confirmed;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Override to return comparable objects.
+     */
+    public Object[] getFullNonNullElements() {
+<span class="fc" id="L116">        Object[] elements = new Object[30];</span>
+
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        for (int i = 0; i &lt; 30; i++) {</span>
+<span class="fc" id="L119">            elements[i] = new Integer(i + i + 1);</span>
+        }
+<span class="fc" id="L121">        return elements;</span>
+    }
+
+    /**
+     * Override to return comparable objects.
+     */
+    public Object[] getOtherNonNullElements() {
+<span class="fc" id="L128">        Object[] elements = new Object[30];</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        for (int i = 0; i &lt; 30; i++) {</span>
+<span class="fc" id="L130">            elements[i] = new Integer(i + i + 2);</span>
+        }
+<span class="fc" id="L132">        return elements;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Bulk test {@link SortedSet#subSet(Object, Object)}.  This method runs through all of
+     * the tests in {@link AbstractTestSortedSet}.
+     * After modification operations, {@link #verify()} is invoked to ensure
+     * that the set and the other collection views are still valid.
+     *
+     * @return a {@link AbstractTestSet} instance for testing a subset.
+     */
+    public BulkTest bulkTestSortedSetSubSet() {
+<span class="fc" id="L145">        int length = getFullElements().length;</span>
+
+<span class="fc" id="L147">        int lobound = length / 3;</span>
+<span class="fc" id="L148">        int hibound = lobound * 2;</span>
+<span class="fc" id="L149">        return new TestSortedSetSubSet(lobound, hibound);</span>
+
+    }
+
+    /**
+     * Bulk test {@link SortedSet#headSet(Object)}.  This method runs through all of
+     * the tests in {@link AbstractTestSortedSet}.
+     * After modification operations, {@link #verify()} is invoked to ensure
+     * that the set and the other collection views are still valid.
+     *
+     * @return a {@link AbstractTestSet} instance for testing a headset.
+     */
+    public BulkTest bulkTestSortedSetHeadSet() {
+<span class="fc" id="L162">        int length = getFullElements().length;</span>
+
+<span class="fc" id="L164">        int lobound = length / 3;</span>
+<span class="fc" id="L165">        int hibound = lobound * 2;</span>
+<span class="fc" id="L166">        return new TestSortedSetSubSet(hibound, true);</span>
+
+    }
+
+    /**
+     * Bulk test {@link SortedSet#tailSet(Object)}.  This method runs through all of
+     * the tests in {@link AbstractTestSortedSet}.
+     * After modification operations, {@link #verify()} is invoked to ensure
+     * that the set and the other collection views are still valid.
+     *
+     * @return a {@link AbstractTestSet} instance for testing a tailset.
+     */
+    public BulkTest bulkTestSortedSetTailSet() {
+<span class="fc" id="L179">        int length = getFullElements().length;</span>
+<span class="fc" id="L180">        int lobound = length / 3;</span>
+<span class="fc" id="L181">        return new TestSortedSetSubSet(lobound, false);</span>
+    }
+
+    public class TestSortedSetSubSet extends AbstractTestSortedSet {
+
+        private int m_Type;
+        private int m_LowBound;
+        private int m_HighBound;
+        private Object[] m_FullElements;
+        private Object[] m_OtherElements;
+
+        public TestSortedSetSubSet(int bound, boolean head) {
+<span class="fc" id="L193">            super(&quot;TestSortedSetSubSet&quot;);</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">            if (head) {</span>
+                //System.out.println(&quot;HEADSET&quot;);
+<span class="fc" id="L196">                m_Type = TYPE_HEADSET;</span>
+<span class="fc" id="L197">                m_HighBound = bound;</span>
+<span class="fc" id="L198">                m_FullElements = new Object[bound];</span>
+<span class="fc" id="L199">                System.arraycopy(AbstractTestSortedSet.this.getFullElements(), 0, m_FullElements, 0, bound);</span>
+<span class="fc" id="L200">                m_OtherElements = new Object[bound - 1];</span>
+<span class="fc" id="L201">                System.arraycopy(//src src_pos dst dst_pos length</span>
+<span class="fc" id="L202">                AbstractTestSortedSet.this.getOtherElements(), 0, m_OtherElements, 0, bound - 1);</span>
+                //System.out.println(new TreeSet(Arrays.asList(m_FullElements)));
+                //System.out.println(new TreeSet(Arrays.asList(m_OtherElements)));
+<span class="fc" id="L205">            } else {</span>
+                //System.out.println(&quot;TAILSET&quot;);
+<span class="fc" id="L207">                m_Type = TYPE_TAILSET;</span>
+<span class="fc" id="L208">                m_LowBound = bound;</span>
+<span class="fc" id="L209">                Object[] allelements = AbstractTestSortedSet.this.getFullElements();</span>
+                //System.out.println(&quot;bound = &quot;+bound +&quot;::length=&quot;+allelements.length);
+<span class="fc" id="L211">                m_FullElements = new Object[allelements.length - bound];</span>
+<span class="fc" id="L212">                System.arraycopy(allelements, bound, m_FullElements, 0, allelements.length - bound);</span>
+<span class="fc" id="L213">                m_OtherElements = new Object[allelements.length - bound - 1];</span>
+<span class="fc" id="L214">                System.arraycopy(//src src_pos dst dst_pos length</span>
+<span class="fc" id="L215">                AbstractTestSortedSet.this.getOtherElements(), bound, m_OtherElements, 0, allelements.length - bound - 1);</span>
+                //System.out.println(new TreeSet(Arrays.asList(m_FullElements)));
+                //System.out.println(new TreeSet(Arrays.asList(m_OtherElements)));
+                //resetFull();
+                //System.out.println(collection);
+                //System.out.println(confirmed);
+
+            }
+
+<span class="fc" id="L224">        } //type</span>
+
+        public TestSortedSetSubSet(int lobound, int hibound) {
+<span class="fc" id="L227">            super(&quot;TestSortedSetSubSet&quot;);</span>
+            //System.out.println(&quot;SUBSET&quot;);
+<span class="fc" id="L229">            m_Type = TYPE_SUBSET;</span>
+<span class="fc" id="L230">            m_LowBound = lobound;</span>
+<span class="fc" id="L231">            m_HighBound = hibound;</span>
+<span class="fc" id="L232">            int length = hibound - lobound;</span>
+            //System.out.println(&quot;Low=&quot; + lobound + &quot;::High=&quot; + hibound + &quot;::Length=&quot; + length);
+<span class="fc" id="L234">            m_FullElements = new Object[length];</span>
+<span class="fc" id="L235">            System.arraycopy(AbstractTestSortedSet.this.getFullElements(), lobound, m_FullElements, 0, length);</span>
+<span class="fc" id="L236">            m_OtherElements = new Object[length - 1];</span>
+<span class="fc" id="L237">            System.arraycopy(//src src_pos dst dst_pos length</span>
+<span class="fc" id="L238">            AbstractTestSortedSet.this.getOtherElements(), lobound, m_OtherElements, 0, length - 1);</span>
+
+            //System.out.println(new TreeSet(Arrays.asList(m_FullElements)));
+            //System.out.println(new TreeSet(Arrays.asList(m_OtherElements)));
+
+<span class="fc" id="L243">        }</span>
+
+        public boolean isNullSupported() {
+<span class="nc" id="L246">            return AbstractTestSortedSet.this.isNullSupported();</span>
+        }
+        public boolean isAddSupported() {
+<span class="fc" id="L249">            return AbstractTestSortedSet.this.isAddSupported();</span>
+        }
+        public boolean isRemoveSupported() {
+<span class="fc" id="L252">            return AbstractTestSortedSet.this.isRemoveSupported();</span>
+        }
+        public boolean isFailFastSupported() {
+<span class="fc" id="L255">            return AbstractTestSortedSet.this.isFailFastSupported();</span>
+        }
+
+        public Object[] getFullElements() {
+<span class="fc" id="L259">            return m_FullElements;</span>
+        }
+        public Object[] getOtherElements() {
+<span class="fc" id="L262">            return m_OtherElements;</span>
+        }
+
+        private SortedSet getSubSet(SortedSet set) {
+<span class="fc" id="L266">            Object[] elements = AbstractTestSortedSet.this.getFullElements();</span>
+<span class="pc bpc" id="L267" title="1 of 4 branches missed.">            switch (m_Type) {</span>
+                case TYPE_SUBSET :
+<span class="fc" id="L269">                    return set.subSet(elements[m_LowBound], elements[m_HighBound]);</span>
+                case TYPE_HEADSET :
+<span class="fc" id="L271">                    return set.headSet(elements[m_HighBound]);</span>
+                case TYPE_TAILSET :
+<span class="fc" id="L273">                    return set.tailSet(elements[m_LowBound]);</span>
+                default :
+<span class="nc" id="L275">                    return null;</span>
+            }
+        }
+
+        public Set makeEmptySet() {
+<span class="fc" id="L280">            SortedSet s = (SortedSet) AbstractTestSortedSet.this.makeEmptySet();</span>
+<span class="fc" id="L281">            return getSubSet(s);</span>
+        }
+
+        public Set makeFullSet() {
+<span class="fc" id="L285">            SortedSet s = (SortedSet) AbstractTestSortedSet.this.makeFullCollection();</span>
+<span class="fc" id="L286">            return getSubSet(s);</span>
+        }
+        
+        public boolean isTestSerialization() {
+<span class="fc" id="L290">            return false;</span>
+        }
+        
+        public BulkTest bulkTestSortedSetSubSet() {
+<span class="fc" id="L294">            return null;  // prevent infinite recursion</span>
+        }
+        public BulkTest bulkTestSortedSetHeadSet() {
+<span class="fc" id="L297">            return null;  // prevent infinite recursion</span>
+        }
+        public BulkTest bulkTestSortedSetTailSet() {
+<span class="fc" id="L300">            return null;  // prevent infinite recursion</span>
+        }
+
+        static final int TYPE_SUBSET = 0;
+        static final int TYPE_TAILSET = 1;
+        static final int TYPE_HEADSET = 2;
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

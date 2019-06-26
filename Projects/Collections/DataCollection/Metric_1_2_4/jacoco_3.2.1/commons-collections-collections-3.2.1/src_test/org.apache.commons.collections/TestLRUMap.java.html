@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestLRUMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestLRUMap.java</span></div><h1>TestLRUMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import junit.framework.Test;
+
+/**
+ * Tests LRUMap.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author James Strachan
+ * @author Morgan Delagrange
+ * @author Stephen Colebourne
+ */
+public class TestLRUMap extends TestSequencedHashMap {
+    
+    public TestLRUMap(String testName) {
+<span class="fc" id="L39">        super(testName);</span>
+<span class="fc" id="L40">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L43" title="All 2 branches covered.">        return BulkTest.makeSuite(TestLRUMap.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        String[] testCaseName = { TestLRUMap.class.getName() };</span>
+<span class="nc" id="L48">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L49">    }</span>
+
+    //-----------------------------------------------------------------------
+    public Map makeEmptyMap() {
+<span class="fc" id="L53">        LRUMap map = new LRUMap();</span>
+<span class="fc" id="L54">        return map;</span>
+    }
+
+    /**
+     * Override as test uses iterator() and getKey() in combination which doesn't work.
+     */
+    public String[] ignoredTests() {
+<span class="fc" id="L61">        return new String[] {&quot;TestLRUMap.bulkTestMapEntrySet.testMapEntrySetIteratorEntry&quot;};</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testRemoveLRU() {
+<span class="fc" id="L66">        LRUMap map2 = new LRUMap(3);</span>
+<span class="fc" id="L67">        map2.put(new Integer(1),&quot;foo&quot;);</span>
+<span class="fc" id="L68">        map2.put(new Integer(2),&quot;foo&quot;);</span>
+<span class="fc" id="L69">        map2.put(new Integer(3),&quot;foo&quot;);</span>
+<span class="fc" id="L70">        map2.put(new Integer(4),&quot;foo&quot;); // removes 1 since max size exceeded</span>
+<span class="fc" id="L71">        map2.removeLRU();  // should be Integer(2)</span>
+
+<span class="fc" id="L73">        assertTrue(&quot;Second to last value should exist&quot;,map2.get(new Integer(3)).equals(&quot;foo&quot;));</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        assertTrue(&quot;First value inserted should not exist&quot;, map2.get(new Integer(1)) == null);</span>
+<span class="fc" id="L75">    }</span>
+
+    public void testMultiplePuts() {
+<span class="fc" id="L78">        LRUMap map2 = new LRUMap(2);</span>
+<span class="fc" id="L79">        map2.put(new Integer(1),&quot;foo&quot;);</span>
+<span class="fc" id="L80">        map2.put(new Integer(2),&quot;bar&quot;);</span>
+<span class="fc" id="L81">        map2.put(new Integer(3),&quot;foo&quot;);</span>
+<span class="fc" id="L82">        map2.put(new Integer(4),&quot;bar&quot;);</span>
+
+<span class="fc" id="L84">        assertTrue(&quot;last value should exist&quot;,map2.get(new Integer(4)).equals(&quot;bar&quot;));</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        assertTrue(&quot;LRU should not exist&quot;, map2.get(new Integer(1)) == null);</span>
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Confirm that putAll(Map) does not cause the LRUMap
+     * to exceed its maxiumum size.
+     */
+    public void testPutAll() {
+<span class="fc" id="L93">        LRUMap map2 = new LRUMap(3);</span>
+<span class="fc" id="L94">        map2.put(new Integer(1),&quot;foo&quot;);</span>
+<span class="fc" id="L95">        map2.put(new Integer(2),&quot;foo&quot;);</span>
+<span class="fc" id="L96">        map2.put(new Integer(3),&quot;foo&quot;);</span>
+
+<span class="fc" id="L98">        HashMap hashMap = new HashMap();</span>
+<span class="fc" id="L99">        hashMap.put(new Integer(4),&quot;foo&quot;);</span>
+
+<span class="fc" id="L101">        map2.putAll(hashMap);</span>
+
+<span class="fc" id="L103">        assertTrue(&quot;max size is 3, but actual size is &quot; + map2.size(),</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">                   map2.size() == 3);</span>
+<span class="fc" id="L105">        assertTrue(&quot;map should contain the Integer(4) object&quot;,</span>
+<span class="fc" id="L106">                   map2.containsKey(new Integer(4)));</span>
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * Test that the size of the map is reduced immediately
+     * when setMaximumSize(int) is called
+     */
+    public void testSetMaximumSize() {
+<span class="fc" id="L114">        LRUMap map = new LRUMap(6);</span>
+<span class="fc" id="L115">        map.put(&quot;1&quot;,&quot;1&quot;);</span>
+<span class="fc" id="L116">        map.put(&quot;2&quot;,&quot;2&quot;);</span>
+<span class="fc" id="L117">        map.put(&quot;3&quot;,&quot;3&quot;);</span>
+<span class="fc" id="L118">        map.put(&quot;4&quot;,&quot;4&quot;);</span>
+<span class="fc" id="L119">        map.put(&quot;5&quot;,&quot;5&quot;);</span>
+<span class="fc" id="L120">        map.put(&quot;6&quot;,&quot;6&quot;);</span>
+<span class="fc" id="L121">        map.setMaximumSize(3);</span>
+
+<span class="fc" id="L123">        assertTrue(&quot;map should have size = 3, but actually = &quot; + map.size(), </span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">                   map.size() == 3);</span>
+<span class="fc" id="L125">    }</span>
+
+    public void testGetPromotion() {
+<span class="fc" id="L128">        LRUMap map = new LRUMap(3);</span>
+<span class="fc" id="L129">        map.put(&quot;1&quot;,&quot;1&quot;);</span>
+<span class="fc" id="L130">        map.put(&quot;2&quot;,&quot;2&quot;);</span>
+<span class="fc" id="L131">        map.put(&quot;3&quot;,&quot;3&quot;);</span>
+        // LRU is now 1 (then 2 then 3)
+
+        // promote 1 to top
+        // eviction order is now 2,3,1
+<span class="fc" id="L136">        map.get(&quot;1&quot;);</span>
+        
+        // add another value, forcing a remove
+        // 2 should be evicted (then 3,1,4)
+<span class="fc" id="L140">        map.put(&quot;4&quot;,&quot;4&quot;);</span>
+        
+<span class="fc" id="L142">        Iterator keyIterator = map.keySet().iterator();</span>
+<span class="fc" id="L143">        Object[] keys = new Object[3];</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        for (int i = 0; keyIterator.hasNext() ; ++i) {</span>
+<span class="fc" id="L145">            keys[i] = keyIterator.next();</span>
+        }
+
+<span class="fc" id="L148">        assertTrue(&quot;first evicted should be 3, was &quot; + keys[0], keys[0].equals(&quot;3&quot;));</span>
+<span class="fc" id="L149">        assertTrue(&quot;second evicted should be 1, was &quot; + keys[1], keys[1].equals(&quot;1&quot;));</span>
+<span class="fc" id="L150">        assertTrue(&quot;third evicted should be 4, was &quot; + keys[2], keys[2].equals(&quot;4&quot;));</span>
+        
+<span class="fc" id="L152">    }</span>
+
+    /**
+     * You should be able to subclass LRUMap and perform a 
+     * custom action when items are removed automatically
+     * by the LRU algorithm (the removeLRU() method).
+     */
+    public void testLRUSubclass() {
+<span class="fc" id="L160">        LRUCounter counter = new LRUCounter(3);</span>
+        // oldest &lt;--&gt; newest
+        // 1
+<span class="fc" id="L163">        counter.put(&quot;1&quot;,&quot;foo&quot;);</span>
+        // 1 2
+<span class="fc" id="L165">        counter.put(&quot;2&quot;,&quot;foo&quot;);</span>
+        // 1 2 3
+<span class="fc" id="L167">        counter.put(&quot;3&quot;,&quot;foo&quot;);</span>
+        // 2 3 1
+<span class="fc" id="L169">        counter.put(&quot;1&quot;,&quot;foo&quot;);</span>
+        // 3 1 4 (2 goes out)
+<span class="fc" id="L171">        counter.put(&quot;4&quot;,&quot;foo&quot;);</span>
+        // 1 4 5 (3 goes out)
+<span class="fc" id="L173">        counter.put(&quot;5&quot;,&quot;foo&quot;);</span>
+        // 4 5 2 (1 goes out)
+<span class="fc" id="L175">        counter.put(&quot;2&quot;,&quot;foo&quot;);</span>
+        // 4 2
+<span class="fc" id="L177">        counter.remove(&quot;5&quot;);</span>
+
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">        assertTrue(&quot;size should be 2, but was &quot; + counter.size(), counter.size() == 2);</span>
+<span class="fc" id="L180">        assertTrue(&quot;removedCount should be 3 but was &quot; + counter.removedCount,</span>
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">                   counter.removedCount == 3);</span>
+
+<span class="fc" id="L183">        assertTrue(&quot;first removed was '2'&quot;,counter.list.get(0).equals(&quot;2&quot;));</span>
+<span class="fc" id="L184">        assertTrue(&quot;second removed was '3'&quot;,counter.list.get(1).equals(&quot;3&quot;));</span>
+<span class="fc" id="L185">        assertTrue(&quot;third removed was '1'&quot;,counter.list.get(2).equals(&quot;1&quot;));</span>
+
+<span class="fc" id="L187">        assertTrue(&quot;oldest key is '4'&quot;,counter.get(0).equals(&quot;4&quot;));</span>
+<span class="fc" id="L188">        assertTrue(&quot;newest key is '2'&quot;,counter.get(1).equals(&quot;2&quot;));</span>
+<span class="fc" id="L189">    }</span>
+
+
+    protected void entrySetEqualsMap(Set set, Map m) {
+        // Overridden because LRUMap.get(Object) actually alters the map,
+        // so there's no way to verify that the entry set and map contain
+        // the same entries
+<span class="nc" id="L196">    }</span>
+
+    private class LRUCounter extends LRUMap {
+<span class="fc" id="L199">        int removedCount = 0;</span>
+<span class="fc" id="L200">        ArrayList list = new ArrayList(3); </span>
+
+        LRUCounter(int i) {
+<span class="fc" id="L203">            super(i);</span>
+<span class="fc" id="L204">        }</span>
+
+        protected void processRemovedLRU(Object key, Object value) {
+<span class="fc" id="L207">            ++removedCount;</span>
+<span class="fc" id="L208">            list.add(key);</span>
+<span class="fc" id="L209">        }</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

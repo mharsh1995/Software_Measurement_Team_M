@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UnmodifiableEntrySet.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">UnmodifiableEntrySet.java</span></div><h1>UnmodifiableEntrySet.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.collections.Unmodifiable;
+import org.apache.commons.collections.iterators.AbstractIteratorDecorator;
+import org.apache.commons.collections.keyvalue.AbstractMapEntryDecorator;
+import org.apache.commons.collections.set.AbstractSetDecorator;
+
+/**
+ * Decorates a map entry &lt;code&gt;Set&lt;/code&gt; to ensure it can't be altered.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public final class UnmodifiableEntrySet
+        extends AbstractSetDecorator implements Unmodifiable {
+
+    /**
+     * Factory method to create an unmodifiable set of Map Entry objects.
+     * 
+     * @param set  the set to decorate, must not be null
+     * @throws IllegalArgumentException if set is null
+     */
+    public static Set decorate(Set set) {
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (set instanceof Unmodifiable) {</span>
+<span class="nc" id="L49">            return set;</span>
+        }
+<span class="fc" id="L51">        return new UnmodifiableEntrySet(set);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Constructor that wraps (not copies).
+     * 
+     * @param set  the set to decorate, must not be null
+     * @throws IllegalArgumentException if set is null
+     */
+    private UnmodifiableEntrySet(Set set) {
+<span class="fc" id="L62">        super(set);</span>
+<span class="fc" id="L63">    }</span>
+
+    //-----------------------------------------------------------------------
+    public boolean add(Object object) {
+<span class="fc" id="L67">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean addAll(Collection coll) {
+<span class="fc" id="L71">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void clear() {
+<span class="fc" id="L75">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean remove(Object object) {
+<span class="fc" id="L79">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean removeAll(Collection coll) {
+<span class="fc" id="L83">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean retainAll(Collection coll) {
+<span class="fc" id="L87">        throw new UnsupportedOperationException();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public Iterator iterator() {
+<span class="fc" id="L92">        return new UnmodifiableEntrySetIterator(collection.iterator());</span>
+    }
+    
+    public Object[] toArray() {
+<span class="fc" id="L96">        Object[] array = collection.toArray();</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (int i = 0; i &lt; array.length; i++) {</span>
+<span class="fc" id="L98">            array[i] = new UnmodifiableEntry((Map.Entry) array[i]);</span>
+        }
+<span class="fc" id="L100">        return array;</span>
+    }
+    
+    public Object[] toArray(Object array[]) {
+<span class="fc" id="L104">        Object[] result = array;</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        if (array.length &gt; 0) {</span>
+            // we must create a new array to handle multi-threaded situations
+            // where another thread could access data before we decorate it
+<span class="fc" id="L108">            result = (Object[]) Array.newInstance(array.getClass().getComponentType(), 0);</span>
+        }
+<span class="fc" id="L110">        result = collection.toArray(result);</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (int i = 0; i &lt; result.length; i++) {</span>
+<span class="fc" id="L112">            result[i] = new UnmodifiableEntry((Map.Entry) result[i]);</span>
+        }
+
+        // check to see if result should be returned straight
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (result.length &gt; array.length) {</span>
+<span class="fc" id="L117">            return result;</span>
+        }
+
+        // copy back into input array to fulfil the method contract
+<span class="fc" id="L121">        System.arraycopy(result, 0, array, 0, result.length);</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        if (array.length &gt; result.length) {</span>
+<span class="fc" id="L123">            array[result.length] = null;</span>
+        }
+<span class="fc" id="L125">        return array;</span>
+    }
+    
+    //-----------------------------------------------------------------------
+    /**
+     * Implementation of an entry set iterator.
+     */
+    final static class UnmodifiableEntrySetIterator extends AbstractIteratorDecorator {
+        
+        protected UnmodifiableEntrySetIterator(Iterator iterator) {
+<span class="fc" id="L135">            super(iterator);</span>
+<span class="fc" id="L136">        }</span>
+        
+        public Object next() {
+<span class="fc" id="L139">            Map.Entry entry = (Map.Entry) iterator.next();</span>
+<span class="fc" id="L140">            return new UnmodifiableEntry(entry);</span>
+        }
+        
+        public void remove() {
+<span class="fc" id="L144">            throw new UnsupportedOperationException();</span>
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Implementation of a map entry that is unmodifiable.
+     */
+    final static class UnmodifiableEntry extends AbstractMapEntryDecorator {
+
+        protected UnmodifiableEntry(Map.Entry entry) {
+<span class="fc" id="L155">            super(entry);</span>
+<span class="fc" id="L156">        }</span>
+
+        public Object setValue(Object obj) {
+<span class="fc" id="L159">            throw new UnsupportedOperationException();</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

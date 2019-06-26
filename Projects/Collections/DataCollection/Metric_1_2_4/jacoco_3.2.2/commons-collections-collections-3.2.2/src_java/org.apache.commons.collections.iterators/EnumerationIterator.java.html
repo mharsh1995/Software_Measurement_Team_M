@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>EnumerationIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">EnumerationIterator.java</span></div><h1>EnumerationIterator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
+
+/** 
+ * Adapter to make {@link Enumeration Enumeration} instances appear
+ * to be {@link Iterator Iterator} instances.
+ *
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ * 
+ * @author &lt;a href=&quot;mailto:jstrachan@apache.org&quot;&gt;James Strachan&lt;/a&gt;
+ * @author &lt;a href=&quot;mailto:dlr@finemaltcoding.com&quot;&gt;Daniel Rall&lt;/a&gt;
+ */
+public class EnumerationIterator implements Iterator {
+    
+    /** The collection to remove elements from */
+    private Collection collection;
+    /** The enumeration being converted */
+    private Enumeration enumeration;
+    /** The last object retrieved */
+    private Object last;
+    
+    // Constructors
+    //-----------------------------------------------------------------------
+    /**
+     * Constructs a new &lt;code&gt;EnumerationIterator&lt;/code&gt; that will not
+     * function until {@link #setEnumeration(Enumeration)} is called.
+     */
+    public EnumerationIterator() {
+<span class="nc" id="L49">        this(null, null);</span>
+<span class="nc" id="L50">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;EnumerationIterator&lt;/code&gt; that provides
+     * an iterator view of the given enumeration.
+     *
+     * @param enumeration  the enumeration to use
+     */
+    public EnumerationIterator(final Enumeration enumeration) {
+<span class="fc" id="L59">        this(enumeration, null);</span>
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;EnumerationIterator&lt;/code&gt; that will remove
+     * elements from the specified collection.
+     *
+     * @param enumeration  the enumeration to use
+     * @param collection  the collection to remove elements form
+     */
+    public EnumerationIterator(final Enumeration enumeration, final Collection collection) {
+<span class="fc" id="L70">        super();</span>
+<span class="fc" id="L71">        this.enumeration = enumeration;</span>
+<span class="fc" id="L72">        this.collection = collection;</span>
+<span class="fc" id="L73">        this.last = null;</span>
+<span class="fc" id="L74">    }</span>
+
+    // Iterator interface
+    //-----------------------------------------------------------------------
+    /**
+     * Returns true if the underlying enumeration has more elements.
+     *
+     * @return true if the underlying enumeration has more elements
+     * @throws NullPointerException  if the underlying enumeration is null
+     */
+    public boolean hasNext() {
+<span class="fc" id="L85">        return enumeration.hasMoreElements();</span>
+    }
+
+    /**
+     * Returns the next object from the enumeration.
+     *
+     * @return the next object from the enumeration
+     * @throws NullPointerException if the enumeration is null
+     */
+    public Object next() {
+<span class="fc" id="L95">        last = enumeration.nextElement();</span>
+<span class="fc" id="L96">        return last;</span>
+    }
+
+    /**
+     * Removes the last retrieved element if a collection is attached.
+     * &lt;p&gt;
+     * Functions if an associated &lt;code&gt;Collection&lt;/code&gt; is known.
+     * If so, the first occurrence of the last returned object from this
+     * iterator will be removed from the collection.
+     *
+     * @exception IllegalStateException &lt;code&gt;next()&lt;/code&gt; not called.
+     * @exception UnsupportedOperationException if no associated collection
+     */
+    public void remove() {
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (collection != null) {</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">            if (last != null) {</span>
+<span class="nc" id="L112">                collection.remove(last);</span>
+<span class="nc" id="L113">            } else {</span>
+<span class="nc" id="L114">                throw new IllegalStateException(&quot;next() must have been called for remove() to function&quot;);</span>
+            }
+        } else {
+<span class="nc" id="L117">            throw new UnsupportedOperationException(&quot;No Collection associated with this Iterator&quot;);</span>
+        }
+<span class="nc" id="L119">    }</span>
+
+    // Properties
+    //-----------------------------------------------------------------------
+    /**
+     * Returns the underlying enumeration.
+     *
+     * @return the underlying enumeration
+     */
+    public Enumeration getEnumeration() {
+<span class="nc" id="L129">        return enumeration;</span>
+    }
+
+    /**
+     * Sets the underlying enumeration.
+     *
+     * @param enumeration  the new underlying enumeration
+     */
+    public void setEnumeration(final Enumeration enumeration) {
+<span class="nc" id="L138">        this.enumeration = enumeration;</span>
+<span class="nc" id="L139">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

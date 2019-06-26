@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BinaryHeap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">BinaryHeap.java</span></div><h1>BinaryHeap.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.AbstractCollection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+/**
+ * Binary heap implementation of &lt;code&gt;PriorityQueue&lt;/code&gt;.
+ * &lt;p&gt;
+ * The &lt;code&gt;PriorityQueue&lt;/code&gt; interface has now been replaced for most uses
+ * by the &lt;code&gt;Buffer&lt;/code&gt; interface. This class and the interface are
+ * retained for backwards compatibility. The intended replacement is
+ * {@link org.apache.commons.collections.buffer.PriorityBuffer PriorityBuffer}.
+ * &lt;p&gt;
+ * The removal order of a binary heap is based on either the natural sort
+ * order of its elements or a specified {@link Comparator}.  The 
+ * {@link #pop()} method always returns the first element as determined
+ * by the sort order.  (The &lt;code&gt;isMinHeap&lt;/code&gt; flag in the constructors
+ * can be used to reverse the sort order, in which case {@link #pop()}
+ * will always remove the last element.)  The removal order is 
+ * &lt;i&gt;not&lt;/i&gt; the same as the order of iteration; elements are
+ * returned by the iterator in no particular order.
+ * &lt;p&gt;
+ * The {@link #insert(Object)} and {@link #pop()} operations perform
+ * in logarithmic time.  The {@link #peek()} operation performs in constant
+ * time.  All other operations perform in linear time or worse.
+ * &lt;p&gt;
+ * Note that this implementation is not synchronized.  Use SynchronizedPriorityQueue
+ * to provide synchronized access to a &lt;code&gt;BinaryHeap&lt;/code&gt;:
+ *
+ * &lt;pre&gt;
+ * PriorityQueue heap = new SynchronizedPriorityQueue(new BinaryHeap());
+ * &lt;/pre&gt;
+ *
+ * @deprecated Replaced by PriorityBuffer in buffer subpackage.
+ *  Due to be removed in v4.0.
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Peter Donald
+ * @author Ram Chidambaram
+ * @author Michael A. Smith
+ * @author Paul Jack
+ * @author Stephen Colebourne
+ */
+public final class BinaryHeap extends AbstractCollection
+        implements PriorityQueue, Buffer {
+
+    /**
+     * The default capacity for a binary heap.
+     */
+    private final static int DEFAULT_CAPACITY = 13;
+    /**
+     * The number of elements currently in this heap.
+     */
+    int m_size;  // package scoped for testing
+    /**
+     * The elements in this heap.
+     */
+    Object[] m_elements;  // package scoped for testing
+    /**
+     * If true, the first element as determined by the sort order will 
+     * be returned.  If false, the last element as determined by the
+     * sort order will be returned.
+     */
+    boolean m_isMinHeap;  // package scoped for testing
+    /**
+     * The comparator used to order the elements
+     */
+    Comparator m_comparator;  // package scoped for testing
+
+    /**
+     * Constructs a new minimum binary heap.
+     */
+    public BinaryHeap() {
+<span class="fc" id="L93">        this(DEFAULT_CAPACITY, true);</span>
+<span class="fc" id="L94">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;BinaryHeap&lt;/code&gt; that will use the given
+     * comparator to order its elements.
+     * 
+     * @param comparator  the comparator used to order the elements, null
+     *  means use natural order
+     */
+    public BinaryHeap(Comparator comparator) {
+<span class="fc" id="L104">        this();</span>
+<span class="fc" id="L105">        m_comparator = comparator;</span>
+<span class="fc" id="L106">    }</span>
+    
+    /**
+     * Constructs a new minimum binary heap with the specified initial capacity.
+     *  
+     * @param capacity  The initial capacity for the heap.  This value must
+     *  be greater than zero.
+     * @throws IllegalArgumentException  
+     *  if &lt;code&gt;capacity&lt;/code&gt; is &amp;lt;= &lt;code&gt;0&lt;/code&gt;
+     */
+    public BinaryHeap(int capacity) {
+<span class="nc" id="L117">        this(capacity, true);</span>
+<span class="nc" id="L118">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;BinaryHeap&lt;/code&gt;.
+     *
+     * @param capacity  the initial capacity for the heap
+     * @param comparator  the comparator used to order the elements, null
+     *  means use natural order
+     * @throws IllegalArgumentException  
+     *  if &lt;code&gt;capacity&lt;/code&gt; is &amp;lt;= &lt;code&gt;0&lt;/code&gt;
+     */
+    public BinaryHeap(int capacity, Comparator comparator) {
+<span class="nc" id="L130">        this(capacity);</span>
+<span class="nc" id="L131">        m_comparator = comparator;</span>
+<span class="nc" id="L132">    }</span>
+
+    /**
+     * Constructs a new minimum or maximum binary heap
+     *
+     * @param isMinHeap  if &lt;code&gt;true&lt;/code&gt; the heap is created as a 
+     * minimum heap; otherwise, the heap is created as a maximum heap
+     */
+    public BinaryHeap(boolean isMinHeap) {
+<span class="fc" id="L141">        this(DEFAULT_CAPACITY, isMinHeap);</span>
+<span class="fc" id="L142">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;BinaryHeap&lt;/code&gt;.
+     *
+     * @param isMinHeap  true to use the order imposed by the given 
+     *   comparator; false to reverse that order
+     * @param comparator  the comparator used to order the elements, null
+     *  means use natural order
+     */
+    public BinaryHeap(boolean isMinHeap, Comparator comparator) {
+<span class="nc" id="L153">        this(isMinHeap);</span>
+<span class="nc" id="L154">        m_comparator = comparator;</span>
+<span class="nc" id="L155">    }</span>
+
+    /**
+     * Constructs a new minimum or maximum binary heap with the specified 
+     * initial capacity.
+     *
+     * @param capacity the initial capacity for the heap.  This value must 
+     * be greater than zero.
+     * @param isMinHeap if &lt;code&gt;true&lt;/code&gt; the heap is created as a 
+     *  minimum heap; otherwise, the heap is created as a maximum heap.
+     * @throws IllegalArgumentException 
+     *  if &lt;code&gt;capacity&lt;/code&gt; is &lt;code&gt;&amp;lt;= 0&lt;/code&gt;
+     */
+<span class="fc" id="L168">    public BinaryHeap(int capacity, boolean isMinHeap) {</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">        if (capacity &lt;= 0) {</span>
+<span class="nc" id="L170">            throw new IllegalArgumentException(&quot;invalid capacity&quot;);</span>
+        }
+<span class="fc" id="L172">        m_isMinHeap = isMinHeap;</span>
+
+        //+1 as 0 is noop
+<span class="fc" id="L175">        m_elements = new Object[capacity + 1];</span>
+<span class="fc" id="L176">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;BinaryHeap&lt;/code&gt;.
+     *
+     * @param capacity  the initial capacity for the heap
+     * @param isMinHeap  true to use the order imposed by the given 
+     *   comparator; false to reverse that order
+     * @param comparator  the comparator used to order the elements, null
+     *  means use natural order
+     * @throws IllegalArgumentException 
+     *  if &lt;code&gt;capacity&lt;/code&gt; is &lt;code&gt;&amp;lt;= 0&lt;/code&gt;
+     */
+    public BinaryHeap(int capacity, boolean isMinHeap, Comparator comparator) {
+<span class="nc" id="L190">        this(capacity, isMinHeap);</span>
+<span class="nc" id="L191">        m_comparator = comparator;</span>
+<span class="nc" id="L192">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Clears all elements from queue.
+     */
+    public void clear() {
+<span class="fc" id="L199">        m_elements = new Object[m_elements.length];  // for gc</span>
+<span class="fc" id="L200">        m_size = 0;</span>
+<span class="fc" id="L201">    }</span>
+
+    /**
+     * Tests if queue is empty.
+     *
+     * @return &lt;code&gt;true&lt;/code&gt; if queue is empty; &lt;code&gt;false&lt;/code&gt; 
+     *  otherwise.
+     */
+    public boolean isEmpty() {
+<span class="fc bfc" id="L210" title="All 2 branches covered.">        return m_size == 0;</span>
+    }
+
+    /**
+     * Tests if queue is full.
+     *
+     * @return &lt;code&gt;true&lt;/code&gt; if queue is full; &lt;code&gt;false&lt;/code&gt;
+     *  otherwise.
+     */
+    public boolean isFull() {
+        //+1 as element 0 is noop
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        return m_elements.length == m_size + 1;</span>
+    }
+
+    /**
+     * Inserts an element into queue.
+     *
+     * @param element  the element to be inserted
+     */
+    public void insert(Object element) {
+<span class="fc bfc" id="L230" title="All 2 branches covered.">        if (isFull()) {</span>
+<span class="fc" id="L231">            grow();</span>
+        }
+        //percolate element to it's place in tree
+<span class="fc bfc" id="L234" title="All 2 branches covered.">        if (m_isMinHeap) {</span>
+<span class="fc" id="L235">            percolateUpMinHeap(element);</span>
+<span class="fc" id="L236">        } else {</span>
+<span class="fc" id="L237">            percolateUpMaxHeap(element);</span>
+        }
+<span class="fc" id="L239">    }</span>
+
+    /**
+     * Returns the element on top of heap but don't remove it.
+     *
+     * @return the element at top of heap
+     * @throws NoSuchElementException  if &lt;code&gt;isEmpty() == true&lt;/code&gt;
+     */
+    public Object peek() throws NoSuchElementException {
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        if (isEmpty()) {</span>
+<span class="fc" id="L249">            throw new NoSuchElementException();</span>
+        } else {
+<span class="fc" id="L251">            return m_elements[1];</span>
+        }
+    }
+
+    /**
+     * Returns the element on top of heap and remove it.
+     *
+     * @return the element at top of heap
+     * @throws NoSuchElementException  if &lt;code&gt;isEmpty() == true&lt;/code&gt;
+     */
+    public Object pop() throws NoSuchElementException {
+<span class="fc" id="L262">        final Object result = peek();</span>
+<span class="fc" id="L263">        m_elements[1] = m_elements[m_size--];</span>
+
+        // set the unused element to 'null' so that the garbage collector
+        // can free the object if not used anywhere else.(remove reference)
+<span class="fc" id="L267">        m_elements[m_size + 1] = null;</span>
+
+<span class="fc bfc" id="L269" title="All 2 branches covered.">        if (m_size != 0) {</span>
+            // percolate top element to it's place in tree
+<span class="fc bfc" id="L271" title="All 2 branches covered.">            if (m_isMinHeap) {</span>
+<span class="fc" id="L272">                percolateDownMinHeap(1);</span>
+<span class="fc" id="L273">            } else {</span>
+<span class="fc" id="L274">                percolateDownMaxHeap(1);</span>
+            }
+        }
+
+<span class="fc" id="L278">        return result;</span>
+    }
+
+    /**
+     * Percolates element down heap from the position given by the index.
+     * &lt;p&gt;
+     * Assumes it is a minimum heap.
+     *
+     * @param index the index for the element
+     */
+    protected void percolateDownMinHeap(final int index) {
+<span class="fc" id="L289">        final Object element = m_elements[index];</span>
+<span class="fc" id="L290">        int hole = index;</span>
+
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        while ((hole * 2) &lt;= m_size) {</span>
+<span class="fc" id="L293">            int child = hole * 2;</span>
+
+            // if we have a right child and that child can not be percolated
+            // up then move onto other child
+<span class="fc bfc" id="L297" title="All 4 branches covered.">            if (child != m_size &amp;&amp; compare(m_elements[child + 1], m_elements[child]) &lt; 0) {</span>
+<span class="fc" id="L298">                child++;</span>
+            }
+
+            // if we found resting place of bubble then terminate search
+<span class="fc bfc" id="L302" title="All 2 branches covered.">            if (compare(m_elements[child], element) &gt;= 0) {</span>
+<span class="fc" id="L303">                break;</span>
+            }
+
+<span class="fc" id="L306">            m_elements[hole] = m_elements[child];</span>
+<span class="fc" id="L307">            hole = child;</span>
+        }
+
+<span class="fc" id="L310">        m_elements[hole] = element;</span>
+<span class="fc" id="L311">    }</span>
+
+    /**
+     * Percolates element down heap from the position given by the index.
+     * &lt;p&gt;
+     * Assumes it is a maximum heap.
+     *
+     * @param index the index of the element
+     */
+    protected void percolateDownMaxHeap(final int index) {
+<span class="fc" id="L321">        final Object element = m_elements[index];</span>
+<span class="fc" id="L322">        int hole = index;</span>
+
+<span class="fc bfc" id="L324" title="All 2 branches covered.">        while ((hole * 2) &lt;= m_size) {</span>
+<span class="fc" id="L325">            int child = hole * 2;</span>
+
+            // if we have a right child and that child can not be percolated
+            // up then move onto other child
+<span class="fc bfc" id="L329" title="All 4 branches covered.">            if (child != m_size &amp;&amp; compare(m_elements[child + 1], m_elements[child]) &gt; 0) {</span>
+<span class="fc" id="L330">                child++;</span>
+            }
+
+            // if we found resting place of bubble then terminate search
+<span class="fc bfc" id="L334" title="All 2 branches covered.">            if (compare(m_elements[child], element) &lt;= 0) {</span>
+<span class="fc" id="L335">                break;</span>
+            }
+
+<span class="fc" id="L338">            m_elements[hole] = m_elements[child];</span>
+<span class="fc" id="L339">            hole = child;</span>
+        }
+
+<span class="fc" id="L342">        m_elements[hole] = element;</span>
+<span class="fc" id="L343">    }</span>
+
+    /**
+     * Percolates element up heap from the position given by the index.
+     * &lt;p&gt;
+     * Assumes it is a minimum heap.
+     *
+     * @param index the index of the element to be percolated up
+     */
+    protected void percolateUpMinHeap(final int index) {
+<span class="fc" id="L353">        int hole = index;</span>
+<span class="fc" id="L354">        Object element = m_elements[hole];</span>
+<span class="fc bfc" id="L355" title="All 4 branches covered.">        while (hole &gt; 1 &amp;&amp; compare(element, m_elements[hole / 2]) &lt; 0) {</span>
+            // save element that is being pushed down
+            // as the element &quot;bubble&quot; is percolated up
+<span class="fc" id="L358">            final int next = hole / 2;</span>
+<span class="fc" id="L359">            m_elements[hole] = m_elements[next];</span>
+<span class="fc" id="L360">            hole = next;</span>
+        }
+<span class="fc" id="L362">        m_elements[hole] = element;</span>
+<span class="fc" id="L363">    }</span>
+
+    /**
+     * Percolates a new element up heap from the bottom.
+     * &lt;p&gt;
+     * Assumes it is a minimum heap.
+     *
+     * @param element the element
+     */
+    protected void percolateUpMinHeap(final Object element) {
+<span class="fc" id="L373">        m_elements[++m_size] = element;</span>
+<span class="fc" id="L374">        percolateUpMinHeap(m_size);</span>
+<span class="fc" id="L375">    }</span>
+
+    /**
+     * Percolates element up heap from from the position given by the index.
+     * &lt;p&gt;
+     * Assume it is a maximum heap.
+     *
+     * @param index the index of the element to be percolated up
+     */
+    protected void percolateUpMaxHeap(final int index) {
+<span class="fc" id="L385">        int hole = index;</span>
+<span class="fc" id="L386">        Object element = m_elements[hole];</span>
+        
+<span class="fc bfc" id="L388" title="All 4 branches covered.">        while (hole &gt; 1 &amp;&amp; compare(element, m_elements[hole / 2]) &gt; 0) {</span>
+            // save element that is being pushed down
+            // as the element &quot;bubble&quot; is percolated up
+<span class="fc" id="L391">            final int next = hole / 2;</span>
+<span class="fc" id="L392">            m_elements[hole] = m_elements[next];</span>
+<span class="fc" id="L393">            hole = next;</span>
+        }
+
+<span class="fc" id="L396">        m_elements[hole] = element;</span>
+<span class="fc" id="L397">    }</span>
+    
+    /**
+     * Percolates a new element up heap from the bottom.
+     * &lt;p&gt;
+     * Assume it is a maximum heap.
+     *
+     * @param element the element
+     */
+    protected void percolateUpMaxHeap(final Object element) {
+<span class="fc" id="L407">        m_elements[++m_size] = element;</span>
+<span class="fc" id="L408">        percolateUpMaxHeap(m_size);</span>
+<span class="fc" id="L409">    }</span>
+    
+    /**
+     * Compares two objects using the comparator if specified, or the
+     * natural order otherwise.
+     * 
+     * @param a  the first object
+     * @param b  the second object
+     * @return -ve if a less than b, 0 if they are equal, +ve if a greater than b
+     */
+    private int compare(Object a, Object b) {
+<span class="fc bfc" id="L420" title="All 2 branches covered.">        if (m_comparator != null) {</span>
+<span class="fc" id="L421">            return m_comparator.compare(a, b);</span>
+        } else {
+<span class="fc" id="L423">            return ((Comparable) a).compareTo(b);</span>
+        }
+    }
+
+    /**
+     * Increases the size of the heap to support additional elements
+     */
+    protected void grow() {
+<span class="fc" id="L431">        final Object[] elements = new Object[m_elements.length * 2];</span>
+<span class="fc" id="L432">        System.arraycopy(m_elements, 0, elements, 0, m_elements.length);</span>
+<span class="fc" id="L433">        m_elements = elements;</span>
+<span class="fc" id="L434">    }</span>
+
+    /**
+     * Returns a string representation of this heap.  The returned string
+     * is similar to those produced by standard JDK collections.
+     *
+     * @return a string representation of this heap
+     */
+    public String toString() {
+<span class="fc" id="L443">        final StringBuffer sb = new StringBuffer();</span>
+
+<span class="fc" id="L445">        sb.append(&quot;[ &quot;);</span>
+
+<span class="fc bfc" id="L447" title="All 2 branches covered.">        for (int i = 1; i &lt; m_size + 1; i++) {</span>
+<span class="fc bfc" id="L448" title="All 2 branches covered.">            if (i != 1) {</span>
+<span class="fc" id="L449">                sb.append(&quot;, &quot;);</span>
+            }
+<span class="fc" id="L451">            sb.append(m_elements[i]);</span>
+        }
+
+<span class="fc" id="L454">        sb.append(&quot; ]&quot;);</span>
+
+<span class="fc" id="L456">        return sb.toString();</span>
+    }
+
+
+    /**
+     * Returns an iterator over this heap's elements.
+     *
+     * @return an iterator over this heap's elements
+     */
+    public Iterator iterator() {
+<span class="fc" id="L466">        return new Iterator() {</span>
+
+<span class="fc" id="L468">            private int index = 1;</span>
+<span class="fc" id="L469">            private int lastReturnedIndex = -1;</span>
+
+            public boolean hasNext() {
+<span class="fc bfc" id="L472" title="All 2 branches covered.">                return index &lt;= m_size;</span>
+            }
+
+            public Object next() {
+<span class="fc bfc" id="L476" title="All 2 branches covered.">                if (!hasNext()) throw new NoSuchElementException();</span>
+<span class="fc" id="L477">                lastReturnedIndex = index;</span>
+<span class="fc" id="L478">                index++;</span>
+<span class="fc" id="L479">                return m_elements[lastReturnedIndex];</span>
+            }
+
+            public void remove() {
+<span class="fc bfc" id="L483" title="All 2 branches covered.">                if (lastReturnedIndex == -1) {</span>
+<span class="fc" id="L484">                    throw new IllegalStateException();</span>
+                }
+<span class="fc" id="L486">                m_elements[ lastReturnedIndex ] = m_elements[ m_size ];</span>
+<span class="fc" id="L487">                m_elements[ m_size ] = null;</span>
+<span class="fc" id="L488">                m_size--;  </span>
+<span class="fc bfc" id="L489" title="All 4 branches covered.">                if( m_size != 0 &amp;&amp; lastReturnedIndex &lt;= m_size) {</span>
+<span class="fc" id="L490">                    int compareToParent = 0;</span>
+<span class="fc bfc" id="L491" title="All 2 branches covered.">                    if (lastReturnedIndex &gt; 1) {</span>
+<span class="fc" id="L492">                        compareToParent = compare(m_elements[lastReturnedIndex], </span>
+<span class="fc" id="L493">                            m_elements[lastReturnedIndex / 2]);  </span>
+                    }
+<span class="fc bfc" id="L495" title="All 2 branches covered.">                    if (m_isMinHeap) {</span>
+<span class="fc bfc" id="L496" title="All 4 branches covered.">                        if (lastReturnedIndex &gt; 1 &amp;&amp; compareToParent &lt; 0) {</span>
+<span class="fc" id="L497">                            percolateUpMinHeap(lastReturnedIndex); </span>
+<span class="fc" id="L498">                        } else {</span>
+<span class="fc" id="L499">                            percolateDownMinHeap(lastReturnedIndex);</span>
+                        }
+<span class="fc" id="L501">                    } else {  // max heap</span>
+<span class="pc bpc" id="L502" title="1 of 4 branches missed.">                        if (lastReturnedIndex &gt; 1 &amp;&amp; compareToParent &gt; 0) {</span>
+<span class="fc" id="L503">                            percolateUpMaxHeap(lastReturnedIndex); </span>
+<span class="fc" id="L504">                        } else {</span>
+<span class="fc" id="L505">                            percolateDownMaxHeap(lastReturnedIndex);</span>
+                        }
+                    }          
+                }
+<span class="fc" id="L509">                index--;</span>
+<span class="fc" id="L510">                lastReturnedIndex = -1; </span>
+<span class="fc" id="L511">            }</span>
+
+        };
+    }
+
+
+    /**
+     * Adds an object to this heap. Same as {@link #insert(Object)}.
+     *
+     * @param object  the object to add
+     * @return true, always
+     */
+    public boolean add(Object object) {
+<span class="fc" id="L524">        insert(object);</span>
+<span class="fc" id="L525">        return true;</span>
+    }
+
+    /**
+     * Returns the priority element. Same as {@link #peek()}.
+     *
+     * @return the priority element
+     * @throws BufferUnderflowException if this heap is empty
+     */
+    public Object get() {
+        try {
+<span class="nc" id="L536">            return peek();</span>
+<span class="nc" id="L537">        } catch (NoSuchElementException e) {</span>
+<span class="nc" id="L538">            throw new BufferUnderflowException();</span>
+        }
+    }
+
+    /**
+     * Removes the priority element. Same as {@link #pop()}.
+     *
+     * @return the removed priority element
+     * @throws BufferUnderflowException if this heap is empty
+     */
+    public Object remove() {
+        try {
+<span class="nc" id="L550">            return pop();</span>
+<span class="nc" id="L551">        } catch (NoSuchElementException e) {</span>
+<span class="nc" id="L552">            throw new BufferUnderflowException();</span>
+        }
+    }
+
+    /**
+     * Returns the number of elements in this heap.
+     *
+     * @return the number of elements in this heap
+     */
+    public int size() {
+<span class="fc" id="L562">        return m_size;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

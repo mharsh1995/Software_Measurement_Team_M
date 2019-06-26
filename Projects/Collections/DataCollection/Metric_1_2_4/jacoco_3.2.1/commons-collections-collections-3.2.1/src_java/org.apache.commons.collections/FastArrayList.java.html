@@ -1,0 +1,1334 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FastArrayList.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">FastArrayList.java</span></div><h1>FastArrayList.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+
+/**
+ * &lt;p&gt;A customized implementation of &lt;code&gt;java.util.ArrayList&lt;/code&gt; designed
+ * to operate in a multithreaded environment where the large majority of
+ * method calls are read-only, instead of structural changes.  When operating
+ * in &quot;fast&quot; mode, read calls are non-synchronized and write calls perform the
+ * following steps:&lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;Clone the existing collection
+ * &lt;li&gt;Perform the modification on the clone
+ * &lt;li&gt;Replace the existing collection with the (modified) clone
+ * &lt;/ul&gt;
+ * &lt;p&gt;When first created, objects of this class default to &quot;slow&quot; mode, where
+ * all accesses of any type are synchronized but no cloning takes place.  This
+ * is appropriate for initially populating the collection, followed by a switch
+ * to &quot;fast&quot; mode (by calling &lt;code&gt;setFast(true)&lt;/code&gt;) after initialization
+ * is complete.&lt;/p&gt;
+ *
+ * &lt;p&gt;&lt;strong&gt;NOTE&lt;/strong&gt;: If you are creating and accessing an
+ * &lt;code&gt;ArrayList&lt;/code&gt; only within a single thread, you should use
+ * &lt;code&gt;java.util.ArrayList&lt;/code&gt; directly (with no synchronization), for
+ * maximum performance.&lt;/p&gt;
+ *
+ * &lt;p&gt;&lt;strong&gt;NOTE&lt;/strong&gt;: &lt;i&gt;This class is not cross-platform.
+ * Using it may cause unexpected failures on some architectures.&lt;/i&gt;
+ * It suffers from the same problems as the double-checked locking idiom.  
+ * In particular, the instruction that clones the internal collection and the 
+ * instruction that sets the internal reference to the clone can be executed 
+ * or perceived out-of-order.  This means that any read operation might fail 
+ * unexpectedly, as it may be reading the state of the internal collection
+ * before the internal collection is fully formed.
+ * For more information on the double-checked locking idiom, see the
+ * &lt;a href=&quot;http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html&quot;&gt;
+ * Double-Checked Locking Idiom Is Broken Declaration&lt;/a&gt;.&lt;/p&gt;
+ *
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Craig R. McClanahan
+ * @author Stephen Colebourne
+ */
+public class FastArrayList extends ArrayList {
+
+
+    // ----------------------------------------------------------- Constructors
+
+
+    /**
+     * Construct a an empty list.
+     */
+    public FastArrayList() {
+
+<span class="fc" id="L77">        super();</span>
+<span class="fc" id="L78">        this.list = new ArrayList();</span>
+
+<span class="fc" id="L80">    }</span>
+
+
+    /**
+     * Construct an empty list with the specified capacity.
+     *
+     * @param capacity The initial capacity of the empty list
+     */
+    public FastArrayList(int capacity) {
+
+<span class="nc" id="L90">        super();</span>
+<span class="nc" id="L91">        this.list = new ArrayList(capacity);</span>
+
+<span class="nc" id="L93">    }</span>
+
+
+    /**
+     * Construct a list containing the elements of the specified collection,
+     * in the order they are returned by the collection's iterator.
+     *
+     * @param collection The collection whose elements initialize the contents
+     *  of this list
+     */
+    public FastArrayList(Collection collection) {
+
+<span class="nc" id="L105">        super();</span>
+<span class="nc" id="L106">        this.list = new ArrayList(collection);</span>
+
+<span class="nc" id="L108">    }</span>
+
+
+    // ----------------------------------------------------- Instance Variables
+
+
+    /**
+     * The underlying list we are managing.
+     */
+<span class="pc" id="L117">    protected ArrayList list = null;</span>
+
+
+    // ------------------------------------------------------------- Properties
+
+
+    /**
+     * Are we operating in &quot;fast&quot; mode?
+     */
+<span class="pc" id="L126">    protected boolean fast = false;</span>
+
+
+    /**
+     *  Returns true if this list is operating in fast mode.
+     *
+     *  @return true if this list is operating in fast mode
+     */
+    public boolean getFast() {
+<span class="nc" id="L135">        return (this.fast);</span>
+    }
+
+    /**
+     *  Sets whether this list will operate in fast mode.
+     *
+     *  @param fast true if the list should operate in fast mode
+     */
+    public void setFast(boolean fast) {
+<span class="fc" id="L144">        this.fast = fast;</span>
+<span class="fc" id="L145">    }</span>
+
+
+    // --------------------------------------------------------- Public Methods
+
+
+    /**
+     * Appends the specified element to the end of this list.
+     *
+     * @param element The element to be appended
+     */
+    public boolean add(Object element) {
+
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L159">            synchronized (this) {</span>
+<span class="fc" id="L160">                ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L161">                boolean result = temp.add(element);</span>
+<span class="fc" id="L162">                list = temp;</span>
+<span class="fc" id="L163">                return (result);</span>
+            }
+        } else {
+<span class="fc" id="L166">            synchronized (list) {</span>
+<span class="fc" id="L167">                return (list.add(element));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Insert the specified element at the specified position in this list,
+     * and shift all remaining elements up one position.
+     *
+     * @param index Index at which to insert this element
+     * @param element The element to be inserted
+     *
+     * @exception IndexOutOfBoundsException if the index is out of range
+     */
+    public void add(int index, Object element) {
+
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L186">            synchronized (this) {</span>
+<span class="fc" id="L187">                ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L188">                temp.add(index, element);</span>
+<span class="fc" id="L189">                list = temp;</span>
+            }
+        } else {
+<span class="fc" id="L192">            synchronized (list) {</span>
+<span class="fc" id="L193">                list.add(index, element);</span>
+            }
+        }
+
+<span class="fc" id="L197">    }</span>
+
+
+    /**
+     * Append all of the elements in the specified Collection to the end
+     * of this list, in the order that they are returned by the specified
+     * Collection's Iterator.
+     *
+     * @param collection The collection to be appended
+     */
+    public boolean addAll(Collection collection) {
+
+<span class="fc bfc" id="L209" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L210">            synchronized (this) {</span>
+<span class="fc" id="L211">                ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L212">                boolean result = temp.addAll(collection);</span>
+<span class="fc" id="L213">                list = temp;</span>
+<span class="fc" id="L214">                return (result);</span>
+            }
+        } else {
+<span class="fc" id="L217">            synchronized (list) {</span>
+<span class="fc" id="L218">                return (list.addAll(collection));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Insert all of the elements in the specified Collection at the specified
+     * position in this list, and shift any previous elements upwards as
+     * needed.
+     *
+     * @param index Index at which insertion takes place
+     * @param collection The collection to be added
+     *
+     * @exception IndexOutOfBoundsException if the index is out of range
+     */
+    public boolean addAll(int index, Collection collection) {
+
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (fast) {</span>
+<span class="nc" id="L238">            synchronized (this) {</span>
+<span class="nc" id="L239">                ArrayList temp = (ArrayList) list.clone();</span>
+<span class="nc" id="L240">                boolean result = temp.addAll(index, collection);</span>
+<span class="nc" id="L241">                list = temp;</span>
+<span class="nc" id="L242">                return (result);</span>
+            }
+        } else {
+<span class="nc" id="L245">            synchronized (list) {</span>
+<span class="nc" id="L246">                return (list.addAll(index, collection));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Remove all of the elements from this list.  The list will be empty
+     * after this call returns.
+     *
+     * @exception UnsupportedOperationException if &lt;code&gt;clear()&lt;/code&gt;
+     *  is not supported by this list
+     */
+    public void clear() {
+
+<span class="fc bfc" id="L262" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L263">            synchronized (this) {</span>
+<span class="fc" id="L264">                ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L265">                temp.clear();</span>
+<span class="fc" id="L266">                list = temp;</span>
+            }
+        } else {
+<span class="fc" id="L269">            synchronized (list) {</span>
+<span class="fc" id="L270">                list.clear();</span>
+            }
+        }
+
+<span class="fc" id="L274">    }</span>
+
+
+    /**
+     * Return a shallow copy of this &lt;code&gt;FastArrayList&lt;/code&gt; instance.
+     * The elements themselves are not copied.
+     */
+    public Object clone() {
+
+<span class="nc" id="L283">        FastArrayList results = null;</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">        if (fast) {</span>
+<span class="nc" id="L285">            results = new FastArrayList(list);</span>
+<span class="nc" id="L286">        } else {</span>
+<span class="nc" id="L287">            synchronized (list) {</span>
+<span class="nc" id="L288">                results = new FastArrayList(list);</span>
+            }
+        }
+<span class="nc" id="L291">        results.setFast(getFast());</span>
+<span class="nc" id="L292">        return (results);</span>
+
+    }
+
+
+    /**
+     * Return &lt;code&gt;true&lt;/code&gt; if this list contains the specified element.
+     *
+     * @param element The element to test for
+     */
+    public boolean contains(Object element) {
+
+<span class="fc bfc" id="L304" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L305">            return (list.contains(element));</span>
+        } else {
+<span class="fc" id="L307">            synchronized (list) {</span>
+<span class="fc" id="L308">                return (list.contains(element));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Return &lt;code&gt;true&lt;/code&gt; if this list contains all of the elements
+     * in the specified Collection.
+     *
+     * @param collection Collection whose elements are to be checked
+     */
+    public boolean containsAll(Collection collection) {
+
+<span class="fc bfc" id="L323" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L324">            return (list.containsAll(collection));</span>
+        } else {
+<span class="fc" id="L326">            synchronized (list) {</span>
+<span class="fc" id="L327">                return (list.containsAll(collection));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Increase the capacity of this &lt;code&gt;ArrayList&lt;/code&gt; instance, if
+     * necessary, to ensure that it can hold at least the number of elements
+     * specified by the minimum capacity argument.
+     *
+     * @param capacity The new minimum capacity
+     */
+    public void ensureCapacity(int capacity) {
+
+<span class="nc bnc" id="L343" title="All 2 branches missed.">        if (fast) {</span>
+<span class="nc" id="L344">            synchronized (this) {</span>
+<span class="nc" id="L345">                ArrayList temp = (ArrayList) list.clone();</span>
+<span class="nc" id="L346">                temp.ensureCapacity(capacity);</span>
+<span class="nc" id="L347">                list = temp;</span>
+            }
+        } else {
+<span class="nc" id="L350">            synchronized (list) {</span>
+<span class="nc" id="L351">                list.ensureCapacity(capacity);</span>
+            }
+        }
+
+<span class="nc" id="L355">    }</span>
+
+
+    /**
+     * Compare the specified object with this list for equality.  This
+     * implementation uses exactly the code that is used to define the
+     * list equals function in the documentation for the
+     * &lt;code&gt;List.equals&lt;/code&gt; method.
+     *
+     * @param o Object to be compared to this list
+     */
+    public boolean equals(Object o) {
+
+        // Simple tests that require no synchronization
+<span class="fc bfc" id="L369" title="All 2 branches covered.">        if (o == this)</span>
+<span class="fc" id="L370">            return (true);</span>
+<span class="fc bfc" id="L371" title="All 2 branches covered.">        else if (!(o instanceof List))</span>
+<span class="fc" id="L372">            return (false);</span>
+<span class="fc" id="L373">        List lo = (List) o;</span>
+
+        // Compare the sets of elements for equality
+<span class="fc bfc" id="L376" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L377">            ListIterator li1 = list.listIterator();</span>
+<span class="fc" id="L378">            ListIterator li2 = lo.listIterator();</span>
+<span class="fc bfc" id="L379" title="All 4 branches covered.">            while (li1.hasNext() &amp;&amp; li2.hasNext()) {</span>
+<span class="fc" id="L380">                Object o1 = li1.next();</span>
+<span class="fc" id="L381">                Object o2 = li2.next();</span>
+<span class="pc bpc" id="L382" title="1 of 6 branches missed.">                if (!(o1 == null ? o2 == null : o1.equals(o2)))</span>
+<span class="fc" id="L383">                    return (false);</span>
+            }
+<span class="fc bfc" id="L385" title="All 4 branches covered.">            return (!(li1.hasNext() || li2.hasNext()));</span>
+        } else {
+<span class="fc" id="L387">            synchronized (list) {</span>
+<span class="fc" id="L388">                ListIterator li1 = list.listIterator();</span>
+<span class="fc" id="L389">                ListIterator li2 = lo.listIterator();</span>
+<span class="fc bfc" id="L390" title="All 4 branches covered.">                while (li1.hasNext() &amp;&amp; li2.hasNext()) {</span>
+<span class="fc" id="L391">                    Object o1 = li1.next();</span>
+<span class="fc" id="L392">                    Object o2 = li2.next();</span>
+<span class="pc bpc" id="L393" title="1 of 6 branches missed.">                    if (!(o1 == null ? o2 == null : o1.equals(o2)))</span>
+<span class="fc" id="L394">                        return (false);</span>
+                }
+<span class="fc bfc" id="L396" title="All 4 branches covered.">                return (!(li1.hasNext() || li2.hasNext()));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Return the element at the specified position in the list.
+     *
+     * @param index The index of the element to return
+     *
+     * @exception IndexOutOfBoundsException if the index is out of range
+     */
+    public Object get(int index) {
+
+<span class="fc bfc" id="L412" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L413">            return (list.get(index));</span>
+        } else {
+<span class="fc" id="L415">            synchronized (list) {</span>
+<span class="fc" id="L416">                return (list.get(index));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Return the hash code value for this list.  This implementation uses
+     * exactly the code that is used to define the list hash function in the
+     * documentation for the &lt;code&gt;List.hashCode&lt;/code&gt; method.
+     */
+    public int hashCode() {
+
+<span class="fc bfc" id="L430" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L431">            int hashCode = 1;</span>
+<span class="fc" id="L432">            java.util.Iterator i = list.iterator();</span>
+<span class="fc bfc" id="L433" title="All 2 branches covered.">            while (i.hasNext()) {</span>
+<span class="fc" id="L434">                Object o = i.next();</span>
+<span class="fc bfc" id="L435" title="All 2 branches covered.">                hashCode = 31 * hashCode + (o == null ? 0 : o.hashCode());</span>
+            }
+<span class="fc" id="L437">            return (hashCode);</span>
+        } else {
+<span class="fc" id="L439">            synchronized (list) {</span>
+<span class="fc" id="L440">                int hashCode = 1;</span>
+<span class="fc" id="L441">                java.util.Iterator i = list.iterator();</span>
+<span class="fc bfc" id="L442" title="All 2 branches covered.">                while (i.hasNext()) {</span>
+<span class="fc" id="L443">                    Object o = i.next();</span>
+<span class="fc bfc" id="L444" title="All 2 branches covered.">                    hashCode = 31 * hashCode + (o == null ? 0 : o.hashCode());</span>
+                }
+<span class="fc" id="L446">                return (hashCode);</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Search for the first occurrence of the given argument, testing
+     * for equality using the &lt;code&gt;equals()&lt;/code&gt; method, and return
+     * the corresponding index, or -1 if the object is not found.
+     *
+     * @param element The element to search for
+     */
+    public int indexOf(Object element) {
+
+<span class="fc bfc" id="L462" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L463">            return (list.indexOf(element));</span>
+        } else {
+<span class="fc" id="L465">            synchronized (list) {</span>
+<span class="fc" id="L466">                return (list.indexOf(element));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Test if this list has no elements.
+     */
+    public boolean isEmpty() {
+
+<span class="fc bfc" id="L478" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L479">            return (list.isEmpty());</span>
+        } else {
+<span class="fc" id="L481">            synchronized (list) {</span>
+<span class="fc" id="L482">                return (list.isEmpty());</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Return an iterator over the elements in this list in proper sequence.
+     * &lt;p&gt;
+     * &lt;b&gt;Thread safety&lt;/b&gt;&lt;br /&gt;
+     * The iterator returned is thread-safe ONLY in FAST mode.
+     * In slow mode there is no way to synchronize, or make the iterator thread-safe.
+     * &lt;p&gt;
+     * In fast mode iteration and modification may occur in parallel on different threads,
+     * however there is a restriction. Modification must be EITHER via the Iterator
+     * interface methods OR the List interface. If a mixture of modification
+     * methods is used a ConcurrentModificationException is thrown from the iterator
+     * modification method. If the List modification methods are used the changes are
+     * NOT visible in the iterator (it shows the list contents at the time the iterator
+     * was created).
+     * 
+     * @return the iterator
+     */
+    public Iterator iterator() {
+<span class="fc bfc" id="L507" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L508">            return new ListIter(0);</span>
+        } else {
+<span class="fc" id="L510">            return list.iterator();</span>
+        }
+    }
+
+
+    /**
+     * Search for the last occurrence of the given argument, testing
+     * for equality using the &lt;code&gt;equals()&lt;/code&gt; method, and return
+     * the corresponding index, or -1 if the object is not found.
+     *
+     * @param element The element to search for
+     */
+    public int lastIndexOf(Object element) {
+
+<span class="fc bfc" id="L524" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L525">            return (list.lastIndexOf(element));</span>
+        } else {
+<span class="fc" id="L527">            synchronized (list) {</span>
+<span class="fc" id="L528">                return (list.lastIndexOf(element));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Return an iterator of the elements of this list, in proper sequence.
+     * &lt;p&gt;
+     * &lt;b&gt;Thread safety&lt;/b&gt;&lt;br /&gt;
+     * The iterator returned is thread-safe ONLY in FAST mode.
+     * In slow mode there is no way to synchronize, or make the iterator thread-safe.
+     * &lt;p&gt;
+     * In fast mode iteration and modification may occur in parallel on different threads,
+     * however there is a restriction. Modification must be EITHER via the Iterator
+     * interface methods OR the List interface. If a mixture of modification
+     * methods is used a ConcurrentModificationException is thrown from the iterator
+     * modification method. If the List modification methods are used the changes are
+     * NOT visible in the iterator (it shows the list contents at the time the iterator
+     * was created).
+     * 
+     * @return the list iterator
+     */
+    public ListIterator listIterator() {
+<span class="fc bfc" id="L553" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L554">            return new ListIter(0);</span>
+        } else {
+<span class="fc" id="L556">            return list.listIterator();</span>
+        }
+    }
+
+
+    /**
+     * Return an iterator of the elements of this list, in proper sequence,
+     * starting at the specified position.
+     * &lt;p&gt;
+     * &lt;b&gt;Thread safety&lt;/b&gt;&lt;br /&gt;
+     * The iterator returned is thread-safe ONLY in FAST mode.
+     * In slow mode there is no way to synchronize, or make the iterator thread-safe.
+     * &lt;p&gt;
+     * In fast mode iteration and modification may occur in parallel on different threads,
+     * however there is a restriction. Modification must be EITHER via the Iterator
+     * interface methods OR the List interface. If a mixture of modification
+     * methods is used a ConcurrentModificationException is thrown from the iterator
+     * modification method. If the List modification methods are used the changes are
+     * NOT visible in the iterator (it shows the list contents at the time the iterator
+     * was created).
+     *
+     * @param index The starting position of the iterator to return
+     * @return the list iterator
+     * @exception IndexOutOfBoundsException if the index is out of range
+     */
+    public ListIterator listIterator(int index) {
+<span class="fc bfc" id="L582" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L583">            return new ListIter(index);</span>
+        } else {
+<span class="fc" id="L585">            return list.listIterator(index);</span>
+        }
+    }
+
+
+    /**
+     * Remove the element at the specified position in the list, and shift
+     * any subsequent elements down one position.
+     *
+     * @param index Index of the element to be removed
+     *
+     * @exception IndexOutOfBoundsException if the index is out of range
+     */
+    public Object remove(int index) {
+
+<span class="fc bfc" id="L600" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L601">            synchronized (this) {</span>
+<span class="fc" id="L602">                ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L603">                Object result = temp.remove(index);</span>
+<span class="fc" id="L604">                list = temp;</span>
+<span class="fc" id="L605">                return (result);</span>
+            }
+        } else {
+<span class="fc" id="L608">            synchronized (list) {</span>
+<span class="fc" id="L609">                return (list.remove(index));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Remove the first occurrence of the specified element from the list,
+     * and shift any subsequent elements down one position.
+     *
+     * @param element Element to be removed
+     */
+    public boolean remove(Object element) {
+
+<span class="fc bfc" id="L624" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L625">            synchronized (this) {</span>
+<span class="fc" id="L626">                ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L627">                boolean result = temp.remove(element);</span>
+<span class="fc" id="L628">                list = temp;</span>
+<span class="fc" id="L629">                return (result);</span>
+            }
+        } else {
+<span class="fc" id="L632">            synchronized (list) {</span>
+<span class="fc" id="L633">                return (list.remove(element));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Remove from this collection all of its elements that are contained
+     * in the specified collection.
+     *
+     * @param collection Collection containing elements to be removed
+     *
+     * @exception UnsupportedOperationException if this optional operation
+     *  is not supported by this list
+     */
+    public boolean removeAll(Collection collection) {
+
+<span class="fc bfc" id="L651" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L652">            synchronized (this) {</span>
+<span class="fc" id="L653">                ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L654">                boolean result = temp.removeAll(collection);</span>
+<span class="fc" id="L655">                list = temp;</span>
+<span class="fc" id="L656">                return (result);</span>
+            }
+        } else {
+<span class="fc" id="L659">            synchronized (list) {</span>
+<span class="fc" id="L660">                return (list.removeAll(collection));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Remove from this collection all of its elements except those that are
+     * contained in the specified collection.
+     *
+     * @param collection Collection containing elements to be retained
+     *
+     * @exception UnsupportedOperationException if this optional operation
+     *  is not supported by this list
+     */
+    public boolean retainAll(Collection collection) {
+
+<span class="fc bfc" id="L678" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L679">            synchronized (this) {</span>
+<span class="fc" id="L680">                ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L681">                boolean result = temp.retainAll(collection);</span>
+<span class="fc" id="L682">                list = temp;</span>
+<span class="fc" id="L683">                return (result);</span>
+            }
+        } else {
+<span class="fc" id="L686">            synchronized (list) {</span>
+<span class="fc" id="L687">                return (list.retainAll(collection));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Replace the element at the specified position in this list with
+     * the specified element.  Returns the previous object at that position.
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;strong&gt;IMPLEMENTATION NOTE&lt;/strong&gt; - This operation is specifically
+     * documented to not be a structural change, so it is safe to be performed
+     * without cloning.
+     *
+     * @param index Index of the element to replace
+     * @param element The new element to be stored
+     *
+     * @exception IndexOutOfBoundsException if the index is out of range
+     */
+    public Object set(int index, Object element) {
+
+<span class="fc bfc" id="L709" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L710">            return (list.set(index, element));</span>
+        } else {
+<span class="fc" id="L712">            synchronized (list) {</span>
+<span class="fc" id="L713">                return (list.set(index, element));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Return the number of elements in this list.
+     */
+    public int size() {
+
+<span class="fc bfc" id="L725" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L726">            return (list.size());</span>
+        } else {
+<span class="fc" id="L728">            synchronized (list) {</span>
+<span class="fc" id="L729">                return (list.size());</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Return a view of the portion of this list between fromIndex
+     * (inclusive) and toIndex (exclusive).  The returned list is backed
+     * by this list, so non-structural changes in the returned list are
+     * reflected in this list.  The returned list supports
+     * all of the optional list operations supported by this list.
+     *
+     * @param fromIndex The starting index of the sublist view
+     * @param toIndex The index after the end of the sublist view
+     *
+     * @exception IndexOutOfBoundsException if an index is out of range
+     */
+    public List subList(int fromIndex, int toIndex) {
+<span class="fc bfc" id="L749" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L750">            return new SubList(fromIndex, toIndex);</span>
+        } else {
+<span class="fc" id="L752">            return list.subList(fromIndex, toIndex);</span>
+        }
+    }
+
+
+    /**
+     * Return an array containing all of the elements in this list in the
+     * correct order.
+     */
+    public Object[] toArray() {
+
+<span class="fc bfc" id="L763" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L764">            return (list.toArray());</span>
+        } else {
+<span class="fc" id="L766">            synchronized (list) {</span>
+<span class="fc" id="L767">                return (list.toArray());</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Return an array containing all of the elements in this list in the
+     * correct order.  The runtime type of the returned array is that of
+     * the specified array.  If the list fits in the specified array, it is
+     * returned therein.  Otherwise, a new array is allocated with the
+     * runtime type of the specified array, and the size of this list.
+     *
+     * @param array Array defining the element type of the returned list
+     *
+     * @exception ArrayStoreException if the runtime type of &lt;code&gt;array&lt;/code&gt;
+     *  is not a supertype of the runtime type of every element in this list
+     */
+    public Object[] toArray(Object array[]) {
+
+<span class="fc bfc" id="L788" title="All 2 branches covered.">        if (fast) {</span>
+<span class="fc" id="L789">            return (list.toArray(array));</span>
+        } else {
+<span class="fc" id="L791">            synchronized (list) {</span>
+<span class="fc" id="L792">                return (list.toArray(array));</span>
+            }
+        }
+
+    }
+
+
+    /**
+     * Return a String representation of this object.
+     */
+    public String toString() {
+
+<span class="fc" id="L804">        StringBuffer sb = new StringBuffer(&quot;FastArrayList[&quot;);</span>
+<span class="fc" id="L805">        sb.append(list.toString());</span>
+<span class="fc" id="L806">        sb.append(&quot;]&quot;);</span>
+<span class="fc" id="L807">        return (sb.toString());</span>
+
+    }
+
+
+    /**
+     * Trim the capacity of this &lt;code&gt;ArrayList&lt;/code&gt; instance to be the
+     * list's current size.  An application can use this operation to minimize
+     * the storage of an &lt;code&gt;ArrayList&lt;/code&gt; instance.
+     */
+    public void trimToSize() {
+
+<span class="nc bnc" id="L819" title="All 2 branches missed.">        if (fast) {</span>
+<span class="nc" id="L820">            synchronized (this) {</span>
+<span class="nc" id="L821">                ArrayList temp = (ArrayList) list.clone();</span>
+<span class="nc" id="L822">                temp.trimToSize();</span>
+<span class="nc" id="L823">                list = temp;</span>
+            }
+        } else {
+<span class="nc" id="L826">            synchronized (list) {</span>
+<span class="nc" id="L827">                list.trimToSize();</span>
+            }
+        }
+
+<span class="nc" id="L831">    }</span>
+
+
+
+    private class SubList implements List {
+
+        private int first;
+        private int last;
+        private List expected;
+
+
+<span class="fc" id="L842">        public SubList(int first, int last) {</span>
+<span class="fc" id="L843">            this.first = first;</span>
+<span class="fc" id="L844">            this.last = last;</span>
+<span class="fc" id="L845">            this.expected = list;</span>
+<span class="fc" id="L846">        }</span>
+
+        private List get(List l) {
+<span class="pc bpc" id="L849" title="1 of 2 branches missed.">            if (list != expected) {</span>
+<span class="nc" id="L850">                throw new ConcurrentModificationException();</span>
+            }
+<span class="fc" id="L852">            return l.subList(first, last);</span>
+        }
+
+        public void clear() {
+<span class="pc bpc" id="L856" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L857">                synchronized (FastArrayList.this) {</span>
+<span class="fc" id="L858">                    ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L859">                    get(temp).clear();</span>
+<span class="fc" id="L860">                    last = first;</span>
+<span class="fc" id="L861">                    list = temp;</span>
+<span class="fc" id="L862">                    expected = temp;</span>
+                }
+            } else {
+<span class="nc" id="L865">                synchronized (list) {</span>
+<span class="nc" id="L866">                    get(expected).clear();</span>
+                }
+            }
+<span class="fc" id="L869">        }</span>
+
+        public boolean remove(Object o) {
+<span class="pc bpc" id="L872" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L873">                synchronized (FastArrayList.this) {</span>
+<span class="fc" id="L874">                    ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L875">                    boolean r = get(temp).remove(o);</span>
+<span class="fc bfc" id="L876" title="All 2 branches covered.">                    if (r) last--;</span>
+<span class="fc" id="L877">                    list = temp;</span>
+<span class="fc" id="L878">                    expected = temp;</span>
+<span class="fc" id="L879">                    return r;</span>
+                }
+            } else {
+<span class="nc" id="L882">                synchronized (list) {</span>
+<span class="nc" id="L883">                    return get(expected).remove(o);</span>
+                }
+            }
+        }
+
+        public boolean removeAll(Collection o) {
+<span class="pc bpc" id="L889" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L890">                synchronized (FastArrayList.this) {</span>
+<span class="fc" id="L891">                    ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L892">                    List sub = get(temp);</span>
+<span class="fc" id="L893">                    boolean r = sub.removeAll(o);</span>
+<span class="fc bfc" id="L894" title="All 2 branches covered.">                    if (r) last = first + sub.size();</span>
+<span class="fc" id="L895">                    list = temp;</span>
+<span class="fc" id="L896">                    expected = temp;</span>
+<span class="fc" id="L897">                    return r;</span>
+                }
+            } else {
+<span class="nc" id="L900">                synchronized (list) {</span>
+<span class="nc" id="L901">                    return get(expected).removeAll(o);</span>
+                }
+            }
+        }
+
+        public boolean retainAll(Collection o) {
+<span class="pc bpc" id="L907" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L908">                synchronized (FastArrayList.this) {</span>
+<span class="fc" id="L909">                    ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L910">                    List sub = get(temp);</span>
+<span class="fc" id="L911">                    boolean r = sub.retainAll(o);</span>
+<span class="fc bfc" id="L912" title="All 2 branches covered.">                    if (r) last = first + sub.size();</span>
+<span class="fc" id="L913">                    list = temp;</span>
+<span class="fc" id="L914">                    expected = temp;</span>
+<span class="fc" id="L915">                    return r;</span>
+                }
+            } else {
+<span class="nc" id="L918">                synchronized (list) {</span>
+<span class="nc" id="L919">                    return get(expected).retainAll(o);</span>
+                }
+            }
+        }
+
+        public int size() {
+<span class="pc bpc" id="L925" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L926">                return get(expected).size();</span>
+            } else {
+<span class="nc" id="L928">                synchronized (list) {</span>
+<span class="nc" id="L929">                    return get(expected).size();</span>
+                }
+            }
+        }
+
+
+        public boolean isEmpty() {
+<span class="pc bpc" id="L936" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L937">                return get(expected).isEmpty();</span>
+            } else {
+<span class="nc" id="L939">                synchronized (list) {</span>
+<span class="nc" id="L940">                    return get(expected).isEmpty();</span>
+                }
+            }
+        }
+
+        public boolean contains(Object o) {
+<span class="pc bpc" id="L946" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L947">                return get(expected).contains(o);</span>
+            } else {
+<span class="nc" id="L949">                synchronized (list) {</span>
+<span class="nc" id="L950">                    return get(expected).contains(o);</span>
+                }
+            }
+        }
+
+        public boolean containsAll(Collection o) {
+<span class="pc bpc" id="L956" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L957">                return get(expected).containsAll(o);</span>
+            } else {
+<span class="nc" id="L959">                synchronized (list) {</span>
+<span class="nc" id="L960">                    return get(expected).containsAll(o);</span>
+                }
+            }
+        }
+
+        public Object[] toArray(Object[] o) {
+<span class="pc bpc" id="L966" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L967">                return get(expected).toArray(o);</span>
+            } else {
+<span class="nc" id="L969">                synchronized (list) {</span>
+<span class="nc" id="L970">                    return get(expected).toArray(o);</span>
+                }
+            }
+        }
+
+        public Object[] toArray() {
+<span class="pc bpc" id="L976" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L977">                return get(expected).toArray();</span>
+            } else {
+<span class="nc" id="L979">                synchronized (list) {</span>
+<span class="nc" id="L980">                    return get(expected).toArray();</span>
+                }
+            }
+        }
+
+
+        public boolean equals(Object o) {
+<span class="fc bfc" id="L987" title="All 2 branches covered.">            if (o == this) return true;</span>
+<span class="pc bpc" id="L988" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L989">                return get(expected).equals(o);</span>
+            } else {
+<span class="nc" id="L991">                synchronized (list) {</span>
+<span class="nc" id="L992">                    return get(expected).equals(o);</span>
+                }
+            }
+        }
+
+        public int hashCode() {
+<span class="pc bpc" id="L998" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L999">                return get(expected).hashCode();</span>
+            } else {
+<span class="nc" id="L1001">                synchronized (list) {</span>
+<span class="nc" id="L1002">                    return get(expected).hashCode();</span>
+                }
+            }
+        }
+
+        public boolean add(Object o) {
+<span class="pc bpc" id="L1008" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L1009">                synchronized (FastArrayList.this) {</span>
+<span class="fc" id="L1010">                    ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L1011">                    boolean r = get(temp).add(o);</span>
+<span class="pc bpc" id="L1012" title="1 of 2 branches missed.">                    if (r) last++;</span>
+<span class="fc" id="L1013">                    list = temp;</span>
+<span class="fc" id="L1014">                    expected = temp;</span>
+<span class="fc" id="L1015">                    return r;</span>
+                }
+            } else {
+<span class="nc" id="L1018">                synchronized (list) {</span>
+<span class="nc" id="L1019">                    return get(expected).add(o);</span>
+                }
+            }
+        }
+
+        public boolean addAll(Collection o) {
+<span class="pc bpc" id="L1025" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L1026">                synchronized (FastArrayList.this) {</span>
+<span class="fc" id="L1027">                    ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L1028">                    boolean r = get(temp).addAll(o);</span>
+<span class="pc bpc" id="L1029" title="1 of 2 branches missed.">                    if (r) last += o.size();</span>
+<span class="fc" id="L1030">                    list = temp;</span>
+<span class="fc" id="L1031">                    expected = temp;</span>
+<span class="fc" id="L1032">                    return r;</span>
+                }
+            } else {
+<span class="nc" id="L1035">                synchronized (list) {</span>
+<span class="nc" id="L1036">                    return get(expected).addAll(o);</span>
+                }
+            }
+        }
+
+        public void add(int i, Object o) {
+<span class="pc bpc" id="L1042" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L1043">                synchronized (FastArrayList.this) {</span>
+<span class="fc" id="L1044">                    ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L1045">                    get(temp).add(i, o);</span>
+<span class="fc" id="L1046">                    last++;</span>
+<span class="fc" id="L1047">                    list = temp;</span>
+<span class="fc" id="L1048">                    expected = temp;</span>
+                }
+            } else {
+<span class="nc" id="L1051">                synchronized (list) {</span>
+<span class="nc" id="L1052">                    get(expected).add(i, o);</span>
+                }
+            }
+<span class="fc" id="L1055">        }</span>
+
+        public boolean addAll(int i, Collection o) {
+<span class="nc bnc" id="L1058" title="All 2 branches missed.">            if (fast) {</span>
+<span class="nc" id="L1059">                synchronized (FastArrayList.this) {</span>
+<span class="nc" id="L1060">                    ArrayList temp = (ArrayList) list.clone();</span>
+<span class="nc" id="L1061">                    boolean r = get(temp).addAll(i, o);</span>
+<span class="nc" id="L1062">                    list = temp;</span>
+<span class="nc bnc" id="L1063" title="All 2 branches missed.">                    if (r) last += o.size();</span>
+<span class="nc" id="L1064">                    expected = temp;</span>
+<span class="nc" id="L1065">                    return r;</span>
+                }
+            } else {
+<span class="nc" id="L1068">                synchronized (list) {</span>
+<span class="nc" id="L1069">                    return get(expected).addAll(i, o);</span>
+                }
+            }
+        }
+
+        public Object remove(int i) {
+<span class="pc bpc" id="L1075" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L1076">                synchronized (FastArrayList.this) {</span>
+<span class="fc" id="L1077">                    ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L1078">                    Object o = get(temp).remove(i);</span>
+<span class="fc" id="L1079">                    last--;</span>
+<span class="fc" id="L1080">                    list = temp;</span>
+<span class="fc" id="L1081">                    expected = temp;</span>
+<span class="fc" id="L1082">                    return o;</span>
+                }
+            } else {
+<span class="nc" id="L1085">                synchronized (list) {</span>
+<span class="nc" id="L1086">                    return get(expected).remove(i);</span>
+                }
+            }
+        }
+
+        public Object set(int i, Object a) {
+<span class="pc bpc" id="L1092" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L1093">                synchronized (FastArrayList.this) {</span>
+<span class="fc" id="L1094">                    ArrayList temp = (ArrayList) list.clone();</span>
+<span class="fc" id="L1095">                    Object o = get(temp).set(i, a);</span>
+<span class="fc" id="L1096">                    list = temp;</span>
+<span class="fc" id="L1097">                    expected = temp;</span>
+<span class="fc" id="L1098">                    return o;</span>
+                }
+            } else {
+<span class="nc" id="L1101">                synchronized (list) {</span>
+<span class="nc" id="L1102">                    return get(expected).set(i, a);</span>
+                }
+            }
+        }
+
+
+        public Iterator iterator() {
+<span class="fc" id="L1109">            return new SubListIter(0);</span>
+        }
+
+        public ListIterator listIterator() {
+<span class="fc" id="L1113">            return new SubListIter(0);</span>
+        }
+
+        public ListIterator listIterator(int i) {
+<span class="fc" id="L1117">            return new SubListIter(i);</span>
+        }
+
+
+        public Object get(int i) {
+<span class="pc bpc" id="L1122" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L1123">                return get(expected).get(i);</span>
+            } else {
+<span class="nc" id="L1125">                synchronized (list) {</span>
+<span class="nc" id="L1126">                    return get(expected).get(i);</span>
+                }
+            }
+        }
+
+        public int indexOf(Object o) {
+<span class="pc bpc" id="L1132" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L1133">                return get(expected).indexOf(o);</span>
+            } else {
+<span class="nc" id="L1135">                synchronized (list) {</span>
+<span class="nc" id="L1136">                    return get(expected).indexOf(o);</span>
+                }
+            }
+        }
+
+
+        public int lastIndexOf(Object o) {
+<span class="pc bpc" id="L1143" title="1 of 2 branches missed.">            if (fast) {</span>
+<span class="fc" id="L1144">                return get(expected).lastIndexOf(o);</span>
+            } else {
+<span class="nc" id="L1146">                synchronized (list) {</span>
+<span class="nc" id="L1147">                    return get(expected).lastIndexOf(o);</span>
+                }
+            }
+        }
+
+
+        public List subList(int f, int l) {
+<span class="nc bnc" id="L1154" title="All 2 branches missed.">            if (list != expected) {</span>
+<span class="nc" id="L1155">                throw new ConcurrentModificationException();</span>
+            }
+<span class="nc" id="L1157">            return new SubList(first + f, f + l);</span>
+        }
+
+
+    private class SubListIter implements ListIterator {
+
+        private List expected;
+        private ListIterator iter;
+<span class="fc" id="L1165">        private int lastReturnedIndex = -1;</span>
+
+
+<span class="fc" id="L1168">        public SubListIter(int i) {</span>
+<span class="fc" id="L1169">            this.expected = list;</span>
+<span class="fc" id="L1170">            this.iter = SubList.this.get(expected).listIterator(i);</span>
+<span class="fc" id="L1171">        }</span>
+
+        private void checkMod() {
+<span class="pc bpc" id="L1174" title="1 of 2 branches missed.">            if (list != expected) {</span>
+<span class="nc" id="L1175">                throw new ConcurrentModificationException();</span>
+            }
+<span class="fc" id="L1177">        }</span>
+
+        List get() {
+<span class="fc" id="L1180">            return SubList.this.get(expected);</span>
+        }
+
+        public boolean hasNext() {
+<span class="fc" id="L1184">            checkMod();</span>
+<span class="fc" id="L1185">            return iter.hasNext();     </span>
+        }
+
+        public Object next() {
+<span class="fc" id="L1189">            checkMod();</span>
+<span class="fc" id="L1190">            lastReturnedIndex = iter.nextIndex();</span>
+<span class="fc" id="L1191">            return iter.next();</span>
+        }
+
+        public boolean hasPrevious() {
+<span class="fc" id="L1195">            checkMod();</span>
+<span class="fc" id="L1196">            return iter.hasPrevious();</span>
+        }
+
+        public Object previous() {
+<span class="fc" id="L1200">            checkMod();</span>
+<span class="fc" id="L1201">            lastReturnedIndex = iter.previousIndex();</span>
+<span class="fc" id="L1202">            return iter.previous();</span>
+        }
+
+        public int previousIndex() {
+<span class="fc" id="L1206">            checkMod();</span>
+<span class="fc" id="L1207">            return iter.previousIndex();</span>
+        }
+
+        public int nextIndex() {
+<span class="fc" id="L1211">            checkMod();</span>
+<span class="fc" id="L1212">            return iter.nextIndex();</span>
+        }
+
+        public void remove() {
+<span class="fc" id="L1216">            checkMod();</span>
+<span class="fc bfc" id="L1217" title="All 2 branches covered.">            if (lastReturnedIndex &lt; 0) {</span>
+<span class="fc" id="L1218">                throw new IllegalStateException();</span>
+            }
+<span class="fc" id="L1220">            get().remove(lastReturnedIndex);</span>
+<span class="fc" id="L1221">            last--;</span>
+<span class="fc" id="L1222">            expected = list;</span>
+<span class="fc" id="L1223">            iter = get().listIterator(lastReturnedIndex);</span>
+<span class="fc" id="L1224">            lastReturnedIndex = -1;</span>
+<span class="fc" id="L1225">        }</span>
+
+        public void set(Object o) {
+<span class="fc" id="L1228">            checkMod();</span>
+<span class="fc bfc" id="L1229" title="All 2 branches covered.">            if (lastReturnedIndex &lt; 0) {</span>
+<span class="fc" id="L1230">                throw new IllegalStateException();</span>
+            }
+<span class="fc" id="L1232">            get().set(lastReturnedIndex, o);</span>
+<span class="fc" id="L1233">            expected = list;</span>
+<span class="fc" id="L1234">            iter = get().listIterator(previousIndex() + 1);</span>
+<span class="fc" id="L1235">        } </span>
+
+        public void add(Object o) {
+<span class="fc" id="L1238">            checkMod();</span>
+<span class="fc" id="L1239">            int i = nextIndex();</span>
+<span class="fc" id="L1240">            get().add(i, o);</span>
+<span class="fc" id="L1241">            last++;</span>
+<span class="fc" id="L1242">            expected = list;</span>
+<span class="fc" id="L1243">            iter = get().listIterator(i + 1);</span>
+<span class="fc" id="L1244">            lastReturnedIndex = -1;</span>
+<span class="fc" id="L1245">        }</span>
+
+   }
+
+
+    }
+
+
+
+    private class ListIter implements ListIterator {
+
+        private List expected;
+        private ListIterator iter;
+<span class="fc" id="L1258">        private int lastReturnedIndex = -1;</span>
+
+
+<span class="fc" id="L1261">        public ListIter(int i) {</span>
+<span class="fc" id="L1262">            this.expected = list;</span>
+<span class="fc" id="L1263">            this.iter = get().listIterator(i);</span>
+<span class="fc" id="L1264">        }</span>
+
+        private void checkMod() {
+<span class="fc bfc" id="L1267" title="All 2 branches covered.">            if (list != expected) {</span>
+<span class="fc" id="L1268">                throw new ConcurrentModificationException();</span>
+            }
+<span class="fc" id="L1270">        }</span>
+
+        List get() {
+<span class="fc" id="L1273">            return expected;</span>
+        }
+
+        public boolean hasNext() {
+<span class="fc" id="L1277">            return iter.hasNext();     </span>
+        }
+
+        public Object next() {
+<span class="fc" id="L1281">            lastReturnedIndex = iter.nextIndex();</span>
+<span class="fc" id="L1282">            return iter.next();</span>
+        }
+
+        public boolean hasPrevious() {
+<span class="fc" id="L1286">            return iter.hasPrevious();</span>
+        }
+
+        public Object previous() {
+<span class="fc" id="L1290">            lastReturnedIndex = iter.previousIndex();</span>
+<span class="fc" id="L1291">            return iter.previous();</span>
+        }
+
+        public int previousIndex() {
+<span class="fc" id="L1295">            return iter.previousIndex();</span>
+        }
+
+        public int nextIndex() {
+<span class="fc" id="L1299">            return iter.nextIndex();</span>
+        }
+
+        public void remove() {
+<span class="fc" id="L1303">            checkMod();</span>
+<span class="fc bfc" id="L1304" title="All 2 branches covered.">            if (lastReturnedIndex &lt; 0) {</span>
+<span class="fc" id="L1305">                throw new IllegalStateException();</span>
+            }
+<span class="fc" id="L1307">            get().remove(lastReturnedIndex);</span>
+<span class="fc" id="L1308">            expected = list;</span>
+<span class="fc" id="L1309">            iter = get().listIterator(lastReturnedIndex);</span>
+<span class="fc" id="L1310">            lastReturnedIndex = -1;</span>
+<span class="fc" id="L1311">        }</span>
+
+        public void set(Object o) {
+<span class="fc" id="L1314">            checkMod();</span>
+<span class="fc bfc" id="L1315" title="All 2 branches covered.">            if (lastReturnedIndex &lt; 0) {</span>
+<span class="fc" id="L1316">                throw new IllegalStateException();</span>
+            }
+<span class="fc" id="L1318">            get().set(lastReturnedIndex, o);</span>
+<span class="fc" id="L1319">            expected = list;</span>
+<span class="fc" id="L1320">            iter = get().listIterator(previousIndex() + 1);</span>
+<span class="fc" id="L1321">        } </span>
+
+        public void add(Object o) {
+<span class="fc" id="L1324">            checkMod();</span>
+<span class="fc" id="L1325">            int i = nextIndex();</span>
+<span class="fc" id="L1326">            get().add(i, o);</span>
+<span class="fc" id="L1327">            expected = list;</span>
+<span class="fc" id="L1328">            iter = get().listIterator(i + 1);</span>
+<span class="fc" id="L1329">            lastReturnedIndex = -1;</span>
+<span class="fc" id="L1330">        }</span>
+
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

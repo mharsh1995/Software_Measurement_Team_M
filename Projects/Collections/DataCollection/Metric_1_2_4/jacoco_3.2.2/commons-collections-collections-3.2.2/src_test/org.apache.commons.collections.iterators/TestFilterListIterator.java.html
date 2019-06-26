@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestFilterListIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">TestFilterListIterator.java</span></div><h1>TestFilterListIterator.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Random;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.Predicate;
+
+/**
+ * Tests the FilterListIterator class.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Rodney Waldhoff
+ */
+public class TestFilterListIterator extends TestCase {
+    public TestFilterListIterator(String testName) {
+<span class="fc" id="L39">        super(testName);</span>
+<span class="fc" id="L40">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L43" title="All 2 branches covered.">        return new TestSuite(TestFilterListIterator.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        String[] testCaseName = { TestFilterListIterator.class.getName() };</span>
+<span class="nc" id="L48">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L49">    }</span>
+
+<span class="fc" id="L51">    private ArrayList list = null;</span>
+<span class="fc" id="L52">    private ArrayList odds = null;</span>
+<span class="fc" id="L53">    private ArrayList evens = null;</span>
+<span class="fc" id="L54">    private ArrayList threes = null;</span>
+<span class="fc" id="L55">    private ArrayList fours = null;</span>
+<span class="fc" id="L56">    private ArrayList sixes = null;</span>
+<span class="fc" id="L57">    private Predicate truePred = null;</span>
+<span class="fc" id="L58">    private Predicate falsePred = null;</span>
+<span class="fc" id="L59">    private Predicate evenPred = null;</span>
+<span class="fc" id="L60">    private Predicate oddPred = null;</span>
+<span class="fc" id="L61">    private Predicate threePred = null;</span>
+<span class="fc" id="L62">    private Predicate fourPred = null;</span>
+<span class="fc" id="L63">    private Random random = new Random();</span>
+
+    public void setUp() {
+<span class="fc" id="L66">        list = new ArrayList();</span>
+<span class="fc" id="L67">        odds = new ArrayList();</span>
+<span class="fc" id="L68">        evens = new ArrayList();</span>
+<span class="fc" id="L69">        threes = new ArrayList();</span>
+<span class="fc" id="L70">        fours = new ArrayList();</span>
+<span class="fc" id="L71">        sixes = new ArrayList();</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        for(int i=0;i&lt;20;i++) {</span>
+<span class="fc" id="L73">            list.add(new Integer(i));</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">            if(i%2 == 0) { evens.add(new Integer(i)); }</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            if(i%2 == 1) { odds.add(new Integer(i)); }</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">            if(i%3 == 0) { threes.add(new Integer(i)); }</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            if(i%4 == 0) { fours.add(new Integer(i)); }</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">            if(i%6 == 0) { sixes.add(new Integer(i)); }</span>
+        }
+
+<span class="fc" id="L81">        truePred = new Predicate() {</span>
+            public boolean evaluate(Object x) { 
+<span class="fc" id="L83">                return true;</span>
+            }
+        };
+
+<span class="fc" id="L87">        falsePred = new Predicate() {</span>
+            public boolean evaluate(Object x) { 
+<span class="nc" id="L89">                return true;</span>
+            }
+        };
+
+<span class="fc" id="L93">        evenPred = new Predicate() {</span>
+            public boolean evaluate(Object x) { 
+<span class="fc bfc" id="L95" title="All 2 branches covered.">                return (((Integer)x).intValue()%2 == 0);</span>
+            }
+        };
+
+<span class="fc" id="L99">        oddPred = new Predicate() {</span>
+            public boolean evaluate(Object x) { 
+<span class="fc bfc" id="L101" title="All 2 branches covered.">                return (((Integer)x).intValue()%2 == 1);</span>
+            }
+        };
+
+<span class="fc" id="L105">        threePred = new Predicate() {</span>
+            public boolean evaluate(Object x) { 
+<span class="fc bfc" id="L107" title="All 2 branches covered.">                return (((Integer)x).intValue()%3 == 0);</span>
+            }
+        };
+
+<span class="fc" id="L111">        fourPred = new Predicate() {</span>
+            public boolean evaluate(Object x) { 
+<span class="fc bfc" id="L113" title="All 2 branches covered.">                return (((Integer)x).intValue()%4 == 0);</span>
+            }
+        };
+
+<span class="fc" id="L117">    }</span>
+
+    public void tearDown() throws Exception {
+<span class="fc" id="L120">        list = null;</span>
+<span class="fc" id="L121">        odds = null;</span>
+<span class="fc" id="L122">        evens = null;</span>
+<span class="fc" id="L123">        threes = null;</span>
+<span class="fc" id="L124">        fours = null;</span>
+<span class="fc" id="L125">        sixes = null;</span>
+<span class="fc" id="L126">        truePred = null;</span>
+<span class="fc" id="L127">        falsePred = null;</span>
+<span class="fc" id="L128">        evenPred = null;</span>
+<span class="fc" id="L129">        oddPred = null;</span>
+<span class="fc" id="L130">        threePred = null;</span>
+<span class="fc" id="L131">        fourPred = null;</span>
+<span class="fc" id="L132">    }</span>
+
+    public void testWalkLists() {
+        // this just confirms that our walkLists method works OK
+<span class="fc" id="L136">        walkLists(list,list.listIterator());</span>
+<span class="fc" id="L137">    }</span>
+
+    public void testManual() {
+        // do this one &quot;by hand&quot; as a sanity check
+<span class="fc" id="L141">        FilterListIterator filtered = new FilterListIterator(list.listIterator(),threePred);</span>
+        
+<span class="fc" id="L143">        assertEquals(new Integer(0),filtered.next());</span>
+<span class="fc" id="L144">        assertEquals(new Integer(3),filtered.next());</span>
+<span class="fc" id="L145">        assertEquals(new Integer(6),filtered.next());</span>
+<span class="fc" id="L146">        assertEquals(new Integer(9),filtered.next());</span>
+<span class="fc" id="L147">        assertEquals(new Integer(12),filtered.next());</span>
+<span class="fc" id="L148">        assertEquals(new Integer(15),filtered.next());</span>
+<span class="fc" id="L149">        assertEquals(new Integer(18),filtered.next());</span>
+
+<span class="fc" id="L151">        assertEquals(new Integer(18),filtered.previous());</span>
+<span class="fc" id="L152">        assertEquals(new Integer(15),filtered.previous());</span>
+<span class="fc" id="L153">        assertEquals(new Integer(12),filtered.previous());</span>
+<span class="fc" id="L154">        assertEquals(new Integer(9),filtered.previous());</span>
+<span class="fc" id="L155">        assertEquals(new Integer(6),filtered.previous());</span>
+<span class="fc" id="L156">        assertEquals(new Integer(3),filtered.previous());</span>
+<span class="fc" id="L157">        assertEquals(new Integer(0),filtered.previous());</span>
+    
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        assertTrue(!filtered.hasPrevious());</span>
+
+<span class="fc" id="L161">        assertEquals(new Integer(0),filtered.next());</span>
+<span class="fc" id="L162">        assertEquals(new Integer(3),filtered.next());</span>
+<span class="fc" id="L163">        assertEquals(new Integer(6),filtered.next());</span>
+<span class="fc" id="L164">        assertEquals(new Integer(9),filtered.next());</span>
+<span class="fc" id="L165">        assertEquals(new Integer(12),filtered.next());</span>
+<span class="fc" id="L166">        assertEquals(new Integer(15),filtered.next());</span>
+<span class="fc" id="L167">        assertEquals(new Integer(18),filtered.next());</span>
+
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">        assertTrue(!filtered.hasNext());</span>
+
+<span class="fc" id="L171">        assertEquals(new Integer(18),filtered.previous());</span>
+<span class="fc" id="L172">        assertEquals(new Integer(15),filtered.previous());</span>
+<span class="fc" id="L173">        assertEquals(new Integer(12),filtered.previous());</span>
+<span class="fc" id="L174">        assertEquals(new Integer(9),filtered.previous());</span>
+<span class="fc" id="L175">        assertEquals(new Integer(6),filtered.previous());</span>
+<span class="fc" id="L176">        assertEquals(new Integer(3),filtered.previous());</span>
+<span class="fc" id="L177">        assertEquals(new Integer(0),filtered.previous());</span>
+
+<span class="fc" id="L179">        assertEquals(new Integer(0),filtered.next());</span>
+<span class="fc" id="L180">        assertEquals(new Integer(0),filtered.previous());</span>
+<span class="fc" id="L181">        assertEquals(new Integer(0),filtered.next());</span>
+        
+<span class="fc" id="L183">        assertEquals(new Integer(3),filtered.next());</span>
+<span class="fc" id="L184">        assertEquals(new Integer(6),filtered.next());</span>
+<span class="fc" id="L185">        assertEquals(new Integer(6),filtered.previous());</span>
+<span class="fc" id="L186">        assertEquals(new Integer(3),filtered.previous());</span>
+<span class="fc" id="L187">        assertEquals(new Integer(3),filtered.next());</span>
+<span class="fc" id="L188">        assertEquals(new Integer(6),filtered.next());</span>
+
+<span class="fc" id="L190">        assertEquals(new Integer(9),filtered.next());</span>
+<span class="fc" id="L191">        assertEquals(new Integer(12),filtered.next());</span>
+<span class="fc" id="L192">        assertEquals(new Integer(15),filtered.next());</span>
+<span class="fc" id="L193">        assertEquals(new Integer(15),filtered.previous());</span>
+<span class="fc" id="L194">        assertEquals(new Integer(12),filtered.previous());</span>
+<span class="fc" id="L195">        assertEquals(new Integer(9),filtered.previous());</span>
+
+<span class="fc" id="L197">    }</span>
+
+    public void testTruePredicate() {
+<span class="fc" id="L200">        FilterListIterator filtered = new FilterListIterator(list.listIterator(),truePred);</span>
+<span class="fc" id="L201">        walkLists(list,filtered);</span>
+<span class="fc" id="L202">    }</span>
+    
+    public void testFalsePredicate() {
+<span class="fc" id="L205">        FilterListIterator filtered = new FilterListIterator(list.listIterator(),falsePred);</span>
+<span class="fc" id="L206">        walkLists(new ArrayList(),filtered);</span>
+<span class="fc" id="L207">    }</span>
+
+    public void testEvens() {
+<span class="fc" id="L210">        FilterListIterator filtered = new FilterListIterator(list.listIterator(),evenPred);</span>
+<span class="fc" id="L211">        walkLists(evens,filtered);</span>
+<span class="fc" id="L212">    }</span>
+    
+    public void testOdds() {
+<span class="fc" id="L215">        FilterListIterator filtered = new FilterListIterator(list.listIterator(),oddPred);</span>
+<span class="fc" id="L216">        walkLists(odds,filtered);</span>
+<span class="fc" id="L217">    }</span>
+
+    public void testThrees() {
+<span class="fc" id="L220">        FilterListIterator filtered = new FilterListIterator(list.listIterator(),threePred);</span>
+<span class="fc" id="L221">        walkLists(threes,filtered);</span>
+<span class="fc" id="L222">    }</span>
+
+    public void testFours() {
+<span class="fc" id="L225">        FilterListIterator filtered = new FilterListIterator(list.listIterator(),fourPred);</span>
+<span class="fc" id="L226">        walkLists(fours,filtered);</span>
+<span class="fc" id="L227">    }</span>
+
+    public void testNestedSixes() {
+<span class="fc" id="L230">        FilterListIterator filtered = new FilterListIterator(</span>
+<span class="fc" id="L231">                                        new FilterListIterator(list.listIterator(),threePred),</span>
+<span class="fc" id="L232">                                        evenPred</span>
+                                      );
+<span class="fc" id="L234">        walkLists(sixes,filtered);</span>
+<span class="fc" id="L235">    }</span>
+
+    public void testNestedSixes2() {
+<span class="fc" id="L238">        FilterListIterator filtered = new FilterListIterator(</span>
+<span class="fc" id="L239">                                        new FilterListIterator(list.listIterator(),evenPred),</span>
+<span class="fc" id="L240">                                        threePred</span>
+                                      );
+<span class="fc" id="L242">        walkLists(sixes,filtered);</span>
+<span class="fc" id="L243">    }</span>
+
+    public void testNestedSixes3() {        
+<span class="fc" id="L246">        FilterListIterator filtered = new FilterListIterator(</span>
+<span class="fc" id="L247">                                        new FilterListIterator(list.listIterator(),threePred),</span>
+<span class="fc" id="L248">                                        evenPred</span>
+                                      );
+<span class="fc" id="L250">        walkLists(sixes,new FilterListIterator(filtered,truePred));</span>
+<span class="fc" id="L251">    }</span>
+
+    public void testNextChangesPrevious() {
+        {
+<span class="fc" id="L255">            FilterListIterator filtered = new FilterListIterator(list.listIterator(),threePred);</span>
+<span class="fc" id="L256">            nextNextPrevious(threes.listIterator(),filtered);</span>
+        }
+    
+        {
+<span class="fc" id="L260">            FilterListIterator filtered = new FilterListIterator(list.listIterator(),truePred);</span>
+<span class="fc" id="L261">            nextNextPrevious(list.listIterator(),filtered);</span>
+        }
+<span class="fc" id="L263">    }</span>
+
+    public void testPreviousChangesNext() {
+        {
+<span class="fc" id="L267">            FilterListIterator filtered = new FilterListIterator(list.listIterator(),threePred);</span>
+<span class="fc" id="L268">            ListIterator expected = threes.listIterator();</span>
+<span class="fc" id="L269">            walkForward(expected,filtered);</span>
+<span class="fc" id="L270">            previousPreviousNext(expected,filtered);</span>
+        }
+        {
+<span class="fc" id="L273">            FilterListIterator filtered = new FilterListIterator(list.listIterator(),truePred);</span>
+<span class="fc" id="L274">            ListIterator expected = list.listIterator();</span>
+<span class="fc" id="L275">            walkForward(expected,filtered);</span>
+<span class="fc" id="L276">            previousPreviousNext(expected,filtered);</span>
+        }
+<span class="fc" id="L278">    }</span>
+
+    public void testFailingHasNextBug() {
+<span class="fc" id="L281">        FilterListIterator filtered = new FilterListIterator(list.listIterator(),fourPred);</span>
+<span class="fc" id="L282">        ListIterator expected = fours.listIterator();</span>
+<span class="fc bfc" id="L283" title="All 2 branches covered.">        while(expected.hasNext()) {</span>
+<span class="fc" id="L284">            expected.next();</span>
+<span class="fc" id="L285">            filtered.next();</span>
+        }
+<span class="fc" id="L287">        assertTrue(filtered.hasPrevious());</span>
+<span class="pc bpc" id="L288" title="1 of 2 branches missed.">        assertTrue(!filtered.hasNext());</span>
+<span class="fc" id="L289">        assertEquals(expected.previous(),filtered.previous());</span>
+<span class="fc" id="L290">    }</span>
+
+    // Utilities
+
+    private void walkForward(ListIterator expected, ListIterator testing) {
+<span class="fc bfc" id="L295" title="All 2 branches covered.">        while(expected.hasNext()) {</span>
+<span class="fc" id="L296">            assertEquals(expected.nextIndex(),testing.nextIndex());</span>
+<span class="fc" id="L297">            assertEquals(expected.previousIndex(),testing.previousIndex());</span>
+<span class="fc" id="L298">            assertTrue(testing.hasNext());</span>
+<span class="fc" id="L299">            assertEquals(expected.next(),testing.next());</span>
+        }
+<span class="fc" id="L301">    }</span>
+
+    private void walkBackward(ListIterator expected, ListIterator testing) {
+<span class="fc bfc" id="L304" title="All 2 branches covered.">        while(expected.hasPrevious()) {</span>
+<span class="fc" id="L305">            assertEquals(expected.nextIndex(),testing.nextIndex());</span>
+<span class="fc" id="L306">            assertEquals(expected.previousIndex(),testing.previousIndex());</span>
+<span class="fc" id="L307">            assertTrue(testing.hasPrevious());</span>
+<span class="fc" id="L308">            assertEquals(expected.previous(),testing.previous());</span>
+        }
+<span class="fc" id="L310">    }</span>
+
+    private void nextNextPrevious(ListIterator expected, ListIterator testing) {
+        // calls to next() should change the value returned by previous()
+        // even after previous() has been set by a call to hasPrevious()
+<span class="fc" id="L315">        assertEquals(expected.next(),testing.next());</span>
+<span class="fc" id="L316">        assertEquals(expected.hasPrevious(),testing.hasPrevious());</span>
+<span class="fc" id="L317">        Object expecteda = expected.next();</span>
+<span class="fc" id="L318">        Object testinga = testing.next();</span>
+<span class="fc" id="L319">        assertEquals(expecteda,testinga);</span>
+<span class="fc" id="L320">        Object expectedb = expected.previous();</span>
+<span class="fc" id="L321">        Object testingb = testing.previous();</span>
+<span class="fc" id="L322">        assertEquals(expecteda,expectedb);</span>
+<span class="fc" id="L323">        assertEquals(testinga,testingb);</span>
+<span class="fc" id="L324">    }</span>
+
+    private void previousPreviousNext(ListIterator expected, ListIterator testing) {
+        // calls to previous() should change the value returned by next()
+        // even after next() has been set by a call to hasNext()
+<span class="fc" id="L329">        assertEquals(expected.previous(),testing.previous());</span>
+<span class="fc" id="L330">        assertEquals(expected.hasNext(),testing.hasNext());</span>
+<span class="fc" id="L331">        Object expecteda = expected.previous();</span>
+<span class="fc" id="L332">        Object testinga = testing.previous();</span>
+<span class="fc" id="L333">        assertEquals(expecteda,testinga);</span>
+<span class="fc" id="L334">        Object expectedb = expected.next();</span>
+<span class="fc" id="L335">        Object testingb = testing.next();</span>
+<span class="fc" id="L336">        assertEquals(expecteda,testingb);</span>
+<span class="fc" id="L337">        assertEquals(expecteda,expectedb);</span>
+<span class="fc" id="L338">        assertEquals(testinga,testingb);</span>
+<span class="fc" id="L339">    }</span>
+
+    private void walkLists(List list, ListIterator testing) {
+<span class="fc" id="L342">        ListIterator expected = list.listIterator();</span>
+
+        // walk all the way forward
+<span class="fc" id="L345">        walkForward(expected,testing);</span>
+
+        // walk all the way back
+<span class="fc" id="L348">        walkBackward(expected,testing);</span>
+
+        // forward,back,forward
+<span class="fc bfc" id="L351" title="All 2 branches covered.">        while(expected.hasNext()) {</span>
+<span class="fc" id="L352">            assertEquals(expected.nextIndex(),testing.nextIndex());</span>
+<span class="fc" id="L353">            assertEquals(expected.previousIndex(),testing.previousIndex());</span>
+<span class="fc" id="L354">            assertTrue(testing.hasNext());</span>
+<span class="fc" id="L355">            assertEquals(expected.next(),testing.next());</span>
+<span class="fc" id="L356">            assertTrue(testing.hasPrevious());</span>
+<span class="fc" id="L357">            assertEquals(expected.previous(),testing.previous());</span>
+<span class="fc" id="L358">            assertTrue(testing.hasNext());</span>
+<span class="fc" id="L359">            assertEquals(expected.next(),testing.next());</span>
+        }
+
+
+        // walk all the way back
+<span class="fc" id="L364">        walkBackward(expected,testing);</span>
+
+<span class="fc bfc" id="L366" title="All 2 branches covered.">        for(int i=0;i&lt;list.size();i++) {</span>
+            // walk forward i
+<span class="fc bfc" id="L368" title="All 2 branches covered.">            for(int j=0;j&lt;i;j++) {</span>
+<span class="fc" id="L369">                assertEquals(expected.nextIndex(),testing.nextIndex());</span>
+<span class="fc" id="L370">                assertEquals(expected.previousIndex(),testing.previousIndex());</span>
+<span class="fc" id="L371">                assertTrue(expected.hasNext()); // if this one fails we've got a logic error in the test</span>
+<span class="fc" id="L372">                assertTrue(testing.hasNext());</span>
+<span class="fc" id="L373">                assertEquals(expected.next(),testing.next());</span>
+            }
+            // walk back i/2
+<span class="fc bfc" id="L376" title="All 2 branches covered.">            for(int j=0;j&lt;i/2;j++) {</span>
+<span class="fc" id="L377">                assertEquals(expected.nextIndex(),testing.nextIndex());</span>
+<span class="fc" id="L378">                assertEquals(expected.previousIndex(),testing.previousIndex());</span>
+<span class="fc" id="L379">                assertTrue(expected.hasPrevious()); // if this one fails we've got a logic error in the test</span>
+<span class="fc" id="L380">                assertTrue(testing.hasPrevious());</span>
+<span class="fc" id="L381">                assertEquals(expected.previous(),testing.previous());</span>
+            }
+            // walk forward i/2
+<span class="fc bfc" id="L384" title="All 2 branches covered.">            for(int j=0;j&lt;i/2;j++) {</span>
+<span class="fc" id="L385">                assertEquals(expected.nextIndex(),testing.nextIndex());</span>
+<span class="fc" id="L386">                assertEquals(expected.previousIndex(),testing.previousIndex());</span>
+<span class="fc" id="L387">                assertTrue(expected.hasNext()); // if this one fails we've got a logic error in the test</span>
+<span class="fc" id="L388">                assertTrue(testing.hasNext());</span>
+<span class="fc" id="L389">                assertEquals(expected.next(),testing.next());</span>
+            }
+            // walk back i
+<span class="fc bfc" id="L392" title="All 2 branches covered.">            for(int j=0;j&lt;i;j++) {</span>
+<span class="fc" id="L393">                assertEquals(expected.nextIndex(),testing.nextIndex());</span>
+<span class="fc" id="L394">                assertEquals(expected.previousIndex(),testing.previousIndex());</span>
+<span class="fc" id="L395">                assertTrue(expected.hasPrevious()); // if this one fails we've got a logic error in the test</span>
+<span class="fc" id="L396">                assertTrue(testing.hasPrevious());</span>
+<span class="fc" id="L397">                assertEquals(expected.previous(),testing.previous());</span>
+            }
+        }
+
+        // random walk
+<span class="fc" id="L402">        StringBuffer walkdescr = new StringBuffer(500);</span>
+<span class="fc bfc" id="L403" title="All 2 branches covered.">        for(int i=0;i&lt;500;i++) {</span>
+<span class="fc bfc" id="L404" title="All 2 branches covered.">            if(random.nextBoolean()) {</span>
+                // step forward
+<span class="fc" id="L406">                walkdescr.append(&quot;+&quot;);</span>
+<span class="fc bfc" id="L407" title="All 2 branches covered.">                if(expected.hasNext()) {</span>
+<span class="fc" id="L408">                    assertEquals(walkdescr.toString(),expected.next(),testing.next());</span>
+                }
+<span class="fc" id="L410">            } else {</span>
+                // step backward
+<span class="fc" id="L412">                walkdescr.append(&quot;-&quot;);</span>
+<span class="fc bfc" id="L413" title="All 2 branches covered.">                if(expected.hasPrevious()) {</span>
+<span class="fc" id="L414">                    assertEquals(walkdescr.toString(),expected.previous(),testing.previous());</span>
+                }
+            }
+<span class="fc" id="L417">            assertEquals(walkdescr.toString(),expected.nextIndex(),testing.nextIndex());</span>
+<span class="fc" id="L418">            assertEquals(walkdescr.toString(),expected.previousIndex(),testing.previousIndex());</span>
+        }
+
+<span class="fc" id="L421">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

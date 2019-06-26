@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CircularFifoQueueTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.queue</a> &gt; <span class="el_source">CircularFifoQueueTest.java</span></div><h1>CircularFifoQueueTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.queue;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Queue;
+
+/**
+ * Test cases for CircularFifoQueue.
+ *
+ * @since 4.0
+ * @version $Id$
+ */
+public class CircularFifoQueueTest&lt;E&gt; extends AbstractQueueTest&lt;E&gt; {
+
+    public CircularFifoQueueTest(final String testName) {
+<span class="fc" id="L39">        super(testName);</span>
+<span class="fc" id="L40">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Runs through the regular verifications, but also verifies that
+     *  the buffer contains the same elements in the same sequence as the
+     *  list.
+     */
+    @Override
+    public void verify() {
+<span class="fc" id="L50">        super.verify();</span>
+<span class="fc" id="L51">        final Iterator&lt;E&gt; iterator1 = getCollection().iterator();</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        for (E e : getConfirmed()) {</span>
+<span class="fc" id="L53">            assertTrue(iterator1.hasNext());</span>
+<span class="fc" id="L54">            final Object o1 = iterator1.next();</span>
+<span class="fc" id="L55">            final Object o2 = e;</span>
+<span class="fc" id="L56">            assertEquals(o1, o2);</span>
+        }
+<span class="fc" id="L58">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Overridden because CircularFifoQueue doesn't allow null elements.
+     * @return false
+     */
+    @Override
+    public boolean isNullSupported() {
+<span class="fc" id="L67">        return false;</span>
+    }
+
+    /**
+     * Overridden because CircularFifoQueue isn't fail fast.
+     * @return false
+     */
+    @Override
+    public boolean isFailFastSupported() {
+<span class="fc" id="L76">        return false;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Returns an empty ArrayList.
+     *
+     * @return an empty ArrayList
+     */
+    @Override
+    public Collection&lt;E&gt; makeConfirmedCollection() {
+<span class="fc" id="L87">        return new ArrayList&lt;E&gt;();</span>
+    }
+
+    /**
+     * Returns a full ArrayList.
+     *
+     * @return a full ArrayList
+     */
+    @Override
+    public Collection&lt;E&gt; makeConfirmedFullCollection() {
+<span class="fc" id="L97">        final Collection&lt;E&gt; c = makeConfirmedCollection();</span>
+<span class="fc" id="L98">        c.addAll(java.util.Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L99">        return c;</span>
+    }
+
+    /**
+     * Returns an empty CircularFifoQueue that won't overflow.
+     *
+     * @return an empty CircularFifoQueue
+     */
+    @Override
+    public Queue&lt;E&gt; makeObject() {
+<span class="fc" id="L109">        return new CircularFifoQueue&lt;E&gt;(100);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Tests that the removal operation actually removes the first element.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testCircularFifoQueueCircular() {
+<span class="fc" id="L118">        final List&lt;E&gt; list = new ArrayList&lt;E&gt;();</span>
+<span class="fc" id="L119">        list.add((E) &quot;A&quot;);</span>
+<span class="fc" id="L120">        list.add((E) &quot;B&quot;);</span>
+<span class="fc" id="L121">        list.add((E) &quot;C&quot;);</span>
+<span class="fc" id="L122">        final Queue&lt;E&gt; queue = new CircularFifoQueue&lt;E&gt;(list);</span>
+
+<span class="fc" id="L124">        assertEquals(true, queue.contains(&quot;A&quot;));</span>
+<span class="fc" id="L125">        assertEquals(true, queue.contains(&quot;B&quot;));</span>
+<span class="fc" id="L126">        assertEquals(true, queue.contains(&quot;C&quot;));</span>
+
+<span class="fc" id="L128">        queue.add((E) &quot;D&quot;);</span>
+
+<span class="fc" id="L130">        assertEquals(false, queue.contains(&quot;A&quot;));</span>
+<span class="fc" id="L131">        assertEquals(true, queue.contains(&quot;B&quot;));</span>
+<span class="fc" id="L132">        assertEquals(true, queue.contains(&quot;C&quot;));</span>
+<span class="fc" id="L133">        assertEquals(true, queue.contains(&quot;D&quot;));</span>
+
+<span class="fc" id="L135">        assertEquals(&quot;B&quot;, queue.peek());</span>
+<span class="fc" id="L136">        assertEquals(&quot;B&quot;, queue.remove());</span>
+<span class="fc" id="L137">        assertEquals(&quot;C&quot;, queue.remove());</span>
+<span class="fc" id="L138">        assertEquals(&quot;D&quot;, queue.remove());</span>
+<span class="fc" id="L139">    }</span>
+
+    /**
+     * Tests that the removal operation actually removes the first element.
+     */
+    public void testCircularFifoQueueRemove() {
+<span class="fc" id="L145">        resetFull();</span>
+<span class="fc" id="L146">        final int size = getConfirmed().size();</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L148">            final Object o1 = getCollection().remove();</span>
+<span class="fc" id="L149">            final Object o2 = ((List&lt;?&gt;) getConfirmed()).remove(0);</span>
+<span class="fc" id="L150">            assertEquals(&quot;Removed objects should be equal&quot;, o1, o2);</span>
+<span class="fc" id="L151">            verify();</span>
+        }
+
+        try {
+<span class="nc" id="L155">            getCollection().remove();</span>
+<span class="nc" id="L156">            fail(&quot;Empty queue should raise Underflow.&quot;);</span>
+<span class="pc" id="L157">        } catch (final NoSuchElementException e) {</span>
+            // expected
+        }
+<span class="fc" id="L160">    }</span>
+
+    /**
+     * Tests that the constructor correctly throws an exception.
+     */
+    public void testConstructorException1() {
+        try {
+<span class="nc" id="L167">            new CircularFifoQueue&lt;E&gt;(0);</span>
+<span class="pc" id="L168">        } catch (final IllegalArgumentException ex) {</span>
+<span class="fc" id="L169">            return;</span>
+        }
+<span class="nc" id="L171">        fail();</span>
+<span class="nc" id="L172">    }</span>
+
+    /**
+     * Tests that the constructor correctly throws an exception.
+     */
+    public void testConstructorException2() {
+        try {
+<span class="nc" id="L179">            new CircularFifoQueue&lt;E&gt;(-20);</span>
+<span class="pc" id="L180">        } catch (final IllegalArgumentException ex) {</span>
+<span class="fc" id="L181">            return;</span>
+        }
+<span class="nc" id="L183">        fail();</span>
+<span class="nc" id="L184">    }</span>
+
+    /**
+     * Tests that the constructor correctly throws an exception.
+     */
+    public void testConstructorException3() {
+        try {
+<span class="nc" id="L191">            new CircularFifoQueue&lt;E&gt;(null);</span>
+<span class="pc" id="L192">        } catch (final NullPointerException ex) {</span>
+<span class="fc" id="L193">            return;</span>
+        }
+<span class="nc" id="L195">        fail();</span>
+<span class="nc" id="L196">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveError1() throws Exception {
+        // based on bug 33071
+<span class="fc" id="L201">        final CircularFifoQueue&lt;E&gt; fifo = new CircularFifoQueue&lt;E&gt;(5);</span>
+<span class="fc" id="L202">        fifo.add((E) &quot;1&quot;);</span>
+<span class="fc" id="L203">        fifo.add((E) &quot;2&quot;);</span>
+<span class="fc" id="L204">        fifo.add((E) &quot;3&quot;);</span>
+<span class="fc" id="L205">        fifo.add((E) &quot;4&quot;);</span>
+<span class="fc" id="L206">        fifo.add((E) &quot;5&quot;);</span>
+
+<span class="fc" id="L208">        assertEquals(&quot;[1, 2, 3, 4, 5]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L210">        fifo.remove(&quot;3&quot;);</span>
+<span class="fc" id="L211">        assertEquals(&quot;[1, 2, 4, 5]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L213">        fifo.remove(&quot;4&quot;);</span>
+<span class="fc" id="L214">        assertEquals(&quot;[1, 2, 5]&quot;, fifo.toString());</span>
+<span class="fc" id="L215">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveError2() throws Exception {
+        // based on bug 33071
+<span class="fc" id="L220">        final CircularFifoQueue&lt;E&gt; fifo = new CircularFifoQueue&lt;E&gt;(5);</span>
+<span class="fc" id="L221">        fifo.add((E) &quot;1&quot;);</span>
+<span class="fc" id="L222">        fifo.add((E) &quot;2&quot;);</span>
+<span class="fc" id="L223">        fifo.add((E) &quot;3&quot;);</span>
+<span class="fc" id="L224">        fifo.add((E) &quot;4&quot;);</span>
+<span class="fc" id="L225">        fifo.add((E) &quot;5&quot;);</span>
+<span class="fc" id="L226">        fifo.add((E) &quot;6&quot;);</span>
+
+<span class="fc" id="L228">        assertEquals(5, fifo.size());</span>
+<span class="fc" id="L229">        assertEquals(&quot;[2, 3, 4, 5, 6]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L231">        fifo.remove(&quot;3&quot;);</span>
+<span class="fc" id="L232">        assertEquals(&quot;[2, 4, 5, 6]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L234">        fifo.remove(&quot;4&quot;);</span>
+<span class="fc" id="L235">        assertEquals(&quot;[2, 5, 6]&quot;, fifo.toString());</span>
+<span class="fc" id="L236">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveError3() throws Exception {
+        // based on bug 33071
+<span class="fc" id="L241">        final CircularFifoQueue&lt;E&gt; fifo = new CircularFifoQueue&lt;E&gt;(5);</span>
+<span class="fc" id="L242">        fifo.add((E) &quot;1&quot;);</span>
+<span class="fc" id="L243">        fifo.add((E) &quot;2&quot;);</span>
+<span class="fc" id="L244">        fifo.add((E) &quot;3&quot;);</span>
+<span class="fc" id="L245">        fifo.add((E) &quot;4&quot;);</span>
+<span class="fc" id="L246">        fifo.add((E) &quot;5&quot;);</span>
+
+<span class="fc" id="L248">        assertEquals(&quot;[1, 2, 3, 4, 5]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L250">        fifo.remove(&quot;3&quot;);</span>
+<span class="fc" id="L251">        assertEquals(&quot;[1, 2, 4, 5]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L253">        fifo.add((E) &quot;6&quot;);</span>
+<span class="fc" id="L254">        fifo.add((E) &quot;7&quot;);</span>
+<span class="fc" id="L255">        assertEquals(&quot;[2, 4, 5, 6, 7]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L257">        fifo.remove(&quot;4&quot;);</span>
+<span class="fc" id="L258">        assertEquals(&quot;[2, 5, 6, 7]&quot;, fifo.toString());</span>
+<span class="fc" id="L259">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveError4() throws Exception {
+        // based on bug 33071
+<span class="fc" id="L264">        final CircularFifoQueue&lt;E&gt; fifo = new CircularFifoQueue&lt;E&gt;(5);</span>
+<span class="fc" id="L265">        fifo.add((E) &quot;1&quot;);</span>
+<span class="fc" id="L266">        fifo.add((E) &quot;2&quot;);</span>
+<span class="fc" id="L267">        fifo.add((E) &quot;3&quot;);</span>
+<span class="fc" id="L268">        fifo.add((E) &quot;4&quot;);</span>
+<span class="fc" id="L269">        fifo.add((E) &quot;5&quot;);  // end=0</span>
+<span class="fc" id="L270">        fifo.add((E) &quot;6&quot;);  // end=1</span>
+<span class="fc" id="L271">        fifo.add((E) &quot;7&quot;);  // end=2</span>
+
+<span class="fc" id="L273">        assertEquals(&quot;[3, 4, 5, 6, 7]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L275">        fifo.remove(&quot;4&quot;);  // remove element in middle of array, after start</span>
+<span class="fc" id="L276">        assertEquals(&quot;[3, 5, 6, 7]&quot;, fifo.toString());</span>
+<span class="fc" id="L277">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveError5() throws Exception {
+        // based on bug 33071
+<span class="fc" id="L282">        final CircularFifoQueue&lt;E&gt; fifo = new CircularFifoQueue&lt;E&gt;(5);</span>
+<span class="fc" id="L283">        fifo.add((E) &quot;1&quot;);</span>
+<span class="fc" id="L284">        fifo.add((E) &quot;2&quot;);</span>
+<span class="fc" id="L285">        fifo.add((E) &quot;3&quot;);</span>
+<span class="fc" id="L286">        fifo.add((E) &quot;4&quot;);</span>
+<span class="fc" id="L287">        fifo.add((E) &quot;5&quot;);  // end=0</span>
+<span class="fc" id="L288">        fifo.add((E) &quot;6&quot;);  // end=1</span>
+<span class="fc" id="L289">        fifo.add((E) &quot;7&quot;);  // end=2</span>
+
+<span class="fc" id="L291">        assertEquals(&quot;[3, 4, 5, 6, 7]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L293">        fifo.remove(&quot;5&quot;);  // remove element at last pos in array</span>
+<span class="fc" id="L294">        assertEquals(&quot;[3, 4, 6, 7]&quot;, fifo.toString());</span>
+<span class="fc" id="L295">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveError6() throws Exception {
+        // based on bug 33071
+<span class="fc" id="L300">        final CircularFifoQueue&lt;E&gt; fifo = new CircularFifoQueue&lt;E&gt;(5);</span>
+<span class="fc" id="L301">        fifo.add((E) &quot;1&quot;);</span>
+<span class="fc" id="L302">        fifo.add((E) &quot;2&quot;);</span>
+<span class="fc" id="L303">        fifo.add((E) &quot;3&quot;);</span>
+<span class="fc" id="L304">        fifo.add((E) &quot;4&quot;);</span>
+<span class="fc" id="L305">        fifo.add((E) &quot;5&quot;);  // end=0</span>
+<span class="fc" id="L306">        fifo.add((E) &quot;6&quot;);  // end=1</span>
+<span class="fc" id="L307">        fifo.add((E) &quot;7&quot;);  // end=2</span>
+
+<span class="fc" id="L309">        assertEquals(&quot;[3, 4, 5, 6, 7]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L311">        fifo.remove(&quot;6&quot;);  // remove element at position zero in array</span>
+<span class="fc" id="L312">        assertEquals(&quot;[3, 4, 5, 7]&quot;, fifo.toString());</span>
+<span class="fc" id="L313">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveError7() throws Exception {
+        // based on bug 33071
+<span class="fc" id="L318">        final CircularFifoQueue&lt;E&gt; fifo = new CircularFifoQueue&lt;E&gt;(5);</span>
+<span class="fc" id="L319">        fifo.add((E) &quot;1&quot;);</span>
+<span class="fc" id="L320">        fifo.add((E) &quot;2&quot;);</span>
+<span class="fc" id="L321">        fifo.add((E) &quot;3&quot;);</span>
+<span class="fc" id="L322">        fifo.add((E) &quot;4&quot;);</span>
+<span class="fc" id="L323">        fifo.add((E) &quot;5&quot;);  // end=0</span>
+<span class="fc" id="L324">        fifo.add((E) &quot;6&quot;);  // end=1</span>
+<span class="fc" id="L325">        fifo.add((E) &quot;7&quot;);  // end=2</span>
+
+<span class="fc" id="L327">        assertEquals(&quot;[3, 4, 5, 6, 7]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L329">        fifo.remove(&quot;7&quot;);  // remove element at position one in array</span>
+<span class="fc" id="L330">        assertEquals(&quot;[3, 4, 5, 6]&quot;, fifo.toString());</span>
+<span class="fc" id="L331">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveError8() throws Exception {
+        // based on bug 33071
+<span class="fc" id="L336">        final CircularFifoQueue&lt;E&gt; fifo = new CircularFifoQueue&lt;E&gt;(5);</span>
+<span class="fc" id="L337">        fifo.add((E) &quot;1&quot;);</span>
+<span class="fc" id="L338">        fifo.add((E) &quot;2&quot;);</span>
+<span class="fc" id="L339">        fifo.add((E) &quot;3&quot;);</span>
+<span class="fc" id="L340">        fifo.add((E) &quot;4&quot;);</span>
+<span class="fc" id="L341">        fifo.add((E) &quot;5&quot;);  // end=0</span>
+<span class="fc" id="L342">        fifo.add((E) &quot;6&quot;);  // end=1</span>
+<span class="fc" id="L343">        fifo.add((E) &quot;7&quot;);  // end=2</span>
+<span class="fc" id="L344">        fifo.add((E) &quot;8&quot;);  // end=3</span>
+
+<span class="fc" id="L346">        assertEquals(&quot;[4, 5, 6, 7, 8]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L348">        fifo.remove(&quot;7&quot;);  // remove element at position one in array, need to shift 8</span>
+<span class="fc" id="L349">        assertEquals(&quot;[4, 5, 6, 8]&quot;, fifo.toString());</span>
+<span class="fc" id="L350">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveError9() throws Exception {
+        // based on bug 33071
+<span class="fc" id="L355">        final CircularFifoQueue&lt;E&gt; fifo = new CircularFifoQueue&lt;E&gt;(5);</span>
+<span class="fc" id="L356">        fifo.add((E) &quot;1&quot;);</span>
+<span class="fc" id="L357">        fifo.add((E) &quot;2&quot;);</span>
+<span class="fc" id="L358">        fifo.add((E) &quot;3&quot;);</span>
+<span class="fc" id="L359">        fifo.add((E) &quot;4&quot;);</span>
+<span class="fc" id="L360">        fifo.add((E) &quot;5&quot;);  // end=0</span>
+<span class="fc" id="L361">        fifo.add((E) &quot;6&quot;);  // end=1</span>
+<span class="fc" id="L362">        fifo.add((E) &quot;7&quot;);  // end=2</span>
+<span class="fc" id="L363">        fifo.add((E) &quot;8&quot;);  // end=3</span>
+
+<span class="fc" id="L365">        assertEquals(&quot;[4, 5, 6, 7, 8]&quot;, fifo.toString());</span>
+
+<span class="fc" id="L367">        fifo.remove(&quot;8&quot;);  // remove element at position two in array</span>
+<span class="fc" id="L368">        assertEquals(&quot;[4, 5, 6, 7]&quot;, fifo.toString());</span>
+<span class="fc" id="L369">    }</span>
+
+    //-----------------------------------------------------------------------
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRepeatedSerialization() throws Exception {
+        // bug 31433
+<span class="fc" id="L375">        final CircularFifoQueue&lt;E&gt; b = new CircularFifoQueue&lt;E&gt;(2);</span>
+<span class="fc" id="L376">        b.add((E) &quot;a&quot;);</span>
+<span class="fc" id="L377">        assertEquals(1, b.size());</span>
+<span class="fc" id="L378">        assertEquals(true, b.contains(&quot;a&quot;));</span>
+
+<span class="fc" id="L380">        ByteArrayOutputStream bos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L381">        new ObjectOutputStream(bos).writeObject(b);</span>
+
+<span class="fc" id="L383">        final CircularFifoQueue&lt;E&gt; b2 = (CircularFifoQueue&lt;E&gt;) new ObjectInputStream(</span>
+<span class="fc" id="L384">            new ByteArrayInputStream(bos.toByteArray())).readObject();</span>
+
+<span class="fc" id="L386">        assertEquals(1, b2.size());</span>
+<span class="fc" id="L387">        assertEquals(true, b2.contains(&quot;a&quot;));</span>
+<span class="fc" id="L388">        b2.add((E) &quot;b&quot;);</span>
+<span class="fc" id="L389">        assertEquals(2, b2.size());</span>
+<span class="fc" id="L390">        assertEquals(true, b2.contains(&quot;a&quot;));</span>
+<span class="fc" id="L391">        assertEquals(true, b2.contains(&quot;b&quot;));</span>
+
+<span class="fc" id="L393">        bos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L394">        new ObjectOutputStream(bos).writeObject(b2);</span>
+
+<span class="fc" id="L396">        final CircularFifoQueue&lt;E&gt; b3 = (CircularFifoQueue&lt;E&gt;) new ObjectInputStream(</span>
+<span class="fc" id="L397">            new ByteArrayInputStream(bos.toByteArray())).readObject();</span>
+
+<span class="fc" id="L399">        assertEquals(2, b3.size());</span>
+<span class="fc" id="L400">        assertEquals(true, b3.contains(&quot;a&quot;));</span>
+<span class="fc" id="L401">        assertEquals(true, b3.contains(&quot;b&quot;));</span>
+<span class="fc" id="L402">        b3.add((E) &quot;c&quot;);</span>
+<span class="fc" id="L403">        assertEquals(2, b3.size());</span>
+<span class="fc" id="L404">        assertEquals(true, b3.contains(&quot;b&quot;));</span>
+<span class="fc" id="L405">        assertEquals(true, b3.contains(&quot;c&quot;));</span>
+<span class="fc" id="L406">    }</span>
+
+    public void testGetIndex() {
+<span class="fc" id="L409">        resetFull();</span>
+
+<span class="fc" id="L411">        final CircularFifoQueue&lt;E&gt; queue = getCollection();</span>
+<span class="fc" id="L412">        final List&lt;E&gt; confirmed = (List&lt;E&gt;) getConfirmed();</span>
+<span class="fc bfc" id="L413" title="All 2 branches covered.">        for (int i = 0; i &lt; confirmed.size(); i++) {</span>
+<span class="fc" id="L414">            assertEquals(confirmed.get(i), queue.get(i));</span>
+        }
+
+        // remove the first two elements and check again
+<span class="fc" id="L418">        queue.remove();</span>
+<span class="fc" id="L419">        queue.remove();</span>
+
+<span class="fc bfc" id="L421" title="All 2 branches covered.">        for (int i = 0; i &lt; queue.size(); i++) {</span>
+<span class="fc" id="L422">            assertEquals(confirmed.get(i + 2), queue.get(i));</span>
+        }
+<span class="fc" id="L424">    }</span>
+
+    @Override
+    public String getCompatibilityVersion() {
+<span class="fc" id="L428">        return &quot;4&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) getCollection(), &quot;src/test/resources/data/test/CircularFifoQueue.emptyCollection.version4.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) getCollection(), &quot;src/test/resources/data/test/CircularFifoQueue.fullCollection.version4.obj&quot;);
+//    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CircularFifoQueue&lt;E&gt; getCollection() {
+<span class="fc" id="L443">        return (CircularFifoQueue&lt;E&gt;) super.getCollection();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

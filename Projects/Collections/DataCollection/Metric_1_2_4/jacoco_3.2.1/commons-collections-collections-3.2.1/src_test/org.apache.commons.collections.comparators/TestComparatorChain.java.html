@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestComparatorChain.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.comparators</a> &gt; <span class="el_source">TestComparatorChain.java</span></div><h1>TestComparatorChain.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.comparators;
+
+import java.io.Serializable;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+/**
+ * Tests for ComparatorChain.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Unknown
+ */
+public class TestComparatorChain extends AbstractTestComparator {
+
+    public TestComparatorChain(String testName) {
+<span class="fc" id="L37">        super(testName);</span>
+<span class="fc" id="L38">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L41" title="All 2 branches covered.">        return new TestSuite(TestComparatorChain.class);</span>
+    }
+
+    public Comparator makeComparator() {
+<span class="fc" id="L45">        ComparatorChain chain = new ComparatorChain(new ColumnComparator(0));</span>
+<span class="fc" id="L46">        chain.addComparator(new ColumnComparator(1),true); // reverse the second column</span>
+<span class="fc" id="L47">        chain.addComparator(new ColumnComparator(2),false);</span>
+<span class="fc" id="L48">        return chain;</span>
+    }
+
+    public void testNoopComparatorChain() {
+<span class="fc" id="L52">        ComparatorChain chain = new ComparatorChain();</span>
+<span class="fc" id="L53">        Integer i1 = new Integer(4);</span>
+<span class="fc" id="L54">        Integer i2 = new Integer(6);</span>
+<span class="fc" id="L55">        chain.addComparator(new ComparableComparator());</span>
+
+<span class="fc" id="L57">        int correctValue = i1.compareTo(i2);</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        assertTrue(&quot;Comparison returns the right order&quot;,chain.compare(i1,i2) == correctValue);</span>
+<span class="fc" id="L59">    }</span>
+
+    public void testBadNoopComparatorChain() {
+<span class="fc" id="L62">        ComparatorChain chain = new ComparatorChain();</span>
+<span class="fc" id="L63">        Integer i1 = new Integer(4);</span>
+<span class="fc" id="L64">        Integer i2 = new Integer(6);</span>
+        try {
+<span class="nc" id="L66">            chain.compare(i1,i2);</span>
+<span class="nc" id="L67">            fail(&quot;An exception should be thrown when a chain contains zero comparators.&quot;);</span>
+<span class="pc" id="L68">        } catch (UnsupportedOperationException e) {</span>
+
+        }
+<span class="fc" id="L71">    }</span>
+
+    public void testListComparatorChain() {
+<span class="fc" id="L74">        List list = new LinkedList();</span>
+<span class="fc" id="L75">        list.add(new ComparableComparator());</span>
+<span class="fc" id="L76">        ComparatorChain chain = new ComparatorChain(list);</span>
+<span class="fc" id="L77">        Integer i1 = new Integer(4);</span>
+<span class="fc" id="L78">        Integer i2 = new Integer(6);</span>
+
+<span class="fc" id="L80">        int correctValue = i1.compareTo(i2);</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        assertTrue(&quot;Comparison returns the right order&quot;,chain.compare(i1,i2) == correctValue);</span>
+<span class="fc" id="L82">    }</span>
+
+    public void testBadListComparatorChain() {
+<span class="fc" id="L85">        List list = new LinkedList();</span>
+<span class="fc" id="L86">        ComparatorChain chain = new ComparatorChain(list);</span>
+<span class="fc" id="L87">        Integer i1 = new Integer(4);</span>
+<span class="fc" id="L88">        Integer i2 = new Integer(6);</span>
+        try {
+<span class="nc" id="L90">            chain.compare(i1,i2);</span>
+<span class="nc" id="L91">            fail(&quot;An exception should be thrown when a chain contains zero comparators.&quot;);</span>
+<span class="pc" id="L92">        } catch (UnsupportedOperationException e) {</span>
+
+        }
+<span class="fc" id="L95">    }</span>
+
+
+    public void testComparatorChainOnMinvaluedCompatator() {
+        // -1 * Integer.MIN_VALUE is less than 0,
+        // test that ComparatorChain handles this edge case correctly
+<span class="fc" id="L101">        ComparatorChain chain = new ComparatorChain();</span>
+<span class="fc" id="L102">        chain.addComparator(</span>
+<span class="fc" id="L103">            new Comparator() {</span>
+                public int compare(Object a, Object b) {
+<span class="fc" id="L105">                    int result = ((Comparable)a).compareTo(b);</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">                    if(result &lt; 0) {</span>
+<span class="fc" id="L107">                        return Integer.MIN_VALUE;</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">                    } else if(result &gt; 0) {</span>
+<span class="fc" id="L109">                        return Integer.MAX_VALUE;</span>
+                    } else {
+<span class="fc" id="L111">                        return 0;</span>
+                    }
+                }
+<span class="fc" id="L114">            }, true);</span>
+
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        assertTrue(chain.compare(new Integer(4), new Integer(5)) &gt; 0);            </span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">        assertTrue(chain.compare(new Integer(5), new Integer(4)) &lt; 0);            </span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        assertTrue(chain.compare(new Integer(4), new Integer(4)) == 0);            </span>
+<span class="fc" id="L119">    }</span>
+
+    public List getComparableObjectsOrdered() {
+<span class="fc" id="L122">        List list = new LinkedList();</span>
+        // this is the correct order assuming a
+        // &quot;0th forward, 1st reverse, 2nd forward&quot; sort
+<span class="fc" id="L125">        list.add(new PseudoRow(1,2,3));</span>
+<span class="fc" id="L126">        list.add(new PseudoRow(2,3,5));</span>
+<span class="fc" id="L127">        list.add(new PseudoRow(2,2,4));</span>
+<span class="fc" id="L128">        list.add(new PseudoRow(2,2,8));</span>
+<span class="fc" id="L129">        list.add(new PseudoRow(3,1,0));</span>
+<span class="fc" id="L130">        list.add(new PseudoRow(4,4,4));</span>
+<span class="fc" id="L131">        list.add(new PseudoRow(4,4,7));</span>
+<span class="fc" id="L132">        return list;</span>
+    }
+
+    public static class PseudoRow implements Serializable {
+
+<span class="fc" id="L137">        public int cols[] = new int[3];</span>
+
+<span class="fc" id="L139">        public PseudoRow(int col1, int col2, int col3) {</span>
+<span class="fc" id="L140">            cols[0] = col1;</span>
+<span class="fc" id="L141">            cols[1] = col2;</span>
+<span class="fc" id="L142">            cols[2] = col3;</span>
+<span class="fc" id="L143">        }</span>
+
+        public int getColumn(int colIndex) {
+<span class="fc" id="L146">            return cols[colIndex];</span>
+        }
+
+        public String toString() {
+<span class="nc" id="L150">            StringBuffer buf = new StringBuffer();</span>
+<span class="nc" id="L151">            buf.append(&quot;[&quot;);</span>
+<span class="nc" id="L152">            buf.append(cols[0]);</span>
+<span class="nc" id="L153">            buf.append(&quot;,&quot;);</span>
+<span class="nc" id="L154">            buf.append(cols[1]);</span>
+<span class="nc" id="L155">            buf.append(&quot;,&quot;);</span>
+<span class="nc" id="L156">            buf.append(cols[2]);</span>
+<span class="nc" id="L157">            buf.append(&quot;]&quot;);</span>
+<span class="nc" id="L158">            return buf.toString();</span>
+        }
+
+        public boolean equals(Object o) {
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">            if (!(o instanceof PseudoRow)) {</span>
+<span class="nc" id="L163">                return false;</span>
+            }
+
+<span class="fc" id="L166">            PseudoRow row = (PseudoRow) o;</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">            if (getColumn(0) != row.getColumn(0)) {</span>
+<span class="nc" id="L168">                return false;</span>
+            }
+
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">            if (getColumn(1) != row.getColumn(1)) {</span>
+<span class="nc" id="L172">                return false;</span>
+            }            
+            
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">            if (getColumn(2) != row.getColumn(2)) {</span>
+<span class="nc" id="L176">                return false;</span>
+            }
+
+<span class="fc" id="L179">            return true;</span>
+        }
+
+    }
+
+    public static class ColumnComparator implements Comparator,Serializable {
+
+<span class="fc" id="L186">        protected int colIndex = 0;</span>
+
+<span class="fc" id="L188">        public ColumnComparator(int colIndex) {</span>
+<span class="fc" id="L189">            this.colIndex = colIndex;</span>
+<span class="fc" id="L190">        }</span>
+
+        public int compare(Object o1, Object o2) {
+
+<span class="fc" id="L194">            int col1 = ( (PseudoRow) o1).getColumn(colIndex);</span>
+<span class="fc" id="L195">            int col2 = ( (PseudoRow) o2).getColumn(colIndex);</span>
+
+<span class="fc bfc" id="L197" title="All 2 branches covered.">            if (col1 &gt; col2) {</span>
+<span class="fc" id="L198">                return 1;</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">            } else if (col1 &lt; col2) {</span>
+<span class="fc" id="L200">                return -1;</span>
+            }
+
+<span class="fc" id="L203">            return 0;</span>
+        }
+        
+        public int hashCode() {
+<span class="fc" id="L207">            return colIndex;</span>
+        }
+        
+        public boolean equals(Object that) {
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">            if(that instanceof ColumnComparator) {</span>
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">                return colIndex == ((ColumnComparator)that).colIndex;</span>
+            } else {
+<span class="nc" id="L214">                return false;</span>
+            }
+        }
+        
+        private static final long serialVersionUID = -2284880866328872105L;
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

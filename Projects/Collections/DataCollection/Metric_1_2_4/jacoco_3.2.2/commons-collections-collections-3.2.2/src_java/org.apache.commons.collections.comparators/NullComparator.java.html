@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>NullComparator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.comparators</a> &gt; <span class="el_source">NullComparator.java</span></div><h1>NullComparator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.comparators;
+
+import java.io.Serializable;
+import java.util.Comparator;
+
+/**
+ * A Comparator that will compare nulls to be either lower or higher than
+ * other objects.
+ *
+ * @since Commons Collections 2.0
+ * @version $Revision$ $Date$ 
+ *
+ * @author Michael A. Smith
+ */
+public class NullComparator implements Comparator, Serializable {
+
+    /** Serialization version. */
+    private static final long serialVersionUID = -5820772575483504339L;
+
+    /**
+     *  The comparator to use when comparing two non-&lt;code&gt;null&lt;/code&gt; objects.
+     **/
+    private Comparator nonNullComparator;
+
+    /**
+     *  Specifies whether a &lt;code&gt;null&lt;/code&gt; are compared as higher than
+     *  non-&lt;code&gt;null&lt;/code&gt; objects.
+     **/
+    private boolean nullsAreHigh;
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Construct an instance that sorts &lt;code&gt;null&lt;/code&gt; higher than any
+     *  non-&lt;code&gt;null&lt;/code&gt; object it is compared with. When comparing two
+     *  non-&lt;code&gt;null&lt;/code&gt; objects, the {@link ComparableComparator} is
+     *  used.
+     **/
+    public NullComparator() {
+<span class="fc" id="L55">        this(ComparableComparator.getInstance(), true);</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     *  Construct an instance that sorts &lt;code&gt;null&lt;/code&gt; higher than any
+     *  non-&lt;code&gt;null&lt;/code&gt; object it is compared with.  When comparing two
+     *  non-&lt;code&gt;null&lt;/code&gt; objects, the specified {@link Comparator} is
+     *  used.
+     *
+     *  @param nonNullComparator the comparator to use when comparing two
+     *  non-&lt;code&gt;null&lt;/code&gt; objects.  This argument cannot be
+     *  &lt;code&gt;null&lt;/code&gt;
+     *
+     *  @exception NullPointerException if &lt;code&gt;nonNullComparator&lt;/code&gt; is
+     *  &lt;code&gt;null&lt;/code&gt;
+     **/
+    public NullComparator(Comparator nonNullComparator) {
+<span class="nc" id="L72">        this(nonNullComparator, true);</span>
+<span class="nc" id="L73">    }</span>
+
+    /**
+     *  Construct an instance that sorts &lt;code&gt;null&lt;/code&gt; higher or lower than
+     *  any non-&lt;code&gt;null&lt;/code&gt; object it is compared with.  When comparing
+     *  two non-&lt;code&gt;null&lt;/code&gt; objects, the {@link ComparableComparator} is
+     *  used.
+     *
+     *  @param nullsAreHigh a &lt;code&gt;true&lt;/code&gt; value indicates that
+     *  &lt;code&gt;null&lt;/code&gt; should be compared as higher than a
+     *  non-&lt;code&gt;null&lt;/code&gt; object.  A &lt;code&gt;false&lt;/code&gt; value indicates
+     *  that &lt;code&gt;null&lt;/code&gt; should be compared as lower than a
+     *  non-&lt;code&gt;null&lt;/code&gt; object.
+     **/
+    public NullComparator(boolean nullsAreHigh) {
+<span class="fc" id="L88">        this(ComparableComparator.getInstance(), nullsAreHigh);</span>
+<span class="fc" id="L89">    }</span>
+    
+    /**
+     *  Construct an instance that sorts &lt;code&gt;null&lt;/code&gt; higher or lower than
+     *  any non-&lt;code&gt;null&lt;/code&gt; object it is compared with.  When comparing
+     *  two non-&lt;code&gt;null&lt;/code&gt; objects, the specified {@link Comparator} is
+     *  used.
+     *
+     *  @param nonNullComparator the comparator to use when comparing two
+     *  non-&lt;code&gt;null&lt;/code&gt; objects. This argument cannot be
+     *  &lt;code&gt;null&lt;/code&gt;
+     *
+     *  @param nullsAreHigh a &lt;code&gt;true&lt;/code&gt; value indicates that
+     *  &lt;code&gt;null&lt;/code&gt; should be compared as higher than a
+     *  non-&lt;code&gt;null&lt;/code&gt; object.  A &lt;code&gt;false&lt;/code&gt; value indicates
+     *  that &lt;code&gt;null&lt;/code&gt; should be compared as lower than a
+     *  non-&lt;code&gt;null&lt;/code&gt; object.
+     *
+     *  @exception NullPointerException if &lt;code&gt;nonNullComparator&lt;/code&gt; is
+     *  &lt;code&gt;null&lt;/code&gt;
+     **/
+<span class="fc" id="L110">    public NullComparator(Comparator nonNullComparator, boolean nullsAreHigh) {</span>
+<span class="fc" id="L111">        this.nonNullComparator = nonNullComparator;</span>
+<span class="fc" id="L112">        this.nullsAreHigh = nullsAreHigh;</span>
+        
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if(nonNullComparator == null) {</span>
+<span class="nc" id="L115">            throw new NullPointerException(&quot;null nonNullComparator&quot;);</span>
+        }
+<span class="fc" id="L117">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Perform a comparison between two objects.  If both objects are
+     *  &lt;code&gt;null&lt;/code&gt;, a &lt;code&gt;0&lt;/code&gt; value is returned.  If one object
+     *  is &lt;code&gt;null&lt;/code&gt; and the other is not, the result is determined on
+     *  whether the Comparator was constructed to have nulls as higher or lower
+     *  than other objects.  If neither object is &lt;code&gt;null&lt;/code&gt;, an
+     *  underlying comparator specified in the constructor (or the default) is
+     *  used to compare the non-&lt;code&gt;null&lt;/code&gt; objects.
+     *
+     *  @param o1  the first object to compare
+     *  @param o2  the object to compare it to.
+     *  @return &lt;code&gt;-1&lt;/code&gt; if &lt;code&gt;o1&lt;/code&gt; is &quot;lower&quot; than (less than,
+     *  before, etc.) &lt;code&gt;o2&lt;/code&gt;; &lt;code&gt;1&lt;/code&gt; if &lt;code&gt;o1&lt;/code&gt; is
+     *  &quot;higher&quot; than (greater than, after, etc.) &lt;code&gt;o2&lt;/code&gt;; or
+     *  &lt;code&gt;0&lt;/code&gt; if &lt;code&gt;o1&lt;/code&gt; and &lt;code&gt;o2&lt;/code&gt; are equal.
+     **/
+    public int compare(Object o1, Object o2) {
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        if(o1 == o2) { return 0; }</span>
+<span class="fc bfc" id="L138" title="All 4 branches covered.">        if(o1 == null) { return (this.nullsAreHigh ? 1 : -1); }</span>
+<span class="fc bfc" id="L139" title="All 4 branches covered.">        if(o2 == null) { return (this.nullsAreHigh ? -1 : 1); }</span>
+<span class="fc" id="L140">        return this.nonNullComparator.compare(o1, o2);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Implement a hash code for this comparator that is consistent with
+     *  {@link #equals(Object)}.
+     *
+     *  @return a hash code for this comparator.
+     **/
+    public int hashCode() {
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        return (nullsAreHigh ? -1 : 1) * nonNullComparator.hashCode();</span>
+    }
+
+    /**
+     *  Determines whether the specified object represents a comparator that is
+     *  equal to this comparator.
+     *
+     *  @param obj  the object to compare this comparator with.
+     *
+     *  @return &lt;code&gt;true&lt;/code&gt; if the specified object is a NullComparator
+     *  with equivalent &lt;code&gt;null&lt;/code&gt; comparison behavior
+     *  (i.e. &lt;code&gt;null&lt;/code&gt; high or low) and with equivalent underlying
+     *  non-&lt;code&gt;null&lt;/code&gt; object comparators.
+     **/
+    public boolean equals(Object obj) {
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if(obj == null) { return false; }</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        if(obj == this) { return true; }</span>
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">        if(!obj.getClass().equals(this.getClass())) { return false; }</span>
+
+<span class="fc" id="L170">        NullComparator other = (NullComparator)obj;</span>
+    
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">        return ((this.nullsAreHigh == other.nullsAreHigh) &amp;&amp;</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">                (this.nonNullComparator.equals(other.nonNullComparator)));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

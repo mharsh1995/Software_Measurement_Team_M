@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestUnmodifiableList.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.list</a> &gt; <span class="el_source">TestUnmodifiableList.java</span></div><h1>TestUnmodifiableList.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.list;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+/**
+ * Extension of {@link AbstractTestList} for exercising the 
+ * {@link UnmodifiableList} implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Phil Steitz
+ */
+public class TestUnmodifiableList extends AbstractTestList {
+    
+    public TestUnmodifiableList(String testName) {
+<span class="fc" id="L39">        super(testName);</span>
+<span class="fc" id="L40">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L43" title="All 2 branches covered.">        return new TestSuite(TestUnmodifiableList.class);</span>
+    }
+    
+    public static void main(String args[]) {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        String[] testCaseName = { TestUnmodifiableList.class.getName()};</span>
+<span class="nc" id="L48">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L49">    }</span>
+
+    //-----------------------------------------------------------------------    
+    public List makeEmptyList() {
+<span class="fc" id="L53">        return UnmodifiableList.decorate(new ArrayList());</span>
+    }
+    
+    public List makeFullList() {
+<span class="fc" id="L57">        ArrayList list = new ArrayList();</span>
+<span class="fc" id="L58">        list.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L59">        return UnmodifiableList.decorate(list);</span>
+    }
+    
+    public boolean isSetSupported() {
+<span class="fc" id="L63">        return false;</span>
+    }
+    
+    public boolean isAddSupported() {
+<span class="fc" id="L67">        return false;</span>
+    }
+    
+    public boolean isRemoveSupported() {
+<span class="fc" id="L71">        return false;</span>
+    }
+    
+    //-----------------------------------------------------------------------    
+<span class="fc" id="L75">    protected UnmodifiableList list = null;</span>
+<span class="fc" id="L76">    protected ArrayList array = null;</span>
+    
+    protected void setupList() {
+<span class="fc" id="L79">        list = (UnmodifiableList) makeFullList();</span>
+<span class="fc" id="L80">        array = new ArrayList();</span>
+<span class="fc" id="L81">        array.add(new Integer(1));</span>
+<span class="fc" id="L82">    }</span>
+    
+    /** 
+     * Verify that base list and sublists are not modifiable
+     */
+    public void testUnmodifiable() {
+<span class="fc" id="L88">        setupList();</span>
+<span class="fc" id="L89">        verifyUnmodifiable(list); </span>
+<span class="fc" id="L90">        verifyUnmodifiable(list.subList(0, 2));</span>
+<span class="fc" id="L91">    } </span>
+        
+    protected void verifyUnmodifiable(List list) {
+        try {
+<span class="nc" id="L95">            list.add(0, new Integer(0));</span>
+<span class="nc" id="L96">            fail(&quot;Expecting UnsupportedOperationException.&quot;);</span>
+<span class="pc" id="L97">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        } 
+        try {
+<span class="nc" id="L101">            list.add(new Integer(0));</span>
+<span class="nc" id="L102">             fail(&quot;Expecting UnsupportedOperationException.&quot;);</span>
+<span class="pc" id="L103">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L107">            list.addAll(0, array);</span>
+<span class="nc" id="L108">             fail(&quot;Expecting UnsupportedOperationException.&quot;);</span>
+<span class="pc" id="L109">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L113">            list.addAll(array);</span>
+<span class="nc" id="L114">             fail(&quot;Expecting UnsupportedOperationException.&quot;);</span>
+<span class="pc" id="L115">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L119">            list.clear();</span>
+<span class="nc" id="L120">             fail(&quot;Expecting UnsupportedOperationException.&quot;);</span>
+<span class="pc" id="L121">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L125">            list.remove(0);</span>
+<span class="nc" id="L126">             fail(&quot;Expecting UnsupportedOperationException.&quot;);</span>
+<span class="pc" id="L127">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L131">            list.remove(new Integer(0));</span>
+<span class="nc" id="L132">             fail(&quot;Expecting UnsupportedOperationException.&quot;);</span>
+<span class="pc" id="L133">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L137">            list.removeAll(array);</span>
+<span class="nc" id="L138">             fail(&quot;Expecting UnsupportedOperationException.&quot;);</span>
+<span class="pc" id="L139">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L143">            list.retainAll(array);</span>
+<span class="nc" id="L144">             fail(&quot;Expecting UnsupportedOperationException.&quot;);</span>
+<span class="pc" id="L145">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L149">            list.set(0, new Integer(0));</span>
+<span class="nc" id="L150">             fail(&quot;Expecting UnsupportedOperationException.&quot;);</span>
+<span class="pc" id="L151">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        }
+<span class="fc" id="L154">    }</span>
+    
+    /**
+     * Verify that iterator is not modifiable
+     */
+    public void testUnmodifiableIterator() {
+<span class="fc" id="L160">        setupList();</span>
+<span class="fc" id="L161">        Iterator iterator = list.iterator();</span>
+        try {
+<span class="fc" id="L163">            Object obj = iterator.next();</span>
+<span class="nc" id="L164">            iterator.remove();</span>
+<span class="nc" id="L165">            fail(&quot;Expecting UnsupportedOperationException.&quot;);</span>
+<span class="pc" id="L166">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        }
+<span class="fc" id="L169">    }</span>
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L172">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/UnmodifiableList.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/UnmodifiableList.fullCollection.version3.1.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

@@ -1,0 +1,56 @@
+github.com/AlDanial/cloc v 1.82  T=7.49 s (0.1 files/s, 0.1 lines/s)
+----------------------------------------------------------------------------------------
+Language                              files          blank        comment           code
+----------------------------------------------------------------------------------------
+Java
+ same                                     0              0          15887          10467
+ modified                               220              0           5953           6481
+ added                                  316           9233          22376          45921
+ removed                                256           9009          19528          39186
+XML
+ same                                     0              0              0              0
+ modified                                 0              0              0              0
+ added                                   25            254            482           2847
+ removed                                 23            220            402           1829
+Maven
+ same                                     0              0              0              0
+ modified                                 0              0              0              0
+ added                                    1             31             37            687
+ removed                                  1             13             14            427
+HTML
+ same                                     0              0              0              0
+ modified                                 0              0              0              0
+ added                                    4             53             58            280
+ removed                                 17             98            260            614
+Ant
+ same                                     0              0              0              0
+ modified                                 0              0              0              0
+ added                                    0              0              0              0
+ removed                                  1             83             66            479
+Velocity Template Language
+ same                                     0              0              0              0
+ modified                                 0              0              0              0
+ added                                    1             14             25            101
+ removed                                  1             13             25            100
+Markdown
+ same                                     0              0              0              0
+ modified                                 0              0              0              0
+ added                                    2             36              0            184
+ removed                                  0              0              0              0
+YAML
+ same                                     0              0              0              0
+ modified                                 0              0              0              0
+ added                                    1              4             14              9
+ removed                                  0              0              0              0
+Bourne Shell
+ same                                     0              0              0              0
+ modified                                 0              0              0              0
+ added                                    1              0              2              2
+ removed                                  0              0              0              0
+----------------------------------------------------------------------------------------
+SUM:
+ same                                     0              0          15887          10467
+ modified                               220              0           5953           6481
+ added                                  351           9625          22994          50031
+ removed                                299           9436          20295          42635
+----------------------------------------------------------------------------------------

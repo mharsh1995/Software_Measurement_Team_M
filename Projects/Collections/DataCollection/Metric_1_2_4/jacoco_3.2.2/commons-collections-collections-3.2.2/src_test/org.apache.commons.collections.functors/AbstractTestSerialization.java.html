@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestSerialization.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.functors</a> &gt; <span class="el_source">AbstractTestSerialization.java</span></div><h1>AbstractTestSerialization.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.functors;
+
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import junit.framework.Assert;
+
+import org.apache.commons.collections.BulkTest;
+
+/**
+ * Abstract test class for testing serialization support
+ * of the functor package.
+ */
+public abstract class AbstractTestSerialization extends BulkTest {
+
+    /**
+     * JUnit constructor.
+     * 
+     * @param testName  the test class name
+     */
+    public AbstractTestSerialization(String testName) {
+<span class="fc" id="L42">        super(testName);</span>
+<span class="fc" id="L43">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Implements the abstract superclass method to return the comparator.
+     * 
+     * @return a full iterator
+     */
+    public abstract Object makeObject();
+
+    /**
+     * Returns the class being tested for serialization.
+     * 
+     * @return the test class
+     */
+    public abstract Class getTestClass();
+
+    //-----------------------------------------------------------------------
+    
+    public void testSerializationDisabled() throws Exception {
+<span class="fc" id="L63">        Assert.assertFalse(&quot;true&quot;.equalsIgnoreCase(System.getProperty(FunctorUtils.UNSAFE_SERIALIZABLE_PROPERTY)));</span>
+<span class="fc" id="L64">        Object object = makeObject();</span>
+        try {
+<span class="nc" id="L66">            serialize(object);</span>
+<span class="nc" id="L67">            fail(&quot;serialization of InvokerTransformer should be disabled by default&quot;);</span>
+<span class="pc" id="L68">        } catch (UnsupportedOperationException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L71">        System.setProperty(FunctorUtils.UNSAFE_SERIALIZABLE_PROPERTY, &quot;true&quot;);</span>
+<span class="fc" id="L72">        byte[] data = serialize(object);</span>
+<span class="fc" id="L73">        System.getProperties().remove(FunctorUtils.UNSAFE_SERIALIZABLE_PROPERTY);</span>
+<span class="fc" id="L74">        Assert.assertNull(System.getProperty(FunctorUtils.UNSAFE_SERIALIZABLE_PROPERTY));</span>
+<span class="fc" id="L75">        Assert.assertNotNull(data);</span>
+        try {
+<span class="nc" id="L77">            deserialize(data);</span>
+<span class="nc" id="L78">            fail(&quot;de-serialization of &quot; + getTestClass().getName() + &quot; should be disabled by default&quot;);</span>
+<span class="pc" id="L79">        } catch (UnsupportedOperationException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L82">    }</span>
+
+    public void testSerializationEnabled() throws Exception {
+<span class="fc" id="L85">        Assert.assertFalse(&quot;true&quot;.equalsIgnoreCase(System.getProperty(FunctorUtils.UNSAFE_SERIALIZABLE_PROPERTY)));</span>
+<span class="fc" id="L86">        System.setProperty(FunctorUtils.UNSAFE_SERIALIZABLE_PROPERTY, &quot;true&quot;);</span>
+
+        try {
+<span class="fc" id="L89">            Object object = makeObject();</span>
+<span class="fc" id="L90">            byte[] data = serialize(object);</span>
+<span class="fc" id="L91">            Assert.assertNotNull(data);</span>
+            try {
+<span class="fc" id="L93">                Object obj = deserialize(data);</span>
+<span class="fc" id="L94">                Assert.assertTrue(getTestClass().isInstance(obj));</span>
+<span class="pc" id="L95">            } catch (UnsupportedOperationException ex) {</span>
+<span class="nc" id="L96">                fail(&quot;de-serialization of &quot; + getTestClass().getName() + &quot; should be enabled&quot;);</span>
+            }
+<span class="nc" id="L98">        } finally {</span>
+<span class="fc" id="L99">            System.setProperty(FunctorUtils.UNSAFE_SERIALIZABLE_PROPERTY, &quot;false&quot;);</span>
+        }
+<span class="fc" id="L101">    }</span>
+    
+    private byte[] serialize(Object object) throws IOException {
+<span class="fc" id="L104">        ByteArrayOutputStream baos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L105">        ObjectOutputStream oos = new ObjectOutputStream(baos);</span>
+
+<span class="fc" id="L107">        oos.writeObject(object);</span>
+<span class="fc" id="L108">        oos.close();</span>
+
+<span class="fc" id="L110">        return baos.toByteArray();</span>
+    }
+    
+    private Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+<span class="fc" id="L114">        ByteArrayInputStream bais = new ByteArrayInputStream(data);</span>
+<span class="fc" id="L115">        ObjectInputStream iis = new ObjectInputStream(bais);</span>
+        
+<span class="fc" id="L117">        return iis.readObject();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

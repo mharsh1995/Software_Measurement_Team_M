@@ -1,0 +1,805 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BeanMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">BeanMap.java</span></div><h1>BeanMap.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+
+import org.apache.commons.collections.list.UnmodifiableList;
+import org.apache.commons.collections.keyvalue.AbstractMapEntry;
+import org.apache.commons.collections.set.UnmodifiableSet;
+
+/** 
+ * An implementation of Map for JavaBeans which uses introspection to
+ * get and put properties in the bean.
+ * &lt;p&gt;
+ * If an exception occurs during attempts to get or set a property then the
+ * property is considered non existent in the Map
+ *
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ * 
+ * @author James Strachan
+ * @author Stephen Colebourne
+ * @author Dimiter Dimitrov
+ * 
+ * @deprecated Identical class now available in commons-beanutils (full jar version).
+ * This version is due to be removed in collections v4.0.
+ */
+public class BeanMap extends AbstractMap implements Cloneable {
+
+    private transient Object bean;
+
+<span class="fc" id="L59">    private transient HashMap readMethods = new HashMap();</span>
+<span class="fc" id="L60">    private transient HashMap writeMethods = new HashMap();</span>
+<span class="fc" id="L61">    private transient HashMap types = new HashMap();</span>
+
+    /**
+     * An empty array.  Used to invoke accessors via reflection.
+     */
+<span class="fc" id="L66">    public static final Object[] NULL_ARGUMENTS = {};</span>
+
+    /**
+     * Maps primitive Class types to transformers.  The transformer
+     * transform strings into the appropriate primitive wrapper.
+     */
+<span class="fc" id="L72">    public static HashMap defaultTransformers = new HashMap();</span>
+    
+    static {
+<span class="fc" id="L75">        defaultTransformers.put( </span>
+<span class="fc" id="L76">            Boolean.TYPE, </span>
+<span class="fc" id="L77">            new Transformer() {</span>
+                public Object transform( Object input ) {
+<span class="nc" id="L79">                    return Boolean.valueOf( input.toString() );</span>
+                }
+            }
+        );
+<span class="fc" id="L83">        defaultTransformers.put( </span>
+<span class="fc" id="L84">            Character.TYPE, </span>
+<span class="fc" id="L85">            new Transformer() {</span>
+                public Object transform( Object input ) {
+<span class="fc" id="L87">                    return new Character( input.toString().charAt( 0 ) );</span>
+                }
+            }
+        );
+<span class="fc" id="L91">        defaultTransformers.put( </span>
+<span class="fc" id="L92">            Byte.TYPE, </span>
+<span class="fc" id="L93">            new Transformer() {</span>
+                public Object transform( Object input ) {
+<span class="fc" id="L95">                    return Byte.valueOf( input.toString() );</span>
+                }
+            }
+        );
+<span class="fc" id="L99">        defaultTransformers.put( </span>
+<span class="fc" id="L100">            Short.TYPE, </span>
+<span class="fc" id="L101">            new Transformer() {</span>
+                public Object transform( Object input ) {
+<span class="fc" id="L103">                    return Short.valueOf( input.toString() );</span>
+                }
+            }
+        );
+<span class="fc" id="L107">        defaultTransformers.put( </span>
+<span class="fc" id="L108">            Integer.TYPE, </span>
+<span class="fc" id="L109">            new Transformer() {</span>
+                public Object transform( Object input ) {
+<span class="fc" id="L111">                    return Integer.valueOf( input.toString() );</span>
+                }
+            }
+        );
+<span class="fc" id="L115">        defaultTransformers.put( </span>
+<span class="fc" id="L116">            Long.TYPE, </span>
+<span class="fc" id="L117">            new Transformer() {</span>
+                public Object transform( Object input ) {
+<span class="fc" id="L119">                    return Long.valueOf( input.toString() );</span>
+                }
+            }
+        );
+<span class="fc" id="L123">        defaultTransformers.put( </span>
+<span class="fc" id="L124">            Float.TYPE, </span>
+<span class="fc" id="L125">            new Transformer() {</span>
+                public Object transform( Object input ) {
+<span class="fc" id="L127">                    return Float.valueOf( input.toString() );</span>
+                }
+            }
+        );
+<span class="fc" id="L131">        defaultTransformers.put( </span>
+<span class="fc" id="L132">            Double.TYPE, </span>
+<span class="fc" id="L133">            new Transformer() {</span>
+                public Object transform( Object input ) {
+<span class="fc" id="L135">                    return Double.valueOf( input.toString() );</span>
+                }
+            }
+        );
+<span class="fc" id="L139">    }</span>
+    
+    
+    // Constructors
+    //-------------------------------------------------------------------------
+
+    /**
+     * Constructs a new empty &lt;code&gt;BeanMap&lt;/code&gt;.
+     */
+<span class="fc" id="L148">    public BeanMap() {</span>
+<span class="fc" id="L149">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;BeanMap&lt;/code&gt; that operates on the 
+     * specified bean.  If the given bean is &lt;code&gt;null&lt;/code&gt;, then
+     * this map will be empty.
+     *
+     * @param bean  the bean for this map to operate on
+     */
+<span class="fc" id="L158">    public BeanMap(Object bean) {</span>
+<span class="fc" id="L159">        this.bean = bean;</span>
+<span class="fc" id="L160">        initialise();</span>
+<span class="fc" id="L161">    }</span>
+
+    // Map interface
+    //-------------------------------------------------------------------------
+
+    public String toString() {
+<span class="fc" id="L167">        return &quot;BeanMap&lt;&quot; + String.valueOf(bean) + &quot;&gt;&quot;;</span>
+    }
+    
+    /**
+     * Clone this bean map using the following process: 
+     *
+     * &lt;ul&gt;
+     * &lt;li&gt;If there is no underlying bean, return a cloned BeanMap without a
+     * bean.
+     *
+     * &lt;li&gt;Since there is an underlying bean, try to instantiate a new bean of
+     * the same type using Class.newInstance().
+     * 
+     * &lt;li&gt;If the instantiation fails, throw a CloneNotSupportedException
+     *
+     * &lt;li&gt;Clone the bean map and set the newly instantiated bean as the
+     * underlying bean for the bean map.
+     *
+     * &lt;li&gt;Copy each property that is both readable and writable from the
+     * existing object to a cloned bean map.  
+     *
+     * &lt;li&gt;If anything fails along the way, throw a
+     * CloneNotSupportedException.
+     *
+     * &lt;ul&gt;
+     */
+    public Object clone() throws CloneNotSupportedException {
+<span class="fc" id="L194">        BeanMap newMap = (BeanMap)super.clone();</span>
+
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        if(bean == null) {</span>
+            // no bean, just an empty bean map at the moment.  return a newly
+            // cloned and empty bean map.
+<span class="nc" id="L199">            return newMap;</span>
+        }
+
+<span class="fc" id="L202">        Object newBean = null;            </span>
+<span class="fc" id="L203">        Class beanClass = null;</span>
+        try {
+<span class="fc" id="L205">            beanClass = bean.getClass();</span>
+<span class="fc" id="L206">            newBean = beanClass.newInstance();</span>
+<span class="pc" id="L207">        } catch (Exception e) {</span>
+            // unable to instantiate
+<span class="nc" id="L209">            throw new CloneNotSupportedException</span>
+<span class="nc" id="L210">                (&quot;Unable to instantiate the underlying bean \&quot;&quot; +</span>
+<span class="nc" id="L211">                 beanClass.getName() + &quot;\&quot;: &quot; + e);</span>
+        }
+            
+        try {
+<span class="fc" id="L215">            newMap.setBean(newBean);</span>
+<span class="pc" id="L216">        } catch (Exception exception) {</span>
+<span class="nc" id="L217">            throw new CloneNotSupportedException</span>
+<span class="nc" id="L218">                (&quot;Unable to set bean in the cloned bean map: &quot; + </span>
+<span class="nc" id="L219">                 exception);</span>
+        }
+            
+        try {
+            // copy only properties that are readable and writable.  If its
+            // not readable, we can't get the value from the old map.  If
+            // its not writable, we can't write a value into the new map.
+<span class="fc" id="L226">            Iterator readableKeys = readMethods.keySet().iterator();</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">            while(readableKeys.hasNext()) {</span>
+<span class="fc" id="L228">                Object key = readableKeys.next();</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">                if(getWriteMethod(key) != null) {</span>
+<span class="fc" id="L230">                    newMap.put(key, get(key));</span>
+                }
+            }
+<span class="pc" id="L233">        } catch (Exception exception) {</span>
+<span class="nc" id="L234">            throw new CloneNotSupportedException</span>
+<span class="nc" id="L235">                (&quot;Unable to copy bean values to cloned bean map: &quot; +</span>
+<span class="nc" id="L236">                 exception);</span>
+        }
+
+<span class="fc" id="L239">        return newMap;</span>
+    }
+
+    /**
+     * Puts all of the writable properties from the given BeanMap into this
+     * BeanMap. Read-only and Write-only properties will be ignored.
+     *
+     * @param map  the BeanMap whose properties to put
+     */
+    public void putAllWriteable(BeanMap map) {
+<span class="fc" id="L249">        Iterator readableKeys = map.readMethods.keySet().iterator();</span>
+<span class="fc bfc" id="L250" title="All 2 branches covered.">        while (readableKeys.hasNext()) {</span>
+<span class="fc" id="L251">            Object key = readableKeys.next();</span>
+<span class="fc bfc" id="L252" title="All 2 branches covered.">            if (getWriteMethod(key) != null) {</span>
+<span class="fc" id="L253">                this.put(key, map.get(key));</span>
+            }
+        }
+<span class="fc" id="L256">    }</span>
+
+
+    /**
+     * This method reinitializes the bean map to have default values for the
+     * bean's properties.  This is accomplished by constructing a new instance
+     * of the bean which the map uses as its underlying data source.  This
+     * behavior for &lt;code&gt;clear()&lt;/code&gt; differs from the Map contract in that
+     * the mappings are not actually removed from the map (the mappings for a
+     * BeanMap are fixed).
+     */
+    public void clear() {
+<span class="nc bnc" id="L268" title="All 2 branches missed.">        if(bean == null) return;</span>
+
+<span class="nc" id="L270">        Class beanClass = null;</span>
+        try {
+<span class="nc" id="L272">            beanClass = bean.getClass();</span>
+<span class="nc" id="L273">            bean = beanClass.newInstance();</span>
+<span class="nc" id="L274">        }</span>
+<span class="nc" id="L275">        catch (Exception e) {</span>
+<span class="nc" id="L276">            throw new UnsupportedOperationException( &quot;Could not create new instance of class: &quot; + beanClass );</span>
+        }
+<span class="nc" id="L278">    }</span>
+
+    /**
+     * Returns true if the bean defines a property with the given name.
+     * &lt;p&gt;
+     * The given name must be a &lt;code&gt;String&lt;/code&gt;; if not, this method
+     * returns false. This method will also return false if the bean
+     * does not define a property with that name.
+     * &lt;p&gt;
+     * Write-only properties will not be matched as the test operates against
+     * property read methods.
+     *
+     * @param name  the name of the property to check
+     * @return false if the given name is null or is not a &lt;code&gt;String&lt;/code&gt;;
+     *   false if the bean does not define a property with that name; or
+     *   true if the bean does define a property with that name
+     */
+    public boolean containsKey(Object name) {
+<span class="fc" id="L296">        Method method = getReadMethod(name);</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">        return method != null;</span>
+    }
+
+    /**
+     * Returns true if the bean defines a property whose current value is
+     * the given object.
+     *
+     * @param value  the value to check
+     * @return false  true if the bean has at least one property whose 
+     *   current value is that object, false otherwise
+     */
+    public boolean containsValue(Object value) {
+        // use default implementation
+<span class="fc" id="L310">        return super.containsValue(value);</span>
+    }
+
+    /**
+     * Returns the value of the bean's property with the given name.
+     * &lt;p&gt;
+     * The given name must be a {@link String} and must not be 
+     * null; otherwise, this method returns &lt;code&gt;null&lt;/code&gt;.
+     * If the bean defines a property with the given name, the value of
+     * that property is returned.  Otherwise, &lt;code&gt;null&lt;/code&gt; is 
+     * returned.
+     * &lt;p&gt;
+     * Write-only properties will not be matched as the test operates against
+     * property read methods.
+     *
+     * @param name  the name of the property whose value to return
+     * @return  the value of the property with that name
+     */
+    public Object get(Object name) {
+<span class="fc bfc" id="L329" title="All 2 branches covered.">        if ( bean != null ) {</span>
+<span class="fc" id="L330">            Method method = getReadMethod( name );</span>
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">            if ( method != null ) {</span>
+                try {
+<span class="fc" id="L333">                    return method.invoke( bean, NULL_ARGUMENTS );</span>
+                }
+<span class="nc" id="L335">                catch (  IllegalAccessException e ) {</span>
+<span class="nc" id="L336">                    logWarn( e );</span>
+                }
+<span class="nc" id="L338">                catch ( IllegalArgumentException e ) {</span>
+<span class="nc" id="L339">                    logWarn(  e );</span>
+                }
+<span class="nc" id="L341">                catch ( InvocationTargetException e ) {</span>
+<span class="nc" id="L342">                    logWarn(  e );</span>
+                }
+<span class="nc" id="L344">                catch ( NullPointerException e ) {</span>
+<span class="nc" id="L345">                    logWarn(  e );</span>
+                }
+            }
+        }
+<span class="fc" id="L349">        return null;</span>
+    }
+
+    /**
+     * Sets the bean property with the given name to the given value.
+     *
+     * @param name  the name of the property to set
+     * @param value  the value to set that property to
+     * @return  the previous value of that property
+     * @throws IllegalArgumentException  if the given name is null;
+     *   if the given name is not a {@link String}; if the bean doesn't
+     *   define a property with that name; or if the bean property with
+     *   that name is read-only
+     */
+    public Object put(Object name, Object value) throws IllegalArgumentException, ClassCastException {
+<span class="pc bpc" id="L364" title="1 of 2 branches missed.">        if ( bean != null ) {</span>
+<span class="fc" id="L365">            Object oldValue = get( name );</span>
+<span class="fc" id="L366">            Method method = getWriteMethod( name );</span>
+<span class="pc bpc" id="L367" title="1 of 2 branches missed.">            if ( method == null ) {</span>
+<span class="nc" id="L368">                throw new IllegalArgumentException( &quot;The bean of type: &quot;+ bean.getClass().getName() + &quot; has no property called: &quot; + name );</span>
+            }
+            try {
+<span class="fc" id="L371">                Object[] arguments = createWriteMethodArguments( method, value );</span>
+<span class="fc" id="L372">                method.invoke( bean, arguments );</span>
+
+<span class="fc" id="L374">                Object newValue = get( name );</span>
+<span class="fc" id="L375">                firePropertyChange( name, oldValue, newValue );</span>
+<span class="fc" id="L376">            }</span>
+<span class="nc" id="L377">            catch ( InvocationTargetException e ) {</span>
+<span class="nc" id="L378">                logInfo( e );</span>
+<span class="nc" id="L379">                throw new IllegalArgumentException( e.getMessage() );</span>
+            }
+<span class="nc" id="L381">            catch ( IllegalAccessException e ) {</span>
+<span class="nc" id="L382">                logInfo( e );</span>
+<span class="nc" id="L383">                throw new IllegalArgumentException( e.getMessage() );</span>
+            }
+<span class="fc" id="L385">            return oldValue;</span>
+        }
+<span class="nc" id="L387">        return null;</span>
+    }
+                    
+    /**
+     * Returns the number of properties defined by the bean.
+     *
+     * @return  the number of properties defined by the bean
+     */
+    public int size() {
+<span class="fc" id="L396">        return readMethods.size();</span>
+    }
+
+    
+    /**
+     * Get the keys for this BeanMap.
+     * &lt;p&gt;
+     * Write-only properties are &lt;b&gt;not&lt;/b&gt; included in the returned set of
+     * property names, although it is possible to set their value and to get 
+     * their type.
+     * 
+     * @return BeanMap keys.  The Set returned by this method is not
+     *        modifiable.
+     */
+    public Set keySet() {
+<span class="fc" id="L411">        return UnmodifiableSet.decorate(readMethods.keySet());</span>
+    }
+
+    /**
+     * Gets a Set of MapEntry objects that are the mappings for this BeanMap.
+     * &lt;p&gt;
+     * Each MapEntry can be set but not removed.
+     * 
+     * @return the unmodifiable set of mappings
+     */
+    public Set entrySet() {
+<span class="fc" id="L422">        return UnmodifiableSet.decorate(new AbstractSet() {</span>
+            public Iterator iterator() {
+<span class="fc" id="L424">                return entryIterator();</span>
+            }
+            public int size() {
+<span class="fc" id="L427">              return BeanMap.this.readMethods.size();</span>
+            }
+        });
+    }
+
+    /**
+     * Returns the values for the BeanMap.
+     * 
+     * @return values for the BeanMap.  The returned collection is not
+     *        modifiable.
+     */
+    public Collection values() {
+<span class="fc" id="L439">        ArrayList answer = new ArrayList( readMethods.size() );</span>
+<span class="fc bfc" id="L440" title="All 2 branches covered.">        for ( Iterator iter = valueIterator(); iter.hasNext(); ) {</span>
+<span class="fc" id="L441">            answer.add( iter.next() );</span>
+        }
+<span class="fc" id="L443">        return UnmodifiableList.decorate(answer);</span>
+    }
+
+
+    // Helper methods
+    //-------------------------------------------------------------------------
+
+    /**
+     * Returns the type of the property with the given name.
+     *
+     * @param name  the name of the property
+     * @return  the type of the property, or &lt;code&gt;null&lt;/code&gt; if no such
+     *  property exists
+     */
+    public Class getType(String name) {
+<span class="nc" id="L458">        return (Class) types.get( name );</span>
+    }
+
+    /**
+     * Convenience method for getting an iterator over the keys.
+     * &lt;p&gt;
+     * Write-only properties will not be returned in the iterator.
+     *
+     * @return an iterator over the keys
+     */
+    public Iterator keyIterator() {
+<span class="fc" id="L469">        return readMethods.keySet().iterator();</span>
+    }
+
+    /**
+     * Convenience method for getting an iterator over the values.
+     *
+     * @return an iterator over the values
+     */
+    public Iterator valueIterator() {
+<span class="fc" id="L478">        final Iterator iter = keyIterator();</span>
+<span class="fc" id="L479">        return new Iterator() {            </span>
+            public boolean hasNext() {
+<span class="fc" id="L481">                return iter.hasNext();</span>
+            }
+            public Object next() {
+<span class="fc" id="L484">                Object key = iter.next();</span>
+<span class="fc" id="L485">                return get(key);</span>
+            }
+            public void remove() {
+<span class="nc" id="L488">                throw new UnsupportedOperationException( &quot;remove() not supported for BeanMap&quot; );</span>
+            }
+        };
+    }
+
+    /**
+     * Convenience method for getting an iterator over the entries.
+     *
+     * @return an iterator over the entries
+     */
+    public Iterator entryIterator() {
+<span class="fc" id="L499">        final Iterator iter = keyIterator();</span>
+<span class="fc" id="L500">        return new Iterator() {            </span>
+            public boolean hasNext() {
+<span class="fc" id="L502">                return iter.hasNext();</span>
+            }            
+            public Object next() {
+<span class="fc" id="L505">                Object key = iter.next();</span>
+<span class="fc" id="L506">                Object value = get(key);</span>
+<span class="fc" id="L507">                return new MyMapEntry( BeanMap.this, key, value );</span>
+            }            
+            public void remove() {
+<span class="nc" id="L510">                throw new UnsupportedOperationException( &quot;remove() not supported for BeanMap&quot; );</span>
+            }
+        };
+    }
+
+
+    // Properties
+    //-------------------------------------------------------------------------
+
+    /**
+     * Returns the bean currently being operated on.  The return value may
+     * be null if this map is empty.
+     *
+     * @return the bean being operated on by this map
+     */
+    public Object getBean() {
+<span class="fc" id="L526">        return bean;</span>
+    }
+
+    /**
+     * Sets the bean to be operated on by this map.  The given value may
+     * be null, in which case this map will be empty.
+     *
+     * @param newBean  the new bean to operate on
+     */
+    public void setBean( Object newBean ) {
+<span class="fc" id="L536">        bean = newBean;</span>
+<span class="fc" id="L537">        reinitialise();</span>
+<span class="fc" id="L538">    }</span>
+
+    /**
+     * Returns the accessor for the property with the given name.
+     *
+     * @param name  the name of the property 
+     * @return the accessor method for the property, or null
+     */
+    public Method getReadMethod(String name) {
+<span class="fc" id="L547">        return (Method) readMethods.get(name);</span>
+    }
+
+    /**
+     * Returns the mutator for the property with the given name.
+     *
+     * @param name  the name of the property
+     * @return the mutator method for the property, or null
+     */
+    public Method getWriteMethod(String name) {
+<span class="fc" id="L557">        return (Method) writeMethods.get(name);</span>
+    }
+
+
+    // Implementation methods
+    //-------------------------------------------------------------------------
+
+    /**
+     * Returns the accessor for the property with the given name.
+     *
+     * @param name  the name of the property 
+     * @return null if the name is null; null if the name is not a 
+     * {@link String}; null if no such property exists; or the accessor
+     *  method for that property
+     */
+    protected Method getReadMethod( Object name ) {
+<span class="fc" id="L573">        return (Method) readMethods.get( name );</span>
+    }
+
+    /**
+     * Returns the mutator for the property with the given name.
+     *
+     * @param name  the name of the 
+     * @return null if the name is null; null if the name is not a 
+     * {@link String}; null if no such property exists; null if the 
+     * property is read-only; or the mutator method for that property
+     */
+    protected Method getWriteMethod( Object name ) {
+<span class="fc" id="L585">        return (Method) writeMethods.get( name );</span>
+    }
+
+    /**
+     * Reinitializes this bean.  Called during {@link #setBean(Object)}.
+     * Does introspection to find properties.
+     */
+    protected void reinitialise() {
+<span class="fc" id="L593">        readMethods.clear();</span>
+<span class="fc" id="L594">        writeMethods.clear();</span>
+<span class="fc" id="L595">        types.clear();</span>
+<span class="fc" id="L596">        initialise();</span>
+<span class="fc" id="L597">    }</span>
+
+    private void initialise() {
+<span class="pc bpc" id="L600" title="1 of 2 branches missed.">        if(getBean() == null) return;</span>
+
+<span class="fc" id="L602">        Class  beanClass = getBean().getClass();</span>
+        try {
+            //BeanInfo beanInfo = Introspector.getBeanInfo( bean, null );
+<span class="fc" id="L605">            BeanInfo beanInfo = Introspector.getBeanInfo( beanClass );</span>
+<span class="fc" id="L606">            PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();</span>
+<span class="pc bpc" id="L607" title="1 of 2 branches missed.">            if ( propertyDescriptors != null ) {</span>
+<span class="fc bfc" id="L608" title="All 2 branches covered.">                for ( int i = 0; i &lt; propertyDescriptors.length; i++ ) {</span>
+<span class="fc" id="L609">                    PropertyDescriptor propertyDescriptor = propertyDescriptors[i];</span>
+<span class="pc bpc" id="L610" title="1 of 2 branches missed.">                    if ( propertyDescriptor != null ) {</span>
+<span class="fc" id="L611">                        String name = propertyDescriptor.getName();</span>
+<span class="fc" id="L612">                        Method readMethod = propertyDescriptor.getReadMethod();</span>
+<span class="fc" id="L613">                        Method writeMethod = propertyDescriptor.getWriteMethod();</span>
+<span class="fc" id="L614">                        Class aType = propertyDescriptor.getPropertyType();</span>
+
+<span class="pc bpc" id="L616" title="1 of 2 branches missed.">                        if ( readMethod != null ) {</span>
+<span class="fc" id="L617">                            readMethods.put( name, readMethod );</span>
+                        }
+<span class="fc bfc" id="L619" title="All 2 branches covered.">                        if ( writeMethod != null ) {</span>
+<span class="fc" id="L620">                            writeMethods.put( name, writeMethod );</span>
+                        }
+<span class="fc" id="L622">                        types.put( name, aType );</span>
+                    }
+                }
+            }
+<span class="fc" id="L626">        }</span>
+<span class="nc" id="L627">        catch ( IntrospectionException e ) {</span>
+<span class="nc" id="L628">            logWarn(  e );</span>
+        }
+<span class="fc" id="L630">    }</span>
+
+    /**
+     * Called during a successful {@link #put(Object,Object)} operation.
+     * Default implementation does nothing.  Override to be notified of
+     * property changes in the bean caused by this map.
+     *
+     * @param key  the name of the property that changed
+     * @param oldValue  the old value for that property
+     * @param newValue  the new value for that property
+     */
+    protected void firePropertyChange( Object key, Object oldValue, Object newValue ) {
+<span class="fc" id="L642">    }</span>
+
+    // Implementation classes
+    //-------------------------------------------------------------------------
+
+    /**
+     * Map entry used by {@link BeanMap}.
+     */
+    protected static class MyMapEntry extends AbstractMapEntry {        
+        private BeanMap owner;
+        
+        /**
+         * Constructs a new &lt;code&gt;MyMapEntry&lt;/code&gt;.
+         *
+         * @param owner  the BeanMap this entry belongs to
+         * @param key  the key for this entry
+         * @param value  the value for this entry
+         */
+        protected MyMapEntry( BeanMap owner, Object key, Object value ) {
+<span class="fc" id="L661">            super( key, value );</span>
+<span class="fc" id="L662">            this.owner = owner;</span>
+<span class="fc" id="L663">        }</span>
+
+        /**
+         * Sets the value.
+         *
+         * @param value  the new value for the entry
+         * @return the old value for the entry
+         */
+        public Object setValue(Object value) {
+<span class="fc" id="L672">            Object key = getKey();</span>
+<span class="fc" id="L673">            Object oldValue = owner.get( key );</span>
+
+<span class="fc" id="L675">            owner.put( key, value );</span>
+<span class="fc" id="L676">            Object newValue = owner.get( key );</span>
+<span class="fc" id="L677">            super.setValue( newValue );</span>
+<span class="fc" id="L678">            return oldValue;</span>
+        }
+    }
+
+    /**
+     * Creates an array of parameters to pass to the given mutator method.
+     * If the given object is not the right type to pass to the method 
+     * directly, it will be converted using {@link #convertType(Class,Object)}.
+     *
+     * @param method  the mutator method
+     * @param value  the value to pass to the mutator method
+     * @return an array containing one object that is either the given value
+     *   or a transformed value
+     * @throws IllegalAccessException if {@link #convertType(Class,Object)}
+     *   raises it
+     * @throws IllegalArgumentException if any other exception is raised
+     *   by {@link #convertType(Class,Object)}
+     */
+    protected Object[] createWriteMethodArguments( Method method, Object value ) throws IllegalAccessException, ClassCastException {            
+        try {
+<span class="pc bpc" id="L698" title="1 of 2 branches missed.">            if ( value != null ) {</span>
+<span class="fc" id="L699">                Class[] types = method.getParameterTypes();</span>
+<span class="pc bpc" id="L700" title="2 of 4 branches missed.">                if ( types != null &amp;&amp; types.length &gt; 0 ) {</span>
+<span class="fc" id="L701">                    Class paramType = types[0];</span>
+<span class="fc bfc" id="L702" title="All 2 branches covered.">                    if ( ! paramType.isAssignableFrom( value.getClass() ) ) {</span>
+<span class="fc" id="L703">                        value = convertType( paramType, value );</span>
+                    }
+                }
+            }
+<span class="fc" id="L707">            Object[] answer = { value };</span>
+<span class="fc" id="L708">            return answer;</span>
+        }
+<span class="nc" id="L710">        catch ( InvocationTargetException e ) {</span>
+<span class="nc" id="L711">            logInfo( e );</span>
+<span class="nc" id="L712">            throw new IllegalArgumentException( e.getMessage() );</span>
+        }
+<span class="nc" id="L714">        catch ( InstantiationException e ) {</span>
+<span class="nc" id="L715">            logInfo( e );</span>
+<span class="nc" id="L716">            throw new IllegalArgumentException( e.getMessage() );</span>
+        }
+    }
+
+    /**
+     * Converts the given value to the given type.  First, reflection is
+     * is used to find a public constructor declared by the given class 
+     * that takes one argument, which must be the precise type of the 
+     * given value.  If such a constructor is found, a new object is
+     * created by passing the given value to that constructor, and the
+     * newly constructed object is returned.&lt;P&gt;
+     *
+     * If no such constructor exists, and the given type is a primitive
+     * type, then the given value is converted to a string using its 
+     * {@link Object#toString() toString()} method, and that string is
+     * parsed into the correct primitive type using, for instance, 
+     * {@link Integer#valueOf(String)} to convert the string into an
+     * &lt;code&gt;int&lt;/code&gt;.&lt;P&gt;
+     *
+     * If no special constructor exists and the given type is not a 
+     * primitive type, this method returns the original value.
+     *
+     * @param newType  the type to convert the value to
+     * @param value  the value to convert
+     * @return the converted value
+     * @throws NumberFormatException if newType is a primitive type, and 
+     *  the string representation of the given value cannot be converted
+     *  to that type
+     * @throws InstantiationException  if the constructor found with 
+     *  reflection raises it
+     * @throws InvocationTargetException  if the constructor found with
+     *  reflection raises it
+     * @throws IllegalAccessException  never
+     * @throws IllegalArgumentException  never
+     */
+    protected Object convertType( Class newType, Object value ) 
+        throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        
+        // try call constructor
+<span class="fc" id="L755">        Class[] types = { value.getClass() };</span>
+        try {
+<span class="nc" id="L757">            Constructor constructor = newType.getConstructor( types );        </span>
+<span class="nc" id="L758">            Object[] arguments = { value };</span>
+<span class="nc" id="L759">            return constructor.newInstance( arguments );</span>
+        }
+<span class="fc" id="L761">        catch ( NoSuchMethodException e ) {</span>
+            // try using the transformers
+<span class="fc" id="L763">            Transformer transformer = getTypeTransformer( newType );</span>
+<span class="pc bpc" id="L764" title="1 of 2 branches missed.">            if ( transformer != null ) {</span>
+<span class="fc" id="L765">                return transformer.transform( value );</span>
+            }
+<span class="nc" id="L767">            return value;</span>
+        }
+    }
+
+    /**
+     * Returns a transformer for the given primitive type.
+     *
+     * @param aType  the primitive type whose transformer to return
+     * @return a transformer that will convert strings into that type,
+     *  or null if the given type is not a primitive type
+     */
+    protected Transformer getTypeTransformer( Class aType ) {
+<span class="fc" id="L779">        return (Transformer) defaultTransformers.get( aType );</span>
+    }
+
+    /**
+     * Logs the given exception to &lt;code&gt;System.out&lt;/code&gt;.  Used to display
+     * warnings while accessing/mutating the bean.
+     *
+     * @param ex  the exception to log
+     */
+    protected void logInfo(Exception ex) {
+        // Deliberately do not use LOG4J or Commons Logging to avoid dependencies
+<span class="nc" id="L790">        System.out.println( &quot;INFO: Exception: &quot; + ex );</span>
+<span class="nc" id="L791">    }</span>
+
+    /**
+     * Logs the given exception to &lt;code&gt;System.err&lt;/code&gt;.  Used to display
+     * errors while accessing/mutating the bean.
+     *
+     * @param ex  the exception to log
+     */
+    protected void logWarn(Exception ex) {
+        // Deliberately do not use LOG4J or Commons Logging to avoid dependencies
+<span class="nc" id="L801">        System.out.println( &quot;WARN: Exception: &quot; + ex );</span>
+<span class="nc" id="L802">        ex.printStackTrace();</span>
+<span class="nc" id="L803">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

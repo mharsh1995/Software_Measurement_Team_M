@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestEnumerationUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestEnumerationUtils.java</span></div><h1>TestEnumerationUtils.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import junit.framework.Assert;
+import junit.framework.Test;
+
+/**
+ * Tests EnumerationUtils.
+ * 
+ * @author &lt;a href=&quot;mailto:ggregory@seagullsw.com&quot;&gt;Gary Gregory&lt;/a&gt;
+ * @version $Id$
+ */
+public class TestEnumerationUtils extends BulkTest {
+
+    public TestEnumerationUtils(String name) {
+<span class="fc" id="L36">        super(name);</span>
+<span class="fc" id="L37">    }</span>
+
+    public static final String TO_LIST_FIXTURE = &quot;this is a test&quot;;
+    
+    public void testToListWithStringTokenizer() {
+<span class="fc" id="L42">        List expectedList1 = new ArrayList();</span>
+<span class="fc" id="L43">        StringTokenizer st = new StringTokenizer(TO_LIST_FIXTURE);</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">             while (st.hasMoreTokens()) {</span>
+<span class="fc" id="L45">                 expectedList1.add(st.nextToken());</span>
+             }        
+<span class="fc" id="L47">        List expectedList2 = new ArrayList();</span>
+<span class="fc" id="L48">        expectedList2.add(&quot;this&quot;);</span>
+<span class="fc" id="L49">        expectedList2.add(&quot;is&quot;);</span>
+<span class="fc" id="L50">        expectedList2.add(&quot;a&quot;);</span>
+<span class="fc" id="L51">        expectedList2.add(&quot;test&quot;);</span>
+<span class="fc" id="L52">        List actualList = EnumerationUtils.toList(new StringTokenizer(TO_LIST_FIXTURE));</span>
+<span class="fc" id="L53">        Assert.assertEquals(expectedList1, expectedList2);</span>
+<span class="fc" id="L54">        Assert.assertEquals(expectedList1, actualList);</span>
+<span class="fc" id="L55">        Assert.assertEquals(expectedList2, actualList);</span>
+<span class="fc" id="L56">    }</span>
+
+    public void testToListWithHashtable() {
+<span class="fc" id="L59">        Hashtable expected = new Hashtable();</span>
+<span class="fc" id="L60">        expected.put(&quot;one&quot;, new Integer(1));</span>
+<span class="fc" id="L61">        expected.put(&quot;two&quot;, new Integer(2));</span>
+<span class="fc" id="L62">        expected.put(&quot;three&quot;, new Integer(3));</span>
+        // validate elements.
+<span class="fc" id="L64">        List actualEltList = EnumerationUtils.toList(expected.elements());</span>
+<span class="fc" id="L65">        Assert.assertEquals(expected.size(), actualEltList.size());</span>
+<span class="fc" id="L66">        Assert.assertTrue(actualEltList.contains(new Integer(1)));</span>
+<span class="fc" id="L67">        Assert.assertTrue(actualEltList.contains(new Integer(2)));</span>
+<span class="fc" id="L68">        Assert.assertTrue(actualEltList.contains(new Integer(3)));</span>
+<span class="fc" id="L69">        List expectedEltList = new ArrayList();</span>
+<span class="fc" id="L70">        expectedEltList.add(new Integer(1));</span>
+<span class="fc" id="L71">        expectedEltList.add(new Integer(2));</span>
+<span class="fc" id="L72">        expectedEltList.add(new Integer(3));</span>
+<span class="fc" id="L73">        Assert.assertTrue(actualEltList.containsAll(expectedEltList));</span>
+
+        // validate keys.
+<span class="fc" id="L76">        List actualKeyList = EnumerationUtils.toList(expected.keys());</span>
+<span class="fc" id="L77">        Assert.assertEquals(expected.size(), actualEltList.size());</span>
+<span class="fc" id="L78">        Assert.assertTrue(actualKeyList.contains(&quot;one&quot;));</span>
+<span class="fc" id="L79">        Assert.assertTrue(actualKeyList.contains(&quot;two&quot;));</span>
+<span class="fc" id="L80">        Assert.assertTrue(actualKeyList.contains(&quot;three&quot;));</span>
+<span class="fc" id="L81">        List expectedKeyList = new ArrayList();</span>
+<span class="fc" id="L82">        expectedKeyList.add(&quot;one&quot;);</span>
+<span class="fc" id="L83">        expectedKeyList.add(&quot;two&quot;);</span>
+<span class="fc" id="L84">        expectedKeyList.add(&quot;three&quot;);</span>
+<span class="fc" id="L85">        Assert.assertTrue(actualKeyList.containsAll(expectedKeyList));</span>
+<span class="fc" id="L86">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L89" title="All 2 branches covered.">        return BulkTest.makeSuite(TestEnumerationUtils.class);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

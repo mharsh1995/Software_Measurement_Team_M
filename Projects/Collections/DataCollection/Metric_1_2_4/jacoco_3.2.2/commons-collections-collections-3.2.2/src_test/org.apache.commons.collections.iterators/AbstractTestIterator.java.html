@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">AbstractTestIterator.java</span></div><h1>AbstractTestIterator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import org.apache.commons.collections.AbstractTestObject;
+
+/**
+ * Abstract class for testing the Iterator interface.
+ * &lt;p&gt;
+ * This class provides a framework for testing an implementation of Iterator.
+ * Concrete subclasses must provide the iterator to be tested.
+ * They must also specify certain details of how the iterator operates by
+ * overriding the supportsXxx() methods if necessary.
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Morgan Delagrange
+ * @author Stephen Colebourne
+ */
+public abstract class AbstractTestIterator extends AbstractTestObject {
+
+    /**
+     * JUnit constructor.
+     * 
+     * @param testName  the test class name
+     */
+    public AbstractTestIterator(String testName) {
+<span class="fc" id="L46">        super(testName);</span>
+<span class="fc" id="L47">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Implement this method to return an iterator over an empty collection.
+     * 
+     * @return an empty iterator
+     */
+    public abstract Iterator makeEmptyIterator();
+
+    /**
+     * Implement this method to return an iterator over a collection with elements.
+     * 
+     * @return a full iterator
+     */
+    public abstract Iterator makeFullIterator();
+
+    /**
+     * Implements the abstract superclass method to return the full iterator.
+     * 
+     * @return a full iterator
+     */
+    public Object makeObject() {
+<span class="fc" id="L70">        return makeFullIterator();</span>
+    }
+
+    /**
+     * Whether or not we are testing an iterator that can be empty.
+     * Default is true.
+     * 
+     * @return true if Iterator can be empty
+     */
+    public boolean supportsEmptyIterator() {
+<span class="fc" id="L80">        return true;</span>
+    }
+
+    /**
+     * Whether or not we are testing an iterator that can contain elements.
+     * Default is true.
+     * 
+     * @return true if Iterator can be full
+     */
+    public boolean supportsFullIterator() {
+<span class="fc" id="L90">        return true;</span>
+    }
+
+    /**
+     * Whether or not we are testing an iterator that supports remove().
+     * Default is true.
+     * 
+     * @return true if Iterator supports remove
+     */
+    public boolean supportsRemove() {
+<span class="fc" id="L100">        return true;</span>
+    }
+
+    /**
+     * Allows subclasses to add complex cross verification
+     */
+    public void verify() {
+        // do nothing
+<span class="fc" id="L108">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Test the empty iterator.
+     */
+    public void testEmptyIterator() {
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (supportsEmptyIterator() == false) {</span>
+<span class="fc" id="L116">            return;</span>
+        }
+
+<span class="fc" id="L119">        Iterator it = makeEmptyIterator();</span>
+        
+        // hasNext() should return false
+<span class="fc" id="L122">        assertEquals(&quot;hasNext() should return false for empty iterators&quot;, false, it.hasNext());</span>
+        
+        // next() should throw a NoSuchElementException
+        try {
+<span class="nc" id="L126">            it.next();</span>
+<span class="nc" id="L127">            fail(&quot;NoSuchElementException must be thrown when Iterator is exhausted&quot;);</span>
+<span class="pc" id="L128">        } catch (NoSuchElementException e) {</span>
+        }
+<span class="fc" id="L130">        verify();</span>
+        
+<span class="fc" id="L132">        assertNotNull(it.toString());</span>
+<span class="fc" id="L133">    }</span>
+
+    /**
+     * Test normal iteration behaviour.
+     */
+    public void testFullIterator() {
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if (supportsFullIterator() == false) {</span>
+<span class="nc" id="L140">            return;</span>
+        }
+
+<span class="fc" id="L143">        Iterator it = makeFullIterator();</span>
+
+        // hasNext() must be true (ensure makeFullIterator is correct!)
+<span class="fc" id="L146">        assertEquals(&quot;hasNext() should return true for at least one element&quot;, true, it.hasNext());</span>
+
+        // next() must not throw exception (ensure makeFullIterator is correct!)
+        try {
+<span class="fc" id="L150">            it.next();</span>
+<span class="pc" id="L151">        } catch (NoSuchElementException e) {</span>
+<span class="nc" id="L152">            fail(&quot;Full iterators must have at least one element&quot;);</span>
+        }
+
+        // iterate through
+<span class="pc bfc" id="L156" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L157">            it.next();</span>
+<span class="fc" id="L158">            verify();</span>
+        }
+
+        // next() must throw NoSuchElementException now
+        try {
+<span class="nc" id="L163">            it.next();</span>
+<span class="nc" id="L164">            fail(&quot;NoSuchElementException must be thrown when Iterator is exhausted&quot;);</span>
+<span class="pc" id="L165">        } catch (NoSuchElementException e) {</span>
+        }
+        
+<span class="fc" id="L168">        assertNotNull(it.toString());</span>
+<span class="fc" id="L169">    }</span>
+
+    /**
+     * Test remove behaviour.
+     */
+    public void testRemove() {
+<span class="fc" id="L175">        Iterator it = makeFullIterator();</span>
+        
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        if (supportsRemove() == false) {</span>
+            // check for UnsupportedOperationException if not supported
+            try {
+<span class="nc" id="L180">                it.remove();</span>
+<span class="pc" id="L181">            } catch (UnsupportedOperationException ex) {}</span>
+<span class="fc" id="L182">            return;</span>
+        }
+        
+        // should throw IllegalStateException before next() called
+        try {
+<span class="nc" id="L187">            it.remove();</span>
+<span class="nc" id="L188">            fail();</span>
+<span class="pc" id="L189">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L190">        verify();</span>
+        
+        // remove after next should be fine
+<span class="fc" id="L193">        it.next();</span>
+<span class="fc" id="L194">        it.remove();</span>
+        
+        // should throw IllegalStateException for second remove()
+        try {
+<span class="nc" id="L198">            it.remove();</span>
+<span class="nc" id="L199">            fail();</span>
+<span class="pc" id="L200">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L201">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

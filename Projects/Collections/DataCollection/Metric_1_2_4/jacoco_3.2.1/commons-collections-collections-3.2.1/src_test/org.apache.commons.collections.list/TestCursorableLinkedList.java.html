@@ -1,0 +1,1477 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestCursorableLinkedList.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.list</a> &gt; <span class="el_source">TestCursorableLinkedList.java</span></div><h1>TestCursorableLinkedList.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.list;
+
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.BulkTest;
+
+/**
+ * Test class.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Rodney Waldhoff
+ * @author Simon Kitching
+ */
+public class TestCursorableLinkedList extends TestAbstractLinkedList {
+    public TestCursorableLinkedList(String testName) {
+<span class="fc" id="L41">        super(testName);</span>
+<span class="fc" id="L42">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L45" title="All 2 branches covered.">        return BulkTest.makeSuite(TestCursorableLinkedList.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        String[] testCaseName = { TestCursorableLinkedList.class.getName() };</span>
+<span class="nc" id="L50">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L51">    }</span>
+
+<span class="fc" id="L53">    private CursorableLinkedList list = null;</span>
+
+    public void setUp() {
+<span class="fc" id="L56">        list = new CursorableLinkedList();</span>
+<span class="fc" id="L57">    }</span>
+
+    public List makeEmptyList() {
+<span class="fc" id="L60">        return new CursorableLinkedList();</span>
+    }
+
+    public void testAdd() {
+<span class="fc" id="L64">        assertEquals(&quot;[]&quot;,list.toString());</span>
+<span class="fc" id="L65">        assertTrue(list.add(new Integer(1)));</span>
+<span class="fc" id="L66">        assertEquals(&quot;[1]&quot;,list.toString());</span>
+<span class="fc" id="L67">        assertTrue(list.add(new Integer(2)));</span>
+<span class="fc" id="L68">        assertEquals(&quot;[1, 2]&quot;,list.toString());</span>
+<span class="fc" id="L69">        assertTrue(list.add(new Integer(3)));</span>
+<span class="fc" id="L70">        assertEquals(&quot;[1, 2, 3]&quot;,list.toString());</span>
+<span class="fc" id="L71">        assertTrue(list.addFirst(new Integer(0)));</span>
+<span class="fc" id="L72">        assertEquals(&quot;[0, 1, 2, 3]&quot;,list.toString());</span>
+<span class="fc" id="L73">        assertTrue(list.addLast(new Integer(4)));</span>
+<span class="fc" id="L74">        assertEquals(&quot;[0, 1, 2, 3, 4]&quot;,list.toString());</span>
+<span class="fc" id="L75">        list.add(0,new Integer(-2));</span>
+<span class="fc" id="L76">        assertEquals(&quot;[-2, 0, 1, 2, 3, 4]&quot;,list.toString());</span>
+<span class="fc" id="L77">        list.add(1,new Integer(-1));</span>
+<span class="fc" id="L78">        assertEquals(&quot;[-2, -1, 0, 1, 2, 3, 4]&quot;,list.toString());</span>
+<span class="fc" id="L79">        list.add(7,new Integer(5));</span>
+<span class="fc" id="L80">        assertEquals(&quot;[-2, -1, 0, 1, 2, 3, 4, 5]&quot;,list.toString());</span>
+
+<span class="fc" id="L82">        java.util.List list2 = new java.util.LinkedList();</span>
+<span class="fc" id="L83">        list2.add(&quot;A&quot;);</span>
+<span class="fc" id="L84">        list2.add(&quot;B&quot;);</span>
+<span class="fc" id="L85">        list2.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L87">        assertTrue(list.addAll(list2));</span>
+<span class="fc" id="L88">        assertEquals(&quot;[-2, -1, 0, 1, 2, 3, 4, 5, A, B, C]&quot;,list.toString());</span>
+<span class="fc" id="L89">        assertTrue(list.addAll(3,list2));</span>
+<span class="fc" id="L90">        assertEquals(&quot;[-2, -1, 0, A, B, C, 1, 2, 3, 4, 5, A, B, C]&quot;,list.toString());</span>
+<span class="fc" id="L91">    }</span>
+
+    public void testClear() {
+<span class="fc" id="L94">        assertEquals(0,list.size());</span>
+<span class="fc" id="L95">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L96">        list.clear();</span>
+<span class="fc" id="L97">        assertEquals(0,list.size());</span>
+<span class="fc" id="L98">        assertTrue(list.isEmpty());</span>
+
+<span class="fc" id="L100">        list.add(&quot;element&quot;);</span>
+<span class="fc" id="L101">        assertEquals(1,list.size());</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        assertTrue(!list.isEmpty());</span>
+
+<span class="fc" id="L104">        list.clear();</span>
+<span class="fc" id="L105">        assertEquals(0,list.size());</span>
+<span class="fc" id="L106">        assertTrue(list.isEmpty());</span>
+
+<span class="fc" id="L108">        list.add(&quot;element1&quot;);</span>
+<span class="fc" id="L109">        list.add(&quot;element2&quot;);</span>
+<span class="fc" id="L110">        assertEquals(2,list.size());</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        assertTrue(!list.isEmpty());</span>
+
+<span class="fc" id="L113">        list.clear();</span>
+<span class="fc" id="L114">        assertEquals(0,list.size());</span>
+<span class="fc" id="L115">        assertTrue(list.isEmpty());</span>
+
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        for(int i=0;i&lt;1000;i++) {</span>
+<span class="fc" id="L118">            list.add(new Integer(i));</span>
+        }
+<span class="fc" id="L120">        assertEquals(1000,list.size());</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        assertTrue(!list.isEmpty());</span>
+
+<span class="fc" id="L123">        list.clear();</span>
+<span class="fc" id="L124">        assertEquals(0,list.size());</span>
+<span class="fc" id="L125">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L126">    }</span>
+
+    public void testContains() {
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        assertTrue(!list.contains(&quot;A&quot;));</span>
+<span class="fc" id="L130">        assertTrue(list.add(&quot;A&quot;));</span>
+<span class="fc" id="L131">        assertTrue(list.contains(&quot;A&quot;));</span>
+<span class="fc" id="L132">        assertTrue(list.add(&quot;B&quot;));</span>
+<span class="fc" id="L133">        assertTrue(list.contains(&quot;A&quot;));</span>
+<span class="fc" id="L134">        assertTrue(list.addFirst(&quot;a&quot;));</span>
+<span class="fc" id="L135">        assertTrue(list.contains(&quot;A&quot;));</span>
+<span class="fc" id="L136">        assertTrue(list.remove(&quot;a&quot;));</span>
+<span class="fc" id="L137">        assertTrue(list.contains(&quot;A&quot;));</span>
+<span class="fc" id="L138">        assertTrue(list.remove(&quot;A&quot;));</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        assertTrue(!list.contains(&quot;A&quot;));</span>
+<span class="fc" id="L140">    }</span>
+
+    public void testContainsAll() {
+<span class="fc" id="L143">        assertTrue(list.containsAll(list));</span>
+<span class="fc" id="L144">        java.util.List list2 = new java.util.LinkedList();</span>
+<span class="fc" id="L145">        assertTrue(list.containsAll(list2));</span>
+<span class="fc" id="L146">        list2.add(&quot;A&quot;);</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        assertTrue(!list.containsAll(list2));</span>
+<span class="fc" id="L148">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L149">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L150">        assertTrue(list.containsAll(list2));</span>
+<span class="fc" id="L151">        list2.add(&quot;B&quot;);</span>
+<span class="fc" id="L152">        assertTrue(list.containsAll(list2));</span>
+<span class="fc" id="L153">        list2.add(&quot;C&quot;);</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        assertTrue(!list.containsAll(list2));</span>
+<span class="fc" id="L155">        list.add(&quot;C&quot;);</span>
+<span class="fc" id="L156">        assertTrue(list.containsAll(list2));</span>
+<span class="fc" id="L157">        list2.add(&quot;C&quot;);</span>
+<span class="fc" id="L158">        assertTrue(list.containsAll(list2));</span>
+<span class="fc" id="L159">        assertTrue(list.containsAll(list));</span>
+<span class="fc" id="L160">    }</span>
+
+    public void testCursorNavigation() {
+<span class="fc" id="L163">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L164">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L165">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L166">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L167">        list.add(&quot;5&quot;);</span>
+<span class="fc" id="L168">        CursorableLinkedList.Cursor it = list.cursor();</span>
+<span class="fc" id="L169">        assertTrue(it.hasNext());</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">        assertTrue(!it.hasPrevious());</span>
+<span class="fc" id="L171">        assertEquals(&quot;1&quot;,it.next());</span>
+<span class="fc" id="L172">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L173">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L174">        assertEquals(&quot;1&quot;,it.previous());</span>
+<span class="fc" id="L175">        assertTrue(it.hasNext());</span>
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        assertTrue(!it.hasPrevious());</span>
+<span class="fc" id="L177">        assertEquals(&quot;1&quot;,it.next());</span>
+<span class="fc" id="L178">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L179">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L180">        assertEquals(&quot;2&quot;,it.next());</span>
+<span class="fc" id="L181">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L182">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L183">        assertEquals(&quot;2&quot;,it.previous());</span>
+<span class="fc" id="L184">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L185">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L186">        assertEquals(&quot;2&quot;,it.next());</span>
+<span class="fc" id="L187">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L188">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L189">        assertEquals(&quot;3&quot;,it.next());</span>
+<span class="fc" id="L190">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L191">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L192">        assertEquals(&quot;4&quot;,it.next());</span>
+<span class="fc" id="L193">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L194">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L195">        assertEquals(&quot;5&quot;,it.next());</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        assertTrue(!it.hasNext());</span>
+<span class="fc" id="L197">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L198">        assertEquals(&quot;5&quot;,it.previous());</span>
+<span class="fc" id="L199">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L200">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L201">        assertEquals(&quot;4&quot;,it.previous());</span>
+<span class="fc" id="L202">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L203">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L204">        assertEquals(&quot;3&quot;,it.previous());</span>
+<span class="fc" id="L205">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L206">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L207">        assertEquals(&quot;2&quot;,it.previous());</span>
+<span class="fc" id="L208">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L209">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L210">        assertEquals(&quot;1&quot;,it.previous());</span>
+<span class="fc" id="L211">        assertTrue(it.hasNext());</span>
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">        assertTrue(!it.hasPrevious());</span>
+<span class="fc" id="L213">        it.close();</span>
+<span class="fc" id="L214">    }</span>
+
+    public void testCursorSet() {
+<span class="fc" id="L217">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L218">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L219">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L220">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L221">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L223">        CursorableLinkedList.Cursor it = list.cursor();</span>
+<span class="fc" id="L224">        assertEquals(&quot;1&quot;,it.next());</span>
+<span class="fc" id="L225">        it.set(&quot;a&quot;);</span>
+<span class="fc" id="L226">        assertEquals(&quot;a&quot;,it.previous());</span>
+<span class="fc" id="L227">        it.set(&quot;A&quot;);</span>
+<span class="fc" id="L228">        assertEquals(&quot;A&quot;,it.next());</span>
+<span class="fc" id="L229">        assertEquals(&quot;2&quot;,it.next());</span>
+<span class="fc" id="L230">        it.set(&quot;B&quot;);</span>
+<span class="fc" id="L231">        assertEquals(&quot;3&quot;,it.next());</span>
+<span class="fc" id="L232">        assertEquals(&quot;4&quot;,it.next());</span>
+<span class="fc" id="L233">        it.set(&quot;D&quot;);</span>
+<span class="fc" id="L234">        assertEquals(&quot;5&quot;,it.next());</span>
+<span class="fc" id="L235">        it.set(&quot;E&quot;);</span>
+<span class="fc" id="L236">        assertEquals(&quot;[A, B, 3, D, E]&quot;,list.toString());</span>
+<span class="fc" id="L237">        it.close();</span>
+<span class="fc" id="L238">    }</span>
+
+    public void testCursorRemove() {
+<span class="fc" id="L241">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L242">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L243">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L244">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L245">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L247">        CursorableLinkedList.Cursor it = list.cursor();</span>
+        try {
+<span class="nc" id="L249">            it.remove();</span>
+<span class="nc" id="L250">            fail();</span>
+<span class="pc" id="L251">        } catch(IllegalStateException e) {</span>
+            // expected
+        }
+<span class="fc" id="L254">        assertEquals(&quot;1&quot;,it.next());</span>
+<span class="fc" id="L255">        assertEquals(&quot;2&quot;,it.next());</span>
+<span class="fc" id="L256">        assertEquals(&quot;[1, 2, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L257">        it.remove();</span>
+<span class="fc" id="L258">        assertEquals(&quot;[1, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L259">        assertEquals(&quot;3&quot;,it.next());</span>
+<span class="fc" id="L260">        assertEquals(&quot;3&quot;,it.previous());</span>
+<span class="fc" id="L261">        assertEquals(&quot;1&quot;,it.previous());</span>
+<span class="fc" id="L262">        it.remove();</span>
+<span class="fc" id="L263">        assertEquals(&quot;[3, 4, 5]&quot;,list.toString());</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">        assertTrue(!it.hasPrevious());</span>
+<span class="fc" id="L265">        assertEquals(&quot;3&quot;,it.next());</span>
+<span class="fc" id="L266">        it.remove();</span>
+<span class="fc" id="L267">        assertEquals(&quot;[4, 5]&quot;,list.toString());</span>
+        try {
+<span class="nc" id="L269">            it.remove();</span>
+<span class="pc" id="L270">        } catch(IllegalStateException e) {</span>
+            // expected
+        }
+<span class="fc" id="L273">        assertEquals(&quot;4&quot;,it.next());</span>
+<span class="fc" id="L274">        assertEquals(&quot;5&quot;,it.next());</span>
+<span class="fc" id="L275">        it.remove();</span>
+<span class="fc" id="L276">        assertEquals(&quot;[4]&quot;,list.toString());</span>
+<span class="fc" id="L277">        assertEquals(&quot;4&quot;,it.previous());</span>
+<span class="fc" id="L278">        it.remove();</span>
+<span class="fc" id="L279">        assertEquals(&quot;[]&quot;,list.toString());</span>
+<span class="fc" id="L280">        it.close();</span>
+<span class="fc" id="L281">    }</span>
+
+    public void testCursorAdd() {
+<span class="fc" id="L284">        CursorableLinkedList.Cursor it = list.cursor();</span>
+<span class="fc" id="L285">        it.add(&quot;1&quot;);</span>
+<span class="fc" id="L286">        assertEquals(&quot;[1]&quot;,list.toString());</span>
+<span class="fc" id="L287">        it.add(&quot;3&quot;);</span>
+<span class="fc" id="L288">        assertEquals(&quot;[1, 3]&quot;,list.toString());</span>
+<span class="fc" id="L289">        it.add(&quot;5&quot;);</span>
+<span class="fc" id="L290">        assertEquals(&quot;[1, 3, 5]&quot;,list.toString());</span>
+<span class="fc" id="L291">        assertEquals(&quot;5&quot;,it.previous());</span>
+<span class="fc" id="L292">        it.add(&quot;4&quot;);</span>
+<span class="fc" id="L293">        assertEquals(&quot;[1, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L294">        assertEquals(&quot;4&quot;,it.previous());</span>
+<span class="fc" id="L295">        assertEquals(&quot;3&quot;,it.previous());</span>
+<span class="fc" id="L296">        it.add(&quot;2&quot;);</span>
+<span class="fc" id="L297">        assertEquals(&quot;[1, 2, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L298">        it.close();</span>
+<span class="fc" id="L299">    }</span>
+
+    public void testCursorConcurrentModification() {
+        // this test verifies that cursors remain valid when the list
+        // is modified via other means.
+<span class="fc" id="L304">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L305">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L306">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L307">        list.add(&quot;5&quot;);</span>
+<span class="fc" id="L308">        list.add(&quot;7&quot;);</span>
+<span class="fc" id="L309">        list.add(&quot;9&quot;);</span>
+
+<span class="fc" id="L311">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L312">        CursorableLinkedList.Cursor c2 = list.cursor();</span>
+<span class="fc" id="L313">        Iterator li = list.iterator();</span>
+        
+        // test cursors remain valid when list modified by std Iterator
+        // test cursors skip elements removed via ListIterator
+<span class="fc" id="L317">        assertEquals(&quot;1&quot;,li.next());</span>
+<span class="fc" id="L318">        assertEquals(&quot;2&quot;,li.next());</span>
+<span class="fc" id="L319">        li.remove();</span>
+<span class="fc" id="L320">        assertEquals(&quot;3&quot;,li.next());</span>
+<span class="fc" id="L321">        assertEquals(&quot;1&quot;,c1.next());</span>
+<span class="fc" id="L322">        assertEquals(&quot;3&quot;,c1.next());</span>
+<span class="fc" id="L323">        assertEquals(&quot;1&quot;,c2.next());</span>
+        
+        // test cursor c1 can remove elements from previously modified list
+        // test cursor c2 skips elements removed via different cursor
+<span class="fc" id="L327">        c1.remove();</span>
+<span class="fc" id="L328">        assertEquals(&quot;5&quot;,c2.next());</span>
+<span class="fc" id="L329">        c2.add(&quot;6&quot;);</span>
+<span class="fc" id="L330">        assertEquals(&quot;5&quot;,c1.next());</span>
+<span class="fc" id="L331">        assertEquals(&quot;6&quot;,c1.next());</span>
+<span class="fc" id="L332">        assertEquals(&quot;7&quot;,c1.next());</span>
+        
+        // test cursors remain valid when list mod via CursorableLinkedList
+        // test cursor remains valid when elements inserted into list before
+        // the current position of the cursor.
+<span class="fc" id="L337">        list.add(0, &quot;0&quot;);</span>
+
+        // test cursor remains valid when element inserted immediately after
+        // current element of a cursor, and the element is seen on the
+        // next call to the next method of that cursor.
+<span class="fc" id="L342">        list.add(5, &quot;8&quot;);</span>
+
+<span class="fc" id="L344">        assertEquals(&quot;8&quot;,c1.next());</span>
+<span class="fc" id="L345">        assertEquals(&quot;9&quot;,c1.next());</span>
+<span class="fc" id="L346">        c1.add(&quot;10&quot;);</span>
+<span class="fc" id="L347">        assertEquals(&quot;7&quot;,c2.next());</span>
+<span class="fc" id="L348">        assertEquals(&quot;8&quot;,c2.next());</span>
+<span class="fc" id="L349">        assertEquals(&quot;9&quot;,c2.next());</span>
+<span class="fc" id="L350">        assertEquals(&quot;10&quot;,c2.next());</span>
+        
+        try {
+<span class="nc" id="L353">            c2.next();</span>
+<span class="nc" id="L354">            fail();</span>
+<span class="pc" id="L355">        } catch (NoSuchElementException nse) {}</span>
+        
+        try {
+<span class="nc" id="L358">            li.next();</span>
+<span class="nc" id="L359">            fail();</span>
+<span class="pc" id="L360">        } catch (ConcurrentModificationException cme) {}</span>
+        
+<span class="fc" id="L362">        c1.close();  // not necessary</span>
+<span class="fc" id="L363">        c2.close();  // not necessary</span>
+<span class="fc" id="L364">    }</span>
+    
+    public void testCursorNextIndexMid() {
+<span class="fc" id="L367">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L368">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L369">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L370">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L372">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L373">        Iterator li = list.iterator();</span>
+        
+        // test cursors remain valid when list modified by std Iterator
+        // test cursors skip elements removed via ListIterator
+<span class="fc" id="L377">        assertEquals(&quot;1&quot;, li.next());</span>
+<span class="fc" id="L378">        assertEquals(&quot;2&quot;, li.next());</span>
+<span class="fc" id="L379">        li.remove();</span>
+<span class="fc" id="L380">        assertEquals(0, c1.nextIndex());</span>
+<span class="fc" id="L381">        assertEquals(&quot;1&quot;, c1.next());</span>
+<span class="fc" id="L382">        assertEquals(1, c1.nextIndex());</span>
+<span class="fc" id="L383">        assertEquals(&quot;3&quot;, c1.next());</span>
+<span class="fc" id="L384">    }</span>
+    
+    public void testCursorNextIndexFirst() {
+<span class="fc" id="L387">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L388">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L389">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L390">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L392">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+        
+<span class="fc" id="L394">        assertEquals(0, c1.nextIndex());</span>
+<span class="fc" id="L395">        list.remove(0);</span>
+<span class="fc" id="L396">        assertEquals(0, c1.nextIndex());</span>
+<span class="fc" id="L397">        assertEquals(&quot;2&quot;, c1.next());</span>
+<span class="fc" id="L398">        assertEquals(1, c1.nextIndex());</span>
+<span class="fc" id="L399">        assertEquals(&quot;3&quot;, c1.next());</span>
+<span class="fc" id="L400">    }</span>
+    
+    public void testCursorNextIndexAddBefore() {
+<span class="fc" id="L403">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L404">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L405">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L406">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L408">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+        
+<span class="fc" id="L410">        assertEquals(0, c1.nextIndex());</span>
+<span class="fc" id="L411">        assertEquals(&quot;1&quot;, c1.next());</span>
+<span class="fc" id="L412">        list.add(0, &quot;0&quot;);</span>
+<span class="fc" id="L413">        assertEquals(2, c1.nextIndex());</span>
+<span class="fc" id="L414">        assertEquals(&quot;2&quot;, c1.next());</span>
+<span class="fc" id="L415">    }</span>
+    
+    public void testCursorNextIndexAddNext() {
+<span class="fc" id="L418">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L419">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L420">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L421">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L423">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+        
+<span class="fc" id="L425">        assertEquals(0, c1.nextIndex());</span>
+<span class="fc" id="L426">        list.add(0, &quot;0&quot;);</span>
+<span class="fc" id="L427">        assertEquals(0, c1.nextIndex());</span>
+<span class="fc" id="L428">        assertEquals(&quot;0&quot;, c1.next());</span>
+<span class="fc" id="L429">        assertEquals(1, c1.nextIndex());</span>
+<span class="fc" id="L430">        assertEquals(&quot;1&quot;, c1.next());</span>
+<span class="fc" id="L431">    }</span>
+    
+    public void testCursorNextIndexAddAfter() {
+<span class="fc" id="L434">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L435">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L436">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L437">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L439">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+        
+<span class="fc" id="L441">        assertEquals(0, c1.nextIndex());</span>
+<span class="fc" id="L442">        list.add(1, &quot;0&quot;);</span>
+<span class="fc" id="L443">        assertEquals(0, c1.nextIndex());</span>
+<span class="fc" id="L444">        assertEquals(&quot;1&quot;, c1.next());</span>
+<span class="fc" id="L445">        assertEquals(1, c1.nextIndex());</span>
+<span class="fc" id="L446">        assertEquals(&quot;0&quot;, c1.next());</span>
+<span class="fc" id="L447">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testInternalState_CursorNextNextPreviousRemoveIndex1ByList() {
+<span class="fc" id="L451">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L452">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L453">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L455">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L456">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L457">        assertEquals(&quot;B&quot;, c1.next());</span>
+<span class="fc" id="L458">        assertEquals(&quot;B&quot;, c1.previous());</span>
+        
+<span class="fc" id="L460">        assertEquals(&quot;B&quot;, list.remove(1));</span>
+        
+<span class="fc" id="L462">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L463">        assertEquals(1, c1.nextIndex);</span>
+<span class="fc" id="L464">        assertEquals(true, c1.currentRemovedByAnother);</span>
+<span class="fc" id="L465">        assertEquals(null, c1.current);</span>
+<span class="fc" id="L466">        assertEquals(&quot;C&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L468">        assertEquals(&quot;[A, C]&quot;, list.toString());</span>
+<span class="fc" id="L469">        c1.remove();  // works ok</span>
+<span class="fc" id="L470">        assertEquals(&quot;[A, C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L472">            c1.remove();</span>
+<span class="nc" id="L473">            fail();</span>
+<span class="pc" id="L474">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L475">    }</span>
+
+    public void testInternalState_CursorNextRemoveIndex1ByList() {
+<span class="fc" id="L478">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L479">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L480">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L482">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L483">        assertEquals(&quot;A&quot;, c1.next());</span>
+        
+<span class="fc" id="L485">        assertEquals(&quot;B&quot;, list.remove(1));</span>
+        
+<span class="fc" id="L487">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L488">        assertEquals(1, c1.nextIndex);</span>
+<span class="fc" id="L489">        assertEquals(false, c1.currentRemovedByAnother);</span>
+<span class="fc" id="L490">        assertEquals(&quot;A&quot;, c1.current.value);</span>
+<span class="fc" id="L491">        assertEquals(&quot;C&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L493">        assertEquals(&quot;[A, C]&quot;, list.toString());</span>
+<span class="fc" id="L494">        c1.remove();  // works ok</span>
+<span class="fc" id="L495">        assertEquals(&quot;[C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L497">            c1.remove();</span>
+<span class="nc" id="L498">            fail();</span>
+<span class="pc" id="L499">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L500">    }</span>
+
+    public void testInternalState_CursorNextNextRemoveIndex1ByList() {
+<span class="fc" id="L503">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L504">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L505">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L507">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L508">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L509">        assertEquals(&quot;B&quot;, c1.next());</span>
+        
+<span class="fc" id="L511">        assertEquals(&quot;B&quot;, list.remove(1));</span>
+        
+<span class="fc" id="L513">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L514">        assertEquals(1, c1.nextIndex);</span>
+<span class="fc" id="L515">        assertEquals(true, c1.currentRemovedByAnother);</span>
+<span class="fc" id="L516">        assertEquals(null, c1.current);</span>
+<span class="fc" id="L517">        assertEquals(&quot;C&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L519">        assertEquals(&quot;[A, C]&quot;, list.toString());</span>
+<span class="fc" id="L520">        c1.remove();  // works ok</span>
+<span class="fc" id="L521">        assertEquals(&quot;[A, C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L523">            c1.remove();</span>
+<span class="nc" id="L524">            fail();</span>
+<span class="pc" id="L525">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L526">    }</span>
+
+    public void testInternalState_CursorNextNextNextRemoveIndex1ByList() {
+<span class="fc" id="L529">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L530">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L531">        list.add(&quot;C&quot;);</span>
+<span class="fc" id="L532">        list.add(&quot;D&quot;);</span>
+
+<span class="fc" id="L534">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L535">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L536">        assertEquals(&quot;B&quot;, c1.next());</span>
+<span class="fc" id="L537">        assertEquals(&quot;C&quot;, c1.next());</span>
+        
+<span class="fc" id="L539">        assertEquals(&quot;B&quot;, list.remove(1));</span>
+        
+<span class="fc" id="L541">        assertEquals(false, c1.nextIndexValid);</span>
+<span class="fc" id="L542">        assertEquals(false, c1.currentRemovedByAnother);</span>
+<span class="fc" id="L543">        assertEquals(&quot;C&quot;, c1.current.value);</span>
+<span class="fc" id="L544">        assertEquals(&quot;D&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L546">        assertEquals(&quot;[A, C, D]&quot;, list.toString());</span>
+<span class="fc" id="L547">        c1.remove();  // works ok</span>
+<span class="fc" id="L548">        assertEquals(&quot;[A, D]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L550">            c1.remove();</span>
+<span class="nc" id="L551">            fail();</span>
+<span class="pc" id="L552">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L553">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testInternalState_CursorNextNextPreviousRemoveByIterator() {
+<span class="fc" id="L557">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L558">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L559">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L561">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L562">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L563">        assertEquals(&quot;B&quot;, c1.next());</span>
+<span class="fc" id="L564">        assertEquals(&quot;B&quot;, c1.previous());</span>
+        
+<span class="fc" id="L566">        c1.remove();</span>
+        
+<span class="fc" id="L568">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L569">        assertEquals(1, c1.nextIndex);</span>
+<span class="fc" id="L570">        assertEquals(false, c1.currentRemovedByAnother);</span>
+<span class="fc" id="L571">        assertEquals(null, c1.current);</span>
+<span class="fc" id="L572">        assertEquals(&quot;C&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L574">        assertEquals(&quot;[A, C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L576">            c1.remove();</span>
+<span class="nc" id="L577">            fail();</span>
+<span class="pc" id="L578">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L579">    }</span>
+
+    public void testInternalState_CursorNextNextRemoveByIterator() {
+<span class="fc" id="L582">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L583">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L584">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L586">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L587">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L588">        assertEquals(&quot;B&quot;, c1.next());</span>
+        
+<span class="fc" id="L590">        c1.remove();</span>
+        
+<span class="fc" id="L592">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L593">        assertEquals(1, c1.nextIndex);</span>
+<span class="fc" id="L594">        assertEquals(false, c1.currentRemovedByAnother);</span>
+<span class="fc" id="L595">        assertEquals(null, c1.current);</span>
+<span class="fc" id="L596">        assertEquals(&quot;C&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L598">        assertEquals(&quot;[A, C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L600">            c1.remove();</span>
+<span class="nc" id="L601">            fail();</span>
+<span class="pc" id="L602">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L603">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testInternalState_CursorNextNextPreviousAddIndex1ByList() {
+<span class="fc" id="L607">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L608">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L609">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L611">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L612">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L613">        assertEquals(&quot;B&quot;, c1.next());</span>
+<span class="fc" id="L614">        assertEquals(&quot;B&quot;, c1.previous());</span>
+        
+<span class="fc" id="L616">        list.add(1, &quot;Z&quot;);</span>
+        
+<span class="fc" id="L618">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L619">        assertEquals(1, c1.nextIndex);</span>
+<span class="fc" id="L620">        assertEquals(&quot;B&quot;, c1.current.value);</span>
+<span class="fc" id="L621">        assertEquals(&quot;Z&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L623">        assertEquals(&quot;[A, Z, B, C]&quot;, list.toString());</span>
+<span class="fc" id="L624">        c1.remove();  // works ok</span>
+<span class="fc" id="L625">        assertEquals(&quot;[A, Z, C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L627">            c1.remove();</span>
+<span class="nc" id="L628">            fail();</span>
+<span class="pc" id="L629">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L630">    }</span>
+
+    public void testInternalState_CursorNextAddIndex1ByList() {
+<span class="fc" id="L633">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L634">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L635">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L637">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L638">        assertEquals(&quot;A&quot;, c1.next());</span>
+        
+<span class="fc" id="L640">        list.add(1, &quot;Z&quot;);</span>
+        
+<span class="fc" id="L642">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L643">        assertEquals(1, c1.nextIndex);</span>
+<span class="fc" id="L644">        assertEquals(&quot;A&quot;, c1.current.value);</span>
+<span class="fc" id="L645">        assertEquals(&quot;Z&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L647">        assertEquals(&quot;[A, Z, B, C]&quot;, list.toString());</span>
+<span class="fc" id="L648">        c1.remove();  // works ok</span>
+<span class="fc" id="L649">        assertEquals(&quot;[Z, B, C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L651">            c1.remove();</span>
+<span class="nc" id="L652">            fail();</span>
+<span class="pc" id="L653">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L654">    }</span>
+
+    public void testInternalState_CursorNextNextAddIndex1ByList() {
+<span class="fc" id="L657">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L658">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L659">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L661">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L662">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L663">        assertEquals(&quot;B&quot;, c1.next());</span>
+        
+<span class="fc" id="L665">        list.add(1, &quot;Z&quot;);</span>
+        
+<span class="fc" id="L667">        assertEquals(false, c1.nextIndexValid);</span>
+<span class="fc" id="L668">        assertEquals(&quot;B&quot;, c1.current.value);</span>
+<span class="fc" id="L669">        assertEquals(&quot;C&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L671">        assertEquals(&quot;[A, Z, B, C]&quot;, list.toString());</span>
+<span class="fc" id="L672">        c1.remove();  // works ok</span>
+<span class="fc" id="L673">        assertEquals(&quot;[A, Z, C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L675">            c1.remove();</span>
+<span class="nc" id="L676">            fail();</span>
+<span class="pc" id="L677">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L678">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testInternalState_CursorNextNextPreviousAddByIterator() {
+<span class="fc" id="L682">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L683">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L684">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L686">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L687">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L688">        assertEquals(&quot;B&quot;, c1.next());</span>
+<span class="fc" id="L689">        assertEquals(&quot;B&quot;, c1.previous());</span>
+        
+<span class="fc" id="L691">        c1.add(&quot;Z&quot;);</span>
+        
+<span class="fc" id="L693">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L694">        assertEquals(2, c1.nextIndex);</span>
+<span class="fc" id="L695">        assertEquals(null, c1.current);</span>
+<span class="fc" id="L696">        assertEquals(&quot;B&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L698">        assertEquals(&quot;[A, Z, B, C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L700">            c1.remove();</span>
+<span class="nc" id="L701">            fail();</span>
+<span class="pc" id="L702">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L703">    }</span>
+
+    public void testInternalState_CursorNextNextAddByIterator() {
+<span class="fc" id="L706">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L707">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L708">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L710">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L711">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L712">        assertEquals(&quot;B&quot;, c1.next());</span>
+        
+<span class="fc" id="L714">        c1.add(&quot;Z&quot;);</span>
+        
+<span class="fc" id="L716">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L717">        assertEquals(3, c1.nextIndex);</span>
+<span class="fc" id="L718">        assertEquals(false, c1.currentRemovedByAnother);</span>
+<span class="fc" id="L719">        assertEquals(null, c1.current);</span>
+<span class="fc" id="L720">        assertEquals(&quot;C&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L722">        assertEquals(&quot;[A, B, Z, C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L724">            c1.remove();</span>
+<span class="nc" id="L725">            fail();</span>
+<span class="pc" id="L726">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L727">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testInternalState_CursorNextNextRemoveByListSetByIterator() {
+<span class="fc" id="L731">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L732">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L733">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L735">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L736">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L737">        assertEquals(&quot;B&quot;, c1.next());</span>
+        
+<span class="fc" id="L739">        list.remove(1);</span>
+        
+<span class="fc" id="L741">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L742">        assertEquals(1, c1.nextIndex);</span>
+<span class="fc" id="L743">        assertEquals(null, c1.current);</span>
+<span class="fc" id="L744">        assertEquals(&quot;C&quot;, c1.next.value);</span>
+<span class="fc" id="L745">        assertEquals(&quot;[A, C]&quot;, list.toString());</span>
+        
+        try {
+<span class="nc" id="L748">            c1.set(&quot;Z&quot;);</span>
+<span class="nc" id="L749">            fail();</span>
+<span class="pc" id="L750">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L751">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testInternalState_CursorNextNextPreviousSetByIterator() {
+<span class="fc" id="L755">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L756">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L757">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L759">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L760">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L761">        assertEquals(&quot;B&quot;, c1.next());</span>
+<span class="fc" id="L762">        assertEquals(&quot;B&quot;, c1.previous());</span>
+        
+<span class="fc" id="L764">        c1.set(&quot;Z&quot;);</span>
+        
+<span class="fc" id="L766">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L767">        assertEquals(1, c1.nextIndex);</span>
+<span class="fc" id="L768">        assertEquals(&quot;Z&quot;, c1.current.value);</span>
+<span class="fc" id="L769">        assertEquals(&quot;Z&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L771">        assertEquals(&quot;[A, Z, C]&quot;, list.toString());</span>
+<span class="fc" id="L772">        c1.remove();  // works ok</span>
+<span class="fc" id="L773">        assertEquals(&quot;[A, C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L775">            c1.remove();</span>
+<span class="nc" id="L776">            fail();</span>
+<span class="pc" id="L777">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L778">    }</span>
+
+    public void testInternalState_CursorNextNextSetByIterator() {
+<span class="fc" id="L781">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L782">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L783">        list.add(&quot;C&quot;);</span>
+
+<span class="fc" id="L785">        CursorableLinkedList.Cursor c1 = list.cursor();</span>
+<span class="fc" id="L786">        assertEquals(&quot;A&quot;, c1.next());</span>
+<span class="fc" id="L787">        assertEquals(&quot;B&quot;, c1.next());</span>
+        
+<span class="fc" id="L789">        c1.set(&quot;Z&quot;);</span>
+        
+<span class="fc" id="L791">        assertEquals(true, c1.nextIndexValid);</span>
+<span class="fc" id="L792">        assertEquals(2, c1.nextIndex);</span>
+<span class="fc" id="L793">        assertEquals(&quot;Z&quot;, c1.current.value);</span>
+<span class="fc" id="L794">        assertEquals(&quot;C&quot;, c1.next.value);</span>
+        
+<span class="fc" id="L796">        assertEquals(&quot;[A, Z, C]&quot;, list.toString());</span>
+<span class="fc" id="L797">        c1.remove();  // works ok</span>
+<span class="fc" id="L798">        assertEquals(&quot;[A, C]&quot;, list.toString());</span>
+        try {
+<span class="nc" id="L800">            c1.remove();</span>
+<span class="nc" id="L801">            fail();</span>
+<span class="pc" id="L802">        } catch (IllegalStateException ex) {}</span>
+<span class="fc" id="L803">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testEqualsAndHashCode() {
+<span class="fc" id="L807">        assertTrue(list.equals(list));</span>
+<span class="fc" id="L808">        assertEquals(list.hashCode(),list.hashCode());</span>
+<span class="fc" id="L809">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L810">        assertTrue(list.equals(list));</span>
+<span class="fc" id="L811">        assertEquals(list.hashCode(),list.hashCode());</span>
+
+<span class="fc" id="L813">        CursorableLinkedList list2 = new CursorableLinkedList();</span>
+<span class="pc bpc" id="L814" title="1 of 2 branches missed.">        assertTrue(!list.equals(list2));</span>
+<span class="pc bpc" id="L815" title="1 of 2 branches missed.">        assertTrue(!list2.equals(list));</span>
+
+<span class="fc" id="L817">        java.util.List list3 = new java.util.LinkedList();</span>
+<span class="pc bpc" id="L818" title="1 of 2 branches missed.">        assertTrue(!list.equals(list3));</span>
+<span class="pc bpc" id="L819" title="1 of 2 branches missed.">        assertTrue(!list3.equals(list));</span>
+<span class="fc" id="L820">        assertTrue(list2.equals(list3));</span>
+<span class="fc" id="L821">        assertTrue(list3.equals(list2));</span>
+<span class="fc" id="L822">        assertEquals(list2.hashCode(),list3.hashCode());</span>
+
+<span class="fc" id="L824">        list2.add(&quot;A&quot;);</span>
+<span class="fc" id="L825">        assertTrue(list.equals(list2));</span>
+<span class="fc" id="L826">        assertTrue(list2.equals(list));</span>
+<span class="pc bpc" id="L827" title="1 of 2 branches missed.">        assertTrue(!list2.equals(list3));</span>
+<span class="pc bpc" id="L828" title="1 of 2 branches missed.">        assertTrue(!list3.equals(list2));</span>
+
+<span class="fc" id="L830">        list3.add(&quot;A&quot;);</span>
+<span class="fc" id="L831">        assertTrue(list2.equals(list3));</span>
+<span class="fc" id="L832">        assertTrue(list3.equals(list2));</span>
+<span class="fc" id="L833">        assertEquals(list2.hashCode(),list3.hashCode());</span>
+
+<span class="fc" id="L835">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L836">        assertTrue(list.equals(list));</span>
+<span class="pc bpc" id="L837" title="1 of 2 branches missed.">        assertTrue(!list.equals(list2));</span>
+<span class="pc bpc" id="L838" title="1 of 2 branches missed.">        assertTrue(!list2.equals(list));</span>
+<span class="pc bpc" id="L839" title="1 of 2 branches missed.">        assertTrue(!list.equals(list3));</span>
+<span class="pc bpc" id="L840" title="1 of 2 branches missed.">        assertTrue(!list3.equals(list));</span>
+
+<span class="fc" id="L842">        list2.add(&quot;B&quot;);</span>
+<span class="fc" id="L843">        list3.add(&quot;B&quot;);</span>
+<span class="fc" id="L844">        assertTrue(list.equals(list));</span>
+<span class="fc" id="L845">        assertTrue(list.equals(list2));</span>
+<span class="fc" id="L846">        assertTrue(list2.equals(list));</span>
+<span class="fc" id="L847">        assertTrue(list2.equals(list3));</span>
+<span class="fc" id="L848">        assertTrue(list3.equals(list2));</span>
+<span class="fc" id="L849">        assertEquals(list2.hashCode(),list3.hashCode());</span>
+
+<span class="fc" id="L851">        list.add(&quot;C&quot;);</span>
+<span class="fc" id="L852">        list2.add(&quot;C&quot;);</span>
+<span class="fc" id="L853">        list3.add(&quot;C&quot;);</span>
+<span class="fc" id="L854">        assertTrue(list.equals(list));</span>
+<span class="fc" id="L855">        assertTrue(list.equals(list2));</span>
+<span class="fc" id="L856">        assertTrue(list2.equals(list));</span>
+<span class="fc" id="L857">        assertTrue(list2.equals(list3));</span>
+<span class="fc" id="L858">        assertTrue(list3.equals(list2));</span>
+<span class="fc" id="L859">        assertEquals(list.hashCode(),list2.hashCode());</span>
+<span class="fc" id="L860">        assertEquals(list2.hashCode(),list3.hashCode());</span>
+
+<span class="fc" id="L862">        list.add(&quot;D&quot;);</span>
+<span class="fc" id="L863">        list2.addFirst(&quot;D&quot;);</span>
+<span class="fc" id="L864">        assertTrue(list.equals(list));</span>
+<span class="pc bpc" id="L865" title="1 of 2 branches missed.">        assertTrue(!list.equals(list2));</span>
+<span class="pc bpc" id="L866" title="1 of 2 branches missed.">        assertTrue(!list2.equals(list));</span>
+<span class="fc" id="L867">    }</span>
+
+    public void testGet() {
+        try {
+<span class="nc" id="L871">            list.get(0);</span>
+<span class="nc" id="L872">            fail(&quot;shouldn't get here&quot;);</span>
+<span class="pc" id="L873">        } catch(IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+<span class="fc" id="L877">        assertTrue(list.add(&quot;A&quot;));</span>
+<span class="fc" id="L878">        assertEquals(&quot;A&quot;,list.get(0));</span>
+<span class="fc" id="L879">        assertTrue(list.add(&quot;B&quot;));</span>
+<span class="fc" id="L880">        assertEquals(&quot;A&quot;,list.get(0));</span>
+<span class="fc" id="L881">        assertEquals(&quot;B&quot;,list.get(1));</span>
+
+        try {
+<span class="nc" id="L884">            list.get(-1);</span>
+<span class="nc" id="L885">            fail(&quot;shouldn't get here&quot;);</span>
+<span class="pc" id="L886">        } catch(IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L891">            list.get(2);</span>
+<span class="nc" id="L892">            fail(&quot;shouldn't get here&quot;);</span>
+<span class="pc" id="L893">        } catch(IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L896">    }</span>
+
+    public void testIndexOf() {
+<span class="fc" id="L899">        assertEquals(-1,list.indexOf(&quot;A&quot;));</span>
+<span class="fc" id="L900">        assertEquals(-1,list.lastIndexOf(&quot;A&quot;));</span>
+<span class="fc" id="L901">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L902">        assertEquals(0,list.indexOf(&quot;A&quot;));</span>
+<span class="fc" id="L903">        assertEquals(0,list.lastIndexOf(&quot;A&quot;));</span>
+<span class="fc" id="L904">        assertEquals(-1,list.indexOf(&quot;B&quot;));</span>
+<span class="fc" id="L905">        assertEquals(-1,list.lastIndexOf(&quot;B&quot;));</span>
+<span class="fc" id="L906">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L907">        assertEquals(0,list.indexOf(&quot;A&quot;));</span>
+<span class="fc" id="L908">        assertEquals(0,list.lastIndexOf(&quot;A&quot;));</span>
+<span class="fc" id="L909">        assertEquals(1,list.indexOf(&quot;B&quot;));</span>
+<span class="fc" id="L910">        assertEquals(1,list.lastIndexOf(&quot;B&quot;));</span>
+<span class="fc" id="L911">        list.addFirst(&quot;B&quot;);</span>
+<span class="fc" id="L912">        assertEquals(1,list.indexOf(&quot;A&quot;));</span>
+<span class="fc" id="L913">        assertEquals(1,list.lastIndexOf(&quot;A&quot;));</span>
+<span class="fc" id="L914">        assertEquals(0,list.indexOf(&quot;B&quot;));</span>
+<span class="fc" id="L915">        assertEquals(2,list.lastIndexOf(&quot;B&quot;));</span>
+<span class="fc" id="L916">    }</span>
+
+    public void testIsEmpty() {
+<span class="fc" id="L919">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L920">        list.add(&quot;element&quot;);</span>
+<span class="pc bpc" id="L921" title="1 of 2 branches missed.">        assertTrue(!list.isEmpty());</span>
+<span class="fc" id="L922">        list.remove(&quot;element&quot;);</span>
+<span class="fc" id="L923">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L924">        list.add(&quot;element&quot;);</span>
+<span class="pc bpc" id="L925" title="1 of 2 branches missed.">        assertTrue(!list.isEmpty());</span>
+<span class="fc" id="L926">        list.clear();</span>
+<span class="fc" id="L927">        assertTrue(list.isEmpty());</span>
+<span class="fc" id="L928">    }</span>
+
+    public void testIterator() {
+<span class="fc" id="L931">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L932">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L933">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L934">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L935">        list.add(&quot;5&quot;);</span>
+<span class="fc" id="L936">        Iterator it = list.iterator();</span>
+<span class="fc" id="L937">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L938">        assertEquals(&quot;1&quot;,it.next());</span>
+<span class="fc" id="L939">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L940">        assertEquals(&quot;2&quot;,it.next());</span>
+<span class="fc" id="L941">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L942">        assertEquals(&quot;3&quot;,it.next());</span>
+<span class="fc" id="L943">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L944">        assertEquals(&quot;4&quot;,it.next());</span>
+<span class="fc" id="L945">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L946">        assertEquals(&quot;5&quot;,it.next());</span>
+<span class="pc bpc" id="L947" title="1 of 2 branches missed.">        assertTrue(!it.hasNext());</span>
+
+<span class="fc" id="L949">        it = list.iterator();</span>
+<span class="fc" id="L950">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L951">        assertEquals(&quot;1&quot;,it.next());</span>
+<span class="fc" id="L952">        it.remove();</span>
+<span class="fc" id="L953">        assertEquals(&quot;[2, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L954">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L955">        assertEquals(&quot;2&quot;,it.next());</span>
+<span class="fc" id="L956">        it.remove();</span>
+<span class="fc" id="L957">        assertEquals(&quot;[3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L958">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L959">        assertEquals(&quot;3&quot;,it.next());</span>
+<span class="fc" id="L960">        it.remove();</span>
+<span class="fc" id="L961">        assertEquals(&quot;[4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L962">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L963">        assertEquals(&quot;4&quot;,it.next());</span>
+<span class="fc" id="L964">        it.remove();</span>
+<span class="fc" id="L965">        assertEquals(&quot;[5]&quot;,list.toString());</span>
+<span class="fc" id="L966">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L967">        assertEquals(&quot;5&quot;,it.next());</span>
+<span class="fc" id="L968">        it.remove();</span>
+<span class="fc" id="L969">        assertEquals(&quot;[]&quot;,list.toString());</span>
+<span class="pc bpc" id="L970" title="1 of 2 branches missed.">        assertTrue(!it.hasNext());</span>
+<span class="fc" id="L971">    }</span>
+
+    public void testListIteratorNavigation() {
+<span class="fc" id="L974">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L975">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L976">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L977">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L978">        list.add(&quot;5&quot;);</span>
+<span class="fc" id="L979">        ListIterator it = list.listIterator();</span>
+<span class="fc" id="L980">        assertTrue(it.hasNext());</span>
+<span class="pc bpc" id="L981" title="1 of 2 branches missed.">        assertTrue(!it.hasPrevious());</span>
+<span class="fc" id="L982">        assertEquals(-1,it.previousIndex());</span>
+<span class="fc" id="L983">        assertEquals(0,it.nextIndex());</span>
+<span class="fc" id="L984">        assertEquals(&quot;1&quot;,it.next());</span>
+<span class="fc" id="L985">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L986">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L987">        assertEquals(0,it.previousIndex());</span>
+<span class="fc" id="L988">        assertEquals(1,it.nextIndex());</span>
+<span class="fc" id="L989">        assertEquals(&quot;1&quot;,it.previous());</span>
+<span class="fc" id="L990">        assertTrue(it.hasNext());</span>
+<span class="pc bpc" id="L991" title="1 of 2 branches missed.">        assertTrue(!it.hasPrevious());</span>
+<span class="fc" id="L992">        assertEquals(-1,it.previousIndex());</span>
+<span class="fc" id="L993">        assertEquals(0,it.nextIndex());</span>
+<span class="fc" id="L994">        assertEquals(&quot;1&quot;,it.next());</span>
+<span class="fc" id="L995">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L996">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L997">        assertEquals(0,it.previousIndex());</span>
+<span class="fc" id="L998">        assertEquals(1,it.nextIndex());</span>
+<span class="fc" id="L999">        assertEquals(&quot;2&quot;,it.next());</span>
+<span class="fc" id="L1000">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L1001">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L1002">        assertEquals(1,it.previousIndex());</span>
+<span class="fc" id="L1003">        assertEquals(2,it.nextIndex());</span>
+<span class="fc" id="L1004">        assertEquals(&quot;2&quot;,it.previous());</span>
+<span class="fc" id="L1005">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L1006">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L1007">        assertEquals(0,it.previousIndex());</span>
+<span class="fc" id="L1008">        assertEquals(1,it.nextIndex());</span>
+<span class="fc" id="L1009">        assertEquals(&quot;2&quot;,it.next());</span>
+<span class="fc" id="L1010">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L1011">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L1012">        assertEquals(1,it.previousIndex());</span>
+<span class="fc" id="L1013">        assertEquals(2,it.nextIndex());</span>
+<span class="fc" id="L1014">        assertEquals(&quot;3&quot;,it.next());</span>
+<span class="fc" id="L1015">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L1016">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L1017">        assertEquals(2,it.previousIndex());</span>
+<span class="fc" id="L1018">        assertEquals(3,it.nextIndex());</span>
+<span class="fc" id="L1019">        assertEquals(&quot;4&quot;,it.next());</span>
+<span class="fc" id="L1020">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L1021">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L1022">        assertEquals(3,it.previousIndex());</span>
+<span class="fc" id="L1023">        assertEquals(4,it.nextIndex());</span>
+<span class="fc" id="L1024">        assertEquals(&quot;5&quot;,it.next());</span>
+<span class="pc bpc" id="L1025" title="1 of 2 branches missed.">        assertTrue(!it.hasNext());</span>
+<span class="fc" id="L1026">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L1027">        assertEquals(4,it.previousIndex());</span>
+<span class="fc" id="L1028">        assertEquals(5,it.nextIndex());</span>
+<span class="fc" id="L1029">        assertEquals(&quot;5&quot;,it.previous());</span>
+<span class="fc" id="L1030">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L1031">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L1032">        assertEquals(3,it.previousIndex());</span>
+<span class="fc" id="L1033">        assertEquals(4,it.nextIndex());</span>
+<span class="fc" id="L1034">        assertEquals(&quot;4&quot;,it.previous());</span>
+<span class="fc" id="L1035">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L1036">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L1037">        assertEquals(2,it.previousIndex());</span>
+<span class="fc" id="L1038">        assertEquals(3,it.nextIndex());</span>
+<span class="fc" id="L1039">        assertEquals(&quot;3&quot;,it.previous());</span>
+<span class="fc" id="L1040">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L1041">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L1042">        assertEquals(1,it.previousIndex());</span>
+<span class="fc" id="L1043">        assertEquals(2,it.nextIndex());</span>
+<span class="fc" id="L1044">        assertEquals(&quot;2&quot;,it.previous());</span>
+<span class="fc" id="L1045">        assertTrue(it.hasNext());</span>
+<span class="fc" id="L1046">        assertTrue(it.hasPrevious());</span>
+<span class="fc" id="L1047">        assertEquals(0,it.previousIndex());</span>
+<span class="fc" id="L1048">        assertEquals(1,it.nextIndex());</span>
+<span class="fc" id="L1049">        assertEquals(&quot;1&quot;,it.previous());</span>
+<span class="fc" id="L1050">        assertTrue(it.hasNext());</span>
+<span class="pc bpc" id="L1051" title="1 of 2 branches missed.">        assertTrue(!it.hasPrevious());</span>
+<span class="fc" id="L1052">        assertEquals(-1,it.previousIndex());</span>
+<span class="fc" id="L1053">        assertEquals(0,it.nextIndex());</span>
+<span class="fc" id="L1054">    }</span>
+
+    public void testListIteratorSet() {
+<span class="fc" id="L1057">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L1058">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L1059">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L1060">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L1061">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L1063">        ListIterator it = list.listIterator();</span>
+<span class="fc" id="L1064">        assertEquals(&quot;1&quot;,it.next());</span>
+<span class="fc" id="L1065">        it.set(&quot;a&quot;);</span>
+<span class="fc" id="L1066">        assertEquals(&quot;a&quot;,it.previous());</span>
+<span class="fc" id="L1067">        it.set(&quot;A&quot;);</span>
+<span class="fc" id="L1068">        assertEquals(&quot;A&quot;,it.next());</span>
+<span class="fc" id="L1069">        assertEquals(&quot;2&quot;,it.next());</span>
+<span class="fc" id="L1070">        it.set(&quot;B&quot;);</span>
+<span class="fc" id="L1071">        assertEquals(&quot;3&quot;,it.next());</span>
+<span class="fc" id="L1072">        assertEquals(&quot;4&quot;,it.next());</span>
+<span class="fc" id="L1073">        it.set(&quot;D&quot;);</span>
+<span class="fc" id="L1074">        assertEquals(&quot;5&quot;,it.next());</span>
+<span class="fc" id="L1075">        it.set(&quot;E&quot;);</span>
+<span class="fc" id="L1076">        assertEquals(&quot;[A, B, 3, D, E]&quot;,list.toString());</span>
+<span class="fc" id="L1077">    }</span>
+
+    public void testListIteratorRemove() {
+<span class="fc" id="L1080">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L1081">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L1082">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L1083">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L1084">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L1086">        ListIterator it = list.listIterator();</span>
+        try {
+<span class="nc" id="L1088">            it.remove();</span>
+<span class="pc" id="L1089">        } catch(IllegalStateException e) {</span>
+            // expected
+        }
+<span class="fc" id="L1092">        assertEquals(&quot;1&quot;,it.next());</span>
+<span class="fc" id="L1093">        assertEquals(&quot;2&quot;,it.next());</span>
+<span class="fc" id="L1094">        assertEquals(&quot;[1, 2, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1095">        it.remove();</span>
+<span class="fc" id="L1096">        assertEquals(&quot;[1, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1097">        assertEquals(&quot;3&quot;,it.next());</span>
+<span class="fc" id="L1098">        assertEquals(&quot;3&quot;,it.previous());</span>
+<span class="fc" id="L1099">        assertEquals(&quot;1&quot;,it.previous());</span>
+<span class="fc" id="L1100">        it.remove();</span>
+<span class="fc" id="L1101">        assertEquals(&quot;[3, 4, 5]&quot;,list.toString());</span>
+<span class="pc bpc" id="L1102" title="1 of 2 branches missed.">        assertTrue(!it.hasPrevious());</span>
+<span class="fc" id="L1103">        assertEquals(&quot;3&quot;,it.next());</span>
+<span class="fc" id="L1104">        it.remove();</span>
+<span class="fc" id="L1105">        assertEquals(&quot;[4, 5]&quot;,list.toString());</span>
+        try {
+<span class="nc" id="L1107">            it.remove();</span>
+<span class="pc" id="L1108">        } catch(IllegalStateException e) {</span>
+            // expected
+        }
+<span class="fc" id="L1111">        assertEquals(&quot;4&quot;,it.next());</span>
+<span class="fc" id="L1112">        assertEquals(&quot;5&quot;,it.next());</span>
+<span class="fc" id="L1113">        it.remove();</span>
+<span class="fc" id="L1114">        assertEquals(&quot;[4]&quot;,list.toString());</span>
+<span class="fc" id="L1115">        assertEquals(&quot;4&quot;,it.previous());</span>
+<span class="fc" id="L1116">        it.remove();</span>
+<span class="fc" id="L1117">        assertEquals(&quot;[]&quot;,list.toString());</span>
+<span class="fc" id="L1118">    }</span>
+
+    public void testListIteratorAdd() {
+<span class="fc" id="L1121">        ListIterator it = list.listIterator();</span>
+<span class="fc" id="L1122">        it.add(&quot;1&quot;);</span>
+<span class="fc" id="L1123">        assertEquals(&quot;[1]&quot;,list.toString());</span>
+<span class="fc" id="L1124">        it.add(&quot;3&quot;);</span>
+<span class="fc" id="L1125">        assertEquals(&quot;[1, 3]&quot;,list.toString());</span>
+<span class="fc" id="L1126">        it.add(&quot;5&quot;);</span>
+<span class="fc" id="L1127">        assertEquals(&quot;[1, 3, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1128">        assertEquals(&quot;5&quot;,it.previous());</span>
+<span class="fc" id="L1129">        it.add(&quot;4&quot;);</span>
+<span class="fc" id="L1130">        assertEquals(&quot;[1, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1131">        assertEquals(&quot;4&quot;,it.previous());</span>
+<span class="fc" id="L1132">        assertEquals(&quot;3&quot;,it.previous());</span>
+<span class="fc" id="L1133">        it.add(&quot;2&quot;);</span>
+<span class="fc" id="L1134">        assertEquals(&quot;[1, 2, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1135">    }</span>
+
+    public void testRemoveAll() {
+<span class="fc" id="L1138">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L1139">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L1140">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L1141">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L1142">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L1144">        HashSet set = new HashSet();</span>
+<span class="fc" id="L1145">        set.add(&quot;A&quot;);</span>
+<span class="fc" id="L1146">        set.add(&quot;2&quot;);</span>
+<span class="fc" id="L1147">        set.add(&quot;C&quot;);</span>
+<span class="fc" id="L1148">        set.add(&quot;4&quot;);</span>
+<span class="fc" id="L1149">        set.add(&quot;D&quot;);</span>
+
+<span class="fc" id="L1151">        assertTrue(list.removeAll(set));</span>
+<span class="fc" id="L1152">        assertEquals(&quot;[1, 3, 5]&quot;,list.toString());</span>
+<span class="pc bpc" id="L1153" title="1 of 2 branches missed.">        assertTrue(!list.removeAll(set));</span>
+<span class="fc" id="L1154">    }</span>
+
+    public void testRemoveByIndex() {
+<span class="fc" id="L1157">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L1158">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L1159">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L1160">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L1161">        list.add(&quot;5&quot;);</span>
+<span class="fc" id="L1162">        assertEquals(&quot;[1, 2, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1163">        assertEquals(&quot;1&quot;,list.remove(0));</span>
+<span class="fc" id="L1164">        assertEquals(&quot;[2, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1165">        assertEquals(&quot;3&quot;,list.remove(1));</span>
+<span class="fc" id="L1166">        assertEquals(&quot;[2, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1167">        assertEquals(&quot;4&quot;,list.remove(1));</span>
+<span class="fc" id="L1168">        assertEquals(&quot;[2, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1169">        assertEquals(&quot;5&quot;,list.remove(1));</span>
+<span class="fc" id="L1170">        assertEquals(&quot;[2]&quot;,list.toString());</span>
+<span class="fc" id="L1171">        assertEquals(&quot;2&quot;,list.remove(0));</span>
+<span class="fc" id="L1172">        assertEquals(&quot;[]&quot;,list.toString());</span>
+<span class="fc" id="L1173">    }</span>
+
+    public void testRemove() {
+<span class="fc" id="L1176">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L1177">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L1178">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L1179">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L1180">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L1181">        list.add(&quot;5&quot;);</span>
+<span class="fc" id="L1182">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L1183">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L1184">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L1185">        list.add(&quot;5&quot;);</span>
+<span class="fc" id="L1186">        assertEquals(&quot;[1, 1, 2, 3, 4, 5, 2, 3, 4, 5]&quot;,list.toString());</span>
+<span class="pc bpc" id="L1187" title="1 of 2 branches missed.">        assertTrue(!list.remove(&quot;6&quot;));</span>
+<span class="fc" id="L1188">        assertTrue(list.remove(&quot;5&quot;));</span>
+<span class="fc" id="L1189">        assertEquals(&quot;[1, 1, 2, 3, 4, 2, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1190">        assertTrue(list.remove(&quot;5&quot;));</span>
+<span class="fc" id="L1191">        assertEquals(&quot;[1, 1, 2, 3, 4, 2, 3, 4]&quot;,list.toString());</span>
+<span class="pc bpc" id="L1192" title="1 of 2 branches missed.">        assertTrue(!list.remove(&quot;5&quot;));</span>
+<span class="fc" id="L1193">        assertTrue(list.remove(&quot;1&quot;));</span>
+<span class="fc" id="L1194">        assertEquals(&quot;[1, 2, 3, 4, 2, 3, 4]&quot;,list.toString());</span>
+<span class="fc" id="L1195">        assertTrue(list.remove(&quot;1&quot;));</span>
+<span class="fc" id="L1196">        assertEquals(&quot;[2, 3, 4, 2, 3, 4]&quot;,list.toString());</span>
+<span class="fc" id="L1197">        assertTrue(list.remove(&quot;2&quot;));</span>
+<span class="fc" id="L1198">        assertEquals(&quot;[3, 4, 2, 3, 4]&quot;,list.toString());</span>
+<span class="fc" id="L1199">        assertTrue(list.remove(&quot;2&quot;));</span>
+<span class="fc" id="L1200">        assertEquals(&quot;[3, 4, 3, 4]&quot;,list.toString());</span>
+<span class="fc" id="L1201">        assertTrue(list.remove(&quot;3&quot;));</span>
+<span class="fc" id="L1202">        assertEquals(&quot;[4, 3, 4]&quot;,list.toString());</span>
+<span class="fc" id="L1203">        assertTrue(list.remove(&quot;3&quot;));</span>
+<span class="fc" id="L1204">        assertEquals(&quot;[4, 4]&quot;,list.toString());</span>
+<span class="fc" id="L1205">        assertTrue(list.remove(&quot;4&quot;));</span>
+<span class="fc" id="L1206">        assertEquals(&quot;[4]&quot;,list.toString());</span>
+<span class="fc" id="L1207">        assertTrue(list.remove(&quot;4&quot;));</span>
+<span class="fc" id="L1208">        assertEquals(&quot;[]&quot;,list.toString());</span>
+<span class="fc" id="L1209">    }</span>
+
+    public void testRetainAll() {
+<span class="fc" id="L1212">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L1213">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L1214">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L1215">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L1216">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L1217">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L1218">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L1219">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L1220">        list.add(&quot;5&quot;);</span>
+<span class="fc" id="L1221">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L1223">        HashSet set = new HashSet();</span>
+<span class="fc" id="L1224">        set.add(&quot;A&quot;);</span>
+<span class="fc" id="L1225">        set.add(&quot;2&quot;);</span>
+<span class="fc" id="L1226">        set.add(&quot;C&quot;);</span>
+<span class="fc" id="L1227">        set.add(&quot;4&quot;);</span>
+<span class="fc" id="L1228">        set.add(&quot;D&quot;);</span>
+
+<span class="fc" id="L1230">        assertTrue(list.retainAll(set));</span>
+<span class="fc" id="L1231">        assertEquals(&quot;[2, 2, 4, 4]&quot;,list.toString());</span>
+<span class="pc bpc" id="L1232" title="1 of 2 branches missed.">        assertTrue(!list.retainAll(set));</span>
+<span class="fc" id="L1233">    }</span>
+
+    public void testSet() {
+<span class="fc" id="L1236">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L1237">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L1238">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L1239">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L1240">        list.add(&quot;5&quot;);</span>
+<span class="fc" id="L1241">        assertEquals(&quot;[1, 2, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1242">        list.set(0,&quot;A&quot;);</span>
+<span class="fc" id="L1243">        assertEquals(&quot;[A, 2, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1244">        list.set(1,&quot;B&quot;);</span>
+<span class="fc" id="L1245">        assertEquals(&quot;[A, B, 3, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1246">        list.set(2,&quot;C&quot;);</span>
+<span class="fc" id="L1247">        assertEquals(&quot;[A, B, C, 4, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1248">        list.set(3,&quot;D&quot;);</span>
+<span class="fc" id="L1249">        assertEquals(&quot;[A, B, C, D, 5]&quot;,list.toString());</span>
+<span class="fc" id="L1250">        list.set(4,&quot;E&quot;);</span>
+<span class="fc" id="L1251">        assertEquals(&quot;[A, B, C, D, E]&quot;,list.toString());</span>
+<span class="fc" id="L1252">    }</span>
+
+    public void testSubList() {
+<span class="fc" id="L1255">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L1256">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L1257">        list.add(&quot;C&quot;);</span>
+<span class="fc" id="L1258">        list.add(&quot;D&quot;);</span>
+<span class="fc" id="L1259">        list.add(&quot;E&quot;);</span>
+
+<span class="fc" id="L1261">        assertEquals(&quot;[A, B, C, D, E]&quot;,list.toString());</span>
+<span class="fc" id="L1262">        assertEquals(&quot;[A, B, C, D, E]&quot;,list.subList(0,5).toString());</span>
+<span class="fc" id="L1263">        assertEquals(&quot;[B, C, D, E]&quot;,list.subList(1,5).toString());</span>
+<span class="fc" id="L1264">        assertEquals(&quot;[C, D, E]&quot;,list.subList(2,5).toString());</span>
+<span class="fc" id="L1265">        assertEquals(&quot;[D, E]&quot;,list.subList(3,5).toString());</span>
+<span class="fc" id="L1266">        assertEquals(&quot;[E]&quot;,list.subList(4,5).toString());</span>
+<span class="fc" id="L1267">        assertEquals(&quot;[]&quot;,list.subList(5,5).toString());</span>
+<span class="fc" id="L1268">    }</span>
+
+    public void testSubListAddEnd() {
+<span class="fc" id="L1271">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L1272">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L1273">        list.add(&quot;C&quot;);</span>
+<span class="fc" id="L1274">        list.add(&quot;D&quot;);</span>
+<span class="fc" id="L1275">        list.add(&quot;E&quot;);</span>
+
+<span class="fc" id="L1277">        List sublist = list.subList(5,5);</span>
+<span class="fc" id="L1278">        sublist.add(&quot;F&quot;);</span>
+<span class="fc" id="L1279">        assertEquals(&quot;[A, B, C, D, E, F]&quot;,list.toString());</span>
+<span class="fc" id="L1280">        assertEquals(&quot;[F]&quot;,sublist.toString());</span>
+<span class="fc" id="L1281">        sublist.add(&quot;G&quot;);</span>
+<span class="fc" id="L1282">        assertEquals(&quot;[A, B, C, D, E, F, G]&quot;,list.toString());</span>
+<span class="fc" id="L1283">        assertEquals(&quot;[F, G]&quot;,sublist.toString());</span>
+<span class="fc" id="L1284">    }</span>
+
+    public void testSubListAddBegin() {
+<span class="fc" id="L1287">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L1288">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L1289">        list.add(&quot;C&quot;);</span>
+<span class="fc" id="L1290">        list.add(&quot;D&quot;);</span>
+<span class="fc" id="L1291">        list.add(&quot;E&quot;);</span>
+
+<span class="fc" id="L1293">        List sublist = list.subList(0,0);</span>
+<span class="fc" id="L1294">        sublist.add(&quot;a&quot;);</span>
+<span class="fc" id="L1295">        assertEquals(&quot;[a, A, B, C, D, E]&quot;,list.toString());</span>
+<span class="fc" id="L1296">        assertEquals(&quot;[a]&quot;,sublist.toString());</span>
+<span class="fc" id="L1297">        sublist.add(&quot;b&quot;);</span>
+<span class="fc" id="L1298">        assertEquals(&quot;[a, b, A, B, C, D, E]&quot;,list.toString());</span>
+<span class="fc" id="L1299">        assertEquals(&quot;[a, b]&quot;,sublist.toString());</span>
+<span class="fc" id="L1300">    }</span>
+
+    public void testSubListAddMiddle() {
+<span class="fc" id="L1303">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L1304">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L1305">        list.add(&quot;C&quot;);</span>
+<span class="fc" id="L1306">        list.add(&quot;D&quot;);</span>
+<span class="fc" id="L1307">        list.add(&quot;E&quot;);</span>
+
+<span class="fc" id="L1309">        List sublist = list.subList(1,3);</span>
+<span class="fc" id="L1310">        sublist.add(&quot;a&quot;);</span>
+<span class="fc" id="L1311">        assertEquals(&quot;[A, B, C, a, D, E]&quot;,list.toString());</span>
+<span class="fc" id="L1312">        assertEquals(&quot;[B, C, a]&quot;,sublist.toString());</span>
+<span class="fc" id="L1313">        sublist.add(&quot;b&quot;);</span>
+<span class="fc" id="L1314">        assertEquals(&quot;[A, B, C, a, b, D, E]&quot;,list.toString());</span>
+<span class="fc" id="L1315">        assertEquals(&quot;[B, C, a, b]&quot;,sublist.toString());</span>
+<span class="fc" id="L1316">    }</span>
+
+    public void testSubListRemove() {
+<span class="fc" id="L1319">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L1320">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L1321">        list.add(&quot;C&quot;);</span>
+<span class="fc" id="L1322">        list.add(&quot;D&quot;);</span>
+<span class="fc" id="L1323">        list.add(&quot;E&quot;);</span>
+
+<span class="fc" id="L1325">        List sublist = list.subList(1,4);</span>
+<span class="fc" id="L1326">        assertEquals(&quot;[B, C, D]&quot;,sublist.toString());</span>
+<span class="fc" id="L1327">        assertEquals(&quot;[A, B, C, D, E]&quot;,list.toString());</span>
+<span class="fc" id="L1328">        sublist.remove(&quot;C&quot;);</span>
+<span class="fc" id="L1329">        assertEquals(&quot;[B, D]&quot;,sublist.toString());</span>
+<span class="fc" id="L1330">        assertEquals(&quot;[A, B, D, E]&quot;,list.toString());</span>
+<span class="fc" id="L1331">        sublist.remove(1);</span>
+<span class="fc" id="L1332">        assertEquals(&quot;[B]&quot;,sublist.toString());</span>
+<span class="fc" id="L1333">        assertEquals(&quot;[A, B, E]&quot;,list.toString());</span>
+<span class="fc" id="L1334">        sublist.clear();</span>
+<span class="fc" id="L1335">        assertEquals(&quot;[]&quot;,sublist.toString());</span>
+<span class="fc" id="L1336">        assertEquals(&quot;[A, E]&quot;,list.toString());</span>
+<span class="fc" id="L1337">    }</span>
+
+    public void testToArray() {
+<span class="fc" id="L1340">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L1341">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L1342">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L1343">        list.add(&quot;4&quot;);</span>
+<span class="fc" id="L1344">        list.add(&quot;5&quot;);</span>
+
+<span class="fc" id="L1346">        Object[] elts = list.toArray();</span>
+<span class="fc" id="L1347">        assertEquals(&quot;1&quot;,elts[0]);</span>
+<span class="fc" id="L1348">        assertEquals(&quot;2&quot;,elts[1]);</span>
+<span class="fc" id="L1349">        assertEquals(&quot;3&quot;,elts[2]);</span>
+<span class="fc" id="L1350">        assertEquals(&quot;4&quot;,elts[3]);</span>
+<span class="fc" id="L1351">        assertEquals(&quot;5&quot;,elts[4]);</span>
+<span class="fc" id="L1352">        assertEquals(5,elts.length);</span>
+
+<span class="fc" id="L1354">        String[] elts2 = (String[])(list.toArray(new String[0]));</span>
+<span class="fc" id="L1355">        assertEquals(&quot;1&quot;,elts2[0]);</span>
+<span class="fc" id="L1356">        assertEquals(&quot;2&quot;,elts2[1]);</span>
+<span class="fc" id="L1357">        assertEquals(&quot;3&quot;,elts2[2]);</span>
+<span class="fc" id="L1358">        assertEquals(&quot;4&quot;,elts2[3]);</span>
+<span class="fc" id="L1359">        assertEquals(&quot;5&quot;,elts2[4]);</span>
+<span class="fc" id="L1360">        assertEquals(5,elts2.length);</span>
+
+<span class="fc" id="L1362">        String[] elts3 = new String[5];</span>
+<span class="fc" id="L1363">        assertSame(elts3,list.toArray(elts3));</span>
+<span class="fc" id="L1364">        assertEquals(&quot;1&quot;,elts3[0]);</span>
+<span class="fc" id="L1365">        assertEquals(&quot;2&quot;,elts3[1]);</span>
+<span class="fc" id="L1366">        assertEquals(&quot;3&quot;,elts3[2]);</span>
+<span class="fc" id="L1367">        assertEquals(&quot;4&quot;,elts3[3]);</span>
+<span class="fc" id="L1368">        assertEquals(&quot;5&quot;,elts3[4]);</span>
+<span class="fc" id="L1369">        assertEquals(5,elts3.length);</span>
+
+<span class="fc" id="L1371">        String[] elts4 = new String[3];</span>
+<span class="fc" id="L1372">        String[] elts4b = (String[])(list.toArray(elts4));</span>
+<span class="pc bpc" id="L1373" title="1 of 2 branches missed.">        assertTrue(elts4 != elts4b);</span>
+<span class="fc" id="L1374">        assertEquals(&quot;1&quot;,elts4b[0]);</span>
+<span class="fc" id="L1375">        assertEquals(&quot;2&quot;,elts4b[1]);</span>
+<span class="fc" id="L1376">        assertEquals(&quot;3&quot;,elts4b[2]);</span>
+<span class="fc" id="L1377">        assertEquals(&quot;4&quot;,elts4b[3]);</span>
+<span class="fc" id="L1378">        assertEquals(&quot;5&quot;,elts4b[4]);</span>
+<span class="fc" id="L1379">        assertEquals(5,elts4b.length);</span>
+<span class="fc" id="L1380">    }</span>
+
+    public void testSerialization() throws Exception {
+<span class="fc" id="L1383">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L1384">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L1385">        list.add(&quot;C&quot;);</span>
+<span class="fc" id="L1386">        list.add(&quot;D&quot;);</span>
+<span class="fc" id="L1387">        list.add(&quot;E&quot;);</span>
+
+<span class="fc" id="L1389">        java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream();</span>
+<span class="fc" id="L1390">        java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(buf);</span>
+<span class="fc" id="L1391">        out.writeObject(list);</span>
+<span class="fc" id="L1392">        out.flush();</span>
+<span class="fc" id="L1393">        out.close();</span>
+
+<span class="fc" id="L1395">        java.io.ByteArrayInputStream bufin = new java.io.ByteArrayInputStream(buf.toByteArray());</span>
+<span class="fc" id="L1396">        java.io.ObjectInputStream in = new java.io.ObjectInputStream(bufin);</span>
+<span class="fc" id="L1397">        Object list2 = in.readObject();</span>
+
+<span class="pc bpc" id="L1399" title="1 of 2 branches missed.">        assertTrue(list != list2);</span>
+<span class="fc" id="L1400">        assertTrue(list2.equals(list));</span>
+<span class="fc" id="L1401">        assertTrue(list.equals(list2));</span>
+<span class="fc" id="L1402">    }</span>
+
+    public void testSerializationWithOpenCursor() throws Exception {
+<span class="fc" id="L1405">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L1406">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L1407">        list.add(&quot;C&quot;);</span>
+<span class="fc" id="L1408">        list.add(&quot;D&quot;);</span>
+<span class="fc" id="L1409">        list.add(&quot;E&quot;);</span>
+<span class="fc" id="L1410">        CursorableLinkedList.Cursor cursor = list.cursor();</span>
+
+<span class="fc" id="L1412">        java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream();</span>
+<span class="fc" id="L1413">        java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(buf);</span>
+<span class="fc" id="L1414">        out.writeObject(list);</span>
+<span class="fc" id="L1415">        out.flush();</span>
+<span class="fc" id="L1416">        out.close();</span>
+
+<span class="fc" id="L1418">        java.io.ByteArrayInputStream bufin = new java.io.ByteArrayInputStream(buf.toByteArray());</span>
+<span class="fc" id="L1419">        java.io.ObjectInputStream in = new java.io.ObjectInputStream(bufin);</span>
+<span class="fc" id="L1420">        Object list2 = in.readObject();</span>
+
+<span class="pc bpc" id="L1422" title="1 of 2 branches missed.">        assertTrue(list != list2);</span>
+<span class="fc" id="L1423">        assertTrue(list2.equals(list));</span>
+<span class="fc" id="L1424">        assertTrue(list.equals(list2));</span>
+<span class="fc" id="L1425">    }</span>
+
+    public void testLongSerialization() throws Exception {
+        // recursive serialization will cause a stack
+        // overflow exception with long lists
+<span class="fc bfc" id="L1430" title="All 2 branches covered.">        for(int i=0;i&lt;10000;i++) {</span>
+<span class="fc" id="L1431">            list.add(new Integer(i));</span>
+        }
+
+<span class="fc" id="L1434">        java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream();</span>
+<span class="fc" id="L1435">        java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(buf);</span>
+<span class="fc" id="L1436">        out.writeObject(list);</span>
+<span class="fc" id="L1437">        out.flush();</span>
+<span class="fc" id="L1438">        out.close();</span>
+
+<span class="fc" id="L1440">        java.io.ByteArrayInputStream bufin = new java.io.ByteArrayInputStream(buf.toByteArray());</span>
+<span class="fc" id="L1441">        java.io.ObjectInputStream in = new java.io.ObjectInputStream(bufin);</span>
+<span class="fc" id="L1442">        Object list2 = in.readObject();</span>
+
+<span class="pc bpc" id="L1444" title="1 of 2 branches missed.">        assertTrue(list != list2);</span>
+<span class="fc" id="L1445">        assertTrue(list2.equals(list));</span>
+<span class="fc" id="L1446">        assertTrue(list.equals(list2));</span>
+<span class="fc" id="L1447">    }</span>
+
+
+    /**
+     *  Ignore the serialization tests for sublists and sub-sublists.
+     *
+     *  @return an array of sublist serialization test names 
+     */
+    public String[] ignoredTests() {
+<span class="fc" id="L1456">        ArrayList list = new ArrayList();</span>
+<span class="fc" id="L1457">        String prefix = &quot;TestCursorableLinkedList&quot;;</span>
+<span class="fc" id="L1458">        String bulk = &quot;.bulkTestSubList&quot;;</span>
+<span class="fc" id="L1459">        String[] ignored = new String[] {</span>
+<span class="fc" id="L1460">          &quot;.testEmptyListSerialization&quot;,</span>
+<span class="fc" id="L1461">          &quot;.testFullListSerialization&quot;, </span>
+<span class="fc" id="L1462">          &quot;.testEmptyListCompatibility&quot;, </span>
+<span class="fc" id="L1463">          &quot;.testFullListCompatibility&quot;, </span>
+<span class="fc" id="L1464">          &quot;.testSimpleSerialization&quot;,</span>
+<span class="fc" id="L1465">          &quot;.testCanonicalEmptyCollectionExists&quot;,</span>
+<span class="fc" id="L1466">          &quot;.testCanonicalFullCollectionExists&quot;,</span>
+<span class="fc" id="L1467">          &quot;.testSerializeDeserializeThenCompare&quot;</span>
+        };
+<span class="fc bfc" id="L1469" title="All 2 branches covered.">        for (int i = 0; i &lt; ignored.length; i++) {</span>
+<span class="fc" id="L1470">            list.add(prefix + bulk + ignored[i]);</span>
+<span class="fc" id="L1471">            list.add(prefix + bulk + bulk + ignored[i]);</span>
+        }
+<span class="fc" id="L1473">        return (String[])list.toArray(new String[0]);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

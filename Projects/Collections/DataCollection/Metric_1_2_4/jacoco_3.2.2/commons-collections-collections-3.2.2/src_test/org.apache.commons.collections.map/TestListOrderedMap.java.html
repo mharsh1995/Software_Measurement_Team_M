@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestListOrderedMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">TestListOrderedMap.java</span></div><h1>TestListOrderedMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.BulkTest;
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.list.AbstractTestList;
+
+/**
+ * Extension of {@link TestMap} for exercising the {@link ListOrderedMap}
+ * implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Henri Yandell
+ * @author Stephen Colebourne
+ * @author Matt Benson
+ */
+public class TestListOrderedMap extends AbstractTestOrderedMap {
+
+    public TestListOrderedMap(String testName) {
+<span class="fc" id="L44">        super(testName);</span>
+<span class="fc" id="L45">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L48" title="All 2 branches covered.">        return BulkTest.makeSuite(TestListOrderedMap.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        String[] testCaseName = { TestListOrderedMap.class.getName()};</span>
+<span class="nc" id="L53">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L54">    }</span>
+
+    public Map makeEmptyMap() {
+<span class="fc" id="L57">        return ListOrderedMap.decorate(new HashMap());</span>
+    }
+    
+    //-----------------------------------------------------------------------
+    public void testGetByIndex() {
+<span class="fc" id="L62">        resetEmpty();</span>
+<span class="fc" id="L63">        ListOrderedMap lom = (ListOrderedMap) map;</span>
+        try {
+<span class="nc" id="L65">            lom.get(0);</span>
+<span class="pc" id="L66">        } catch (IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L68">            lom.get(-1);</span>
+<span class="pc" id="L69">        } catch (IndexOutOfBoundsException ex) {}</span>
+        
+<span class="fc" id="L71">        resetFull();</span>
+<span class="fc" id="L72">        lom = (ListOrderedMap) map;</span>
+        try {
+<span class="nc" id="L74">            lom.get(-1);</span>
+<span class="pc" id="L75">        } catch (IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L77">            lom.get(lom.size());</span>
+<span class="pc" id="L78">        } catch (IndexOutOfBoundsException ex) {}</span>
+        
+<span class="fc" id="L80">        int i = 0;</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        for (MapIterator it = lom.mapIterator(); it.hasNext(); i++) {</span>
+<span class="fc" id="L82">            assertSame(it.next(), lom.get(i));</span>
+        }
+<span class="fc" id="L84">    }</span>
+
+    public void testGetValueByIndex() {
+<span class="fc" id="L87">        resetEmpty();</span>
+<span class="fc" id="L88">        ListOrderedMap lom = (ListOrderedMap) map;</span>
+        try {
+<span class="nc" id="L90">            lom.getValue(0);</span>
+<span class="pc" id="L91">        } catch (IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L93">            lom.getValue(-1);</span>
+<span class="pc" id="L94">        } catch (IndexOutOfBoundsException ex) {}</span>
+        
+<span class="fc" id="L96">        resetFull();</span>
+<span class="fc" id="L97">        lom = (ListOrderedMap) map;</span>
+        try {
+<span class="nc" id="L99">            lom.getValue(-1);</span>
+<span class="pc" id="L100">        } catch (IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L102">            lom.getValue(lom.size());</span>
+<span class="pc" id="L103">        } catch (IndexOutOfBoundsException ex) {}</span>
+        
+<span class="fc" id="L105">        int i = 0;</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        for (MapIterator it = lom.mapIterator(); it.hasNext(); i++) {</span>
+<span class="fc" id="L107">            it.next();</span>
+<span class="fc" id="L108">            assertSame(it.getValue(), lom.getValue(i));</span>
+        }
+<span class="fc" id="L110">    }</span>
+
+    public void testIndexOf() {
+<span class="fc" id="L113">        resetEmpty();</span>
+<span class="fc" id="L114">        ListOrderedMap lom = (ListOrderedMap) map;</span>
+<span class="fc" id="L115">        assertEquals(-1, lom.indexOf(getOtherKeys()));</span>
+        
+<span class="fc" id="L117">        resetFull();</span>
+<span class="fc" id="L118">        lom = (ListOrderedMap) map;</span>
+<span class="fc" id="L119">        List list = new ArrayList();</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        for (MapIterator it = lom.mapIterator(); it.hasNext();) {</span>
+<span class="fc" id="L121">            list.add(it.next());</span>
+        }
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for (int i = 0; i &lt; list.size(); i++) {</span>
+<span class="fc" id="L124">            assertEquals(i, lom.indexOf(list.get(i)));</span>
+        }
+<span class="fc" id="L126">    }</span>
+
+    public void testSetValueByIndex() {
+<span class="fc" id="L129">        resetEmpty();</span>
+<span class="fc" id="L130">        ListOrderedMap lom = (ListOrderedMap) map;</span>
+        try {
+<span class="nc" id="L132">            lom.setValue(0, &quot;&quot;);</span>
+<span class="pc" id="L133">        } catch (IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L135">            lom.setValue(-1, &quot;&quot;);</span>
+<span class="pc" id="L136">        } catch (IndexOutOfBoundsException ex) {}</span>
+        
+<span class="fc" id="L138">        resetFull();</span>
+<span class="fc" id="L139">        lom = (ListOrderedMap) map;</span>
+        try {
+<span class="nc" id="L141">            lom.setValue(-1, &quot;&quot;);</span>
+<span class="pc" id="L142">        } catch (IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L144">            lom.setValue(lom.size(), &quot;&quot;);</span>
+<span class="pc" id="L145">        } catch (IndexOutOfBoundsException ex) {}</span>
+        
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        for (int i = 0; i &lt; lom.size(); i++) {</span>
+<span class="fc" id="L148">            Object value = lom.getValue(i);</span>
+<span class="fc" id="L149">            Object input = new Integer(i);</span>
+<span class="fc" id="L150">            assertEquals(value, lom.setValue(i, input));</span>
+<span class="fc" id="L151">            assertEquals(input, lom.getValue(i));</span>
+        }
+<span class="fc" id="L153">    }</span>
+
+    public void testRemoveByIndex() {
+<span class="fc" id="L156">        resetEmpty();</span>
+<span class="fc" id="L157">        ListOrderedMap lom = (ListOrderedMap) map;</span>
+        try {
+<span class="nc" id="L159">            lom.remove(0);</span>
+<span class="pc" id="L160">        } catch (IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L162">            lom.remove(-1);</span>
+<span class="pc" id="L163">        } catch (IndexOutOfBoundsException ex) {}</span>
+        
+<span class="fc" id="L165">        resetFull();</span>
+<span class="fc" id="L166">        lom = (ListOrderedMap) map;</span>
+        try {
+<span class="nc" id="L168">            lom.remove(-1);</span>
+<span class="pc" id="L169">        } catch (IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L171">            lom.remove(lom.size());</span>
+<span class="pc" id="L172">        } catch (IndexOutOfBoundsException ex) {}</span>
+        
+<span class="fc" id="L174">        List list = new ArrayList();</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        for (MapIterator it = lom.mapIterator(); it.hasNext();) {</span>
+<span class="fc" id="L176">            list.add(it.next());</span>
+        }
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        for (int i = 0; i &lt; list.size(); i++) {</span>
+<span class="fc" id="L179">            Object key = list.get(i);</span>
+<span class="fc" id="L180">            Object value = lom.get(key);</span>
+<span class="fc" id="L181">            assertEquals(value, lom.remove(i));</span>
+<span class="fc" id="L182">            list.remove(i);</span>
+<span class="fc" id="L183">            assertEquals(false, lom.containsKey(key));</span>
+        }
+<span class="fc" id="L185">    }</span>
+
+    public void testPut_intObjectObject() {
+<span class="fc" id="L188">        resetEmpty();</span>
+<span class="fc" id="L189">        ListOrderedMap lom = (ListOrderedMap) map;</span>
+        
+        try {
+<span class="nc" id="L192">            lom.put(1, &quot;testInsert1&quot;, &quot;testInsert1v&quot;);</span>
+<span class="nc" id="L193">            fail(&quot;should not be able to insert at pos 1 in empty Map&quot;);</span>
+<span class="pc" id="L194">        } catch (IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L196">            lom.put(-1, &quot;testInsert-1&quot;, &quot;testInsert-1v&quot;);</span>
+<span class="nc" id="L197">            fail(&quot;should not be able to insert at pos -1 in empty Map&quot;);</span>
+<span class="pc" id="L198">        } catch (IndexOutOfBoundsException ex) {}</span>
+        
+        // put where key doesn't exist
+<span class="fc" id="L201">        lom.put(0, &quot;testInsert1&quot;, &quot;testInsert1v&quot;);</span>
+<span class="fc" id="L202">        assertEquals(&quot;testInsert1v&quot;, lom.getValue(0));</span>
+        
+<span class="fc" id="L204">        lom.put(&quot;testInsertPut&quot;, &quot;testInsertPutv&quot;);</span>
+<span class="fc" id="L205">        assertEquals(&quot;testInsert1v&quot;, lom.getValue(0));</span>
+<span class="fc" id="L206">        assertEquals(&quot;testInsertPutv&quot;, lom.getValue(1));</span>
+        
+<span class="fc" id="L208">        lom.put(0, &quot;testInsert0&quot;, &quot;testInsert0v&quot;);</span>
+<span class="fc" id="L209">        assertEquals(&quot;testInsert0v&quot;, lom.getValue(0));</span>
+<span class="fc" id="L210">        assertEquals(&quot;testInsert1v&quot;, lom.getValue(1));</span>
+<span class="fc" id="L211">        assertEquals(&quot;testInsertPutv&quot;, lom.getValue(2));</span>
+        
+<span class="fc" id="L213">        lom.put(3, &quot;testInsert3&quot;, &quot;testInsert3v&quot;);</span>
+<span class="fc" id="L214">        assertEquals(&quot;testInsert0v&quot;, lom.getValue(0));</span>
+<span class="fc" id="L215">        assertEquals(&quot;testInsert1v&quot;, lom.getValue(1));</span>
+<span class="fc" id="L216">        assertEquals(&quot;testInsertPutv&quot;, lom.getValue(2));</span>
+<span class="fc" id="L217">        assertEquals(&quot;testInsert3v&quot;, lom.getValue(3));</span>
+        
+        // put in a full map        
+<span class="fc" id="L220">        resetFull();</span>
+<span class="fc" id="L221">        lom = (ListOrderedMap) map;</span>
+<span class="fc" id="L222">        ListOrderedMap lom2 = new ListOrderedMap();</span>
+<span class="fc" id="L223">        lom2.putAll(lom);</span>
+        
+<span class="fc" id="L225">        lom2.put(0, &quot;testInsert0&quot;, &quot;testInsert0v&quot;);</span>
+<span class="fc" id="L226">        assertEquals(&quot;testInsert0v&quot;, lom2.getValue(0));</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        for (int i = 0; i &lt; lom.size(); i++) {</span>
+<span class="fc" id="L228">            assertEquals(lom2.getValue(i + 1), lom.getValue(i));</span>
+        }
+        
+        // put where key does exist
+<span class="fc" id="L232">        Integer i1 = new Integer(1);</span>
+<span class="fc" id="L233">        Integer i1b = new Integer(1);</span>
+<span class="fc" id="L234">        Integer i2 = new Integer(2);</span>
+<span class="fc" id="L235">        Integer i3 = new Integer(3);</span>
+        
+<span class="fc" id="L237">        resetEmpty();</span>
+<span class="fc" id="L238">        lom = (ListOrderedMap) map;</span>
+<span class="fc" id="L239">        lom.put(i1, &quot;1&quot;);</span>
+<span class="fc" id="L240">        lom.put(i2, &quot;2&quot;);</span>
+<span class="fc" id="L241">        lom.put(i3, &quot;3&quot;);</span>
+<span class="fc" id="L242">        lom.put(0, i1, &quot;One&quot;);</span>
+<span class="fc" id="L243">        assertEquals(3, lom.size());</span>
+<span class="fc" id="L244">        assertEquals(3, lom.map.size());</span>
+<span class="fc" id="L245">        assertEquals(3, lom.insertOrder.size());</span>
+<span class="fc" id="L246">        assertEquals(&quot;One&quot;, lom.getValue(0));</span>
+<span class="fc" id="L247">        assertSame(i1, lom.get(0));</span>
+        
+<span class="fc" id="L249">        resetEmpty();</span>
+<span class="fc" id="L250">        lom = (ListOrderedMap) map;</span>
+<span class="fc" id="L251">        lom.put(i1, &quot;1&quot;);</span>
+<span class="fc" id="L252">        lom.put(i2, &quot;2&quot;);</span>
+<span class="fc" id="L253">        lom.put(i3, &quot;3&quot;);</span>
+<span class="fc" id="L254">        lom.put(0, i1b, &quot;One&quot;);</span>
+<span class="fc" id="L255">        assertEquals(3, lom.size());</span>
+<span class="fc" id="L256">        assertEquals(3, lom.map.size());</span>
+<span class="fc" id="L257">        assertEquals(3, lom.insertOrder.size());</span>
+<span class="fc" id="L258">        assertEquals(&quot;One&quot;, lom.getValue(0));</span>
+<span class="fc" id="L259">        assertEquals(&quot;2&quot;, lom.getValue(1));</span>
+<span class="fc" id="L260">        assertEquals(&quot;3&quot;, lom.getValue(2));</span>
+<span class="fc" id="L261">        assertSame(i1b, lom.get(0));</span>
+        
+<span class="fc" id="L263">        resetEmpty();</span>
+<span class="fc" id="L264">        lom = (ListOrderedMap) map;</span>
+<span class="fc" id="L265">        lom.put(i1, &quot;1&quot;);</span>
+<span class="fc" id="L266">        lom.put(i2, &quot;2&quot;);</span>
+<span class="fc" id="L267">        lom.put(i3, &quot;3&quot;);</span>
+<span class="fc" id="L268">        lom.put(1, i1b, &quot;One&quot;);</span>
+<span class="fc" id="L269">        assertEquals(3, lom.size());</span>
+<span class="fc" id="L270">        assertEquals(3, lom.map.size());</span>
+<span class="fc" id="L271">        assertEquals(3, lom.insertOrder.size());</span>
+<span class="fc" id="L272">        assertEquals(&quot;One&quot;, lom.getValue(0));</span>
+<span class="fc" id="L273">        assertEquals(&quot;2&quot;, lom.getValue(1));</span>
+<span class="fc" id="L274">        assertEquals(&quot;3&quot;, lom.getValue(2));</span>
+        
+<span class="fc" id="L276">        resetEmpty();</span>
+<span class="fc" id="L277">        lom = (ListOrderedMap) map;</span>
+<span class="fc" id="L278">        lom.put(i1, &quot;1&quot;);</span>
+<span class="fc" id="L279">        lom.put(i2, &quot;2&quot;);</span>
+<span class="fc" id="L280">        lom.put(i3, &quot;3&quot;);</span>
+<span class="fc" id="L281">        lom.put(2, i1b, &quot;One&quot;);</span>
+<span class="fc" id="L282">        assertEquals(3, lom.size());</span>
+<span class="fc" id="L283">        assertEquals(3, lom.map.size());</span>
+<span class="fc" id="L284">        assertEquals(3, lom.insertOrder.size());</span>
+<span class="fc" id="L285">        assertEquals(&quot;2&quot;, lom.getValue(0));</span>
+<span class="fc" id="L286">        assertEquals(&quot;One&quot;, lom.getValue(1));</span>
+<span class="fc" id="L287">        assertEquals(&quot;3&quot;, lom.getValue(2));</span>
+        
+<span class="fc" id="L289">        resetEmpty();</span>
+<span class="fc" id="L290">        lom = (ListOrderedMap) map;</span>
+<span class="fc" id="L291">        lom.put(i1, &quot;1&quot;);</span>
+<span class="fc" id="L292">        lom.put(i2, &quot;2&quot;);</span>
+<span class="fc" id="L293">        lom.put(i3, &quot;3&quot;);</span>
+<span class="fc" id="L294">        lom.put(3, i1b, &quot;One&quot;);</span>
+<span class="fc" id="L295">        assertEquals(3, lom.size());</span>
+<span class="fc" id="L296">        assertEquals(3, lom.map.size());</span>
+<span class="fc" id="L297">        assertEquals(3, lom.insertOrder.size());</span>
+<span class="fc" id="L298">        assertEquals(&quot;2&quot;, lom.getValue(0));</span>
+<span class="fc" id="L299">        assertEquals(&quot;3&quot;, lom.getValue(1));</span>
+<span class="fc" id="L300">        assertEquals(&quot;One&quot;, lom.getValue(2));</span>
+<span class="fc" id="L301">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testValueList_getByIndex() {
+<span class="fc" id="L305">        resetFull();</span>
+<span class="fc" id="L306">        ListOrderedMap lom = (ListOrderedMap) map;</span>
+<span class="fc bfc" id="L307" title="All 2 branches covered.">        for (int i = 0; i &lt; lom.size(); i++) {</span>
+<span class="fc" id="L308">            Object expected = lom.getValue(i);</span>
+<span class="fc" id="L309">            assertEquals(expected, lom.valueList().get(i));</span>
+        }
+<span class="fc" id="L311">    }</span>
+
+    public void testValueList_setByIndex() {
+<span class="fc" id="L314">        resetFull();</span>
+<span class="fc" id="L315">        ListOrderedMap lom = (ListOrderedMap) map;</span>
+<span class="fc bfc" id="L316" title="All 2 branches covered.">        for (int i = 0; i &lt; lom.size(); i++) {</span>
+<span class="fc" id="L317">            Object input = new Integer(i);</span>
+<span class="fc" id="L318">            Object expected = lom.getValue(i);</span>
+<span class="fc" id="L319">            assertEquals(expected, lom.valueList().set(i, input));</span>
+<span class="fc" id="L320">            assertEquals(input, lom.getValue(i));</span>
+<span class="fc" id="L321">            assertEquals(input, lom.valueList().get(i));</span>
+        }
+<span class="fc" id="L323">    }</span>
+
+    public void testValueList_removeByIndex() {
+<span class="fc" id="L326">        resetFull();</span>
+<span class="fc" id="L327">        ListOrderedMap lom = (ListOrderedMap) map;</span>
+<span class="fc bfc" id="L328" title="All 2 branches covered.">        while (lom.size() &gt; 1) {</span>
+<span class="fc" id="L329">            Object expected = lom.getValue(1);</span>
+<span class="fc" id="L330">            assertEquals(expected, lom.valueList().remove(1));</span>
+        }
+<span class="fc" id="L332">    }</span>
+
+    //-----------------------------------------------------------------------
+    public BulkTest bulkTestKeyListView() {
+<span class="fc" id="L336">        return new TestKeyListView();</span>
+    }
+
+    public BulkTest bulkTestValueListView() {
+<span class="fc" id="L340">        return new TestValueListView();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public class TestKeyListView extends AbstractTestList {
+        TestKeyListView() {
+<span class="fc" id="L346">            super(&quot;TestKeyListView&quot;);</span>
+<span class="fc" id="L347">        }</span>
+
+        public List makeEmptyList() {
+<span class="fc" id="L350">            return ((ListOrderedMap) TestListOrderedMap.this.makeEmptyMap()).keyList();</span>
+        }
+        public List makeFullList() {
+<span class="fc" id="L353">            return ((ListOrderedMap) TestListOrderedMap.this.makeFullMap()).keyList();</span>
+        }
+
+        public Object[] getFullElements() {
+<span class="fc" id="L357">            return TestListOrderedMap.this.getSampleKeys();</span>
+        }
+        public boolean isAddSupported() {
+<span class="fc" id="L360">            return false;</span>
+        }
+        public boolean isRemoveSupported() {
+<span class="fc" id="L363">            return false;</span>
+        }
+        public boolean isSetSupported() {
+<span class="fc" id="L366">            return false;</span>
+        }
+        public boolean isNullSupported() {
+<span class="nc" id="L369">            return TestListOrderedMap.this.isAllowNullKey();</span>
+        }
+        public boolean isTestSerialization() {
+<span class="fc" id="L372">            return false;</span>
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    public class TestValueListView extends AbstractTestList {
+        TestValueListView() {
+<span class="fc" id="L379">            super(&quot;TestValueListView&quot;);</span>
+<span class="fc" id="L380">        }</span>
+
+        public List makeEmptyList() {
+<span class="fc" id="L383">            return ((ListOrderedMap) TestListOrderedMap.this.makeEmptyMap()).valueList();</span>
+        }
+        public List makeFullList() {
+<span class="fc" id="L386">            return ((ListOrderedMap) TestListOrderedMap.this.makeFullMap()).valueList();</span>
+        }
+
+        public Object[] getFullElements() {
+<span class="fc" id="L390">            return TestListOrderedMap.this.getSampleValues();</span>
+        }
+        public boolean isAddSupported() {
+<span class="fc" id="L393">            return false;</span>
+        }
+        public boolean isRemoveSupported() {
+<span class="fc" id="L396">            return true;</span>
+        }
+        public boolean isSetSupported() {
+<span class="fc" id="L399">            return true;</span>
+        }
+        public boolean isNullSupported() {
+<span class="nc" id="L402">            return TestListOrderedMap.this.isAllowNullKey();</span>
+        }
+        public boolean isTestSerialization() {
+<span class="fc" id="L405">            return false;</span>
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    public String getCompatibilityVersion() {
+<span class="fc" id="L411">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/ListOrderedMap.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/ListOrderedMap.fullCollection.version3.1.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

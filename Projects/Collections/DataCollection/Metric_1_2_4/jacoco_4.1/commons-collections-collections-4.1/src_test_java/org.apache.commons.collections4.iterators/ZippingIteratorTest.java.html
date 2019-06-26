@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ZippingIteratorTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.iterators</a> &gt; <span class="el_source">ZippingIteratorTest.java</span></div><h1>ZippingIteratorTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.iterators;
+
+import java.util.ArrayList;
+
+import org.apache.commons.collections4.IteratorUtils;
+
+/**
+ * Unit test suite for {@link ZippingIterator}.
+ *
+ * @version $Id$
+ */
+@SuppressWarnings(&quot;boxing&quot;)
+public class ZippingIteratorTest extends AbstractIteratorTest&lt;Integer&gt; {
+
+    //------------------------------------------------------------ Conventional
+
+    public ZippingIteratorTest(final String testName) {
+<span class="fc" id="L34">        super(testName);</span>
+<span class="fc" id="L35">    }</span>
+
+    //--------------------------------------------------------------- Lifecycle
+
+<span class="fc" id="L39">    private ArrayList&lt;Integer&gt; evens = null;</span>
+<span class="fc" id="L40">    private ArrayList&lt;Integer&gt; odds = null;</span>
+<span class="fc" id="L41">    private ArrayList&lt;Integer&gt; fib = null;</span>
+
+    @Override
+    public void setUp() throws Exception {
+<span class="fc" id="L45">        super.setUp();</span>
+<span class="fc" id="L46">        evens = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L47">        odds = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        for (int i = 0; i &lt; 20; i++) {</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">            if (0 == i % 2) {</span>
+<span class="fc" id="L50">                evens.add(i);</span>
+<span class="fc" id="L51">            } else {</span>
+<span class="fc" id="L52">                odds.add(i);</span>
+            }
+        }
+<span class="fc" id="L55">        fib = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L56">        fib.add(1);</span>
+<span class="fc" id="L57">        fib.add(1);</span>
+<span class="fc" id="L58">        fib.add(2);</span>
+<span class="fc" id="L59">        fib.add(3);</span>
+<span class="fc" id="L60">        fib.add(5);</span>
+<span class="fc" id="L61">        fib.add(8);</span>
+<span class="fc" id="L62">        fib.add(13);</span>
+<span class="fc" id="L63">        fib.add(21);</span>
+<span class="fc" id="L64">    }</span>
+
+    //---------------------------------------------------- TestIterator Methods
+
+    @Override
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public ZippingIterator&lt;Integer&gt; makeEmptyIterator() {
+<span class="fc" id="L71">        return new ZippingIterator&lt;Integer&gt;(IteratorUtils.&lt;Integer&gt;emptyIterator());</span>
+    }
+
+    @Override
+    public ZippingIterator&lt;Integer&gt; makeObject() {
+<span class="fc" id="L76">        return new ZippingIterator&lt;Integer&gt;(evens.iterator(), odds.iterator(), fib.iterator());</span>
+    }
+
+    //------------------------------------------------------------------- Tests
+
+    public void testIterateEven() {
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L83">        final ZippingIterator&lt;Integer&gt; iter = new ZippingIterator&lt;Integer&gt;(evens.iterator());</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        for (int i = 0; i &lt; evens.size(); i++) {</span>
+<span class="fc" id="L85">            assertTrue(iter.hasNext());</span>
+<span class="fc" id="L86">            assertEquals(evens.get(i), iter.next());</span>
+        }
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        assertTrue(!iter.hasNext());</span>
+<span class="fc" id="L89">    }</span>
+
+    public void testIterateEvenOdd() {
+<span class="fc" id="L92">        final ZippingIterator&lt;Integer&gt; iter = new ZippingIterator&lt;Integer&gt;(evens.iterator(), odds.iterator());</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        for (int i = 0; i &lt; 20; i++) {</span>
+<span class="fc" id="L94">            assertTrue(iter.hasNext());</span>
+<span class="fc" id="L95">            assertEquals(Integer.valueOf(i), iter.next());</span>
+        }
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        assertTrue(!iter.hasNext());</span>
+<span class="fc" id="L98">    }</span>
+
+    public void testIterateOddEven() {
+<span class="fc" id="L101">        final ZippingIterator&lt;Integer&gt; iter = new ZippingIterator&lt;Integer&gt;(odds.iterator(), evens.iterator());</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        for (int i = 0, j = 0; i &lt; 20; i++) {</span>
+<span class="fc" id="L103">            assertTrue(iter.hasNext());</span>
+<span class="fc" id="L104">            int val = iter.next();</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            if (i % 2 == 0) {</span>
+<span class="fc" id="L106">                assertEquals(odds.get(j).intValue(), val);</span>
+<span class="fc" id="L107">            } else {</span>
+<span class="fc" id="L108">                assertEquals(evens.get(j).intValue(), val);</span>
+<span class="fc" id="L109">                j++;</span>
+            }
+        }
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        assertTrue(!iter.hasNext());</span>
+<span class="fc" id="L113">    }</span>
+
+    public void testIterateEvenEven() {
+<span class="fc" id="L116">        final ZippingIterator&lt;Integer&gt; iter = new ZippingIterator&lt;Integer&gt;(evens.iterator(), evens.iterator());</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        for (int i = 0; i &lt; evens.size(); i++) {</span>
+<span class="fc" id="L118">            assertTrue(iter.hasNext());</span>
+<span class="fc" id="L119">            assertEquals(evens.get(i), iter.next());</span>
+<span class="fc" id="L120">            assertTrue(iter.hasNext());</span>
+<span class="fc" id="L121">            assertEquals(evens.get(i), iter.next());</span>
+        }
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">        assertTrue(!iter.hasNext());</span>
+<span class="fc" id="L124">    }</span>
+
+    public void testIterateFibEvenOdd() {
+<span class="fc" id="L127">        final ZippingIterator&lt;Integer&gt; iter = new ZippingIterator&lt;Integer&gt;(fib.iterator(), evens.iterator(), odds.iterator());</span>
+
+<span class="fc" id="L129">        assertEquals(Integer.valueOf(1),iter.next());  // fib    1</span>
+<span class="fc" id="L130">        assertEquals(Integer.valueOf(0),iter.next());  // even   0</span>
+<span class="fc" id="L131">        assertEquals(Integer.valueOf(1),iter.next());  // odd    1</span>
+<span class="fc" id="L132">        assertEquals(Integer.valueOf(1),iter.next());  // fib    1</span>
+<span class="fc" id="L133">        assertEquals(Integer.valueOf(2),iter.next());  // even   2</span>
+<span class="fc" id="L134">        assertEquals(Integer.valueOf(3),iter.next());  // odd    3</span>
+<span class="fc" id="L135">        assertEquals(Integer.valueOf(2),iter.next());  // fib    2</span>
+<span class="fc" id="L136">        assertEquals(Integer.valueOf(4),iter.next());  // even   4</span>
+<span class="fc" id="L137">        assertEquals(Integer.valueOf(5),iter.next());  // odd    5</span>
+<span class="fc" id="L138">        assertEquals(Integer.valueOf(3),iter.next());  // fib    3</span>
+<span class="fc" id="L139">        assertEquals(Integer.valueOf(6),iter.next());  // even   6</span>
+<span class="fc" id="L140">        assertEquals(Integer.valueOf(7),iter.next());  // odd    7</span>
+<span class="fc" id="L141">        assertEquals(Integer.valueOf(5),iter.next());  // fib    5</span>
+<span class="fc" id="L142">        assertEquals(Integer.valueOf(8),iter.next());  // even   8</span>
+<span class="fc" id="L143">        assertEquals(Integer.valueOf(9),iter.next());  // odd    9</span>
+<span class="fc" id="L144">        assertEquals(Integer.valueOf(8),iter.next());  // fib    8</span>
+<span class="fc" id="L145">        assertEquals(Integer.valueOf(10),iter.next()); // even  10</span>
+<span class="fc" id="L146">        assertEquals(Integer.valueOf(11),iter.next()); // odd   11</span>
+<span class="fc" id="L147">        assertEquals(Integer.valueOf(13),iter.next()); // fib   13</span>
+<span class="fc" id="L148">        assertEquals(Integer.valueOf(12),iter.next()); // even  12</span>
+<span class="fc" id="L149">        assertEquals(Integer.valueOf(13),iter.next()); // odd   13</span>
+<span class="fc" id="L150">        assertEquals(Integer.valueOf(21),iter.next()); // fib   21</span>
+<span class="fc" id="L151">        assertEquals(Integer.valueOf(14),iter.next()); // even  14</span>
+<span class="fc" id="L152">        assertEquals(Integer.valueOf(15),iter.next()); // odd   15</span>
+<span class="fc" id="L153">        assertEquals(Integer.valueOf(16),iter.next()); // even  16</span>
+<span class="fc" id="L154">        assertEquals(Integer.valueOf(17),iter.next()); // odd   17</span>
+<span class="fc" id="L155">        assertEquals(Integer.valueOf(18),iter.next()); // even  18</span>
+<span class="fc" id="L156">        assertEquals(Integer.valueOf(19),iter.next()); // odd   19</span>
+
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">        assertTrue(!iter.hasNext());</span>
+<span class="fc" id="L159">    }</span>
+
+    public void testRemoveFromSingle() {
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L163">        final ZippingIterator&lt;Integer&gt; iter = new ZippingIterator&lt;Integer&gt;(evens.iterator());</span>
+<span class="fc" id="L164">        int expectedSize = evens.size();</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L166">            final Object o = iter.next();</span>
+<span class="fc" id="L167">            final Integer val = (Integer) o;</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">            if (val.intValue() % 4 == 0) {</span>
+<span class="fc" id="L169">                expectedSize--;</span>
+<span class="fc" id="L170">                iter.remove();</span>
+            }
+        }
+<span class="fc" id="L173">        assertEquals(expectedSize, evens.size());</span>
+<span class="fc" id="L174">    }</span>
+
+    public void testRemoveFromDouble() {
+<span class="fc" id="L177">        final ZippingIterator&lt;Integer&gt; iter = new ZippingIterator&lt;Integer&gt;(evens.iterator(), odds.iterator());</span>
+<span class="fc" id="L178">        int expectedSize = evens.size() + odds.size();</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L180">            final Object o = iter.next();</span>
+<span class="fc" id="L181">            final Integer val = (Integer) o;</span>
+<span class="fc bfc" id="L182" title="All 4 branches covered.">            if (val.intValue() % 4 == 0 || val.intValue() % 3 == 0) {</span>
+<span class="fc" id="L183">                expectedSize--;</span>
+<span class="fc" id="L184">                iter.remove();</span>
+            }
+        }
+<span class="fc" id="L187">        assertEquals(expectedSize, evens.size() + odds.size());</span>
+<span class="fc" id="L188">    }</span>
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

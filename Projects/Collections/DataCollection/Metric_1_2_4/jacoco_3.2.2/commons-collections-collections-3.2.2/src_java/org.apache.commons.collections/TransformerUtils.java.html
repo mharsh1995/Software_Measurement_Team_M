@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TransformerUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TransformerUtils.java</span></div><h1>TransformerUtils.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.collections.functors.ChainedTransformer;
+import org.apache.commons.collections.functors.CloneTransformer;
+import org.apache.commons.collections.functors.ClosureTransformer;
+import org.apache.commons.collections.functors.ConstantTransformer;
+import org.apache.commons.collections.functors.EqualPredicate;
+import org.apache.commons.collections.functors.ExceptionTransformer;
+import org.apache.commons.collections.functors.FactoryTransformer;
+import org.apache.commons.collections.functors.InstantiateTransformer;
+import org.apache.commons.collections.functors.InvokerTransformer;
+import org.apache.commons.collections.functors.MapTransformer;
+import org.apache.commons.collections.functors.NOPTransformer;
+import org.apache.commons.collections.functors.PredicateTransformer;
+import org.apache.commons.collections.functors.StringValueTransformer;
+import org.apache.commons.collections.functors.SwitchTransformer;
+
+/**
+ * &lt;code&gt;TransformerUtils&lt;/code&gt; provides reference implementations and 
+ * utilities for the Transformer functor interface. The supplied transformers are:
+ * &lt;ul&gt;
+ * &lt;li&gt;Invoker - returns the result of a method call on the input object
+ * &lt;li&gt;Clone - returns a clone of the input object
+ * &lt;li&gt;Constant - always returns the same object
+ * &lt;li&gt;Closure - performs a Closure and returns the input object
+ * &lt;li&gt;Predicate - returns the result of the predicate as a Boolean
+ * &lt;li&gt;Factory - returns a new object from a factory
+ * &lt;li&gt;Chained - chains two or more transformers together
+ * &lt;li&gt;Switch - calls one transformer based on one or more predicates
+ * &lt;li&gt;SwitchMap - calls one transformer looked up from a Map
+ * &lt;li&gt;Instantiate - the Class input object is instantiated
+ * &lt;li&gt;Map - returns an object from a supplied Map
+ * &lt;li&gt;Null - always returns null
+ * &lt;li&gt;NOP - returns the input object, which should be immutable
+ * &lt;li&gt;Exception - always throws an exception
+ * &lt;li&gt;StringValue - returns a &lt;code&gt;java.lang.String&lt;/code&gt; representation of the input object
+ * &lt;/ul&gt;
+ * All the supplied transformers are Serializable.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ * @author James Carman
+ */
+public class TransformerUtils {
+
+    /**
+     * This class is not normally instantiated.
+     */
+    public TransformerUtils() {
+<span class="nc" id="L72">        super();</span>
+<span class="nc" id="L73">    }</span>
+
+    /**
+     * Gets a transformer that always throws an exception.
+     * This could be useful during testing as a placeholder.
+     * 
+     * @see org.apache.commons.collections.functors.ExceptionTransformer
+     * 
+     * @return the transformer
+     */
+    public static Transformer exceptionTransformer() {
+<span class="fc" id="L84">        return ExceptionTransformer.INSTANCE;</span>
+    }
+
+    /**
+     * Gets a transformer that always returns null.
+     * 
+     * @see org.apache.commons.collections.functors.ConstantTransformer
+     * 
+     * @return the transformer
+     */
+    public static Transformer nullTransformer() {
+<span class="fc" id="L95">        return ConstantTransformer.NULL_INSTANCE;</span>
+    }
+
+    /**
+     * Gets a transformer that returns the input object.
+     * The input object should be immutable to maintain the
+     * contract of Transformer (although this is not checked).
+     * 
+     * @see org.apache.commons.collections.functors.NOPTransformer
+     * 
+     * @return the transformer
+     */
+    public static Transformer nopTransformer() {
+<span class="fc" id="L108">        return NOPTransformer.INSTANCE;</span>
+    }
+
+    /**
+     * Gets a transformer that returns a clone of the input
+     * object. The input object will be cloned using one of these
+     * techniques (in order):
+     * &lt;ul&gt;
+     * &lt;li&gt;public clone method
+     * &lt;li&gt;public copy constructor
+     * &lt;li&gt;serialization clone
+     * &lt;ul&gt;
+     * 
+     * @see org.apache.commons.collections.functors.CloneTransformer
+     * 
+     * @return the transformer
+     */
+    public static Transformer cloneTransformer() {
+<span class="fc" id="L126">        return CloneTransformer.INSTANCE;</span>
+    }
+
+    /**
+     * Creates a Transformer that will return the same object each time the 
+     * transformer is used.
+     *
+     * @see org.apache.commons.collections.functors.ConstantTransformer
+     * 
+     * @param constantToReturn  the constant object to return each time in the transformer
+     * @return the transformer.
+     */
+    public static Transformer constantTransformer(Object constantToReturn) {
+<span class="fc" id="L139">        return ConstantTransformer.getInstance(constantToReturn);</span>
+    }
+
+    /**
+     * Creates a Transformer that calls a Closure each time the transformer is used.
+     * The transformer returns the input object.
+     *
+     * @see org.apache.commons.collections.functors.ClosureTransformer
+     * 
+     * @param closure  the closure to run each time in the transformer, not null
+     * @return the transformer
+     * @throws IllegalArgumentException if the closure is null
+     */
+    public static Transformer asTransformer(Closure closure) {
+<span class="fc" id="L153">        return ClosureTransformer.getInstance(closure);</span>
+    }
+
+    /**
+     * Creates a Transformer that calls a Predicate each time the transformer is used.
+     * The transformer will return either Boolean.TRUE or Boolean.FALSE.
+     *
+     * @see org.apache.commons.collections.functors.PredicateTransformer
+     * 
+     * @param predicate  the predicate to run each time in the transformer, not null
+     * @return the transformer
+     * @throws IllegalArgumentException if the predicate is null
+     */
+    public static Transformer asTransformer(Predicate predicate) {
+<span class="fc" id="L167">        return PredicateTransformer.getInstance(predicate);</span>
+    }
+
+    /**
+     * Creates a Transformer that calls a Factory each time the transformer is used.
+     * The transformer will return the value returned by the factory.
+     *
+     * @see org.apache.commons.collections.functors.FactoryTransformer
+     * 
+     * @param factory  the factory to run each time in the transformer, not null
+     * @return the transformer
+     * @throws IllegalArgumentException if the factory is null
+     */
+    public static Transformer asTransformer(Factory factory) {
+<span class="fc" id="L181">        return FactoryTransformer.getInstance(factory);</span>
+    }
+
+    /**
+     * Create a new Transformer that calls two transformers, passing the result of
+     * the first into the second.
+     * 
+     * @see org.apache.commons.collections.functors.ChainedTransformer
+     * 
+     * @param transformer1  the first transformer
+     * @param transformer2  the second transformer
+     * @return the transformer
+     * @throws IllegalArgumentException if either transformer is null
+     */
+    public static Transformer chainedTransformer(Transformer transformer1, Transformer transformer2) {
+<span class="fc" id="L196">        return ChainedTransformer.getInstance(transformer1, transformer2);</span>
+    }
+
+    /**
+     * Create a new Transformer that calls each transformer in turn, passing the 
+     * result into the next transformer.
+     * 
+     * @see org.apache.commons.collections.functors.ChainedTransformer
+     * 
+     * @param transformers  an array of transformers to chain
+     * @return the transformer
+     * @throws IllegalArgumentException if the transformers array is null
+     * @throws IllegalArgumentException if any transformer in the array is null
+     */
+    public static Transformer chainedTransformer(Transformer[] transformers) {
+<span class="fc" id="L211">        return ChainedTransformer.getInstance(transformers);</span>
+    }
+
+    /**
+     * Create a new Transformer that calls each transformer in turn, passing the 
+     * result into the next transformer. The ordering is that of the iterator()
+     * method on the collection.
+     * 
+     * @see org.apache.commons.collections.functors.ChainedTransformer
+     * 
+     * @param transformers  a collection of transformers to chain
+     * @return the transformer
+     * @throws IllegalArgumentException if the transformers collection is null
+     * @throws IllegalArgumentException if any transformer in the collection is null
+     */
+    public static Transformer chainedTransformer(Collection transformers) {
+<span class="fc" id="L227">        return ChainedTransformer.getInstance(transformers);</span>
+    }
+
+    /**
+     * Create a new Transformer that calls one of two transformers depending 
+     * on the specified predicate.
+     * 
+     * @see org.apache.commons.collections.functors.SwitchTransformer
+     * 
+     * @param predicate  the predicate to switch on
+     * @param trueTransformer  the transformer called if the predicate is true
+     * @param falseTransformer  the transformer called if the predicate is false
+     * @return the transformer
+     * @throws IllegalArgumentException if the predicate is null
+     * @throws IllegalArgumentException if either transformer is null
+     */
+    public static Transformer switchTransformer(Predicate predicate, Transformer trueTransformer, Transformer falseTransformer) {
+<span class="fc" id="L244">        return SwitchTransformer.getInstance(new Predicate[] { predicate }, new Transformer[] { trueTransformer }, falseTransformer);</span>
+    }
+
+    /**
+     * Create a new Transformer that calls one of the transformers depending 
+     * on the predicates. The transformer at array location 0 is called if the
+     * predicate at array location 0 returned true. Each predicate is evaluated
+     * until one returns true. If no predicates evaluate to true, null is returned.
+     * 
+     * @see org.apache.commons.collections.functors.SwitchTransformer
+     * 
+     * @param predicates  an array of predicates to check
+     * @param transformers  an array of transformers to call
+     * @return the transformer
+     * @throws IllegalArgumentException if the either array is null
+     * @throws IllegalArgumentException if the either array has 0 elements
+     * @throws IllegalArgumentException if any element in the arrays is null
+     * @throws IllegalArgumentException if the arrays are different sizes
+     */
+    public static Transformer switchTransformer(Predicate[] predicates, Transformer[] transformers) {
+<span class="fc" id="L264">        return SwitchTransformer.getInstance(predicates, transformers, null);</span>
+    }
+
+    /**
+     * Create a new Transformer that calls one of the transformers depending 
+     * on the predicates. The transformer at array location 0 is called if the
+     * predicate at array location 0 returned true. Each predicate is evaluated
+     * until one returns true. If no predicates evaluate to true, the default
+     * transformer is called. If the default transformer is null, null is returned.
+     * 
+     * @see org.apache.commons.collections.functors.SwitchTransformer
+     * 
+     * @param predicates  an array of predicates to check
+     * @param transformers  an array of transformers to call
+     * @param defaultTransformer  the default to call if no predicate matches, null means return null
+     * @return the transformer
+     * @throws IllegalArgumentException if the either array is null
+     * @throws IllegalArgumentException if the either array has 0 elements
+     * @throws IllegalArgumentException if any element in the arrays is null
+     * @throws IllegalArgumentException if the arrays are different sizes
+     */
+    public static Transformer switchTransformer(Predicate[] predicates, Transformer[] transformers, Transformer defaultTransformer) {
+<span class="fc" id="L286">        return SwitchTransformer.getInstance(predicates, transformers, defaultTransformer);</span>
+    }
+
+    /**
+     * Create a new Transformer that calls one of the transformers depending 
+     * on the predicates. 
+     * &lt;p&gt;
+     * The Map consists of Predicate keys and Transformer values. A transformer 
+     * is called if its matching predicate returns true. Each predicate is evaluated
+     * until one returns true. If no predicates evaluate to true, the default
+     * transformer is called. The default transformer is set in the map with a 
+     * null key. If no default transformer is set, null will be returned in a default
+     * case. The ordering is that of the iterator() method on the entryset collection 
+     * of the map.
+     * 
+     * @see org.apache.commons.collections.functors.SwitchTransformer
+     * 
+     * @param predicatesAndTransformers  a map of predicates to transformers
+     * @return the transformer
+     * @throws IllegalArgumentException if the map is null
+     * @throws IllegalArgumentException if the map is empty
+     * @throws IllegalArgumentException if any transformer in the map is null
+     * @throws ClassCastException  if the map elements are of the wrong type
+     */
+    public static Transformer switchTransformer(Map predicatesAndTransformers) {
+<span class="fc" id="L311">        return SwitchTransformer.getInstance(predicatesAndTransformers);</span>
+    }
+
+    /**
+     * Create a new Transformer that uses the input object as a key to find the
+     * transformer to call. 
+     * &lt;p&gt;
+     * The Map consists of object keys and Transformer values. A transformer 
+     * is called if the input object equals the key. If there is no match, the
+     * default transformer is called. The default transformer is set in the map
+     * using a null key. If no default is set, null will be returned in a default case.
+     * 
+     * @see org.apache.commons.collections.functors.SwitchTransformer
+     * 
+     * @param objectsAndTransformers  a map of objects to transformers
+     * @return the transformer
+     * @throws IllegalArgumentException if the map is null
+     * @throws IllegalArgumentException if the map is empty
+     * @throws IllegalArgumentException if any transformer in the map is null
+     */
+    public static Transformer switchMapTransformer(Map objectsAndTransformers) {
+<span class="fc" id="L332">        Transformer[] trs = null;</span>
+<span class="fc" id="L333">        Predicate[] preds = null;</span>
+<span class="fc bfc" id="L334" title="All 2 branches covered.">        if (objectsAndTransformers == null) {</span>
+<span class="fc" id="L335">            throw new IllegalArgumentException(&quot;The object and transformer map must not be null&quot;);</span>
+        }
+<span class="fc" id="L337">        Transformer def = (Transformer) objectsAndTransformers.remove(null);</span>
+<span class="fc" id="L338">        int size = objectsAndTransformers.size();</span>
+<span class="fc" id="L339">        trs = new Transformer[size];</span>
+<span class="fc" id="L340">        preds = new Predicate[size];</span>
+<span class="fc" id="L341">        int i = 0;</span>
+<span class="fc bfc" id="L342" title="All 2 branches covered.">        for (Iterator it = objectsAndTransformers.entrySet().iterator(); it.hasNext();) {</span>
+<span class="fc" id="L343">            Map.Entry entry = (Map.Entry) it.next();</span>
+<span class="fc" id="L344">            preds[i] = EqualPredicate.getInstance(entry.getKey());</span>
+<span class="fc" id="L345">            trs[i] = (Transformer) entry.getValue();</span>
+<span class="fc" id="L346">            i++;</span>
+        }
+<span class="fc" id="L348">        return switchTransformer(preds, trs, def);</span>
+    }
+
+    /**
+     * Gets a Transformer that expects an input Class object that it will instantiate.
+     * 
+     * @see org.apache.commons.collections.functors.InstantiateTransformer
+     * 
+     * @return the transformer
+     */
+    public static Transformer instantiateTransformer() {
+<span class="fc" id="L359">        return InstantiateTransformer.NO_ARG_INSTANCE;</span>
+    }
+
+    /** 
+     * Creates a Transformer that expects an input Class object that it will 
+     * instantiate. The constructor used is determined by the arguments specified
+     * to this method.
+     *
+     * @see org.apache.commons.collections.functors.InstantiateTransformer
+     * 
+     * @param paramTypes  parameter types for the constructor, can be null
+     * @param args  the arguments to pass to the constructor, can be null
+     * @return the transformer
+     * @throws IllegalArgumentException if the paramTypes and args don't match
+     */
+    public static Transformer instantiateTransformer(Class[] paramTypes, Object[] args) {
+<span class="fc" id="L375">        return InstantiateTransformer.getInstance(paramTypes, args);</span>
+    }
+
+    /** 
+     * Creates a Transformer that uses the passed in Map to transform the input 
+     * object (as a simple lookup).
+     *
+     * @see org.apache.commons.collections.functors.MapTransformer
+     * 
+     * @param map  the map to use to transform the objects
+     * @return the transformer
+     * @throws IllegalArgumentException if the map is null
+     */
+    public static Transformer mapTransformer(Map map) {
+<span class="fc" id="L389">        return MapTransformer.getInstance(map);</span>
+    }
+
+    /**
+     * Gets a Transformer that invokes a method on the input object.
+     * The method must have no parameters. If the input object is null, 
+     * null is returned.
+     * &lt;p&gt;
+     * For example, &lt;code&gt;TransformerUtils.invokerTransformer(&quot;getName&quot;);&lt;/code&gt;
+     * will call the &lt;code&gt;getName/code&gt; method on the input object to 
+     * determine the transformer result.
+     * 
+     * @see org.apache.commons.collections.functors.InvokerTransformer
+     * 
+     * @param methodName  the method name to call on the input object, may not be null
+     * @return the transformer
+     * @throws IllegalArgumentException if the methodName is null.
+     */
+    public static Transformer invokerTransformer(String methodName){
+<span class="fc" id="L408">        return InvokerTransformer.getInstance(methodName, null, null);</span>
+    }
+
+    /**
+     * Gets a Transformer that invokes a method on the input object.
+     * The method parameters are specified. If the input object is null, 
+     * null is returned.
+     * 
+     * @see org.apache.commons.collections.functors.InvokerTransformer
+     * 
+     * @param methodName  the name of the method
+     * @param paramTypes  the parameter types
+     * @param args  the arguments
+     * @return the transformer
+     * @throws IllegalArgumentException if the method name is null
+     * @throws IllegalArgumentException if the paramTypes and args don't match
+     */
+    public static Transformer invokerTransformer(String methodName, Class[] paramTypes, Object[] args){
+<span class="fc" id="L426">        return InvokerTransformer.getInstance(methodName, paramTypes, args);</span>
+    }
+
+    /**
+     * Gets a transformer that returns a &lt;code&gt;java.lang.String&lt;/code&gt;
+     * representation of the input object. This is achieved via the
+     * &lt;code&gt;toString&lt;/code&gt; method, &lt;code&gt;null&lt;/code&gt; returns 'null'.
+     * 
+     * @see org.apache.commons.collections.functors.StringValueTransformer
+     * 
+     * @return the transformer
+     */
+    public static Transformer stringValueTransformer() {
+<span class="fc" id="L439">        return StringValueTransformer.INSTANCE;</span>
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>LRUMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">LRUMap.java</span></div><h1>LRUMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Iterator;
+
+/**
+ * &lt;p&gt;
+ * An implementation of a Map which has a maximum size and uses a Least Recently Used
+ * algorithm to remove items from the Map when the maximum size is reached and new items are added.
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * A synchronized version can be obtained with:
+ * &lt;code&gt;Collections.synchronizedMap( theMapToSynchronize )&lt;/code&gt;
+ * If it will be accessed by multiple threads, you _must_ synchronize access
+ * to this Map.  Even concurrent get(Object) operations produce indeterminate
+ * behaviour.
+ * &lt;/p&gt;
+ * 
+ * &lt;p&gt;
+ * Unlike the Collections 1.0 version, this version of LRUMap does use a true
+ * LRU algorithm.  The keys for all gets and puts are moved to the front of
+ * the list.  LRUMap is now a subclass of SequencedHashMap, and the &quot;LRU&quot;
+ * key is now equivalent to LRUMap.getFirst().
+ * &lt;/p&gt;
+ * 
+ * @deprecated Moved to map subpackage. Due to be removed in v4.0.
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ * 
+ * @author &lt;a href=&quot;mailto:jstrachan@apache.org&quot;&gt;James Strachan&lt;/a&gt;
+ * @author &lt;a href=&quot;mailto:morgand@apache.org&quot;&gt;Morgan Delagrange&lt;/a&gt;
+ */
+public class LRUMap extends SequencedHashMap implements Externalizable {
+        
+<span class="fc" id="L55">    private int maximumSize = 0;</span>
+
+    /**
+     * Default constructor, primarily for the purpose of
+     * de-externalization.  This constructors sets a default
+     * LRU limit of 100 keys, but this value may be overridden
+     * internally as a result of de-externalization.
+     */
+    public LRUMap() {
+<span class="fc" id="L64">        this( 100 );</span>
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * Create a new LRUMap with a maximum capacity of &lt;i&gt;i&lt;/i&gt;.
+     * Once &lt;i&gt;i&lt;/i&gt; capacity is achieved, subsequent gets
+     * and puts will push keys out of the map.  See .
+     * 
+     * @param i      Maximum capacity of the LRUMap
+     */
+    public LRUMap(int i) {
+<span class="fc" id="L75">        super( i );</span>
+<span class="fc" id="L76">        maximumSize = i;</span>
+<span class="fc" id="L77">    }</span>
+
+    /**
+     * &lt;p&gt;Get the value for a key from the Map.  The key
+     * will be promoted to the Most Recently Used position.
+     * Note that get(Object) operations will modify
+     * the underlying Collection.  Calling get(Object)
+     * inside of an iteration over keys, values, etc. is
+     * currently unsupported.&lt;/p&gt;
+     * 
+     * @param key    Key to retrieve
+     * @return Returns the value.  Returns null if the key has a
+     *         null value &lt;i&gt;or&lt;/i&gt; if the key has no value.
+     */
+    public Object get(Object key) {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if(!containsKey(key)) return null;</span>
+
+<span class="fc" id="L94">        Object value = remove(key);</span>
+<span class="fc" id="L95">        super.put(key,value);</span>
+<span class="fc" id="L96">        return value;</span>
+    }
+
+     /**
+      * &lt;p&gt;Removes the key and its Object from the Map.&lt;/p&gt;
+      * 
+      * &lt;p&gt;(Note: this may result in the &quot;Least Recently Used&quot;
+      * object being removed from the Map.  In that case,
+      * the removeLRU() method is called.  See javadoc for
+      * removeLRU() for more details.)&lt;/p&gt;
+      * 
+      * @param key    Key of the Object to add.
+      * @param value  Object to add
+      * @return Former value of the key
+      */    
+    public Object put( Object key, Object value ) {
+
+<span class="fc" id="L113">        int mapSize = size();</span>
+<span class="fc" id="L114">        Object retval = null;</span>
+
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if ( mapSize &gt;= maximumSize ) {</span>
+
+            // don't retire LRU if you are just
+            // updating an existing key
+<span class="fc bfc" id="L120" title="All 2 branches covered.">            if (!containsKey(key)) {</span>
+                // lets retire the least recently used item in the cache
+<span class="fc" id="L122">                removeLRU();</span>
+            }
+        }
+
+<span class="fc" id="L126">        retval = super.put(key,value);</span>
+
+<span class="fc" id="L128">        return retval;</span>
+    }
+
+    /**
+     * This method is used internally by the class for 
+     * finding and removing the LRU Object.
+     */
+    protected void removeLRU() {
+<span class="fc" id="L136">        Object key = getFirstKey();</span>
+        // be sure to call super.get(key), or you're likely to 
+        // get infinite promotion recursion
+<span class="fc" id="L139">        Object value = super.get(key);</span>
+        
+<span class="fc" id="L141">        remove(key);</span>
+
+<span class="fc" id="L143">        processRemovedLRU(key,value);</span>
+<span class="fc" id="L144">    }</span>
+
+    /**
+     * Subclasses of LRUMap may hook into this method to
+     * provide specialized actions whenever an Object is
+     * automatically removed from the cache.  By default,
+     * this method does nothing.
+     * 
+     * @param key    key that was removed
+     * @param value  value of that key (can be null)
+     */
+    protected void processRemovedLRU(Object key, Object value) {
+<span class="fc" id="L156">    }</span>
+ 
+    // Externalizable interface
+    //-------------------------------------------------------------------------        
+    public void readExternal( ObjectInput in )  throws IOException, ClassNotFoundException {
+<span class="fc" id="L161">        maximumSize = in.readInt();</span>
+<span class="fc" id="L162">        int size = in.readInt();</span>
+        
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        for( int i = 0; i &lt; size; i++ )  {</span>
+<span class="fc" id="L165">            Object key = in.readObject();</span>
+<span class="fc" id="L166">            Object value = in.readObject();</span>
+<span class="fc" id="L167">            put(key,value);</span>
+        }
+<span class="fc" id="L169">    }</span>
+
+    public void writeExternal( ObjectOutput out ) throws IOException {
+<span class="fc" id="L172">        out.writeInt( maximumSize );</span>
+<span class="fc" id="L173">        out.writeInt( size() );</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        for( Iterator iterator = keySet().iterator(); iterator.hasNext(); ) {</span>
+<span class="fc" id="L175">            Object key = iterator.next();</span>
+<span class="fc" id="L176">            out.writeObject( key );</span>
+            // be sure to call super.get(key), or you're likely to 
+            // get infinite promotion recursion
+<span class="fc" id="L179">            Object value = super.get( key );</span>
+<span class="fc" id="L180">            out.writeObject( value );</span>
+        }
+<span class="fc" id="L182">    }</span>
+    
+    
+    // Properties
+    //-------------------------------------------------------------------------        
+    /** Getter for property maximumSize.
+     * @return Value of property maximumSize.
+     */
+    public int getMaximumSize() {
+<span class="nc" id="L191">        return maximumSize;</span>
+    }
+    /** Setter for property maximumSize.
+     * @param maximumSize New value of property maximumSize.
+     */
+    public void setMaximumSize(int maximumSize) {
+<span class="fc" id="L197">        this.maximumSize = maximumSize;</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        while (size() &gt; maximumSize) {</span>
+<span class="fc" id="L199">            removeLRU();</span>
+        }
+<span class="fc" id="L201">    }</span>
+
+
+    // add a serial version uid, so that if we change things in the future
+    // without changing the format, we can still deserialize properly.
+    private static final long serialVersionUID = 2197433140769957051L;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

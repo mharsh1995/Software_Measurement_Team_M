@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestIdentityMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">TestIdentityMap.java</span></div><h1>TestIdentityMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
+import org.apache.commons.collections.AbstractTestObject;
+import org.apache.commons.collections.IterableMap;
+
+/**
+ * JUnit tests.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class TestIdentityMap extends AbstractTestObject {
+    
+<span class="fc" id="L40">    private static final Integer I1A = new Integer(1);</span>
+<span class="fc" id="L41">    private static final Integer I1B = new Integer(1);</span>
+<span class="fc" id="L42">    private static final Integer I2A = new Integer(2);</span>
+<span class="fc" id="L43">    private static final Integer I2B = new Integer(2);</span>
+
+    public TestIdentityMap(String testName) {
+<span class="fc" id="L46">        super(testName);</span>
+<span class="fc" id="L47">    }</span>
+
+    public static void main(String[] args) {
+<span class="nc" id="L50">        TestRunner.run(suite());</span>
+<span class="nc" id="L51">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L54" title="All 2 branches covered.">        return new TestSuite(TestIdentityMap.class);</span>
+//        return BulkTest.makeSuite(TestIdentityMap.class);  // causes race condition!
+    }
+    
+    public Object makeObject() {
+<span class="fc" id="L59">        return new IdentityMap();</span>
+    }
+    
+    public String getCompatibilityVersion() {
+<span class="fc" id="L63">        return &quot;3&quot;;</span>
+    }
+    
+    //-----------------------------------------------------------------------
+    public void testBasics() {
+<span class="fc" id="L68">        IterableMap map = new IdentityMap();</span>
+<span class="fc" id="L69">        assertEquals(0, map.size());</span>
+        
+<span class="fc" id="L71">        map.put(I1A, I2A);</span>
+<span class="fc" id="L72">        assertEquals(1, map.size());</span>
+<span class="fc" id="L73">        assertSame(I2A, map.get(I1A));</span>
+<span class="fc" id="L74">        assertSame(null, map.get(I1B));</span>
+<span class="fc" id="L75">        assertEquals(true, map.containsKey(I1A));</span>
+<span class="fc" id="L76">        assertEquals(false, map.containsKey(I1B));</span>
+<span class="fc" id="L77">        assertEquals(true, map.containsValue(I2A));</span>
+<span class="fc" id="L78">        assertEquals(false, map.containsValue(I2B));</span>
+        
+<span class="fc" id="L80">        map.put(I1A, I2B);</span>
+<span class="fc" id="L81">        assertEquals(1, map.size());</span>
+<span class="fc" id="L82">        assertSame(I2B, map.get(I1A));</span>
+<span class="fc" id="L83">        assertSame(null, map.get(I1B));</span>
+<span class="fc" id="L84">        assertEquals(true, map.containsKey(I1A));</span>
+<span class="fc" id="L85">        assertEquals(false, map.containsKey(I1B));</span>
+<span class="fc" id="L86">        assertEquals(false, map.containsValue(I2A));</span>
+<span class="fc" id="L87">        assertEquals(true, map.containsValue(I2B));</span>
+        
+<span class="fc" id="L89">        map.put(I1B, I2B);</span>
+<span class="fc" id="L90">        assertEquals(2, map.size());</span>
+<span class="fc" id="L91">        assertSame(I2B, map.get(I1A));</span>
+<span class="fc" id="L92">        assertSame(I2B, map.get(I1B));</span>
+<span class="fc" id="L93">        assertEquals(true, map.containsKey(I1A));</span>
+<span class="fc" id="L94">        assertEquals(true, map.containsKey(I1B));</span>
+<span class="fc" id="L95">        assertEquals(false, map.containsValue(I2A));</span>
+<span class="fc" id="L96">        assertEquals(true, map.containsValue(I2B));</span>
+<span class="fc" id="L97">    }</span>
+    
+    //-----------------------------------------------------------------------
+    public void testHashEntry() {
+<span class="fc" id="L101">        IterableMap map = new IdentityMap();</span>
+        
+<span class="fc" id="L103">        map.put(I1A, I2A);</span>
+<span class="fc" id="L104">        map.put(I1B, I2A);</span>
+        
+<span class="fc" id="L106">        Map.Entry entry1 = (Map.Entry) map.entrySet().iterator().next();</span>
+<span class="fc" id="L107">        Iterator it = map.entrySet().iterator();</span>
+<span class="fc" id="L108">        Map.Entry entry2 = (Map.Entry) it.next();</span>
+<span class="fc" id="L109">        Map.Entry entry3 = (Map.Entry) it.next();</span>
+        
+<span class="fc" id="L111">        assertEquals(true, entry1.equals(entry2));</span>
+<span class="fc" id="L112">        assertEquals(true, entry2.equals(entry1));</span>
+<span class="fc" id="L113">        assertEquals(false, entry1.equals(entry3));</span>
+<span class="fc" id="L114">    }</span>
+    
+    /**
+     * Compare the current serialized form of the Map
+     * against the canonical version in CVS.
+     */
+    public void testEmptyMapCompatibility() throws IOException, ClassNotFoundException {
+        // test to make sure the canonical form has been preserved
+<span class="fc" id="L122">        Map map = (Map) makeObject();</span>
+<span class="pc bpc" id="L123" title="2 of 4 branches missed.">        if (map instanceof Serializable &amp;&amp; !skipSerializedCanonicalTests()) {</span>
+<span class="fc" id="L124">            Map map2 = (Map) readExternalFormFromDisk(getCanonicalEmptyCollectionName(map));</span>
+<span class="fc" id="L125">            assertEquals(&quot;Map is empty&quot;, 0, map2.size());</span>
+        }
+<span class="fc" id="L127">    }</span>
+
+    public void testClone() {
+<span class="fc" id="L130">        IdentityMap map = new IdentityMap(10);</span>
+<span class="fc" id="L131">        map.put(&quot;1&quot;, &quot;1&quot;);</span>
+<span class="fc" id="L132">        Map cloned = (Map) map.clone();</span>
+<span class="fc" id="L133">        assertEquals(map.size(), cloned.size());</span>
+<span class="fc" id="L134">        assertSame(map.get(&quot;1&quot;), cloned.get(&quot;1&quot;));</span>
+<span class="fc" id="L135">    }</span>
+    
+//    public void testCreate() throws Exception {
+//        Map map = new IdentityMap();
+//        writeExternalFormToDisk((java.io.Serializable) map, &quot;D:/dev/collections/data/test/IdentityMap.emptyCollection.version3.obj&quot;);
+//        map = new IdentityMap();
+//        map.put(I1A, I2A);
+//        map.put(I1B, I2A);
+//        map.put(I2A, I2B);
+//        writeExternalFormToDisk((java.io.Serializable) map, &quot;D:/dev/collections/data/test/IdentityMap.fullCollection.version3.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

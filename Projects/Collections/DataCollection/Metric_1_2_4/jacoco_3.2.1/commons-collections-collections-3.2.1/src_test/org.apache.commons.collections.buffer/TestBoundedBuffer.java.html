@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestBoundedBuffer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.buffer</a> &gt; <span class="el_source">TestBoundedBuffer.java</span></div><h1>TestBoundedBuffer.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.buffer;
+
+import org.apache.commons.collections.AbstractTestObject;
+import org.apache.commons.collections.BoundedCollection;
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.BufferOverflowException;
+
+import java.util.Iterator;
+import java.util.Collections;
+import java.util.Arrays;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+public class TestBoundedBuffer extends AbstractTestObject {
+
+    public TestBoundedBuffer(String testName) {
+<span class="fc" id="L34">        super(testName);</span>
+<span class="fc" id="L35">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L38" title="All 2 branches covered.">        return new TestSuite(TestBoundedBuffer.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        String[] testCaseName = { TestBoundedBuffer.class.getName() };</span>
+<span class="nc" id="L43">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L44">    }</span>
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L47">        return &quot;3.2&quot;;</span>
+    }
+
+    public boolean isEqualsCheckable() {
+<span class="fc" id="L51">        return false;</span>
+    }
+
+    public Object makeObject() {
+<span class="fc" id="L55">        return BoundedBuffer.decorate(new UnboundedFifoBuffer(), 1);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testMaxSize() {
+<span class="fc" id="L60">        final Buffer bounded = BoundedBuffer.decorate(new UnboundedFifoBuffer(), 2, 500);</span>
+<span class="fc" id="L61">        BoundedCollection bc = (BoundedCollection) bounded;</span>
+<span class="fc" id="L62">        assertEquals(2, bc.maxSize());</span>
+<span class="fc" id="L63">        assertEquals(false, bc.isFull());</span>
+<span class="fc" id="L64">        bounded.add(&quot;A&quot;);</span>
+<span class="fc" id="L65">        assertEquals(false, bc.isFull());</span>
+<span class="fc" id="L66">        bounded.add(&quot;B&quot;);</span>
+<span class="fc" id="L67">        assertEquals(true, bc.isFull());</span>
+<span class="fc" id="L68">        bounded.remove();</span>
+<span class="fc" id="L69">        assertEquals(false, bc.isFull());</span>
+        try {
+<span class="nc" id="L71">            BoundedBuffer.decorate(new UnboundedFifoBuffer(), 0);</span>
+<span class="nc" id="L72">            fail();</span>
+<span class="pc" id="L73">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L75">            BoundedBuffer.decorate(new UnboundedFifoBuffer(), -1);</span>
+<span class="nc" id="L76">            fail();</span>
+<span class="pc" id="L77">        } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L78">    }</span>
+
+    public void testAddToFullBufferNoTimeout() {
+<span class="fc" id="L81">        final Buffer bounded = BoundedBuffer.decorate(new UnboundedFifoBuffer(), 1);</span>
+<span class="fc" id="L82">        bounded.add( &quot;Hello&quot; );</span>
+        try {
+<span class="nc" id="L84">            bounded.add(&quot;World&quot;);</span>
+<span class="nc" id="L85">            fail();</span>
+<span class="pc" id="L86">        } catch (BufferOverflowException e) {</span>
+        }
+<span class="fc" id="L88">    }</span>
+
+    public void testAddAllToFullBufferNoTimeout() {
+<span class="fc" id="L91">        final Buffer bounded = BoundedBuffer.decorate(new UnboundedFifoBuffer(), 1);</span>
+<span class="fc" id="L92">        bounded.add( &quot;Hello&quot; );</span>
+        try {
+<span class="nc" id="L94">            bounded.addAll(Collections.singleton(&quot;World&quot;));</span>
+<span class="nc" id="L95">            fail();</span>
+<span class="pc" id="L96">        } catch (BufferOverflowException e) {</span>
+        }
+<span class="fc" id="L98">    }</span>
+
+    public void testAddAllToEmptyBufferExceedMaxSizeNoTimeout() {
+<span class="fc" id="L101">        final Buffer bounded = BoundedBuffer.decorate(new UnboundedFifoBuffer(), 1);</span>
+        try {
+<span class="nc" id="L103">            bounded.addAll(Collections.nCopies(2, &quot;test&quot;));</span>
+<span class="nc" id="L104">            fail();</span>
+<span class="pc" id="L105">        } catch (BufferOverflowException e) {</span>
+        }
+<span class="fc" id="L107">    }</span>
+
+    public void testAddToFullBufferRemoveViaIterator() {
+<span class="fc" id="L110">        final Buffer bounded = BoundedBuffer.decorate(new UnboundedFifoBuffer(), 1, 500);</span>
+<span class="fc" id="L111">        bounded.add( &quot;Hello&quot; );</span>
+<span class="fc" id="L112">        new DelayedIteratorRemove( bounded, 200 ).start();</span>
+<span class="fc" id="L113">        bounded.add( &quot;World&quot; );</span>
+<span class="fc" id="L114">        assertEquals( 1, bounded.size() );</span>
+<span class="fc" id="L115">        assertEquals( &quot;World&quot;, bounded.get() );</span>
+
+<span class="fc" id="L117">    }</span>
+
+    public void testAddAllToFullBufferRemoveViaIterator() {
+<span class="fc" id="L120">        final Buffer bounded = BoundedBuffer.decorate(new UnboundedFifoBuffer(), 2, 500);</span>
+<span class="fc" id="L121">        bounded.add( &quot;Hello&quot; );</span>
+<span class="fc" id="L122">        bounded.add( &quot;World&quot; );</span>
+<span class="fc" id="L123">        new DelayedIteratorRemove( bounded, 200, 2 ).start();</span>
+<span class="fc" id="L124">        bounded.addAll( Arrays.asList( new String[] { &quot;Foo&quot;, &quot;Bar&quot; } ) );</span>
+<span class="fc" id="L125">        assertEquals( 2, bounded.size() );</span>
+<span class="fc" id="L126">        assertEquals( &quot;Foo&quot;, bounded.remove() );</span>
+<span class="fc" id="L127">        assertEquals( &quot;Bar&quot;, bounded.remove() );</span>
+<span class="fc" id="L128">    }</span>
+
+    public void testAddToFullBufferWithTimeout() {
+<span class="fc" id="L131">        final Buffer bounded = BoundedBuffer.decorate(new UnboundedFifoBuffer(), 1, 500);</span>
+<span class="fc" id="L132">        bounded.add( &quot;Hello&quot; );</span>
+<span class="fc" id="L133">        new DelayedRemove( bounded, 200 ).start();</span>
+<span class="fc" id="L134">        bounded.add( &quot;World&quot; );</span>
+<span class="fc" id="L135">        assertEquals( 1, bounded.size() );</span>
+<span class="fc" id="L136">        assertEquals( &quot;World&quot;, bounded.get() );</span>
+        try {
+<span class="nc" id="L138">            bounded.add( &quot;!&quot; );</span>
+<span class="nc" id="L139">            fail();</span>
+<span class="nc" id="L140">        }</span>
+<span class="fc" id="L141">        catch( BufferOverflowException e ) {</span>
+        }
+<span class="fc" id="L143">    }</span>
+
+    public void testAddAllToFullBufferWithTimeout() {
+<span class="fc" id="L146">        final Buffer bounded = BoundedBuffer.decorate(new UnboundedFifoBuffer(), 2, 500);</span>
+<span class="fc" id="L147">        bounded.add( &quot;Hello&quot; );</span>
+<span class="fc" id="L148">        bounded.add( &quot;World&quot; );</span>
+<span class="fc" id="L149">        new DelayedRemove( bounded, 200, 2 ).start();</span>
+
+<span class="fc" id="L151">        bounded.addAll( Arrays.asList( new String[] { &quot;Foo&quot;, &quot;Bar&quot; } ) );</span>
+<span class="fc" id="L152">        assertEquals( 2, bounded.size() );</span>
+<span class="fc" id="L153">        assertEquals( &quot;Foo&quot;, bounded.get() );</span>
+        try {
+<span class="nc" id="L155">            bounded.add( &quot;!&quot; );</span>
+<span class="nc" id="L156">            fail();</span>
+<span class="nc" id="L157">        }</span>
+<span class="fc" id="L158">        catch( BufferOverflowException e ) {</span>
+        }
+<span class="fc" id="L160">    }</span>
+
+    private class DelayedIteratorRemove extends Thread {
+
+        private final Buffer buffer;
+
+        private final long delay;
+
+        private final int nToRemove;
+
+<span class="fc" id="L170">        public DelayedIteratorRemove(Buffer buffer, long delay, int nToRemove) {</span>
+<span class="fc" id="L171">            this.buffer = buffer;</span>
+<span class="fc" id="L172">            this.delay = delay;</span>
+<span class="fc" id="L173">            this.nToRemove = nToRemove;</span>
+<span class="fc" id="L174">        }</span>
+
+        public DelayedIteratorRemove(Buffer buffer, long delay) {
+<span class="fc" id="L177">            this(buffer, delay, 1);</span>
+<span class="fc" id="L178">        }</span>
+
+        public void run() {
+            try {
+<span class="fc" id="L182">                Thread.sleep(delay);</span>
+<span class="fc" id="L183">                Iterator iter = buffer.iterator();</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">                for (int i = 0; i &lt; nToRemove; ++i) {</span>
+<span class="fc" id="L185">                    iter.next();</span>
+<span class="fc" id="L186">                    iter.remove();</span>
+                }
+
+<span class="pc" id="L189">            } catch (InterruptedException e) {</span>
+            }
+<span class="fc" id="L191">        }</span>
+    }
+
+    private class DelayedRemove extends Thread {
+
+        private final Buffer buffer;
+
+        private final long delay;
+
+        private final int nToRemove;
+
+<span class="fc" id="L202">        public DelayedRemove(Buffer buffer, long delay, int nToRemove) {</span>
+<span class="fc" id="L203">            this.buffer = buffer;</span>
+<span class="fc" id="L204">            this.delay = delay;</span>
+<span class="fc" id="L205">            this.nToRemove = nToRemove;</span>
+<span class="fc" id="L206">        }</span>
+
+        public DelayedRemove(Buffer buffer, long delay) {
+<span class="fc" id="L209">            this(buffer, delay, 1);</span>
+<span class="fc" id="L210">        }</span>
+
+        public void run() {
+            try {
+<span class="fc" id="L214">                Thread.sleep(delay);</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">                for (int i = 0; i &lt; nToRemove; ++i) {</span>
+<span class="fc" id="L216">                    buffer.remove();</span>
+                }
+<span class="pc" id="L218">            } catch (InterruptedException e) {</span>
+            }
+<span class="fc" id="L220">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

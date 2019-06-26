@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestBoundedFifoBuffer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestBoundedFifoBuffer.java</span></div><h1>TestBoundedFifoBuffer.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.collection.AbstractTestCollection;
+
+/**
+ * Test cases for BoundedFifoBuffer.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Paul Jack
+ */
+public class TestBoundedFifoBuffer extends AbstractTestCollection {
+
+    public TestBoundedFifoBuffer(String n) {
+<span class="fc" id="L37">        super(n);</span>
+<span class="fc" id="L38">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L41" title="All 2 branches covered.">        return BulkTest.makeSuite(TestBoundedFifoBuffer.class);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Runs through the regular verifications, but also verifies that 
+     *  the buffer contains the same elements in the same sequence as the
+     *  list.
+     */
+    public void verify() {
+<span class="fc" id="L51">        super.verify();</span>
+<span class="fc" id="L52">        Iterator iterator1 = collection.iterator();</span>
+<span class="fc" id="L53">        Iterator iterator2 = confirmed.iterator();</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        while (iterator2.hasNext()) {</span>
+<span class="fc" id="L55">            assertTrue(iterator1.hasNext());</span>
+<span class="fc" id="L56">            Object o1 = iterator1.next();</span>
+<span class="fc" id="L57">            Object o2 = iterator2.next();</span>
+<span class="fc" id="L58">            assertEquals(o1, o2);</span>
+        }
+<span class="fc" id="L60">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Overridden because UnboundedFifoBuffer doesn't allow null elements.
+     * @return false
+     */
+    public boolean isNullSupported() {
+<span class="fc" id="L68">        return false;</span>
+    }
+
+    /**
+     * Overridden because UnboundedFifoBuffer isn't fail fast.
+     * @return false
+     */
+    public boolean isFailFastSupported() {
+<span class="fc" id="L76">        return false;</span>
+    }
+
+    //-----------------------------------------------------------------------  
+    /**
+     *  Returns an empty ArrayList.
+     *
+     *  @return an empty ArrayList
+     */
+    public Collection makeConfirmedCollection() {
+<span class="fc" id="L86">        return new ArrayList();</span>
+    }
+
+    /**
+     *  Returns a full ArrayList.
+     *
+     *  @return a full ArrayList
+     */
+    public Collection makeConfirmedFullCollection() {
+<span class="fc" id="L95">        Collection c = makeConfirmedCollection();</span>
+<span class="fc" id="L96">        c.addAll(java.util.Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L97">        return c;</span>
+    }
+
+    /**
+     *  Returns an empty BoundedFifoBuffer that won't overflow.  
+     *  
+     *  @return an empty BoundedFifoBuffer
+     */
+    public Collection makeCollection() {
+<span class="fc" id="L106">        return new BoundedFifoBuffer(100);</span>
+    }
+
+    //-----------------------------------------------------------------------  
+    /**
+     * Tests that the removal operation actually removes the first element.
+     */
+    public void testBoundedFifoBufferRemove() {
+<span class="fc" id="L114">        resetFull();</span>
+<span class="fc" id="L115">        int size = confirmed.size();</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L117">            Object o1 = ((BoundedFifoBuffer)collection).remove();</span>
+<span class="fc" id="L118">            Object o2 = ((ArrayList)confirmed).remove(0);</span>
+<span class="fc" id="L119">            assertEquals(&quot;Removed objects should be equal&quot;, o1, o2);</span>
+<span class="fc" id="L120">            verify();</span>
+        }
+
+        try {
+<span class="nc" id="L124">            ((BoundedFifoBuffer)collection).remove();</span>
+<span class="nc" id="L125">            fail(&quot;Empty buffer should raise Underflow.&quot;);</span>
+<span class="pc" id="L126">        } catch (BufferUnderflowException e) {</span>
+            // expected
+        }
+<span class="fc" id="L129">    }</span>
+
+    /**
+     * Tests that the constructor correctly throws an exception.
+     */
+    public void testConstructorException1() {
+        try {
+<span class="nc" id="L136">            new BoundedFifoBuffer(0);</span>
+<span class="pc" id="L137">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L138">            return;</span>
+        }
+<span class="nc" id="L140">        fail();</span>
+<span class="nc" id="L141">    }</span>
+    
+    /**
+     * Tests that the constructor correctly throws an exception.
+     */
+    public void testConstructorException2() {
+        try {
+<span class="nc" id="L148">            new BoundedFifoBuffer(-20);</span>
+<span class="pc" id="L149">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L150">            return;</span>
+        }
+<span class="nc" id="L152">        fail();</span>
+<span class="nc" id="L153">    }</span>
+
+    /**
+     * Tests that the constructor correctly throws an exception.
+     */
+    public void testConstructorException3() {
+        try {
+<span class="nc" id="L160">            new BoundedFifoBuffer(null);</span>
+<span class="pc" id="L161">        } catch (NullPointerException ex) {</span>
+<span class="fc" id="L162">            return;</span>
+        }
+<span class="nc" id="L164">        fail();</span>
+<span class="nc" id="L165">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

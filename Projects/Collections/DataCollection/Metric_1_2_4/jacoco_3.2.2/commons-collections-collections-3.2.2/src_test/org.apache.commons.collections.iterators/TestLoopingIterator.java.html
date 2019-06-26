@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestLoopingIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">TestLoopingIterator.java</span></div><h1>TestLoopingIterator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+/**
+ * Tests the LoopingIterator class.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Jonathan Carlson
+ * @author Stephen Colebourne
+ */
+public class TestLoopingIterator extends TestCase {
+
+    public TestLoopingIterator(String testName) {
+<span class="fc" id="L39">        super(testName);</span>
+<span class="fc" id="L40">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L43" title="All 2 branches covered.">        return new TestSuite(TestLoopingIterator.class);</span>
+    }
+
+    /**
+     * Tests constructor exception.
+     */
+    public void testConstructorEx() throws Exception {
+        try {
+<span class="nc" id="L51">            new LoopingIterator(null);</span>
+<span class="nc" id="L52">            fail();</span>
+<span class="pc" id="L53">        } catch (NullPointerException ex) {</span>
+        }
+<span class="fc" id="L55">    }</span>
+    
+    /**
+     * Tests whether an empty looping iterator works as designed.
+     * @throws Exception  If something unexpected occurs.
+     */
+    public void testLooping0() throws Exception {
+<span class="fc" id="L62">        List list = new ArrayList();</span>
+<span class="fc" id="L63">        LoopingIterator loop = new LoopingIterator(list);</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        assertTrue(&quot;hasNext should return false&quot;, loop.hasNext() == false);</span>
+
+        try {
+<span class="nc" id="L67">            loop.next();</span>
+<span class="nc" id="L68">            fail(&quot;NoSuchElementException was not thrown during next() call.&quot;);</span>
+<span class="pc" id="L69">        } catch (NoSuchElementException ex) {</span>
+        }
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * Tests whether a populated looping iterator works as designed.
+     * @throws Exception  If something unexpected occurs.
+     */
+    public void testLooping1() throws Exception {
+<span class="fc" id="L78">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot; }));</span>
+<span class="fc" id="L79">        LoopingIterator loop = new LoopingIterator(list);</span>
+
+<span class="fc" id="L81">        assertTrue(&quot;1st hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L82">        assertEquals(&quot;a&quot;, loop.next());</span>
+
+<span class="fc" id="L84">        assertTrue(&quot;2nd hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L85">        assertEquals(&quot;a&quot;, loop.next());</span>
+
+<span class="fc" id="L87">        assertTrue(&quot;3rd hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L88">        assertEquals(&quot;a&quot;, loop.next());</span>
+
+<span class="fc" id="L90">    }</span>
+
+    /**
+     * Tests whether a populated looping iterator works as designed.
+     * @throws Exception  If something unexpected occurs.
+     */
+    public void testLooping2() throws Exception {
+<span class="fc" id="L97">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot; }));</span>
+<span class="fc" id="L98">        LoopingIterator loop = new LoopingIterator(list);</span>
+
+<span class="fc" id="L100">        assertTrue(&quot;1st hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L101">        assertEquals(&quot;a&quot;, loop.next());</span>
+
+<span class="fc" id="L103">        assertTrue(&quot;2nd hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L104">        assertEquals(&quot;b&quot;, loop.next());</span>
+
+<span class="fc" id="L106">        assertTrue(&quot;3rd hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L107">        assertEquals(&quot;a&quot;, loop.next());</span>
+
+<span class="fc" id="L109">    }</span>
+
+    /**
+     * Tests whether a populated looping iterator works as designed.
+     * @throws Exception  If something unexpected occurs.
+     */
+    public void testLooping3() throws Exception {
+<span class="fc" id="L116">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; }));</span>
+<span class="fc" id="L117">        LoopingIterator loop = new LoopingIterator(list);</span>
+
+<span class="fc" id="L119">        assertTrue(&quot;1st hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L120">        assertEquals(&quot;a&quot;, loop.next());</span>
+
+<span class="fc" id="L122">        assertTrue(&quot;2nd hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L123">        assertEquals(&quot;b&quot;, loop.next());</span>
+
+<span class="fc" id="L125">        assertTrue(&quot;3rd hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L126">        assertEquals(&quot;c&quot;, loop.next());</span>
+
+<span class="fc" id="L128">        assertTrue(&quot;4th hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L129">        assertEquals(&quot;a&quot;, loop.next());</span>
+
+<span class="fc" id="L131">    }</span>
+
+    /**
+     * Tests the remove() method on a LoopingIterator wrapped ArrayList.
+     * @throws Exception  If something unexpected occurs.
+     */
+    public void testRemoving1() throws Exception {
+<span class="fc" id="L138">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; }));</span>
+<span class="fc" id="L139">        LoopingIterator loop = new LoopingIterator(list);</span>
+<span class="fc" id="L140">        assertEquals(&quot;list should have 3 elements.&quot;, 3, list.size());</span>
+
+<span class="fc" id="L142">        assertTrue(&quot;1st hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L143">        assertEquals(&quot;a&quot;, loop.next());</span>
+<span class="fc" id="L144">        loop.remove();  // removes a</span>
+<span class="fc" id="L145">        assertEquals(&quot;list should have 2 elements.&quot;, 2, list.size());</span>
+
+<span class="fc" id="L147">        assertTrue(&quot;2nd hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L148">        assertEquals(&quot;b&quot;, loop.next());</span>
+<span class="fc" id="L149">        loop.remove();  // removes b</span>
+<span class="fc" id="L150">        assertEquals(&quot;list should have 1 elements.&quot;, 1, list.size());</span>
+
+<span class="fc" id="L152">        assertTrue(&quot;3rd hasNext should return true&quot;, loop.hasNext());</span>
+<span class="fc" id="L153">        assertEquals(&quot;c&quot;, loop.next());</span>
+<span class="fc" id="L154">        loop.remove();  // removes c</span>
+<span class="fc" id="L155">        assertEquals(&quot;list should have 0 elements.&quot;, 0, list.size());</span>
+
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        assertTrue(&quot;4th hasNext should return false&quot;, loop.hasNext() == false);</span>
+        try {
+<span class="nc" id="L159">            loop.next();</span>
+<span class="nc" id="L160">            fail(&quot;Expected NoSuchElementException to be thrown.&quot;);</span>
+<span class="pc" id="L161">        } catch (NoSuchElementException ex) {</span>
+        }
+<span class="fc" id="L163">    }</span>
+
+    /**
+     * Tests the reset() method on a LoopingIterator wrapped ArrayList.
+     * @throws Exception  If something unexpected occurs.
+     */
+    public void testReset() throws Exception {
+<span class="fc" id="L170">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; }));</span>
+<span class="fc" id="L171">        LoopingIterator loop = new LoopingIterator(list);</span>
+
+<span class="fc" id="L173">        assertEquals(&quot;a&quot;, loop.next());</span>
+<span class="fc" id="L174">        assertEquals(&quot;b&quot;, loop.next());</span>
+<span class="fc" id="L175">        loop.reset();</span>
+<span class="fc" id="L176">        assertEquals(&quot;a&quot;, loop.next());</span>
+<span class="fc" id="L177">        loop.reset();</span>
+<span class="fc" id="L178">        assertEquals(&quot;a&quot;, loop.next());</span>
+<span class="fc" id="L179">        assertEquals(&quot;b&quot;, loop.next());</span>
+<span class="fc" id="L180">        assertEquals(&quot;c&quot;, loop.next());</span>
+<span class="fc" id="L181">        loop.reset();</span>
+<span class="fc" id="L182">        assertEquals(&quot;a&quot;, loop.next());</span>
+<span class="fc" id="L183">        assertEquals(&quot;b&quot;, loop.next());</span>
+<span class="fc" id="L184">        assertEquals(&quot;c&quot;, loop.next());</span>
+<span class="fc" id="L185">    }</span>
+    
+    /**
+     * Tests the size() method on a LoopingIterator wrapped ArrayList.
+     * @throws Exception  If something unexpected occurs.
+     */
+    public void testSize() throws Exception {
+<span class="fc" id="L192">        List list = new ArrayList(Arrays.asList(new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; }));</span>
+<span class="fc" id="L193">        LoopingIterator loop = new LoopingIterator(list);</span>
+
+<span class="fc" id="L195">        assertEquals(3, loop.size());</span>
+<span class="fc" id="L196">        loop.next();</span>
+<span class="fc" id="L197">        loop.next();</span>
+<span class="fc" id="L198">        assertEquals(3, loop.size());</span>
+<span class="fc" id="L199">        loop.reset();</span>
+<span class="fc" id="L200">        assertEquals(3, loop.size());</span>
+<span class="fc" id="L201">        loop.next();</span>
+<span class="fc" id="L202">        loop.remove();</span>
+<span class="fc" id="L203">        assertEquals(2, loop.size());</span>
+<span class="fc" id="L204">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ForClosure.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.functors</a> &gt; <span class="el_source">ForClosure.java</span></div><h1>ForClosure.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.functors;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+import org.apache.commons.collections.Closure;
+
+/**
+ * Closure implementation that calls another closure n times, like a for loop.
+ * &lt;p&gt;
+ * &lt;b&gt;WARNING:&lt;/b&gt; from v3.2.2 onwards this class will throw an
+ * {@link UnsupportedOperationException} when trying to serialize or
+ * de-serialize an instance to prevent potential remote code execution exploits.
+ * &lt;p&gt;
+ * In order to re-enable serialization support for {@code ForClosure}
+ * the following system property can be used (via -Dproperty=true):
+ * &lt;pre&gt;
+ * org.apache.commons.collections.enableUnsafeSerialization
+ * &lt;/pre&gt;
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ *
+ * @author Stephen Colebourne
+ */
+public class ForClosure implements Closure, Serializable {
+
+    /** Serial version UID */
+    private static final long serialVersionUID = -1190120533393621674L;
+
+    /** The number of times to loop */
+    private final int iCount;
+    /** The closure to call */
+    private final Closure iClosure;
+
+    /**
+     * Factory method that performs validation.
+     * &lt;p&gt;
+     * A null closure or zero count returns the &lt;code&gt;NOPClosure&lt;/code&gt;.
+     * A count of one returns the specified closure.
+     * 
+     * @param count  the number of times to execute the closure
+     * @param closure  the closure to execute, not null
+     * @return the &lt;code&gt;for&lt;/code&gt; closure
+     */
+    public static Closure getInstance(int count, Closure closure) {
+<span class="fc bfc" id="L65" title="All 4 branches covered.">        if (count &lt;= 0 || closure == null) {</span>
+<span class="fc" id="L66">            return NOPClosure.INSTANCE;</span>
+        }
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (count == 1) {</span>
+<span class="fc" id="L69">            return closure;</span>
+        }
+<span class="fc" id="L71">        return new ForClosure(count, closure);</span>
+    }
+
+    /**
+     * Constructor that performs no validation.
+     * Use &lt;code&gt;getInstance&lt;/code&gt; if you want that.
+     * 
+     * @param count  the number of times to execute the closure
+     * @param closure  the closure to execute, not null
+     */
+    public ForClosure(int count, Closure closure) {
+<span class="fc" id="L82">        super();</span>
+<span class="fc" id="L83">        iCount = count;</span>
+<span class="fc" id="L84">        iClosure = closure;</span>
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * Executes the closure &lt;code&gt;count&lt;/code&gt; times.
+     * 
+     * @param input  the input object
+     */
+    public void execute(Object input) {
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        for (int i = 0; i &lt; iCount; i++) {</span>
+<span class="fc" id="L94">            iClosure.execute(input);</span>
+        }
+<span class="fc" id="L96">    }</span>
+
+    /**
+     * Gets the closure.
+     * 
+     * @return the closure
+     * @since Commons Collections 3.1
+     */
+    public Closure getClosure() {
+<span class="nc" id="L105">        return iClosure;</span>
+    }
+
+    /**
+     * Gets the count.
+     * 
+     * @return the count
+     * @since Commons Collections 3.1
+     */
+    public int getCount() {
+<span class="nc" id="L115">        return iCount;</span>
+    }
+
+    /**
+     * Overrides the default writeObject implementation to prevent
+     * serialization (see COLLECTIONS-580).
+     */
+    private void writeObject(ObjectOutputStream os) throws IOException {
+<span class="pc bfc" id="L123" title="All 2 branches covered.">        FunctorUtils.checkUnsafeSerialization(ForClosure.class);</span>
+<span class="fc" id="L124">        os.defaultWriteObject();</span>
+<span class="fc" id="L125">    }</span>
+
+    /**
+     * Overrides the default readObject implementation to prevent
+     * de-serialization (see COLLECTIONS-580).
+     */
+    private void readObject(ObjectInputStream is) throws ClassNotFoundException, IOException {
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        FunctorUtils.checkUnsafeSerialization(ForClosure.class);</span>
+<span class="fc" id="L133">        is.defaultReadObject();</span>
+<span class="fc" id="L134">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

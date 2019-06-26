@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestArrayIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">TestArrayIterator.java</span></div><h1>TestArrayIterator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+/**
+ * Tests the ArrayIterator to ensure that the next() method will actually
+ * perform the iteration rather than the hasNext() method.
+ * The code of this test was supplied by Mauricio S. Moura.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author James Strachan
+ * @author Mauricio S. Moura
+ * @author Morgan Delagrange
+ * @author Stephen Colebourne
+ */
+public class TestArrayIterator extends AbstractTestIterator {
+
+<span class="fc" id="L39">    protected String[] testArray = { &quot;One&quot;, &quot;Two&quot;, &quot;Three&quot; };</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L42" title="All 2 branches covered.">        return new TestSuite(TestArrayIterator.class);</span>
+    }
+
+    public TestArrayIterator(String testName) {
+<span class="fc" id="L46">        super(testName);</span>
+<span class="fc" id="L47">    }</span>
+
+    public Iterator makeEmptyIterator() {
+<span class="fc" id="L50">        return new ArrayIterator(new Object[0]);</span>
+    }
+
+    public Iterator makeFullIterator() {
+<span class="fc" id="L54">        return new ArrayIterator(testArray);</span>
+    }
+
+    public boolean supportsRemove() {
+<span class="fc" id="L58">        return false;</span>
+    }
+
+
+    public void testIterator() {
+<span class="fc" id="L63">        Iterator iter = (Iterator) makeFullIterator();</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        for (int i = 0; i &lt; testArray.length; i++) {</span>
+<span class="fc" id="L65">            Object testValue = testArray[i];</span>
+<span class="fc" id="L66">            Object iterValue = iter.next();</span>
+
+<span class="fc" id="L68">            assertEquals(&quot;Iteration value is correct&quot;, testValue, iterValue);</span>
+        }
+
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        assertTrue(&quot;Iterator should now be empty&quot;, !iter.hasNext());</span>
+
+        try {
+<span class="nc" id="L74">            Object testValue = iter.next();</span>
+<span class="pc" id="L75">        } catch (Exception e) {</span>
+<span class="fc" id="L76">            assertTrue(</span>
+<span class="fc" id="L77">                &quot;NoSuchElementException must be thrown&quot;,</span>
+<span class="fc" id="L78">                e.getClass().equals((new NoSuchElementException()).getClass()));</span>
+        }
+<span class="fc" id="L80">    }</span>
+
+    public void testNullArray() {
+        try {
+<span class="nc" id="L84">            Iterator iter = new ArrayIterator(null);</span>
+
+<span class="nc" id="L86">            fail(&quot;Constructor should throw a NullPointerException when constructed with a null array&quot;);</span>
+<span class="pc" id="L87">        } catch (NullPointerException e) {</span>
+            // expected
+        }
+
+<span class="fc" id="L91">        ArrayIterator iter = new ArrayIterator();</span>
+        try {
+<span class="nc" id="L93">            iter.setArray(null);</span>
+
+<span class="nc" id="L95">            fail(&quot;setArray(null) should throw a NullPointerException&quot;);</span>
+<span class="pc" id="L96">        } catch (NullPointerException e) {</span>
+            // expected
+        }
+<span class="fc" id="L99">    }</span>
+    
+    public void testReset() {
+<span class="fc" id="L102">        ArrayIterator it = (ArrayIterator) makeFullIterator();</span>
+<span class="fc" id="L103">        it.next();</span>
+<span class="fc" id="L104">        it.reset();</span>
+<span class="fc" id="L105">        assertEquals(&quot;One&quot;, it.next());</span>
+<span class="fc" id="L106">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

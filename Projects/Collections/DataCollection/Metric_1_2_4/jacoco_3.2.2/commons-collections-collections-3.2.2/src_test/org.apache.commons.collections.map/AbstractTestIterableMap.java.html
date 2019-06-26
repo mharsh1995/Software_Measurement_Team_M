@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestIterableMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">AbstractTestIterableMap.java</span></div><h1>AbstractTestIterableMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.collections.IterableMap;
+import org.apache.commons.collections.BulkTest;
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.iterators.AbstractTestMapIterator;
+
+/**
+ * Abstract test class for {@link IterableMap} methods and contracts.
+ *
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public abstract class AbstractTestIterableMap extends AbstractTestMap {
+
+    /**
+     * JUnit constructor.
+     * 
+     * @param testName  the test name
+     */
+    public AbstractTestIterableMap(String testName) {
+<span class="fc" id="L43">        super(testName);</span>
+<span class="fc" id="L44">    }</span>
+    
+    //-----------------------------------------------------------------------
+    public void testFailFastEntrySet() {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (isRemoveSupported() == false) return;</span>
+<span class="fc" id="L49">        resetFull();</span>
+<span class="fc" id="L50">        Iterator it = map.entrySet().iterator();</span>
+<span class="fc" id="L51">        Map.Entry val = (Map.Entry) it.next();</span>
+<span class="fc" id="L52">        map.remove(val.getKey());</span>
+        try {
+<span class="nc" id="L54">            it.next();</span>
+<span class="nc" id="L55">            fail();</span>
+<span class="pc" id="L56">        } catch (ConcurrentModificationException ex) {}</span>
+        
+<span class="fc" id="L58">        resetFull();</span>
+<span class="fc" id="L59">        it = map.entrySet().iterator();</span>
+<span class="fc" id="L60">        it.next();</span>
+<span class="fc" id="L61">        map.clear();</span>
+        try {
+<span class="nc" id="L63">            it.next();</span>
+<span class="nc" id="L64">            fail();</span>
+<span class="pc" id="L65">        } catch (ConcurrentModificationException ex) {}</span>
+<span class="fc" id="L66">    }</span>
+    
+    public void testFailFastKeySet() {
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (isRemoveSupported() == false) return;</span>
+<span class="fc" id="L70">        resetFull();</span>
+<span class="fc" id="L71">        Iterator it = map.keySet().iterator();</span>
+<span class="fc" id="L72">        Object val = it.next();</span>
+<span class="fc" id="L73">        map.remove(val);</span>
+        try {
+<span class="nc" id="L75">            it.next();</span>
+<span class="nc" id="L76">            fail();</span>
+<span class="pc" id="L77">        } catch (ConcurrentModificationException ex) {}</span>
+        
+<span class="fc" id="L79">        resetFull();</span>
+<span class="fc" id="L80">        it = map.keySet().iterator();</span>
+<span class="fc" id="L81">        it.next();</span>
+<span class="fc" id="L82">        map.clear();</span>
+        try {
+<span class="nc" id="L84">            it.next();</span>
+<span class="nc" id="L85">            fail();</span>
+<span class="pc" id="L86">        } catch (ConcurrentModificationException ex) {}</span>
+<span class="fc" id="L87">    }</span>
+    
+    public void testFailFastValues() {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (isRemoveSupported() == false) return;</span>
+<span class="fc" id="L91">        resetFull();</span>
+<span class="fc" id="L92">        Iterator it = map.values().iterator();</span>
+<span class="fc" id="L93">        it.next();</span>
+<span class="fc" id="L94">        map.remove(map.keySet().iterator().next());</span>
+        try {
+<span class="nc" id="L96">            it.next();</span>
+<span class="nc" id="L97">            fail();</span>
+<span class="pc" id="L98">        } catch (ConcurrentModificationException ex) {}</span>
+        
+<span class="fc" id="L100">        resetFull();</span>
+<span class="fc" id="L101">        it = map.values().iterator();</span>
+<span class="fc" id="L102">        it.next();</span>
+<span class="fc" id="L103">        map.clear();</span>
+        try {
+<span class="nc" id="L105">            it.next();</span>
+<span class="nc" id="L106">            fail();</span>
+<span class="pc" id="L107">        } catch (ConcurrentModificationException ex) {}</span>
+<span class="fc" id="L108">    }</span>
+    
+    //-----------------------------------------------------------------------
+    public BulkTest bulkTestMapIterator() {
+<span class="fc" id="L112">        return new InnerTestMapIterator();</span>
+    }
+    
+    public class InnerTestMapIterator extends AbstractTestMapIterator {
+        public InnerTestMapIterator() {
+<span class="fc" id="L117">            super(&quot;InnerTestMapIterator&quot;);</span>
+<span class="fc" id="L118">        }</span>
+        
+        public Object[] addSetValues() {
+<span class="fc" id="L121">            return AbstractTestIterableMap.this.getNewSampleValues();</span>
+        }
+        
+        public boolean supportsRemove() {
+<span class="fc" id="L125">            return AbstractTestIterableMap.this.isRemoveSupported();</span>
+        }
+        
+        public boolean isGetStructuralModify() {
+<span class="fc" id="L129">            return AbstractTestIterableMap.this.isGetStructuralModify();</span>
+        }
+
+        public boolean supportsSetValue() {
+<span class="fc" id="L133">            return AbstractTestIterableMap.this.isSetValueSupported();</span>
+        }
+
+        public MapIterator makeEmptyMapIterator() {
+<span class="fc" id="L137">            resetEmpty();</span>
+<span class="fc" id="L138">            return ((IterableMap) AbstractTestIterableMap.this.map).mapIterator();</span>
+        }
+
+        public MapIterator makeFullMapIterator() {
+<span class="fc" id="L142">            resetFull();</span>
+<span class="fc" id="L143">            return ((IterableMap) AbstractTestIterableMap.this.map).mapIterator();</span>
+        }
+        
+        public Map getMap() {
+            // assumes makeFullMapIterator() called first
+<span class="fc" id="L148">            return AbstractTestIterableMap.this.map;</span>
+        }
+        
+        public Map getConfirmedMap() {
+            // assumes makeFullMapIterator() called first
+<span class="fc" id="L153">            return AbstractTestIterableMap.this.confirmed;</span>
+        }
+        
+        public void verify() {
+<span class="fc" id="L157">            super.verify();</span>
+<span class="fc" id="L158">            AbstractTestIterableMap.this.verify();</span>
+<span class="fc" id="L159">        }</span>
+    }
+    
+//  public void testCreate() throws Exception {
+//      resetEmpty();
+//      writeExternalFormToDisk((Serializable) map, &quot;D:/dev/collections/data/test/HashedMap.emptyCollection.version3.obj&quot;);
+//      resetFull();
+//      writeExternalFormToDisk((Serializable) map, &quot;D:/dev/collections/data/test/HashedMap.fullCollection.version3.obj&quot;);
+//  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

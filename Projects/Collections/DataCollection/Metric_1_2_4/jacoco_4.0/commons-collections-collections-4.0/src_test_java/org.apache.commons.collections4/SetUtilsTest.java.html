@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SetUtilsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4</a> &gt; <span class="el_source">SetUtilsTest.java</span></div><h1>SetUtilsTest.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections4.set.PredicatedSet;
+
+/**
+ * Tests for SetUtils.
+ *
+ * @version $Id$
+ */
+public class SetUtilsTest extends BulkTest {
+
+    public SetUtilsTest(final String name) {
+<span class="fc" id="L36">        super(name);</span>
+<span class="fc" id="L37">    }</span>
+
+    public static Test suite() {
+<span class="fc" id="L40">        return BulkTest.makeSuite(SetUtilsTest.class);</span>
+    }
+
+    public void testNothing() {
+<span class="fc" id="L44">    }</span>
+
+    public void testpredicatedSet() {
+<span class="fc" id="L47">        final Predicate&lt;Object&gt; predicate = new Predicate&lt;Object&gt;() {</span>
+            public boolean evaluate(final Object o) {
+<span class="nc" id="L49">                return o instanceof String;</span>
+            }
+        };
+<span class="fc" id="L52">        Set&lt;Object&gt; set = SetUtils.predicatedSet(new HashSet&lt;Object&gt;(), predicate);</span>
+<span class="fc" id="L53">        assertTrue(&quot;returned object should be a PredicatedSet&quot;, set instanceof PredicatedSet);</span>
+        try {
+<span class="nc" id="L55">            SetUtils.predicatedSet(new HashSet&lt;Object&gt;(), null);</span>
+<span class="nc" id="L56">            fail(&quot;Expecting IllegalArgumentException for null predicate.&quot;);</span>
+<span class="pc" id="L57">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L61">            SetUtils.predicatedSet(null, predicate);</span>
+<span class="nc" id="L62">            fail(&quot;Expecting IllegalArgumentException for null set.&quot;);</span>
+<span class="pc" id="L63">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L66">    }</span>
+
+    public void testEmptyIfNull() {
+<span class="fc" id="L69">        assertTrue(SetUtils.emptyIfNull(null).isEmpty());</span>
+
+<span class="fc" id="L71">        final Set&lt;Long&gt; set = new HashSet&lt;Long&gt;();</span>
+<span class="fc" id="L72">        assertSame(set, SetUtils.emptyIfNull(set));</span>
+<span class="fc" id="L73">    }</span>
+
+    public void testEquals() {
+<span class="fc" id="L76">        final Collection&lt;String&gt; data = Arrays.asList(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;);</span>
+
+<span class="fc" id="L78">        final Set&lt;String&gt; a = new HashSet&lt;String&gt;(data);</span>
+<span class="fc" id="L79">        final Set&lt;String&gt; b = new HashSet&lt;String&gt;(data);</span>
+
+<span class="fc" id="L81">        assertEquals(true, a.equals(b));</span>
+<span class="fc" id="L82">        assertEquals(true, SetUtils.isEqualSet(a, b));</span>
+<span class="fc" id="L83">        a.clear();</span>
+<span class="fc" id="L84">        assertEquals(false, SetUtils.isEqualSet(a, b));</span>
+<span class="fc" id="L85">        assertEquals(false, SetUtils.isEqualSet(a, null));</span>
+<span class="fc" id="L86">        assertEquals(false, SetUtils.isEqualSet(null, b));</span>
+<span class="fc" id="L87">        assertEquals(true, SetUtils.isEqualSet(null, null));</span>
+<span class="fc" id="L88">    }</span>
+
+    public void testHashCode() {
+<span class="fc" id="L91">        final Collection&lt;String&gt; data = Arrays.asList(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;);</span>
+
+<span class="fc" id="L93">        final Set&lt;String&gt; a = new HashSet&lt;String&gt;(data);</span>
+<span class="fc" id="L94">        final Set&lt;String&gt; b = new HashSet&lt;String&gt;(data);</span>
+
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        assertEquals(true, a.hashCode() == b.hashCode());</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        assertEquals(true, a.hashCode() == SetUtils.hashCodeForSet(a));</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        assertEquals(true, b.hashCode() == SetUtils.hashCodeForSet(b));</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        assertEquals(true, SetUtils.hashCodeForSet(a) == SetUtils.hashCodeForSet(b));</span>
+<span class="fc" id="L100">        a.clear();</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        assertEquals(false, SetUtils.hashCodeForSet(a) == SetUtils.hashCodeForSet(b));</span>
+<span class="fc" id="L102">        assertEquals(0, SetUtils.hashCodeForSet(null));</span>
+<span class="fc" id="L103">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

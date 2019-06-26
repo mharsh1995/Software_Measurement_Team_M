@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CaseInsensitiveMapTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.map</a> &gt; <span class="el_source">CaseInsensitiveMapTest.java</span></div><h1>CaseInsensitiveMapTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.map;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections4.BulkTest;
+
+/**
+ * Tests for the {@link CaseInsensitiveMap} implementation.
+ *
+ * @version $Id$
+ */
+public class CaseInsensitiveMapTest&lt;K, V&gt; extends AbstractIterableMapTest&lt;K, V&gt; {
+
+    public CaseInsensitiveMapTest(final String testName) {
+<span class="fc" id="L36">        super(testName);</span>
+<span class="fc" id="L37">    }</span>
+
+    public static Test suite() {
+<span class="fc" id="L40">        return BulkTest.makeSuite(CaseInsensitiveMapTest.class);</span>
+    }
+
+    @Override
+    public CaseInsensitiveMap&lt;K, V&gt; makeObject() {
+<span class="fc" id="L45">        return new CaseInsensitiveMap&lt;K, V&gt;();</span>
+    }
+
+    @Override
+    public String getCompatibilityVersion() {
+<span class="fc" id="L50">        return &quot;4&quot;;</span>
+    }
+
+    //-------------------------------------------------------------------------
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testCaseInsensitive() {
+<span class="fc" id="L57">        final Map&lt;K, V&gt; map = makeObject();</span>
+<span class="fc" id="L58">        map.put((K) &quot;One&quot;, (V) &quot;One&quot;);</span>
+<span class="fc" id="L59">        map.put((K) &quot;Two&quot;, (V) &quot;Two&quot;);</span>
+<span class="fc" id="L60">        assertEquals(&quot;One&quot;, map.get(&quot;one&quot;));</span>
+<span class="fc" id="L61">        assertEquals(&quot;One&quot;, map.get(&quot;oNe&quot;));</span>
+<span class="fc" id="L62">        map.put((K) &quot;two&quot;, (V) &quot;Three&quot;);</span>
+<span class="fc" id="L63">        assertEquals(&quot;Three&quot;, map.get(&quot;Two&quot;));</span>
+<span class="fc" id="L64">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testNullHandling() {
+<span class="fc" id="L68">        final Map&lt;K, V&gt; map = makeObject();</span>
+<span class="fc" id="L69">        map.put((K) &quot;One&quot;, (V) &quot;One&quot;);</span>
+<span class="fc" id="L70">        map.put((K) &quot;Two&quot;, (V) &quot;Two&quot;);</span>
+<span class="fc" id="L71">        map.put(null, (V) &quot;Three&quot;);</span>
+<span class="fc" id="L72">        assertEquals(&quot;Three&quot;, map.get(null));</span>
+<span class="fc" id="L73">        map.put(null, (V) &quot;Four&quot;);</span>
+<span class="fc" id="L74">        assertEquals(&quot;Four&quot;, map.get(null));</span>
+<span class="fc" id="L75">        final Set&lt;K&gt; keys = map.keySet();</span>
+<span class="fc" id="L76">        assertTrue(keys.contains(&quot;one&quot;));</span>
+<span class="fc" id="L77">        assertTrue(keys.contains(&quot;two&quot;));</span>
+<span class="fc" id="L78">        assertTrue(keys.contains(null));</span>
+<span class="fc" id="L79">        assertEquals(3, keys.size());</span>
+<span class="fc" id="L80">    }</span>
+
+    public void testPutAll() {
+<span class="fc" id="L83">        final Map&lt;Object, String&gt; map = new HashMap&lt;Object, String&gt;();</span>
+<span class="fc" id="L84">        map.put(&quot;One&quot;, &quot;One&quot;);</span>
+<span class="fc" id="L85">        map.put(&quot;Two&quot;, &quot;Two&quot;);</span>
+<span class="fc" id="L86">        map.put(&quot;one&quot;, &quot;Three&quot;);</span>
+<span class="fc" id="L87">        map.put(null, &quot;Four&quot;);</span>
+<span class="fc" id="L88">        map.put(Integer.valueOf(20), &quot;Five&quot;);</span>
+<span class="fc" id="L89">        final Map&lt;Object, String&gt; caseInsensitiveMap = new CaseInsensitiveMap&lt;Object, String&gt;(map);</span>
+<span class="fc" id="L90">        assertEquals(4, caseInsensitiveMap.size()); // ones collapsed</span>
+<span class="fc" id="L91">        final Set&lt;Object&gt; keys = caseInsensitiveMap.keySet();</span>
+<span class="fc" id="L92">        assertTrue(keys.contains(&quot;one&quot;));</span>
+<span class="fc" id="L93">        assertTrue(keys.contains(&quot;two&quot;));</span>
+<span class="fc" id="L94">        assertTrue(keys.contains(null));</span>
+<span class="fc" id="L95">        assertTrue(keys.contains(Integer.toString(20)));</span>
+<span class="fc" id="L96">        assertEquals(4, keys.size());</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        assertTrue(!caseInsensitiveMap.containsValue(&quot;One&quot;)</span>
+<span class="pc bnc" id="L98" title="All 2 branches missed.">            || !caseInsensitiveMap.containsValue(&quot;Three&quot;)); // ones collaped</span>
+<span class="fc" id="L99">        assertEquals(&quot;Four&quot;, caseInsensitiveMap.get(null));</span>
+<span class="fc" id="L100">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testClone() {
+<span class="fc" id="L104">        final CaseInsensitiveMap&lt;K, V&gt; map = new CaseInsensitiveMap&lt;K, V&gt;(10);</span>
+<span class="fc" id="L105">        map.put((K) &quot;1&quot;, (V) &quot;1&quot;);</span>
+<span class="fc" id="L106">        final CaseInsensitiveMap&lt;K, V&gt; cloned = map.clone();</span>
+<span class="fc" id="L107">        assertEquals(map.size(), cloned.size());</span>
+<span class="fc" id="L108">        assertSame(map.get(&quot;1&quot;), cloned.get(&quot;1&quot;));</span>
+<span class="fc" id="L109">    }</span>
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) map, &quot;src/test/resources/data/test/CaseInsensitiveMap.emptyCollection.version4.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) map, &quot;src/test/resources/data/test/CaseInsensitiveMap.fullCollection.version4.obj&quot;);
+//    }
+
+    // COLLECTIONS-294
+    public void testLocaleIndependence() {
+<span class="fc" id="L120">        final Locale orig = Locale.getDefault();</span>
+
+<span class="fc" id="L122">        final Locale[] locales = { Locale.ENGLISH, new Locale(&quot;tr&quot;, &quot;&quot;, &quot;&quot;), Locale.getDefault() };</span>
+
+<span class="fc" id="L124">        final String[][] data = { </span>
+<span class="fc" id="L125">            { &quot;i&quot;, &quot;I&quot; },</span>
+<span class="fc" id="L126">            { &quot;\u03C2&quot;, &quot;\u03C3&quot; },</span>
+<span class="fc" id="L127">            { &quot;\u03A3&quot;, &quot;\u03C2&quot; },</span>
+<span class="fc" id="L128">            { &quot;\u03A3&quot;, &quot;\u03C3&quot; },</span>
+        };
+
+        try {
+<span class="fc bfc" id="L132" title="All 2 branches covered.">            for (final Locale locale : locales) {</span>
+<span class="fc" id="L133">                Locale.setDefault(locale);</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">                for (int j = 0; j &lt; data.length; j++) {</span>
+<span class="fc" id="L135">                    assertTrue(&quot;Test data corrupt: &quot; + j, data[j][0].equalsIgnoreCase(data[j][1]));</span>
+<span class="fc" id="L136">                    final CaseInsensitiveMap&lt;String, String&gt; map = new CaseInsensitiveMap&lt;String, String&gt;();</span>
+<span class="fc" id="L137">                    map.put(data[j][0], &quot;value&quot;);</span>
+<span class="fc" id="L138">                    assertEquals(Locale.getDefault() + &quot;: &quot; + j, &quot;value&quot;, map.get(data[j][1]));</span>
+                }
+            }
+<span class="fc" id="L141">        } finally {</span>
+<span class="fc" id="L142">            Locale.setDefault(orig);</span>
+        }
+<span class="fc" id="L144">    }</span>
+
+    /**
+     * Test for &lt;a href=&quot;https://issues.apache.org/jira/browse/COLLECTIONS-323&quot;&gt;COLLECTIONS-323&lt;/a&gt;.
+     */
+    public void testInitialCapacityZero() {
+<span class="fc" id="L150">        final CaseInsensitiveMap&lt;String,String&gt; map = new CaseInsensitiveMap&lt;String,String&gt;(0);</span>
+<span class="fc" id="L151">        assertEquals(1, map.data.length);</span>
+<span class="fc" id="L152">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

@@ -1,0 +1,936 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>LRUMapTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.map</a> &gt; <span class="el_source">LRUMapTest.java</span></div><h1>LRUMapTest.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.map;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections4.BulkTest;
+import org.apache.commons.collections4.MapIterator;
+import org.apache.commons.collections4.OrderedMap;
+import org.apache.commons.collections4.ResettableIterator;
+
+/**
+ * JUnit tests.
+ *
+ * @version $Id$
+ */
+public class LRUMapTest&lt;K, V&gt; extends AbstractOrderedMapTest&lt;K, V&gt; {
+
+    public LRUMapTest(final String testName) {
+<span class="fc" id="L40">        super(testName);</span>
+<span class="fc" id="L41">    }</span>
+
+    public static Test suite() {
+<span class="fc" id="L44">        return BulkTest.makeSuite(LRUMapTest.class);</span>
+    }
+
+    @Override
+    public LRUMap&lt;K, V&gt; makeObject() {
+<span class="fc" id="L49">        return new LRUMap&lt;K, V&gt;();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public LRUMap&lt;K, V&gt; makeFullMap() {
+<span class="fc" id="L57">        return (LRUMap&lt;K, V&gt;) super.makeFullMap();</span>
+    }
+
+    @Override
+    public boolean isGetStructuralModify() {
+<span class="fc" id="L62">        return true;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public LRUMap&lt;K, V&gt; getMap() {
+<span class="fc" id="L70">        return (LRUMap&lt;K, V&gt;) super.getMap();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testCtors() {
+        try {
+<span class="nc" id="L76">            new LRUMap&lt;K, V&gt;(0);</span>
+<span class="nc" id="L77">            fail(&quot;maxSize must be positive&quot;);</span>
+<span class="pc" id="L78">        } catch(IllegalArgumentException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L83">            new LRUMap&lt;K, V&gt;(-1, 12, 0.75f, false);</span>
+<span class="nc" id="L84">            fail(&quot;maxSize must be positive&quot;);</span>
+<span class="pc" id="L85">        } catch(IllegalArgumentException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L90">            new LRUMap&lt;K, V&gt;(10, -1);</span>
+<span class="nc" id="L91">            fail(&quot;initialSize must not be negative&quot;);</span>
+<span class="pc" id="L92">        } catch(IllegalArgumentException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L97">            new LRUMap&lt;K, V&gt;(10, 12);</span>
+<span class="nc" id="L98">            fail(&quot;initialSize must not be larger than maxSize&quot;);</span>
+<span class="pc" id="L99">        } catch(IllegalArgumentException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L104">            new LRUMap&lt;K, V&gt;(10, -1, 0.75f, false);</span>
+<span class="nc" id="L105">            fail(&quot;initialSize must not be negative&quot;);</span>
+<span class="pc" id="L106">        } catch(IllegalArgumentException ex) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L111">            new LRUMap&lt;K, V&gt;(10, 12, 0.75f, false);</span>
+<span class="nc" id="L112">            fail(&quot;initialSize must not be larger than maxSize&quot;);</span>
+<span class="pc" id="L113">        } catch(IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L116">    }</span>
+
+    public void testLRU() {
+<span class="pc bpc" id="L119" title="2 of 4 branches missed.">        if (!isPutAddSupported() || !isPutChangeSupported()) {</span>
+<span class="nc" id="L120">            return;</span>
+        }
+<span class="fc" id="L122">        final K[] keys = getSampleKeys();</span>
+<span class="fc" id="L123">        final V[] values = getSampleValues();</span>
+        Iterator&lt;K&gt; kit;
+        Iterator&lt;V&gt; vit;
+
+<span class="fc" id="L127">        final LRUMap&lt;K, V&gt; map = new LRUMap&lt;K, V&gt;(2);</span>
+<span class="fc" id="L128">        assertEquals(0, map.size());</span>
+<span class="fc" id="L129">        assertEquals(false, map.isFull());</span>
+<span class="fc" id="L130">        assertEquals(2, map.maxSize());</span>
+
+<span class="fc" id="L132">        map.put(keys[0], values[0]);</span>
+<span class="fc" id="L133">        assertEquals(1, map.size());</span>
+<span class="fc" id="L134">        assertEquals(false, map.isFull());</span>
+<span class="fc" id="L135">        assertEquals(2, map.maxSize());</span>
+
+<span class="fc" id="L137">        map.put(keys[1], values[1]);</span>
+<span class="fc" id="L138">        assertEquals(2, map.size());</span>
+<span class="fc" id="L139">        assertEquals(true, map.isFull());</span>
+<span class="fc" id="L140">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L141">        kit = map.keySet().iterator();</span>
+<span class="fc" id="L142">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L143">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L144">        vit = map.values().iterator();</span>
+<span class="fc" id="L145">        assertSame(values[0], vit.next());</span>
+<span class="fc" id="L146">        assertSame(values[1], vit.next());</span>
+
+<span class="fc" id="L148">        map.put(keys[2], values[2]);</span>
+<span class="fc" id="L149">        assertEquals(2, map.size());</span>
+<span class="fc" id="L150">        assertEquals(true, map.isFull());</span>
+<span class="fc" id="L151">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L152">        kit = map.keySet().iterator();</span>
+<span class="fc" id="L153">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L154">        assertSame(keys[2], kit.next());</span>
+<span class="fc" id="L155">        vit = map.values().iterator();</span>
+<span class="fc" id="L156">        assertSame(values[1], vit.next());</span>
+<span class="fc" id="L157">        assertSame(values[2], vit.next());</span>
+
+<span class="fc" id="L159">        map.put(keys[2], values[0]);</span>
+<span class="fc" id="L160">        assertEquals(2, map.size());</span>
+<span class="fc" id="L161">        assertEquals(true, map.isFull());</span>
+<span class="fc" id="L162">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L163">        kit = map.keySet().iterator();</span>
+<span class="fc" id="L164">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L165">        assertSame(keys[2], kit.next());</span>
+<span class="fc" id="L166">        vit = map.values().iterator();</span>
+<span class="fc" id="L167">        assertSame(values[1], vit.next());</span>
+<span class="fc" id="L168">        assertSame(values[0], vit.next());</span>
+
+<span class="fc" id="L170">        map.put(keys[1], values[3]);</span>
+<span class="fc" id="L171">        assertEquals(2, map.size());</span>
+<span class="fc" id="L172">        assertEquals(true, map.isFull());</span>
+<span class="fc" id="L173">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L174">        kit = map.keySet().iterator();</span>
+<span class="fc" id="L175">        assertSame(keys[2], kit.next());</span>
+<span class="fc" id="L176">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L177">        vit = map.values().iterator();</span>
+<span class="fc" id="L178">        assertSame(values[0], vit.next());</span>
+<span class="fc" id="L179">        assertSame(values[3], vit.next());</span>
+<span class="fc" id="L180">    }</span>
+
+    //-----------------------------------------------------------------------
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testReset() {
+<span class="fc" id="L185">        resetEmpty();</span>
+<span class="fc" id="L186">        OrderedMap&lt;K, V&gt; ordered = getMap();</span>
+<span class="fc" id="L187">        ((ResettableIterator&lt;K&gt;) ordered.mapIterator()).reset();</span>
+
+<span class="fc" id="L189">        resetFull();</span>
+<span class="fc" id="L190">        ordered = getMap();</span>
+<span class="fc" id="L191">        final List&lt;K&gt; list = new ArrayList&lt;K&gt;(ordered.keySet());</span>
+<span class="fc" id="L192">        final ResettableIterator&lt;K&gt; it = (ResettableIterator&lt;K&gt;) ordered.mapIterator();</span>
+<span class="fc" id="L193">        assertSame(list.get(0), it.next());</span>
+<span class="fc" id="L194">        assertSame(list.get(1), it.next());</span>
+<span class="fc" id="L195">        it.reset();</span>
+<span class="fc" id="L196">        assertSame(list.get(0), it.next());</span>
+<span class="fc" id="L197">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testAccessOrder() {
+<span class="pc bpc" id="L201" title="2 of 4 branches missed.">        if (!isPutAddSupported() || !isPutChangeSupported()) {</span>
+<span class="nc" id="L202">            return;</span>
+        }
+<span class="fc" id="L204">        final K[] keys = getSampleKeys();</span>
+<span class="fc" id="L205">        final V[] values = getSampleValues();</span>
+<span class="fc" id="L206">        Iterator&lt;K&gt; kit = null;</span>
+<span class="fc" id="L207">        Iterator&lt;V&gt; vit = null;</span>
+
+<span class="fc" id="L209">        resetEmpty();</span>
+<span class="fc" id="L210">        map.put(keys[0], values[0]);</span>
+<span class="fc" id="L211">        map.put(keys[1], values[1]);</span>
+<span class="fc" id="L212">        kit = map.keySet().iterator();</span>
+<span class="fc" id="L213">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L214">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L215">        vit = map.values().iterator();</span>
+<span class="fc" id="L216">        assertSame(values[0], vit.next());</span>
+<span class="fc" id="L217">        assertSame(values[1], vit.next());</span>
+
+        // no change to order
+<span class="fc" id="L220">        map.put(keys[1], values[1]);</span>
+<span class="fc" id="L221">        kit = map.keySet().iterator();</span>
+<span class="fc" id="L222">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L223">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L224">        vit = map.values().iterator();</span>
+<span class="fc" id="L225">        assertSame(values[0], vit.next());</span>
+<span class="fc" id="L226">        assertSame(values[1], vit.next());</span>
+
+        // no change to order
+<span class="fc" id="L229">        map.put(keys[1], values[2]);</span>
+<span class="fc" id="L230">        kit = map.keySet().iterator();</span>
+<span class="fc" id="L231">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L232">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L233">        vit = map.values().iterator();</span>
+<span class="fc" id="L234">        assertSame(values[0], vit.next());</span>
+<span class="fc" id="L235">        assertSame(values[2], vit.next());</span>
+
+        // change to order
+<span class="fc" id="L238">        map.put(keys[0], values[3]);</span>
+<span class="fc" id="L239">        kit = map.keySet().iterator();</span>
+<span class="fc" id="L240">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L241">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L242">        vit = map.values().iterator();</span>
+<span class="fc" id="L243">        assertSame(values[2], vit.next());</span>
+<span class="fc" id="L244">        assertSame(values[3], vit.next());</span>
+
+        // change to order
+<span class="fc" id="L247">        map.get(keys[1]);</span>
+<span class="fc" id="L248">        kit = map.keySet().iterator();</span>
+<span class="fc" id="L249">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L250">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L251">        vit = map.values().iterator();</span>
+<span class="fc" id="L252">        assertSame(values[3], vit.next());</span>
+<span class="fc" id="L253">        assertSame(values[2], vit.next());</span>
+
+        // change to order
+<span class="fc" id="L256">        map.get(keys[0]);</span>
+<span class="fc" id="L257">        kit = map.keySet().iterator();</span>
+<span class="fc" id="L258">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L259">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L260">        vit = map.values().iterator();</span>
+<span class="fc" id="L261">        assertSame(values[2], vit.next());</span>
+<span class="fc" id="L262">        assertSame(values[3], vit.next());</span>
+
+        // no change to order
+<span class="fc" id="L265">        map.get(keys[0]);</span>
+<span class="fc" id="L266">        kit = map.keySet().iterator();</span>
+<span class="fc" id="L267">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L268">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L269">        vit = map.values().iterator();</span>
+<span class="fc" id="L270">        assertSame(values[2], vit.next());</span>
+<span class="fc" id="L271">        assertSame(values[3], vit.next());</span>
+<span class="fc" id="L272">    }</span>
+
+    public void testAccessOrder2() {
+<span class="pc bpc" id="L275" title="2 of 4 branches missed.">        if (!isPutAddSupported() || !isPutChangeSupported()) {</span>
+<span class="nc" id="L276">            return;</span>
+        }
+<span class="fc" id="L278">        final K[] keys = getSampleKeys();</span>
+<span class="fc" id="L279">        final V[] values = getSampleValues();</span>
+<span class="fc" id="L280">        Iterator&lt;K&gt; kit = null;</span>
+<span class="fc" id="L281">        Iterator&lt;V&gt; vit = null;</span>
+
+<span class="fc" id="L283">        resetEmpty();</span>
+<span class="fc" id="L284">        LRUMap&lt;K, V&gt; lruMap = (LRUMap&lt;K, V&gt;) map;</span>
+        
+<span class="fc" id="L286">        lruMap.put(keys[0], values[0]);</span>
+<span class="fc" id="L287">        lruMap.put(keys[1], values[1]);</span>
+<span class="fc" id="L288">        kit = lruMap.keySet().iterator();</span>
+<span class="fc" id="L289">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L290">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L291">        vit = lruMap.values().iterator();</span>
+<span class="fc" id="L292">        assertSame(values[0], vit.next());</span>
+<span class="fc" id="L293">        assertSame(values[1], vit.next());</span>
+
+        // no change to order
+<span class="fc" id="L296">        lruMap.put(keys[1], values[1]);</span>
+<span class="fc" id="L297">        kit = lruMap.keySet().iterator();</span>
+<span class="fc" id="L298">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L299">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L300">        vit = lruMap.values().iterator();</span>
+<span class="fc" id="L301">        assertSame(values[0], vit.next());</span>
+<span class="fc" id="L302">        assertSame(values[1], vit.next());</span>
+
+        // no change to order
+<span class="fc" id="L305">        lruMap.get(keys[1], false);</span>
+<span class="fc" id="L306">        kit = lruMap.keySet().iterator();</span>
+<span class="fc" id="L307">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L308">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L309">        vit = lruMap.values().iterator();</span>
+<span class="fc" id="L310">        assertSame(values[0], vit.next());</span>
+<span class="fc" id="L311">        assertSame(values[1], vit.next());</span>
+
+        // change to order
+<span class="fc" id="L314">        lruMap.get(keys[0], true);</span>
+<span class="fc" id="L315">        kit = lruMap.keySet().iterator();</span>
+<span class="fc" id="L316">        assertSame(keys[1], kit.next());</span>
+<span class="fc" id="L317">        assertSame(keys[0], kit.next());</span>
+<span class="fc" id="L318">        vit = lruMap.values().iterator();</span>
+<span class="fc" id="L319">        assertSame(values[1], vit.next());</span>
+<span class="fc" id="L320">        assertSame(values[0], vit.next());</span>
+<span class="fc" id="L321">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testClone() {
+<span class="fc" id="L325">        final LRUMap&lt;K, V&gt; map = new LRUMap&lt;K, V&gt;(10);</span>
+<span class="fc" id="L326">        map.put((K) &quot;1&quot;, (V) &quot;1&quot;);</span>
+<span class="fc" id="L327">        final Map&lt;K, V&gt; cloned = map.clone();</span>
+<span class="fc" id="L328">        assertEquals(map.size(), cloned.size());</span>
+<span class="fc" id="L329">        assertSame(map.get(&quot;1&quot;), cloned.get(&quot;1&quot;));</span>
+<span class="fc" id="L330">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveLRU() {
+<span class="fc" id="L334">        final MockLRUMapSubclass&lt;K, String&gt; map = new MockLRUMapSubclass&lt;K, String&gt;(2);</span>
+<span class="fc" id="L335">        assertNull(map.entry);</span>
+<span class="fc" id="L336">        map.put((K) &quot;A&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L337">        assertNull(map.entry);</span>
+<span class="fc" id="L338">        map.put((K) &quot;B&quot;, &quot;b&quot;);</span>
+<span class="fc" id="L339">        assertNull(map.entry);</span>
+<span class="fc" id="L340">        map.put((K) &quot;C&quot;, &quot;c&quot;);  // removes oldest, which is A=a</span>
+<span class="fc" id="L341">        assertNotNull(map.entry);</span>
+<span class="fc" id="L342">        assertEquals(&quot;A&quot;, map.key);</span>
+<span class="fc" id="L343">        assertEquals(&quot;a&quot;, map.value);</span>
+<span class="fc" id="L344">        assertEquals(&quot;C&quot;, map.entry.getKey());  // entry is reused</span>
+<span class="fc" id="L345">        assertEquals(&quot;c&quot;, map.entry.getValue());  // entry is reused</span>
+<span class="fc" id="L346">        assertEquals(false, map.containsKey(&quot;A&quot;));</span>
+<span class="fc" id="L347">        assertEquals(true, map.containsKey(&quot;B&quot;));</span>
+<span class="fc" id="L348">        assertEquals(true, map.containsKey(&quot;C&quot;));</span>
+<span class="fc" id="L349">    }</span>
+
+    static class MockLRUMapSubclass&lt;K, V&gt; extends LRUMap&lt;K, V&gt; {
+        /**
+         * Generated serial version ID.
+         */
+        private static final long serialVersionUID = -2126883654452042477L;
+        LinkEntry&lt;K, V&gt; entry;
+        K key;
+        V value;
+
+        MockLRUMapSubclass(final int size) {
+<span class="fc" id="L361">            super(size);</span>
+<span class="fc" id="L362">        }</span>
+
+        @Override
+        protected boolean removeLRU(final LinkEntry&lt;K, V&gt; entry) {
+<span class="fc" id="L366">            this.entry = entry;</span>
+<span class="fc" id="L367">            this.key = entry.getKey();</span>
+<span class="fc" id="L368">            this.value = entry.getValue();</span>
+<span class="fc" id="L369">            return true;</span>
+        }
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveLRUBlocksRemove() {
+<span class="fc" id="L375">        final MockLRUMapSubclassBlocksRemove&lt;K, V&gt; map = new MockLRUMapSubclassBlocksRemove&lt;K, V&gt;(2, false);</span>
+<span class="fc" id="L376">        assertEquals(0, map.size());</span>
+<span class="fc" id="L377">        map.put((K) &quot;A&quot;, (V) &quot;a&quot;);</span>
+<span class="fc" id="L378">        assertEquals(1, map.size());</span>
+<span class="fc" id="L379">        map.put((K) &quot;B&quot;, (V) &quot;b&quot;);</span>
+<span class="fc" id="L380">        assertEquals(2, map.size());</span>
+<span class="fc" id="L381">        map.put((K) &quot;C&quot;, (V) &quot;c&quot;);  // should remove oldest, which is A=a, but this is blocked</span>
+<span class="fc" id="L382">        assertEquals(3, map.size());</span>
+<span class="fc" id="L383">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L384">        assertEquals(true, map.containsKey(&quot;A&quot;));</span>
+<span class="fc" id="L385">        assertEquals(true, map.containsKey(&quot;B&quot;));</span>
+<span class="fc" id="L386">        assertEquals(true, map.containsKey(&quot;C&quot;));</span>
+<span class="fc" id="L387">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveLRUBlocksRemoveScan() {
+<span class="fc" id="L391">        final MockLRUMapSubclassBlocksRemove&lt;K, V&gt; map = new MockLRUMapSubclassBlocksRemove&lt;K, V&gt;(2, true);</span>
+<span class="fc" id="L392">        assertEquals(0, map.size());</span>
+<span class="fc" id="L393">        map.put((K) &quot;A&quot;, (V) &quot;a&quot;);</span>
+<span class="fc" id="L394">        assertEquals(1, map.size());</span>
+<span class="fc" id="L395">        map.put((K) &quot;B&quot;, (V) &quot;b&quot;);</span>
+<span class="fc" id="L396">        assertEquals(2, map.size());</span>
+<span class="fc" id="L397">        map.put((K) &quot;C&quot;, (V) &quot;c&quot;);  // should remove oldest, which is A=a, but this is blocked</span>
+<span class="fc" id="L398">        assertEquals(3, map.size());</span>
+<span class="fc" id="L399">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L400">        assertEquals(true, map.containsKey(&quot;A&quot;));</span>
+<span class="fc" id="L401">        assertEquals(true, map.containsKey(&quot;B&quot;));</span>
+<span class="fc" id="L402">        assertEquals(true, map.containsKey(&quot;C&quot;));</span>
+<span class="fc" id="L403">    }</span>
+
+    static class MockLRUMapSubclassBlocksRemove&lt;K, V&gt; extends LRUMap&lt;K, V&gt; {
+        /**
+         * Generated serial version ID.
+         */
+        private static final long serialVersionUID = 6278917461128992945L;
+
+        MockLRUMapSubclassBlocksRemove(final int size, final boolean scanUntilRemove) {
+<span class="fc" id="L412">            super(size, scanUntilRemove);</span>
+<span class="fc" id="L413">        }</span>
+
+        @Override
+        protected boolean removeLRU(final LinkEntry&lt;K, V&gt; entry) {
+<span class="fc" id="L417">            return false;</span>
+        }
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemoveLRUFirstBlocksRemove() {
+<span class="fc" id="L423">        final MockLRUMapSubclassFirstBlocksRemove&lt;K, V&gt; map = new MockLRUMapSubclassFirstBlocksRemove&lt;K, V&gt;(2);</span>
+<span class="fc" id="L424">        assertEquals(0, map.size());</span>
+<span class="fc" id="L425">        map.put((K) &quot;A&quot;, (V) &quot;a&quot;);</span>
+<span class="fc" id="L426">        assertEquals(1, map.size());</span>
+<span class="fc" id="L427">        map.put((K) &quot;B&quot;, (V) &quot;b&quot;);</span>
+<span class="fc" id="L428">        assertEquals(2, map.size());</span>
+<span class="fc" id="L429">        map.put((K) &quot;C&quot;, (V) &quot;c&quot;);  // should remove oldest, which is A=a  but this is blocked - so advance to B=b</span>
+<span class="fc" id="L430">        assertEquals(2, map.size());</span>
+<span class="fc" id="L431">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L432">        assertEquals(true, map.containsKey(&quot;A&quot;));</span>
+<span class="fc" id="L433">        assertEquals(false, map.containsKey(&quot;B&quot;));</span>
+<span class="fc" id="L434">        assertEquals(true, map.containsKey(&quot;C&quot;));</span>
+<span class="fc" id="L435">    }</span>
+
+    static class MockLRUMapSubclassFirstBlocksRemove&lt;K, V&gt; extends LRUMap&lt;K, V&gt; {
+        /**
+         * Generated serial version ID.
+         */
+        private static final long serialVersionUID = -6939790801702973428L;
+
+        MockLRUMapSubclassFirstBlocksRemove(final int size) {
+<span class="fc" id="L444">            super(size, true);</span>
+<span class="fc" id="L445">        }</span>
+
+        @Override
+        protected boolean removeLRU(final LinkEntry&lt;K, V&gt; entry) {
+<span class="fc bfc" id="L449" title="All 2 branches covered.">            if (&quot;a&quot;.equals(entry.getValue())) {</span>
+<span class="fc" id="L450">                return false;</span>
+            } else {
+<span class="fc" id="L452">                return true;</span>
+            }
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    static class SingleHashCode {
+        private final String code;
+<span class="fc" id="L460">        SingleHashCode(final String code) {</span>
+<span class="fc" id="L461">            this.code = code;</span>
+<span class="fc" id="L462">        }</span>
+        @Override
+        public int hashCode() {
+            // always return the same hashcode
+            // that way, it will end up in the same bucket
+<span class="fc" id="L467">            return 12;</span>
+        }
+        @Override
+        public String toString() {
+<span class="nc" id="L471">            return &quot;SingleHashCode:&quot; + code;</span>
+        }
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testInternalState_Buckets() {
+<span class="pc bpc" id="L477" title="2 of 4 branches missed.">        if (!isPutAddSupported() || !isPutChangeSupported()) {</span>
+<span class="nc" id="L478">            return;</span>
+        }
+<span class="fc" id="L480">        final SingleHashCode one = new SingleHashCode(&quot;1&quot;);</span>
+<span class="fc" id="L481">        final SingleHashCode two = new SingleHashCode(&quot;2&quot;);</span>
+<span class="fc" id="L482">        final SingleHashCode three = new SingleHashCode(&quot;3&quot;);</span>
+<span class="fc" id="L483">        final SingleHashCode four = new SingleHashCode(&quot;4&quot;);</span>
+<span class="fc" id="L484">        final SingleHashCode five = new SingleHashCode(&quot;5&quot;);</span>
+<span class="fc" id="L485">        final SingleHashCode six = new SingleHashCode(&quot;6&quot;);</span>
+
+<span class="fc" id="L487">        final LRUMap&lt;K, V&gt; map = new LRUMap&lt;K, V&gt;(3, 1.0f);</span>
+<span class="fc" id="L488">        final int hashIndex = map.hashIndex(map.hash(one), 4);</span>
+<span class="fc" id="L489">        map.put((K) one, (V) &quot;A&quot;);</span>
+<span class="fc" id="L490">        map.put((K) two, (V) &quot;B&quot;);</span>
+<span class="fc" id="L491">        map.put((K) three, (V) &quot;C&quot;);</span>
+
+<span class="fc" id="L493">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L494">        assertEquals(3, map.size);</span>
+<span class="fc" id="L495">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L496">        assertEquals(one, map.header.after.key);  // LRU</span>
+<span class="fc" id="L497">        assertEquals(two, map.header.after.after.key);</span>
+<span class="fc" id="L498">        assertEquals(three, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L499">        assertEquals(three, map.data[hashIndex].key);</span>
+<span class="fc" id="L500">        assertEquals(two, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L501">        assertEquals(one, map.data[hashIndex].next.next.key);</span>
+
+<span class="fc" id="L503">        map.put((K) four, (V) &quot;D&quot;);  // reuses last in next list</span>
+
+<span class="fc" id="L505">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L506">        assertEquals(3, map.size);</span>
+<span class="fc" id="L507">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L508">        assertEquals(two, map.header.after.key);  // LRU</span>
+<span class="fc" id="L509">        assertEquals(three, map.header.after.after.key);</span>
+<span class="fc" id="L510">        assertEquals(four, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L511">        assertEquals(four, map.data[hashIndex].key);</span>
+<span class="fc" id="L512">        assertEquals(three, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L513">        assertEquals(two, map.data[hashIndex].next.next.key);</span>
+
+<span class="fc" id="L515">        map.get(three);</span>
+
+<span class="fc" id="L517">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L518">        assertEquals(3, map.size);</span>
+<span class="fc" id="L519">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L520">        assertEquals(two, map.header.after.key);  // LRU</span>
+<span class="fc" id="L521">        assertEquals(four, map.header.after.after.key);</span>
+<span class="fc" id="L522">        assertEquals(three, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L523">        assertEquals(four, map.data[hashIndex].key);</span>
+<span class="fc" id="L524">        assertEquals(three, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L525">        assertEquals(two, map.data[hashIndex].next.next.key);</span>
+
+<span class="fc" id="L527">        map.put((K) five, (V) &quot;E&quot;);  // reuses last in next list</span>
+
+<span class="fc" id="L529">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L530">        assertEquals(3, map.size);</span>
+<span class="fc" id="L531">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L532">        assertEquals(four, map.header.after.key);  // LRU</span>
+<span class="fc" id="L533">        assertEquals(three, map.header.after.after.key);</span>
+<span class="fc" id="L534">        assertEquals(five, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L535">        assertEquals(five, map.data[hashIndex].key);</span>
+<span class="fc" id="L536">        assertEquals(four, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L537">        assertEquals(three, map.data[hashIndex].next.next.key);</span>
+
+<span class="fc" id="L539">        map.get(three);</span>
+<span class="fc" id="L540">        map.get(five);</span>
+
+<span class="fc" id="L542">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L543">        assertEquals(3, map.size);</span>
+<span class="fc" id="L544">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L545">        assertEquals(four, map.header.after.key);  // LRU</span>
+<span class="fc" id="L546">        assertEquals(three, map.header.after.after.key);</span>
+<span class="fc" id="L547">        assertEquals(five, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L548">        assertEquals(five, map.data[hashIndex].key);</span>
+<span class="fc" id="L549">        assertEquals(four, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L550">        assertEquals(three, map.data[hashIndex].next.next.key);</span>
+
+<span class="fc" id="L552">        map.put((K) six, (V) &quot;F&quot;);  // reuses middle in next list</span>
+
+<span class="fc" id="L554">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L555">        assertEquals(3, map.size);</span>
+<span class="fc" id="L556">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L557">        assertEquals(three, map.header.after.key);  // LRU</span>
+<span class="fc" id="L558">        assertEquals(five, map.header.after.after.key);</span>
+<span class="fc" id="L559">        assertEquals(six, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L560">        assertEquals(six, map.data[hashIndex].key);</span>
+<span class="fc" id="L561">        assertEquals(five, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L562">        assertEquals(three, map.data[hashIndex].next.next.key);</span>
+<span class="fc" id="L563">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testInternalState_getEntry_int() {
+<span class="pc bpc" id="L567" title="2 of 4 branches missed.">        if (!isPutAddSupported() || !isPutChangeSupported()) {</span>
+<span class="nc" id="L568">            return;</span>
+        }
+<span class="fc" id="L570">        final SingleHashCode one = new SingleHashCode(&quot;1&quot;);</span>
+<span class="fc" id="L571">        final SingleHashCode two = new SingleHashCode(&quot;2&quot;);</span>
+<span class="fc" id="L572">        final SingleHashCode three = new SingleHashCode(&quot;3&quot;);</span>
+
+<span class="fc" id="L574">        final LRUMap&lt;K, V&gt; map = new LRUMap&lt;K, V&gt;(3, 1.0f);</span>
+<span class="fc" id="L575">        map.put((K) one, (V) &quot;A&quot;);</span>
+<span class="fc" id="L576">        map.put((K) two, (V) &quot;B&quot;);</span>
+<span class="fc" id="L577">        map.put((K) three, (V) &quot;C&quot;);</span>
+
+<span class="fc" id="L579">        assertEquals(one, map.getEntry(0).key);</span>
+<span class="fc" id="L580">        assertEquals(two, map.getEntry(1).key);</span>
+<span class="fc" id="L581">        assertEquals(three, map.getEntry(2).key);</span>
+        try {
+<span class="nc" id="L583">            map.getEntry(-1);</span>
+<span class="nc" id="L584">            fail();</span>
+<span class="pc" id="L585">        } catch (final IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L587">            map.getEntry(3);</span>
+<span class="nc" id="L588">            fail();</span>
+<span class="pc" id="L589">        } catch (final IndexOutOfBoundsException ex) {}</span>
+<span class="fc" id="L590">    }</span>
+
+    public void testSynchronizedRemoveFromMapIterator() throws InterruptedException {
+
+<span class="fc" id="L594">        final LRUMap&lt;Object, Thread&gt; map = new LRUMap&lt;Object, Thread&gt;(10000);</span>
+
+<span class="fc" id="L596">        final Map&lt;Throwable, String&gt; exceptions = new HashMap&lt;Throwable, String&gt;();</span>
+<span class="fc" id="L597">        final ThreadGroup tg = new ThreadGroup(getName()) {</span>
+            @Override
+            public void uncaughtException(final Thread t, final Throwable e) {
+<span class="nc" id="L600">                exceptions.put(e, t.getName());</span>
+<span class="nc" id="L601">                super.uncaughtException(t, e);</span>
+<span class="nc" id="L602">            }</span>
+        };
+
+<span class="fc" id="L605">        final int[] counter = new int[1];</span>
+<span class="fc" id="L606">        counter[0] = 0;</span>
+<span class="fc" id="L607">        final Thread[] threads = new Thread[50];</span>
+<span class="fc bfc" id="L608" title="All 2 branches covered.">        for (int i = 0; i &lt; threads.length; ++i) {</span>
+<span class="fc" id="L609">            threads[i] = new Thread(tg, &quot;JUnit Thread &quot; + i) {</span>
+
+                @Override
+                public void run() {
+<span class="fc" id="L613">                    int i = 0;</span>
+                    try {
+<span class="fc" id="L615">                        synchronized (this) {</span>
+<span class="fc" id="L616">                            notifyAll();</span>
+<span class="fc" id="L617">                            wait();</span>
+                        }
+<span class="fc" id="L619">                        final Thread thread = Thread.currentThread();</span>
+<span class="pc bpc" id="L620" title="1 of 4 branches missed.">                        while (i &lt; 1000  &amp;&amp; !interrupted()) {</span>
+<span class="fc" id="L621">                            synchronized (map) {</span>
+<span class="fc" id="L622">                                map.put(thread.getName() + &quot;[&quot; + ++i + &quot;]&quot;, thread);</span>
+                            }
+                        }
+<span class="fc" id="L625">                        synchronized (map) {</span>
+<span class="fc bfc" id="L626" title="All 2 branches covered.">                            for (final MapIterator&lt;Object, Thread&gt; iter = map.mapIterator(); iter.hasNext();) {</span>
+<span class="fc" id="L627">                                iter.next();</span>
+<span class="fc bfc" id="L628" title="All 2 branches covered.">                                if (iter.getValue() == this) {</span>
+<span class="fc" id="L629">                                    iter.remove();</span>
+                                }
+                            }
+                        }
+<span class="nc" id="L633">                    } catch (final InterruptedException e) {</span>
+<span class="nc" id="L634">                        fail(&quot;Unexpected InterruptedException&quot;);</span>
+                    }
+<span class="pc bpc" id="L636" title="1 of 2 branches missed.">                    if (i &gt; 0) {</span>
+<span class="fc" id="L637">                        synchronized (counter) {</span>
+<span class="fc" id="L638">                            counter[0]++;</span>
+                        }
+                    }
+<span class="fc" id="L641">                }</span>
+
+            };
+        }
+
+<span class="fc bfc" id="L646" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L647">            synchronized (thread) {</span>
+<span class="fc" id="L648">                thread.start();</span>
+<span class="fc" id="L649">                thread.wait();</span>
+            }
+        }
+
+<span class="fc bfc" id="L653" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L654">            synchronized (thread) {</span>
+<span class="fc" id="L655">                thread.notifyAll();</span>
+            }
+        }
+
+<span class="fc" id="L659">        Thread.sleep(1000);</span>
+
+<span class="fc bfc" id="L661" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L662">            thread.interrupt();</span>
+        }
+<span class="fc bfc" id="L664" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L665">            synchronized (thread) {</span>
+<span class="fc" id="L666">                thread.join();</span>
+            }
+        }
+
+<span class="fc" id="L670">        assertEquals(&quot;Exceptions have been thrown: &quot; + exceptions, 0, exceptions.size());</span>
+<span class="fc" id="L671">        assertTrue(&quot;Each thread should have put at least 1 element into the map, but only &quot;</span>
+<span class="pc bpc" id="L672" title="1 of 2 branches missed.">                + counter[0] + &quot; did succeed&quot;, counter[0] &gt;= threads.length);</span>
+<span class="fc" id="L673">    }</span>
+
+    public void testSynchronizedRemoveFromEntrySet() throws InterruptedException {
+
+<span class="fc" id="L677">        final Map&lt;Object, Thread&gt; map = new LRUMap&lt;Object, Thread&gt;(10000);</span>
+
+<span class="fc" id="L679">        final Map&lt;Throwable, String&gt; exceptions = new HashMap&lt;Throwable, String&gt;();</span>
+<span class="fc" id="L680">        final ThreadGroup tg = new ThreadGroup(getName()) {</span>
+            @Override
+            public void uncaughtException(final Thread t, final Throwable e) {
+<span class="nc" id="L683">                exceptions.put(e, t.getName());</span>
+<span class="nc" id="L684">                super.uncaughtException(t, e);</span>
+<span class="nc" id="L685">            }</span>
+        };
+
+<span class="fc" id="L688">        final int[] counter = new int[1];</span>
+<span class="fc" id="L689">        counter[0] = 0;</span>
+<span class="fc" id="L690">        final Thread[] threads = new Thread[50];</span>
+<span class="fc bfc" id="L691" title="All 2 branches covered.">        for (int i = 0; i &lt; threads.length; ++i) {</span>
+<span class="fc" id="L692">            threads[i] = new Thread(tg, &quot;JUnit Thread &quot; + i) {</span>
+
+                @Override
+                public void run() {
+<span class="fc" id="L696">                    int i = 0;</span>
+                    try {
+<span class="fc" id="L698">                        synchronized (this) {</span>
+<span class="fc" id="L699">                            notifyAll();</span>
+<span class="fc" id="L700">                            wait();</span>
+                        }
+<span class="fc" id="L702">                        final Thread thread = Thread.currentThread();</span>
+<span class="pc bpc" id="L703" title="1 of 4 branches missed.">                        while (i &lt; 1000  &amp;&amp; !interrupted()) {</span>
+<span class="fc" id="L704">                            synchronized (map) {</span>
+<span class="fc" id="L705">                                map.put(thread.getName() + &quot;[&quot; + ++i + &quot;]&quot;, thread);</span>
+                            }
+                        }
+<span class="fc" id="L708">                        synchronized (map) {</span>
+<span class="fc bfc" id="L709" title="All 2 branches covered.">                            for (final Iterator&lt;Map.Entry&lt;Object, Thread&gt;&gt; iter = map.entrySet().iterator(); iter.hasNext();) {</span>
+<span class="fc" id="L710">                                final Map.Entry&lt;Object, Thread&gt; entry = iter.next();</span>
+<span class="fc bfc" id="L711" title="All 2 branches covered.">                                if (entry.getValue() == this) {</span>
+<span class="fc" id="L712">                                    iter.remove();</span>
+                                }
+                            }
+                        }
+<span class="nc" id="L716">                    } catch (final InterruptedException e) {</span>
+<span class="nc" id="L717">                        fail(&quot;Unexpected InterruptedException&quot;);</span>
+                    }
+<span class="pc bpc" id="L719" title="1 of 2 branches missed.">                    if (i &gt; 0) {</span>
+<span class="fc" id="L720">                        synchronized (counter) {</span>
+<span class="fc" id="L721">                            counter[0]++;</span>
+                        }
+                    }
+<span class="fc" id="L724">                }</span>
+
+            };
+        }
+
+<span class="fc bfc" id="L729" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L730">            synchronized (thread) {</span>
+<span class="fc" id="L731">                thread.start();</span>
+<span class="fc" id="L732">                thread.wait();</span>
+            }
+        }
+
+<span class="fc bfc" id="L736" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L737">            synchronized (thread) {</span>
+<span class="fc" id="L738">                thread.notifyAll();</span>
+            }
+        }
+
+<span class="fc" id="L742">        Thread.sleep(1000);</span>
+
+<span class="fc bfc" id="L744" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L745">            thread.interrupt();</span>
+        }
+<span class="fc bfc" id="L747" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L748">            synchronized (thread) {</span>
+<span class="fc" id="L749">                thread.join();</span>
+            }
+        }
+
+<span class="fc" id="L753">        assertEquals(&quot;Exceptions have been thrown: &quot; + exceptions, 0, exceptions.size());</span>
+<span class="fc" id="L754">        assertTrue(&quot;Each thread should have put at least 1 element into the map, but only &quot;</span>
+<span class="pc bpc" id="L755" title="1 of 2 branches missed.">                + counter[0] + &quot; did succeed&quot;, counter[0] &gt;= threads.length);</span>
+<span class="fc" id="L756">    }</span>
+
+    public void testSynchronizedRemoveFromKeySet() throws InterruptedException {
+
+<span class="fc" id="L760">        final Map&lt;Object, Thread&gt; map = new LRUMap&lt;Object, Thread&gt;(10000);</span>
+
+<span class="fc" id="L762">        final Map&lt;Throwable, String&gt; exceptions = new HashMap&lt;Throwable, String&gt;();</span>
+<span class="fc" id="L763">        final ThreadGroup tg = new ThreadGroup(getName()) {</span>
+            @Override
+            public void uncaughtException(final Thread t, final Throwable e) {
+<span class="nc" id="L766">                exceptions.put(e, t.getName());</span>
+<span class="nc" id="L767">                super.uncaughtException(t, e);</span>
+<span class="nc" id="L768">            }</span>
+        };
+
+<span class="fc" id="L771">        final int[] counter = new int[1];</span>
+<span class="fc" id="L772">        counter[0] = 0;</span>
+<span class="fc" id="L773">        final Thread[] threads = new Thread[50];</span>
+<span class="fc bfc" id="L774" title="All 2 branches covered.">        for (int i = 0; i &lt; threads.length; ++i) {</span>
+<span class="fc" id="L775">            threads[i] = new Thread(tg, &quot;JUnit Thread &quot; + i) {</span>
+
+                @Override
+                public void run() {
+<span class="fc" id="L779">                    int i = 0;</span>
+                    try {
+<span class="fc" id="L781">                        synchronized (this) {</span>
+<span class="fc" id="L782">                            notifyAll();</span>
+<span class="fc" id="L783">                            wait();</span>
+                        }
+<span class="fc" id="L785">                        final Thread thread = Thread.currentThread();</span>
+<span class="pc bpc" id="L786" title="1 of 4 branches missed.">                        while (i &lt; 1000  &amp;&amp; !interrupted()) {</span>
+<span class="fc" id="L787">                            synchronized (map) {</span>
+<span class="fc" id="L788">                                map.put(thread.getName() + &quot;[&quot; + ++i + &quot;]&quot;, thread);</span>
+                            }
+                        }
+<span class="fc" id="L791">                        synchronized (map) {</span>
+<span class="fc bfc" id="L792" title="All 2 branches covered.">                            for (final Iterator&lt;Object&gt; iter = map.keySet().iterator(); iter.hasNext();) {</span>
+<span class="fc" id="L793">                                final String name = (String) iter.next();</span>
+<span class="fc bfc" id="L794" title="All 2 branches covered.">                                if (name.substring(0, name.indexOf('[')).equals(getName())) {</span>
+<span class="fc" id="L795">                                    iter.remove();</span>
+                                }
+                            }
+                        }
+<span class="nc" id="L799">                    } catch (final InterruptedException e) {</span>
+<span class="nc" id="L800">                        fail(&quot;Unexpected InterruptedException&quot;);</span>
+                    }
+<span class="pc bpc" id="L802" title="1 of 2 branches missed.">                    if (i &gt; 0) {</span>
+<span class="fc" id="L803">                        synchronized (counter) {</span>
+<span class="fc" id="L804">                            counter[0]++;</span>
+                        }
+                    }
+<span class="fc" id="L807">                }</span>
+
+            };
+        }
+
+<span class="fc bfc" id="L812" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L813">            synchronized (thread) {</span>
+<span class="fc" id="L814">                thread.start();</span>
+<span class="fc" id="L815">                thread.wait();</span>
+            }
+        }
+
+<span class="fc bfc" id="L819" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L820">            synchronized (thread) {</span>
+<span class="fc" id="L821">                thread.notifyAll();</span>
+            }
+        }
+
+<span class="fc" id="L825">        Thread.sleep(1000);</span>
+
+<span class="fc bfc" id="L827" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L828">            thread.interrupt();</span>
+        }
+<span class="fc bfc" id="L830" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L831">            synchronized (thread) {</span>
+<span class="fc" id="L832">                thread.join();</span>
+            }
+        }
+
+<span class="fc" id="L836">        assertEquals(&quot;Exceptions have been thrown: &quot; + exceptions, 0, exceptions.size());</span>
+<span class="fc" id="L837">        assertTrue(&quot;Each thread should have put at least 1 element into the map, but only &quot;</span>
+<span class="pc bpc" id="L838" title="1 of 2 branches missed.">                + counter[0] + &quot; did succeed&quot;, counter[0] &gt;= threads.length);</span>
+<span class="fc" id="L839">    }</span>
+
+    public void testSynchronizedRemoveFromValues() throws InterruptedException {
+
+<span class="fc" id="L843">        final Map&lt;Object, Thread&gt; map = new LRUMap&lt;Object, Thread&gt;(10000);</span>
+
+<span class="fc" id="L845">        final Map&lt;Throwable, String&gt; exceptions = new HashMap&lt;Throwable, String&gt;();</span>
+<span class="fc" id="L846">        final ThreadGroup tg = new ThreadGroup(getName()) {</span>
+            @Override
+            public void uncaughtException(final Thread t, final Throwable e) {
+<span class="nc" id="L849">                exceptions.put(e, t.getName());</span>
+<span class="nc" id="L850">                super.uncaughtException(t, e);</span>
+<span class="nc" id="L851">            }</span>
+        };
+
+<span class="fc" id="L854">        final int[] counter = new int[1];</span>
+<span class="fc" id="L855">        counter[0] = 0;</span>
+<span class="fc" id="L856">        final Thread[] threads = new Thread[50];</span>
+<span class="fc bfc" id="L857" title="All 2 branches covered.">        for (int i = 0; i &lt; threads.length; ++i) {</span>
+<span class="fc" id="L858">            threads[i] = new Thread(tg, &quot;JUnit Thread &quot; + i) {</span>
+
+                @Override
+                public void run() {
+<span class="fc" id="L862">                    int i = 0;</span>
+                    try {
+<span class="fc" id="L864">                        synchronized (this) {</span>
+<span class="fc" id="L865">                            notifyAll();</span>
+<span class="fc" id="L866">                            wait();</span>
+                        }
+<span class="fc" id="L868">                        final Thread thread = Thread.currentThread();</span>
+<span class="pc bpc" id="L869" title="1 of 4 branches missed.">                        while (i &lt; 1000  &amp;&amp; !interrupted()) {</span>
+<span class="fc" id="L870">                            synchronized (map) {</span>
+<span class="fc" id="L871">                                map.put(thread.getName() + &quot;[&quot; + ++i + &quot;]&quot;, thread);</span>
+                            }
+                        }
+<span class="fc" id="L874">                        synchronized (map) {</span>
+<span class="fc bfc" id="L875" title="All 2 branches covered.">                            for (final Iterator&lt;Thread&gt; iter = map.values().iterator(); iter.hasNext();) {</span>
+<span class="fc bfc" id="L876" title="All 2 branches covered.">                                if (iter.next() == this) {</span>
+<span class="fc" id="L877">                                    iter.remove();</span>
+                                }
+                            }
+                        }
+<span class="nc" id="L881">                    } catch (final InterruptedException e) {</span>
+<span class="nc" id="L882">                        fail(&quot;Unexpected InterruptedException&quot;);</span>
+                    }
+<span class="pc bpc" id="L884" title="1 of 2 branches missed.">                    if (i &gt; 0) {</span>
+<span class="fc" id="L885">                        synchronized (counter) {</span>
+<span class="fc" id="L886">                            counter[0]++;</span>
+                        }
+                    }
+<span class="fc" id="L889">                }</span>
+
+            };
+        }
+
+<span class="fc bfc" id="L894" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L895">            synchronized (thread) {</span>
+<span class="fc" id="L896">                thread.start();</span>
+<span class="fc" id="L897">                thread.wait();</span>
+            }
+        }
+
+<span class="fc bfc" id="L901" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L902">            synchronized (thread) {</span>
+<span class="fc" id="L903">                thread.notifyAll();</span>
+            }
+        }
+
+<span class="fc" id="L907">        Thread.sleep(1000);</span>
+
+<span class="fc bfc" id="L909" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L910">            thread.interrupt();</span>
+        }
+<span class="fc bfc" id="L912" title="All 2 branches covered.">        for (final Thread thread : threads) {</span>
+<span class="fc" id="L913">            synchronized (thread) {</span>
+<span class="fc" id="L914">                thread.join();</span>
+            }
+        }
+
+<span class="fc" id="L918">        assertEquals(&quot;Exceptions have been thrown: &quot; + exceptions, 0, exceptions.size());</span>
+<span class="fc" id="L919">        assertTrue(&quot;Each thread should have put at least 1 element into the map, but only &quot;</span>
+<span class="pc bpc" id="L920" title="1 of 2 branches missed.">                + counter[0] + &quot; did succeed&quot;, counter[0] &gt;= threads.length);</span>
+<span class="fc" id="L921">    }</span>
+
+    @Override
+    public String getCompatibilityVersion() {
+<span class="fc" id="L925">        return &quot;4&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) map, &quot;src/test/resources/data/test/LRUMap.emptyCollection.version4.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) map, &quot;src/test/resources/data/test/LRUMap.fullCollection.version4.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

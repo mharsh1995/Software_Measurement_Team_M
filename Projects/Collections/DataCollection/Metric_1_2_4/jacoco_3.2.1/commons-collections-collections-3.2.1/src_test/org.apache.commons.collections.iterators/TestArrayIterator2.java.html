@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestArrayIterator2.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">TestArrayIterator2.java</span></div><h1>TestArrayIterator2.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+/**
+ * Tests the ArrayIterator with primitive type arrays.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Morgan Delagrange
+ * @author James Strachan
+ */
+public class TestArrayIterator2 extends AbstractTestIterator {
+
+<span class="fc" id="L35">    protected int[] testArray = { 2, 4, 6, 8 };</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L38" title="All 2 branches covered.">        return new TestSuite(TestArrayIterator2.class);</span>
+    }
+
+    public TestArrayIterator2(String testName) {
+<span class="fc" id="L42">        super(testName);</span>
+<span class="fc" id="L43">    }</span>
+
+    public Iterator makeEmptyIterator() {
+<span class="fc" id="L46">        return new ArrayIterator(new int[0]);</span>
+    }
+
+    public Iterator makeFullIterator() {
+<span class="fc" id="L50">        return new ArrayIterator(testArray);</span>
+    }
+
+    /*
+     * We use these &lt;code&gt;makeArrayIterator&lt;/code&gt; factory methods instead of
+     * directly calling the constructor so as to allow subclasses
+     * (e.g. TestArrayListIterator2) to use the existing test code.
+     * 
+     * @return ArrayIterator
+     */
+    public ArrayIterator makeArrayIterator() {
+<span class="fc" id="L61">        return (ArrayIterator) makeEmptyIterator();</span>
+    }
+    public ArrayIterator makeArrayIterator(Object array) {
+<span class="fc" id="L64">        return new ArrayIterator(array);</span>
+    }
+    public ArrayIterator makeArrayIterator(Object array, int index) {
+<span class="fc" id="L67">        return new ArrayIterator(array, index);</span>
+    }
+    public ArrayIterator makeArrayIterator(Object array, int start, int end) {
+<span class="fc" id="L70">        return new ArrayIterator(array, start, end);</span>
+    }
+
+    public boolean supportsRemove() {
+<span class="fc" id="L74">        return false;</span>
+    }
+
+
+    public void testIterator() {
+<span class="fc" id="L79">        Iterator iter = (Iterator) makeFullIterator();</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (int i = 0; i &lt; testArray.length; i++) {</span>
+<span class="fc" id="L81">            Integer testValue = new Integer(testArray[i]);</span>
+<span class="fc" id="L82">            Number iterValue = (Number) iter.next();</span>
+
+<span class="fc" id="L84">            assertEquals(&quot;Iteration value is correct&quot;, testValue, iterValue);</span>
+        }
+
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        assertTrue(&quot;Iterator should now be empty&quot;, !iter.hasNext());</span>
+
+        try {
+<span class="nc" id="L90">            Object testValue = iter.next();</span>
+<span class="pc" id="L91">        } catch (Exception e) {</span>
+<span class="fc" id="L92">            assertTrue(</span>
+<span class="fc" id="L93">                &quot;NoSuchElementException must be thrown&quot;,</span>
+<span class="fc" id="L94">                e.getClass().equals((new NoSuchElementException()).getClass()));</span>
+        }
+<span class="fc" id="L96">    }</span>
+
+    // proves that an ArrayIterator set with the constructor has the same number of elements
+    // as an ArrayIterator set with setArray(Object) 
+    public void testSetArray() {
+<span class="fc" id="L101">        Iterator iter1 = makeArrayIterator(testArray);</span>
+<span class="fc" id="L102">        int count1 = 0;</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        while (iter1.hasNext()) {</span>
+<span class="fc" id="L104">            ++count1;</span>
+<span class="fc" id="L105">            iter1.next();</span>
+        }
+
+<span class="fc" id="L108">        assertEquals(&quot;the count should be right using the constructor&quot;, count1, testArray.length);</span>
+
+<span class="fc" id="L110">        ArrayIterator iter2 = makeArrayIterator();</span>
+<span class="fc" id="L111">        iter2.setArray(testArray);</span>
+<span class="fc" id="L112">        int count2 = 0;</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        while (iter2.hasNext()) {</span>
+<span class="fc" id="L114">            ++count2;</span>
+<span class="fc" id="L115">            iter2.next();</span>
+        }
+
+<span class="fc" id="L118">        assertEquals(&quot;the count should be right using setArray(Object)&quot;, count2, testArray.length);</span>
+<span class="fc" id="L119">    }</span>
+
+    public void testIndexedArray() {
+<span class="fc" id="L122">        Iterator iter = makeArrayIterator(testArray, 2);</span>
+<span class="fc" id="L123">        int count = 0;</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L125">            ++count;</span>
+<span class="fc" id="L126">            iter.next();</span>
+        }
+
+<span class="fc" id="L129">        assertEquals(&quot;the count should be right using ArrayIterator(Object,2) &quot;, count, testArray.length - 2);</span>
+
+<span class="fc" id="L131">        iter = makeArrayIterator(testArray, 1, testArray.length - 1);</span>
+<span class="fc" id="L132">        count = 0;</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L134">            ++count;</span>
+<span class="fc" id="L135">            iter.next();</span>
+        }
+
+<span class="fc" id="L138">        assertEquals(</span>
+<span class="fc" id="L139">            &quot;the count should be right using ArrayIterator(Object,1,&quot; + (testArray.length - 1) + &quot;) &quot;,</span>
+<span class="fc" id="L140">            count,</span>
+<span class="fc" id="L141">            testArray.length - 2);</span>
+
+        try {
+<span class="nc" id="L144">            iter = makeArrayIterator(testArray, -1);</span>
+<span class="nc" id="L145">            fail(&quot;new ArrayIterator(Object,-1) should throw an ArrayIndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L146">        } catch (ArrayIndexOutOfBoundsException aioobe) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L151">            iter = makeArrayIterator(testArray, testArray.length + 1);</span>
+<span class="nc" id="L152">            fail(&quot;new ArrayIterator(Object,length+1) should throw an ArrayIndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L153">        } catch (ArrayIndexOutOfBoundsException aioobe) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L158">            iter = makeArrayIterator(testArray, 0, -1);</span>
+<span class="nc" id="L159">            fail(&quot;new ArrayIterator(Object,0,-1) should throw an ArrayIndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L160">        } catch (ArrayIndexOutOfBoundsException aioobe) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L165">            iter = makeArrayIterator(testArray, 0, testArray.length + 1);</span>
+<span class="nc" id="L166">            fail(&quot;new ArrayIterator(Object,0,length+1) should throw an ArrayIndexOutOfBoundsException&quot;);</span>
+<span class="pc" id="L167">        } catch (ArrayIndexOutOfBoundsException aioobe) {</span>
+            // expected
+        }
+
+        try {
+<span class="fc" id="L172">            iter = makeArrayIterator(testArray, 1, 1);</span>
+            // expected not to fail
+<span class="pc" id="L174">        } catch (IllegalArgumentException iae) {</span>
+            // MODIFIED: an iterator over a zero-length section of array
+            //  should be perfectly legal behavior
+<span class="nc" id="L177">            fail(&quot;new ArrayIterator(Object,1,1) should NOT throw an IllegalArgumentException&quot;);</span>
+        }
+
+        try {
+<span class="nc" id="L181">            iter = makeArrayIterator(testArray, testArray.length - 1, testArray.length - 2);</span>
+<span class="nc" id="L182">            fail(&quot;new ArrayIterator(Object,length-2,length-1) should throw an IllegalArgumentException&quot;);</span>
+<span class="pc" id="L183">        } catch (IllegalArgumentException iae) {</span>
+            // expected
+        }
+<span class="fc" id="L186">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

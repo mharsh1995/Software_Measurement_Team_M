@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestUnmodifiableMapEntry.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.keyvalue</a> &gt; <span class="el_source">TestUnmodifiableMapEntry.java</span></div><h1>TestUnmodifiableMapEntry.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.keyvalue;
+
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.KeyValue;
+import org.apache.commons.collections.Unmodifiable;
+
+/**
+ * Test the UnmodifiableMapEntry class.
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Neil O'Toole
+ */
+public class TestUnmodifiableMapEntry extends AbstractTestMapEntry {
+
+    public TestUnmodifiableMapEntry(String testName) {
+<span class="fc" id="L38">        super(testName);</span>
+
+<span class="fc" id="L40">    }</span>
+
+    public static void main(String[] args) {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        junit.textui.TestRunner.run(TestUnmodifiableMapEntry.class);</span>
+<span class="nc" id="L44">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L47" title="All 2 branches covered.">        return new TestSuite(TestUnmodifiableMapEntry.class);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Make an instance of Map.Entry with the default (null) key and value.
+     * Subclasses should override this method to return a Map.Entry
+     * of the type being tested.
+     */
+    public Map.Entry makeMapEntry() {
+<span class="fc" id="L57">        return new UnmodifiableMapEntry(null, null);</span>
+    }
+
+    /**
+     * Make an instance of Map.Entry with the specified key and value.
+     * Subclasses should override this method to return a Map.Entry
+     * of the type being tested.
+     */
+    public Map.Entry makeMapEntry(Object key, Object value) {
+<span class="fc" id="L66">        return new UnmodifiableMapEntry(key, value);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Subclasses should override this method.
+     *
+     */
+    public void testConstructors() {
+        // 1. test key-value constructor
+<span class="fc" id="L76">        Map.Entry entry = new UnmodifiableMapEntry(key, value);</span>
+<span class="fc" id="L77">        assertSame(key, entry.getKey());</span>
+<span class="fc" id="L78">        assertSame(value, entry.getValue());</span>
+
+        // 2. test pair constructor
+<span class="fc" id="L81">        KeyValue pair = new DefaultKeyValue(key, value);</span>
+<span class="fc" id="L82">        entry = new UnmodifiableMapEntry(pair);</span>
+<span class="fc" id="L83">        assertSame(key, entry.getKey());</span>
+<span class="fc" id="L84">        assertSame(value, entry.getValue());</span>
+
+        // 3. test copy constructor
+<span class="fc" id="L87">        Map.Entry entry2 = new UnmodifiableMapEntry(entry);</span>
+<span class="fc" id="L88">        assertSame(key, entry2.getKey());</span>
+<span class="fc" id="L89">        assertSame(value, entry2.getValue());</span>
+
+<span class="fc" id="L91">        assertTrue(entry instanceof Unmodifiable);</span>
+<span class="fc" id="L92">    }</span>
+
+    public void testAccessorsAndMutators() {
+<span class="fc" id="L95">        Map.Entry entry = makeMapEntry(key, value);</span>
+
+<span class="fc" id="L97">        assertSame(key, entry.getKey());</span>
+<span class="fc" id="L98">        assertSame(value, entry.getValue());</span>
+
+        // check that null doesn't do anything funny
+<span class="fc" id="L101">        entry = makeMapEntry(null, null);</span>
+<span class="fc" id="L102">        assertSame(null, entry.getKey());</span>
+<span class="fc" id="L103">        assertSame(null, entry.getValue());</span>
+<span class="fc" id="L104">    }</span>
+
+    public void testSelfReferenceHandling() {
+        // block
+<span class="fc" id="L108">    }</span>
+
+    public void testUnmodifiable() {
+<span class="fc" id="L111">        Map.Entry entry = makeMapEntry();</span>
+        try {
+<span class="nc" id="L113">            entry.setValue(null);</span>
+<span class="nc" id="L114">            fail();</span>
+
+<span class="pc" id="L116">        } catch (UnsupportedOperationException ex) {}</span>
+<span class="fc" id="L117">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestBufferUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestBufferUtils.java</span></div><h1>TestBufferUtils.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.buffer.PredicatedBuffer;
+
+/**
+ * Tests for BufferUtils.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Unknown
+ */
+public class TestBufferUtils extends BulkTest {
+
+    public TestBufferUtils(String name) {
+<span class="fc" id="L33">        super(name);</span>
+<span class="fc" id="L34">    }</span>
+
+
+    public static Test suite() {
+<span class="pc bfc" id="L38" title="All 2 branches covered.">        return BulkTest.makeSuite(TestBufferUtils.class);</span>
+    }
+
+    public void testNothing() {
+<span class="fc" id="L42">    }</span>
+
+    public void testpredicatedBuffer() {
+<span class="fc" id="L45">        Predicate predicate = new Predicate() {</span>
+            public boolean evaluate(Object o) {
+<span class="nc" id="L47">                return o instanceof String;</span>
+            }
+        };
+<span class="fc" id="L50">        Buffer buffer = BufferUtils.predicatedBuffer(new ArrayStack(), predicate);</span>
+<span class="fc" id="L51">        assertTrue(&quot;returned object should be a PredicatedBuffer&quot;,</span>
+<span class="fc" id="L52">            buffer instanceof PredicatedBuffer);</span>
+        try {
+<span class="nc" id="L54">            buffer = BufferUtils.predicatedBuffer(new ArrayStack(), null);</span>
+<span class="nc" id="L55">            fail(&quot;Expecting IllegalArgumentException for null predicate.&quot;);</span>
+<span class="pc" id="L56">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L60">            buffer = BufferUtils.predicatedBuffer(null, predicate);</span>
+<span class="nc" id="L61">            fail(&quot;Expecting IllegalArgumentException for null buffer.&quot;);</span>
+<span class="pc" id="L62">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L65">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

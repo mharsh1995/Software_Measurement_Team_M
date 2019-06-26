@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TransformedListTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.list</a> &gt; <span class="el_source">TransformedListTest.java</span></div><h1>TransformedListTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.list;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ListIterator;
+
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.collections4.collection.TransformedCollectionTest;
+
+/**
+ * Extension of {@link AbstractListTest} for exercising the {@link TransformedList}
+ * implementation.
+ *
+ * @since 3.0
+ * @version $Id$
+ */
+public class TransformedListTest&lt;E&gt; extends AbstractListTest&lt;E&gt; {
+
+    public TransformedListTest(final String testName) {
+<span class="fc" id="L37">        super(testName);</span>
+<span class="fc" id="L38">    }</span>
+
+    @Override
+    public List&lt;E&gt; makeConfirmedCollection() {
+<span class="fc" id="L42">        return new ArrayList&lt;E&gt;();</span>
+    }
+
+    @Override
+    public List&lt;E&gt; makeConfirmedFullCollection() {
+<span class="fc" id="L47">        final List&lt;E&gt; list = new ArrayList&lt;E&gt;();</span>
+<span class="fc" id="L48">        list.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L49">        return list;</span>
+    }
+
+    @Override
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public List&lt;E&gt; makeObject() {
+<span class="fc" id="L55">        return TransformedList.transformingList(new ArrayList&lt;E&gt;(), (Transformer&lt;E, E&gt;) TransformedCollectionTest.NOOP_TRANSFORMER);</span>
+    }
+
+    @Override
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public List&lt;E&gt; makeFullCollection() {
+<span class="fc" id="L61">        final List&lt;E&gt; list = new ArrayList&lt;E&gt;();</span>
+<span class="fc" id="L62">        list.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L63">        return TransformedList.transformingList(list, (Transformer&lt;E, E&gt;) TransformedCollectionTest.NOOP_TRANSFORMER);</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testTransformedList() {
+<span class="fc" id="L68">        final List&lt;E&gt; list = TransformedList.transformingList(new ArrayList&lt;E&gt;(), (Transformer&lt;E, E&gt;) TransformedCollectionTest.STRING_TO_INTEGER_TRANSFORMER);</span>
+<span class="fc" id="L69">        assertEquals(0, list.size());</span>
+<span class="fc" id="L70">        final E[] els = (E[]) new Object[] {&quot;1&quot;, &quot;3&quot;, &quot;5&quot;, &quot;7&quot;, &quot;2&quot;, &quot;4&quot;, &quot;6&quot;};</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        for (int i = 0; i &lt; els.length; i++) {</span>
+<span class="fc" id="L72">            list.add(els[i]);</span>
+<span class="fc" id="L73">            assertEquals(i + 1, list.size());</span>
+<span class="fc" id="L74">            assertEquals(true, list.contains(Integer.valueOf((String) els[i])));</span>
+<span class="fc" id="L75">            assertEquals(false, list.contains(els[i]));</span>
+        }
+
+<span class="fc" id="L78">        assertEquals(false, list.remove(els[0]));</span>
+<span class="fc" id="L79">        assertEquals(true, list.remove(Integer.valueOf((String) els[0])));</span>
+
+<span class="fc" id="L81">        list.clear();</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        for (int i = 0; i &lt; els.length; i++) {</span>
+<span class="fc" id="L83">            list.add(0, els[i]);</span>
+<span class="fc" id="L84">            assertEquals(i + 1, list.size());</span>
+<span class="fc" id="L85">            assertEquals(Integer.valueOf((String) els[i]), list.get(0));</span>
+        }
+
+<span class="fc" id="L88">        list.set(0, (E) &quot;22&quot;);</span>
+<span class="fc" id="L89">        assertEquals(Integer.valueOf(22), list.get(0));</span>
+
+<span class="fc" id="L91">        final ListIterator&lt;E&gt; it = list.listIterator();</span>
+<span class="fc" id="L92">        it.next();</span>
+<span class="fc" id="L93">        it.set((E) &quot;33&quot;);</span>
+<span class="fc" id="L94">        assertEquals(Integer.valueOf(33), list.get(0));</span>
+<span class="fc" id="L95">        it.add((E) &quot;44&quot;);</span>
+<span class="fc" id="L96">        assertEquals(Integer.valueOf(44), list.get(1));</span>
+
+<span class="fc" id="L98">        final List&lt;E&gt; adds = new ArrayList&lt;E&gt;();</span>
+<span class="fc" id="L99">        adds.add((E) &quot;1&quot;);</span>
+<span class="fc" id="L100">        adds.add((E) &quot;2&quot;);</span>
+<span class="fc" id="L101">        list.clear();</span>
+<span class="fc" id="L102">        list.addAll(adds);</span>
+<span class="fc" id="L103">        assertEquals(Integer.valueOf(1), list.get(0));</span>
+<span class="fc" id="L104">        assertEquals(Integer.valueOf(2), list.get(1));</span>
+
+<span class="fc" id="L106">        adds.clear();</span>
+<span class="fc" id="L107">        adds.add((E) &quot;3&quot;);</span>
+<span class="fc" id="L108">        list.addAll(1, adds);</span>
+<span class="fc" id="L109">        assertEquals(Integer.valueOf(1), list.get(0));</span>
+<span class="fc" id="L110">        assertEquals(Integer.valueOf(3), list.get(1));</span>
+<span class="fc" id="L111">        assertEquals(Integer.valueOf(2), list.get(2));</span>
+<span class="fc" id="L112">    }</span>
+
+    public void testTransformedList_decorateTransform() {
+<span class="fc" id="L115">        final List&lt;Object&gt; originalList = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L116">        final Object[] els = new Object[] {&quot;1&quot;, &quot;3&quot;, &quot;5&quot;, &quot;7&quot;, &quot;2&quot;, &quot;4&quot;, &quot;6&quot;};</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        for (final Object el : els) {</span>
+<span class="fc" id="L118">            originalList.add(el);</span>
+        }
+<span class="fc" id="L120">        final List&lt;?&gt; list = TransformedList.transformedList(originalList, TransformedCollectionTest.STRING_TO_INTEGER_TRANSFORMER);</span>
+<span class="fc" id="L121">        assertEquals(els.length, list.size());</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        for (final Object el : els) {</span>
+<span class="fc" id="L123">            assertEquals(true, list.contains(Integer.valueOf((String) el)));</span>
+<span class="fc" id="L124">            assertEquals(false, list.contains(el));</span>
+        }
+
+<span class="fc" id="L127">        assertEquals(false, list.remove(els[0]));</span>
+<span class="fc" id="L128">        assertEquals(true, list.remove(Integer.valueOf((String) els[0])));</span>
+<span class="fc" id="L129">    }</span>
+
+    @Override
+    public String getCompatibilityVersion() {
+<span class="fc" id="L133">        return &quot;4&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) getCollection(), &quot;src/test/resources/data/test/TransformedList.emptyCollection.version4.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) getCollection(), &quot;src/test/resources/data/test/TransformedList.fullCollection.version4.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

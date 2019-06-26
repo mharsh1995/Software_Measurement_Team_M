@@ -1,0 +1,661 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractSortedBidiMapTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.bidimap</a> &gt; <span class="el_source">AbstractSortedBidiMapTest.java</span></div><h1>AbstractSortedBidiMapTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.bidimap;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.apache.commons.collections4.BulkTest;
+import org.apache.commons.collections4.SortedBidiMap;
+import org.apache.commons.collections4.map.AbstractSortedMapTest;
+
+/**
+ * Abstract test class for {@link SortedBidiMap} methods and contracts.
+ *
+ * @version $Id$
+ */
+public abstract class AbstractSortedBidiMapTest&lt;K extends Comparable&lt;K&gt;, V extends Comparable&lt;V&gt;&gt; extends AbstractOrderedBidiMapTest&lt;K, V&gt; {
+
+    protected List&lt;K&gt; sortedKeys;
+<span class="fc" id="L42">    protected List&lt;V&gt; sortedValues = new ArrayList&lt;V&gt;();</span>
+<span class="fc" id="L43">    protected SortedSet&lt;V&gt; sortedNewValues = new TreeSet&lt;V&gt;();</span>
+
+    public AbstractSortedBidiMapTest(final String testName) {
+<span class="fc" id="L46">        super(testName);</span>
+<span class="fc" id="L47">        sortedKeys = getAsList(getSampleKeys());</span>
+<span class="fc" id="L48">        Collections.sort(sortedKeys);</span>
+<span class="fc" id="L49">        sortedKeys = Collections.unmodifiableList(sortedKeys);</span>
+
+<span class="fc" id="L51">        final Map&lt;K, V&gt; map = new TreeMap&lt;K, V&gt;();</span>
+<span class="fc" id="L52">        addSampleMappings(map);</span>
+
+<span class="fc" id="L54">        sortedValues.addAll(map.values());</span>
+<span class="fc" id="L55">        sortedValues = Collections.unmodifiableList(sortedValues);</span>
+
+<span class="fc" id="L57">        sortedNewValues.addAll(this.&lt;V&gt; getAsList(getNewSampleValues()));</span>
+<span class="fc" id="L58">    }</span>
+
+//    public AbstractTestSortedBidiMap() {
+//        super();
+//        sortedKeys.addAll(Arrays.asList(getSampleValues()));
+//        Collections.sort(sortedKeys);
+//        sortedKeys = Collections.unmodifiableList(sortedKeys);
+//
+//        Map map = new TreeMap();
+//        for (int i = 0; i &lt; getSampleKeys().length; i++) {
+//            map.put(getSampleValues()[i], getSampleKeys()[i]);
+//        }
+//        sortedValues.addAll(map.values());
+//        sortedValues = Collections.unmodifiableList(sortedValues);
+//
+//        sortedNewValues.addAll(Arrays.asList(getNewSampleValues()));
+//    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public boolean isAllowNullKey() {
+<span class="fc" id="L79">        return false;</span>
+    }
+
+    @Override
+    public boolean isAllowNullValue() {
+<span class="fc" id="L84">        return false;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract SortedBidiMap&lt;K, V&gt; makeObject();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SortedBidiMap&lt;K, V&gt; makeFullMap() {
+<span class="fc" id="L98">        return (SortedBidiMap&lt;K, V&gt;) super.makeFullMap();</span>
+    }
+
+    @Override
+    public SortedMap&lt;K, V&gt; makeConfirmedMap() {
+<span class="fc" id="L103">        return new TreeMap&lt;K, V&gt;();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    public void testBidiHeadMapContains() {
+        // extra test as other tests get complex
+<span class="fc" id="L110">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L111">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L112">        final K first = it.next();</span>
+<span class="fc" id="L113">        final K toKey = it.next();</span>
+<span class="fc" id="L114">        final K second = it.next();</span>
+<span class="fc" id="L115">        final V firstValue = sm.get(first);</span>
+<span class="fc" id="L116">        final V secondValue = sm.get(second);</span>
+
+<span class="fc" id="L118">        final SortedMap&lt;K, V&gt; head = sm.headMap(toKey);</span>
+<span class="fc" id="L119">        assertEquals(1, head.size());</span>
+<span class="fc" id="L120">        assertEquals(true, sm.containsKey(first));</span>
+<span class="fc" id="L121">        assertEquals(true, head.containsKey(first));</span>
+<span class="fc" id="L122">        assertEquals(true, sm.containsValue(firstValue));</span>
+<span class="fc" id="L123">        assertEquals(true, head.containsValue(firstValue));</span>
+<span class="fc" id="L124">        assertEquals(true, sm.containsKey(second));</span>
+<span class="fc" id="L125">        assertEquals(false, head.containsKey(second));</span>
+<span class="fc" id="L126">        assertEquals(true, sm.containsValue(secondValue));</span>
+<span class="fc" id="L127">        assertEquals(false, head.containsValue(secondValue));</span>
+<span class="fc" id="L128">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiClearByHeadMap() {
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L133">            return;</span>
+        }
+
+        // extra test as other tests get complex
+<span class="fc" id="L137">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L138">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L139">        final K first = it.next();</span>
+<span class="fc" id="L140">        final K second = it.next();</span>
+<span class="fc" id="L141">        final K toKey = it.next();</span>
+
+<span class="fc" id="L143">        final V firstValue = sm.get(first);</span>
+<span class="fc" id="L144">        final V secondValue = sm.get(second);</span>
+<span class="fc" id="L145">        final V toKeyValue = sm.get(toKey);</span>
+
+<span class="fc" id="L147">        final SortedMap&lt;K, V&gt; sub = sm.headMap(toKey);</span>
+<span class="fc" id="L148">        final int size = sm.size();</span>
+<span class="fc" id="L149">        assertEquals(2, sub.size());</span>
+<span class="fc" id="L150">        sub.clear();</span>
+<span class="fc" id="L151">        assertEquals(0, sub.size());</span>
+<span class="fc" id="L152">        assertEquals(size - 2, sm.size());</span>
+<span class="fc" id="L153">        assertEquals(size - 2, sm.inverseBidiMap().size());</span>
+
+<span class="fc" id="L155">        assertEquals(false, sm.containsKey(first));</span>
+<span class="fc" id="L156">        assertEquals(false, sm.containsValue(firstValue));</span>
+<span class="fc" id="L157">        assertEquals(false, sm.inverseBidiMap().containsKey(firstValue));</span>
+<span class="fc" id="L158">        assertEquals(false, sm.inverseBidiMap().containsValue(first));</span>
+<span class="fc" id="L159">        assertEquals(false, sub.containsKey(first));</span>
+<span class="fc" id="L160">        assertEquals(false, sub.containsValue(firstValue));</span>
+
+<span class="fc" id="L162">        assertEquals(false, sm.containsKey(second));</span>
+<span class="fc" id="L163">        assertEquals(false, sm.containsValue(secondValue));</span>
+<span class="fc" id="L164">        assertEquals(false, sm.inverseBidiMap().containsKey(secondValue));</span>
+<span class="fc" id="L165">        assertEquals(false, sm.inverseBidiMap().containsValue(second));</span>
+<span class="fc" id="L166">        assertEquals(false, sub.containsKey(second));</span>
+<span class="fc" id="L167">        assertEquals(false, sub.containsValue(secondValue));</span>
+
+<span class="fc" id="L169">        assertEquals(true, sm.containsKey(toKey));</span>
+<span class="fc" id="L170">        assertEquals(true, sm.containsValue(toKeyValue));</span>
+<span class="fc" id="L171">        assertEquals(true, sm.inverseBidiMap().containsKey(toKeyValue));</span>
+<span class="fc" id="L172">        assertEquals(true, sm.inverseBidiMap().containsValue(toKey));</span>
+<span class="fc" id="L173">        assertEquals(false, sub.containsKey(toKey));</span>
+<span class="fc" id="L174">        assertEquals(false, sub.containsValue(toKeyValue));</span>
+<span class="fc" id="L175">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiRemoveByHeadMap() {
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L180">            return;</span>
+        }
+
+        // extra test as other tests get complex
+<span class="fc" id="L184">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L185">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L186">        final K first = it.next();</span>
+<span class="fc" id="L187">        final K second = it.next();</span>
+<span class="fc" id="L188">        final K toKey = it.next();</span>
+
+<span class="fc" id="L190">        final int size = sm.size();</span>
+<span class="fc" id="L191">        final SortedMap&lt;K, V&gt; sub = sm.headMap(toKey);</span>
+<span class="fc" id="L192">        assertEquals(2, sub.size());</span>
+<span class="fc" id="L193">        assertEquals(true, sm.containsKey(first));</span>
+<span class="fc" id="L194">        assertEquals(true, sub.containsKey(first));</span>
+<span class="fc" id="L195">        assertEquals(true, sm.containsKey(second));</span>
+<span class="fc" id="L196">        assertEquals(true, sub.containsKey(second));</span>
+
+<span class="fc" id="L198">        final V firstValue = sub.remove(first);</span>
+<span class="fc" id="L199">        assertEquals(1, sub.size());</span>
+<span class="fc" id="L200">        assertEquals(size - 1, sm.size());</span>
+<span class="fc" id="L201">        assertEquals(size - 1, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L202">        assertEquals(false, sm.containsKey(first));</span>
+<span class="fc" id="L203">        assertEquals(false, sm.containsValue(firstValue));</span>
+<span class="fc" id="L204">        assertEquals(false, sm.inverseBidiMap().containsKey(firstValue));</span>
+<span class="fc" id="L205">        assertEquals(false, sm.inverseBidiMap().containsValue(first));</span>
+<span class="fc" id="L206">        assertEquals(false, sub.containsKey(first));</span>
+<span class="fc" id="L207">        assertEquals(false, sub.containsValue(firstValue));</span>
+
+<span class="fc" id="L209">        final V secondValue = sub.remove(second);</span>
+<span class="fc" id="L210">        assertEquals(0, sub.size());</span>
+<span class="fc" id="L211">        assertEquals(size - 2, sm.size());</span>
+<span class="fc" id="L212">        assertEquals(size - 2, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L213">        assertEquals(false, sm.containsKey(second));</span>
+<span class="fc" id="L214">        assertEquals(false, sm.containsValue(secondValue));</span>
+<span class="fc" id="L215">        assertEquals(false, sm.inverseBidiMap().containsKey(secondValue));</span>
+<span class="fc" id="L216">        assertEquals(false, sm.inverseBidiMap().containsValue(second));</span>
+<span class="fc" id="L217">        assertEquals(false, sub.containsKey(second));</span>
+<span class="fc" id="L218">        assertEquals(false, sub.containsValue(secondValue));</span>
+<span class="fc" id="L219">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiRemoveByHeadMapEntrySet() {
+<span class="fc bfc" id="L223" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L224">            return;</span>
+        }
+
+        // extra test as other tests get complex
+<span class="fc" id="L228">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L229">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L230">        final K first = it.next();</span>
+<span class="fc" id="L231">        final K second = it.next();</span>
+<span class="fc" id="L232">        final K toKey = it.next();</span>
+
+<span class="fc" id="L234">        final int size = sm.size();</span>
+<span class="fc" id="L235">        final SortedMap&lt;K, V&gt; sub = sm.headMap(toKey);</span>
+<span class="fc" id="L236">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; set = sub.entrySet();</span>
+<span class="fc" id="L237">        assertEquals(2, sub.size());</span>
+<span class="fc" id="L238">        assertEquals(2, set.size());</span>
+
+<span class="fc" id="L240">        final Iterator&lt;Map.Entry&lt;K, V&gt;&gt; it2 = set.iterator();</span>
+<span class="fc" id="L241">        final Map.Entry&lt;K, V&gt; firstEntry = cloneMapEntry(it2.next());</span>
+<span class="fc" id="L242">        final Map.Entry&lt;K, V&gt; secondEntry = cloneMapEntry(it2.next());</span>
+<span class="fc" id="L243">        assertEquals(true, sm.containsKey(first));</span>
+<span class="fc" id="L244">        assertEquals(true, sub.containsKey(first));</span>
+<span class="fc" id="L245">        assertEquals(true, set.contains(firstEntry));</span>
+<span class="fc" id="L246">        assertEquals(true, sm.containsKey(second));</span>
+<span class="fc" id="L247">        assertEquals(true, sub.containsKey(second));</span>
+<span class="fc" id="L248">        assertEquals(true, set.contains(secondEntry));</span>
+
+<span class="fc" id="L250">        set.remove(firstEntry);</span>
+<span class="fc" id="L251">        assertEquals(1, sub.size());</span>
+<span class="fc" id="L252">        assertEquals(size - 1, sm.size());</span>
+<span class="fc" id="L253">        assertEquals(size - 1, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L254">        assertEquals(false, sm.containsKey(firstEntry.getKey()));</span>
+<span class="fc" id="L255">        assertEquals(false, sm.containsValue(firstEntry.getValue()));</span>
+<span class="fc" id="L256">        assertEquals(false, sm.inverseBidiMap().containsKey(firstEntry.getValue()));</span>
+<span class="fc" id="L257">        assertEquals(false, sm.inverseBidiMap().containsValue(firstEntry.getKey()));</span>
+<span class="fc" id="L258">        assertEquals(false, sub.containsKey(firstEntry.getKey()));</span>
+<span class="fc" id="L259">        assertEquals(false, sub.containsValue(firstEntry.getValue()));</span>
+<span class="fc" id="L260">        assertEquals(false, set.contains(firstEntry));</span>
+
+<span class="fc" id="L262">        set.remove(secondEntry);</span>
+<span class="fc" id="L263">        assertEquals(0, sub.size());</span>
+<span class="fc" id="L264">        assertEquals(size - 2, sm.size());</span>
+<span class="fc" id="L265">        assertEquals(size - 2, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L266">        assertEquals(false, sm.containsKey(secondEntry.getKey()));</span>
+<span class="fc" id="L267">        assertEquals(false, sm.containsValue(secondEntry.getValue()));</span>
+<span class="fc" id="L268">        assertEquals(false, sm.inverseBidiMap().containsKey(secondEntry.getValue()));</span>
+<span class="fc" id="L269">        assertEquals(false, sm.inverseBidiMap().containsValue(secondEntry.getKey()));</span>
+<span class="fc" id="L270">        assertEquals(false, sub.containsKey(secondEntry.getKey()));</span>
+<span class="fc" id="L271">        assertEquals(false, sub.containsValue(secondEntry.getValue()));</span>
+<span class="fc" id="L272">        assertEquals(false, set.contains(secondEntry));</span>
+<span class="fc" id="L273">    }</span>
+
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    public void testBidiTailMapContains() {
+        // extra test as other tests get complex
+<span class="fc" id="L279">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L280">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L281">        final K first = it.next();</span>
+<span class="fc" id="L282">        final K fromKey = it.next();</span>
+<span class="fc" id="L283">        final K second = it.next();</span>
+<span class="fc" id="L284">        final V firstValue = sm.get(first);</span>
+<span class="fc" id="L285">        final V fromKeyValue = sm.get(fromKey);</span>
+<span class="fc" id="L286">        final V secondValue = sm.get(second);</span>
+
+<span class="fc" id="L288">        final SortedMap&lt;K, V&gt; sub = sm.tailMap(fromKey);</span>
+<span class="fc" id="L289">        assertEquals(sm.size() - 1, sub.size());</span>
+<span class="fc" id="L290">        assertEquals(true, sm.containsKey(first));</span>
+<span class="fc" id="L291">        assertEquals(false, sub.containsKey(first));</span>
+<span class="fc" id="L292">        assertEquals(true, sm.containsValue(firstValue));</span>
+<span class="fc" id="L293">        assertEquals(false, sub.containsValue(firstValue));</span>
+<span class="fc" id="L294">        assertEquals(true, sm.containsKey(fromKey));</span>
+<span class="fc" id="L295">        assertEquals(true, sub.containsKey(fromKey));</span>
+<span class="fc" id="L296">        assertEquals(true, sm.containsValue(fromKeyValue));</span>
+<span class="fc" id="L297">        assertEquals(true, sub.containsValue(fromKeyValue));</span>
+<span class="fc" id="L298">        assertEquals(true, sm.containsKey(second));</span>
+<span class="fc" id="L299">        assertEquals(true, sub.containsKey(second));</span>
+<span class="fc" id="L300">        assertEquals(true, sm.containsValue(secondValue));</span>
+<span class="fc" id="L301">        assertEquals(true, sub.containsValue(secondValue));</span>
+<span class="fc" id="L302">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiClearByTailMap() {
+<span class="fc bfc" id="L306" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L307">            return;</span>
+        }
+
+        // extra test as other tests get complex
+<span class="fc" id="L311">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L312">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L313">        it.next();</span>
+<span class="fc" id="L314">        it.next();</span>
+<span class="fc" id="L315">        final K first = it.next();</span>
+<span class="fc" id="L316">        final K fromKey = it.next();</span>
+<span class="fc" id="L317">        final K second = it.next();</span>
+
+<span class="fc" id="L319">        final V firstValue = sm.get(first);</span>
+<span class="fc" id="L320">        final V fromKeyValue = sm.get(fromKey);</span>
+<span class="fc" id="L321">        final V secondValue = sm.get(second);</span>
+
+<span class="fc" id="L323">        final SortedMap&lt;K, V&gt; sub = sm.tailMap(fromKey);</span>
+<span class="fc" id="L324">        final int size = sm.size();</span>
+<span class="fc" id="L325">        assertEquals(size - 3, sub.size());</span>
+<span class="fc" id="L326">        sub.clear();</span>
+<span class="fc" id="L327">        assertEquals(0, sub.size());</span>
+<span class="fc" id="L328">        assertEquals(3, sm.size());</span>
+<span class="fc" id="L329">        assertEquals(3, sm.inverseBidiMap().size());</span>
+
+<span class="fc" id="L331">        assertEquals(true, sm.containsKey(first));</span>
+<span class="fc" id="L332">        assertEquals(true, sm.containsValue(firstValue));</span>
+<span class="fc" id="L333">        assertEquals(true, sm.inverseBidiMap().containsKey(firstValue));</span>
+<span class="fc" id="L334">        assertEquals(true, sm.inverseBidiMap().containsValue(first));</span>
+<span class="fc" id="L335">        assertEquals(false, sub.containsKey(first));</span>
+<span class="fc" id="L336">        assertEquals(false, sub.containsValue(firstValue));</span>
+
+<span class="fc" id="L338">        assertEquals(false, sm.containsKey(fromKey));</span>
+<span class="fc" id="L339">        assertEquals(false, sm.containsValue(fromKeyValue));</span>
+<span class="fc" id="L340">        assertEquals(false, sm.inverseBidiMap().containsKey(fromKeyValue));</span>
+<span class="fc" id="L341">        assertEquals(false, sm.inverseBidiMap().containsValue(fromKey));</span>
+<span class="fc" id="L342">        assertEquals(false, sub.containsKey(fromKey));</span>
+<span class="fc" id="L343">        assertEquals(false, sub.containsValue(fromKeyValue));</span>
+
+<span class="fc" id="L345">        assertEquals(false, sm.containsKey(second));</span>
+<span class="fc" id="L346">        assertEquals(false, sm.containsValue(secondValue));</span>
+<span class="fc" id="L347">        assertEquals(false, sm.inverseBidiMap().containsKey(secondValue));</span>
+<span class="fc" id="L348">        assertEquals(false, sm.inverseBidiMap().containsValue(second));</span>
+<span class="fc" id="L349">        assertEquals(false, sub.containsKey(second));</span>
+<span class="fc" id="L350">        assertEquals(false, sub.containsValue(secondValue));</span>
+<span class="fc" id="L351">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiRemoveByTailMap() {
+<span class="fc bfc" id="L355" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L356">            return;</span>
+        }
+
+        // extra test as other tests get complex
+<span class="fc" id="L360">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L361">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L362">        it.next();</span>
+<span class="fc" id="L363">        it.next();</span>
+<span class="fc" id="L364">        final K fromKey = it.next();</span>
+<span class="fc" id="L365">        final K first = it.next();</span>
+<span class="fc" id="L366">        final K second = it.next();</span>
+
+<span class="fc" id="L368">        final int size = sm.size();</span>
+<span class="fc" id="L369">        final SortedMap&lt;K, V&gt; sub = sm.tailMap(fromKey);</span>
+<span class="fc" id="L370">        assertEquals(true, sm.containsKey(first));</span>
+<span class="fc" id="L371">        assertEquals(true, sub.containsKey(first));</span>
+<span class="fc" id="L372">        assertEquals(true, sm.containsKey(second));</span>
+<span class="fc" id="L373">        assertEquals(true, sub.containsKey(second));</span>
+
+<span class="fc" id="L375">        final Object firstValue = sub.remove(first);</span>
+<span class="fc" id="L376">        assertEquals(size - 3, sub.size());</span>
+<span class="fc" id="L377">        assertEquals(size - 1, sm.size());</span>
+<span class="fc" id="L378">        assertEquals(size - 1, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L379">        assertEquals(false, sm.containsKey(first));</span>
+<span class="fc" id="L380">        assertEquals(false, sm.containsValue(firstValue));</span>
+<span class="fc" id="L381">        assertEquals(false, sm.inverseBidiMap().containsKey(firstValue));</span>
+<span class="fc" id="L382">        assertEquals(false, sm.inverseBidiMap().containsValue(first));</span>
+<span class="fc" id="L383">        assertEquals(false, sub.containsKey(first));</span>
+<span class="fc" id="L384">        assertEquals(false, sub.containsValue(firstValue));</span>
+
+<span class="fc" id="L386">        final Object secondValue = sub.remove(second);</span>
+<span class="fc" id="L387">        assertEquals(size - 4, sub.size());</span>
+<span class="fc" id="L388">        assertEquals(size - 2, sm.size());</span>
+<span class="fc" id="L389">        assertEquals(size - 2, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L390">        assertEquals(false, sm.containsKey(second));</span>
+<span class="fc" id="L391">        assertEquals(false, sm.containsValue(secondValue));</span>
+<span class="fc" id="L392">        assertEquals(false, sm.inverseBidiMap().containsKey(secondValue));</span>
+<span class="fc" id="L393">        assertEquals(false, sm.inverseBidiMap().containsValue(second));</span>
+<span class="fc" id="L394">        assertEquals(false, sub.containsKey(second));</span>
+<span class="fc" id="L395">        assertEquals(false, sub.containsValue(secondValue));</span>
+<span class="fc" id="L396">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiRemoveByTailMapEntrySet() {
+<span class="fc bfc" id="L400" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L401">            return;</span>
+        }
+
+        // extra test as other tests get complex
+<span class="fc" id="L405">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L406">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L407">        it.next();</span>
+<span class="fc" id="L408">        it.next();</span>
+<span class="fc" id="L409">        final K fromKey = it.next();</span>
+<span class="fc" id="L410">        final K first = it.next();</span>
+<span class="fc" id="L411">        final K second = it.next();</span>
+
+<span class="fc" id="L413">        final int size = sm.size();</span>
+<span class="fc" id="L414">        final SortedMap&lt;K, V&gt; sub = sm.tailMap(fromKey);</span>
+<span class="fc" id="L415">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; set = sub.entrySet();</span>
+<span class="fc" id="L416">        final Iterator&lt;Map.Entry&lt;K, V&gt;&gt; it2 = set.iterator();</span>
+<span class="fc" id="L417">        it2.next();</span>
+<span class="fc" id="L418">        final Map.Entry&lt;K, V&gt; firstEntry = cloneMapEntry(it2.next());</span>
+<span class="fc" id="L419">        final Map.Entry&lt;K, V&gt; secondEntry = cloneMapEntry(it2.next());</span>
+<span class="fc" id="L420">        assertEquals(true, sm.containsKey(first));</span>
+<span class="fc" id="L421">        assertEquals(true, sub.containsKey(first));</span>
+<span class="fc" id="L422">        assertEquals(true, set.contains(firstEntry));</span>
+<span class="fc" id="L423">        assertEquals(true, sm.containsKey(second));</span>
+<span class="fc" id="L424">        assertEquals(true, sub.containsKey(second));</span>
+<span class="fc" id="L425">        assertEquals(true, set.contains(secondEntry));</span>
+
+<span class="fc" id="L427">        set.remove(firstEntry);</span>
+<span class="fc" id="L428">        assertEquals(size - 3, sub.size());</span>
+<span class="fc" id="L429">        assertEquals(size - 1, sm.size());</span>
+<span class="fc" id="L430">        assertEquals(size - 1, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L431">        assertEquals(false, sm.containsKey(firstEntry.getKey()));</span>
+<span class="fc" id="L432">        assertEquals(false, sm.containsValue(firstEntry.getValue()));</span>
+<span class="fc" id="L433">        assertEquals(false, sm.inverseBidiMap().containsKey(firstEntry.getValue()));</span>
+<span class="fc" id="L434">        assertEquals(false, sm.inverseBidiMap().containsValue(firstEntry.getKey()));</span>
+<span class="fc" id="L435">        assertEquals(false, sub.containsKey(firstEntry.getKey()));</span>
+<span class="fc" id="L436">        assertEquals(false, sub.containsValue(firstEntry.getValue()));</span>
+<span class="fc" id="L437">        assertEquals(false, set.contains(firstEntry));</span>
+
+<span class="fc" id="L439">        set.remove(secondEntry);</span>
+<span class="fc" id="L440">        assertEquals(size - 4, sub.size());</span>
+<span class="fc" id="L441">        assertEquals(size - 2, sm.size());</span>
+<span class="fc" id="L442">        assertEquals(size - 2, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L443">        assertEquals(false, sm.containsKey(secondEntry.getKey()));</span>
+<span class="fc" id="L444">        assertEquals(false, sm.containsValue(secondEntry.getValue()));</span>
+<span class="fc" id="L445">        assertEquals(false, sm.inverseBidiMap().containsKey(secondEntry.getValue()));</span>
+<span class="fc" id="L446">        assertEquals(false, sm.inverseBidiMap().containsValue(secondEntry.getKey()));</span>
+<span class="fc" id="L447">        assertEquals(false, sub.containsKey(secondEntry.getKey()));</span>
+<span class="fc" id="L448">        assertEquals(false, sub.containsValue(secondEntry.getValue()));</span>
+<span class="fc" id="L449">        assertEquals(false, set.contains(secondEntry));</span>
+<span class="fc" id="L450">    }</span>
+
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    public void testBidiSubMapContains() {
+        // extra test as other tests get complex
+<span class="fc" id="L456">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L457">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L458">        final K first = it.next();</span>
+<span class="fc" id="L459">        final K fromKey = it.next();</span>
+<span class="fc" id="L460">        final K second = it.next();</span>
+<span class="fc" id="L461">        final K toKey = it.next();</span>
+<span class="fc" id="L462">        final K third = it.next();</span>
+<span class="fc" id="L463">        final V firstValue = sm.get(first);</span>
+<span class="fc" id="L464">        final V fromKeyValue = sm.get(fromKey);</span>
+<span class="fc" id="L465">        final V secondValue = sm.get(second);</span>
+<span class="fc" id="L466">        final V thirdValue = sm.get(third);</span>
+
+<span class="fc" id="L468">        final SortedMap&lt;K, V&gt; sub = sm.subMap(fromKey, toKey);</span>
+<span class="fc" id="L469">        assertEquals(2, sub.size());</span>
+<span class="fc" id="L470">        assertEquals(true, sm.containsKey(first));</span>
+<span class="fc" id="L471">        assertEquals(false, sub.containsKey(first));</span>
+<span class="fc" id="L472">        assertEquals(true, sm.containsValue(firstValue));</span>
+<span class="fc" id="L473">        assertEquals(false, sub.containsValue(firstValue));</span>
+<span class="fc" id="L474">        assertEquals(true, sm.containsKey(fromKey));</span>
+<span class="fc" id="L475">        assertEquals(true, sub.containsKey(fromKey));</span>
+<span class="fc" id="L476">        assertEquals(true, sm.containsValue(fromKeyValue));</span>
+<span class="fc" id="L477">        assertEquals(true, sub.containsValue(fromKeyValue));</span>
+<span class="fc" id="L478">        assertEquals(true, sm.containsKey(second));</span>
+<span class="fc" id="L479">        assertEquals(true, sub.containsKey(second));</span>
+<span class="fc" id="L480">        assertEquals(true, sm.containsValue(secondValue));</span>
+<span class="fc" id="L481">        assertEquals(true, sub.containsValue(secondValue));</span>
+<span class="fc" id="L482">        assertEquals(true, sm.containsKey(third));</span>
+<span class="fc" id="L483">        assertEquals(false, sub.containsKey(third));</span>
+<span class="fc" id="L484">        assertEquals(true, sm.containsValue(thirdValue));</span>
+<span class="fc" id="L485">        assertEquals(false, sub.containsValue(thirdValue));</span>
+<span class="fc" id="L486">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiClearBySubMap() {
+<span class="fc bfc" id="L490" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L491">            return;</span>
+        }
+
+        // extra test as other tests get complex
+<span class="fc" id="L495">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L496">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L497">        it.next();</span>
+<span class="fc" id="L498">        final K fromKey = it.next();</span>
+<span class="fc" id="L499">        final K first = it.next();</span>
+<span class="fc" id="L500">        final K second = it.next();</span>
+<span class="fc" id="L501">        final K toKey = it.next();</span>
+
+<span class="fc" id="L503">        final V fromKeyValue = sm.get(fromKey);</span>
+<span class="fc" id="L504">        final V firstValue = sm.get(first);</span>
+<span class="fc" id="L505">        final V secondValue = sm.get(second);</span>
+<span class="fc" id="L506">        final V toKeyValue = sm.get(toKey);</span>
+
+<span class="fc" id="L508">        final SortedMap&lt;K, V&gt; sub = sm.subMap(fromKey, toKey);</span>
+<span class="fc" id="L509">        final int size = sm.size();</span>
+<span class="fc" id="L510">        assertEquals(3, sub.size());</span>
+<span class="fc" id="L511">        sub.clear();</span>
+<span class="fc" id="L512">        assertEquals(0, sub.size());</span>
+<span class="fc" id="L513">        assertEquals(size - 3, sm.size());</span>
+<span class="fc" id="L514">        assertEquals(size - 3, sm.inverseBidiMap().size());</span>
+
+<span class="fc" id="L516">        assertEquals(false, sm.containsKey(fromKey));</span>
+<span class="fc" id="L517">        assertEquals(false, sm.containsValue(fromKeyValue));</span>
+<span class="fc" id="L518">        assertEquals(false, sm.inverseBidiMap().containsKey(fromKeyValue));</span>
+<span class="fc" id="L519">        assertEquals(false, sm.inverseBidiMap().containsValue(fromKey));</span>
+<span class="fc" id="L520">        assertEquals(false, sub.containsKey(fromKey));</span>
+<span class="fc" id="L521">        assertEquals(false, sub.containsValue(fromKeyValue));</span>
+
+<span class="fc" id="L523">        assertEquals(false, sm.containsKey(first));</span>
+<span class="fc" id="L524">        assertEquals(false, sm.containsValue(firstValue));</span>
+<span class="fc" id="L525">        assertEquals(false, sm.inverseBidiMap().containsKey(firstValue));</span>
+<span class="fc" id="L526">        assertEquals(false, sm.inverseBidiMap().containsValue(first));</span>
+<span class="fc" id="L527">        assertEquals(false, sub.containsKey(first));</span>
+<span class="fc" id="L528">        assertEquals(false, sub.containsValue(firstValue));</span>
+
+<span class="fc" id="L530">        assertEquals(false, sm.containsKey(second));</span>
+<span class="fc" id="L531">        assertEquals(false, sm.containsValue(secondValue));</span>
+<span class="fc" id="L532">        assertEquals(false, sm.inverseBidiMap().containsKey(secondValue));</span>
+<span class="fc" id="L533">        assertEquals(false, sm.inverseBidiMap().containsValue(second));</span>
+<span class="fc" id="L534">        assertEquals(false, sub.containsKey(second));</span>
+<span class="fc" id="L535">        assertEquals(false, sub.containsValue(secondValue));</span>
+
+<span class="fc" id="L537">        assertEquals(true, sm.containsKey(toKey));</span>
+<span class="fc" id="L538">        assertEquals(true, sm.containsValue(toKeyValue));</span>
+<span class="fc" id="L539">        assertEquals(true, sm.inverseBidiMap().containsKey(toKeyValue));</span>
+<span class="fc" id="L540">        assertEquals(true, sm.inverseBidiMap().containsValue(toKey));</span>
+<span class="fc" id="L541">        assertEquals(false, sub.containsKey(toKey));</span>
+<span class="fc" id="L542">        assertEquals(false, sub.containsValue(toKeyValue));</span>
+<span class="fc" id="L543">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiRemoveBySubMap() {
+<span class="fc bfc" id="L547" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L548">            return;</span>
+        }
+
+        // extra test as other tests get complex
+<span class="fc" id="L552">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L553">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L554">        it.next();</span>
+<span class="fc" id="L555">        it.next();</span>
+<span class="fc" id="L556">        final K fromKey = it.next();</span>
+<span class="fc" id="L557">        final K first = it.next();</span>
+<span class="fc" id="L558">        final K second = it.next();</span>
+<span class="fc" id="L559">        final K toKey = it.next();</span>
+
+<span class="fc" id="L561">        final int size = sm.size();</span>
+<span class="fc" id="L562">        final SortedMap&lt;K, V&gt; sub = sm.subMap(fromKey, toKey);</span>
+<span class="fc" id="L563">        assertEquals(true, sm.containsKey(first));</span>
+<span class="fc" id="L564">        assertEquals(true, sub.containsKey(first));</span>
+<span class="fc" id="L565">        assertEquals(true, sm.containsKey(second));</span>
+<span class="fc" id="L566">        assertEquals(true, sub.containsKey(second));</span>
+
+<span class="fc" id="L568">        final V firstValue = sub.remove(first);</span>
+<span class="fc" id="L569">        assertEquals(2, sub.size());</span>
+<span class="fc" id="L570">        assertEquals(size - 1, sm.size());</span>
+<span class="fc" id="L571">        assertEquals(size - 1, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L572">        assertEquals(false, sm.containsKey(first));</span>
+<span class="fc" id="L573">        assertEquals(false, sm.containsValue(firstValue));</span>
+<span class="fc" id="L574">        assertEquals(false, sm.inverseBidiMap().containsKey(firstValue));</span>
+<span class="fc" id="L575">        assertEquals(false, sm.inverseBidiMap().containsValue(first));</span>
+<span class="fc" id="L576">        assertEquals(false, sub.containsKey(first));</span>
+<span class="fc" id="L577">        assertEquals(false, sub.containsValue(firstValue));</span>
+
+<span class="fc" id="L579">        final V secondValue = sub.remove(second);</span>
+<span class="fc" id="L580">        assertEquals(1, sub.size());</span>
+<span class="fc" id="L581">        assertEquals(size - 2, sm.size());</span>
+<span class="fc" id="L582">        assertEquals(size - 2, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L583">        assertEquals(false, sm.containsKey(second));</span>
+<span class="fc" id="L584">        assertEquals(false, sm.containsValue(secondValue));</span>
+<span class="fc" id="L585">        assertEquals(false, sm.inverseBidiMap().containsKey(secondValue));</span>
+<span class="fc" id="L586">        assertEquals(false, sm.inverseBidiMap().containsValue(second));</span>
+<span class="fc" id="L587">        assertEquals(false, sub.containsKey(second));</span>
+<span class="fc" id="L588">        assertEquals(false, sub.containsValue(secondValue));</span>
+<span class="fc" id="L589">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiRemoveBySubMapEntrySet() {
+<span class="fc bfc" id="L593" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L594">            return;</span>
+        }
+
+        // extra test as other tests get complex
+<span class="fc" id="L598">        final SortedBidiMap&lt;K, V&gt; sm = makeFullMap();</span>
+<span class="fc" id="L599">        final Iterator&lt;K&gt; it = sm.keySet().iterator();</span>
+<span class="fc" id="L600">        it.next();</span>
+<span class="fc" id="L601">        it.next();</span>
+<span class="fc" id="L602">        final K fromKey = it.next();</span>
+<span class="fc" id="L603">        final K first = it.next();</span>
+<span class="fc" id="L604">        final K second = it.next();</span>
+<span class="fc" id="L605">        final K toKey = it.next();</span>
+
+<span class="fc" id="L607">        final int size = sm.size();</span>
+<span class="fc" id="L608">        final SortedMap&lt;K, V&gt; sub = sm.subMap(fromKey, toKey);</span>
+<span class="fc" id="L609">        final Set&lt;Map.Entry&lt;K, V&gt;&gt; set = sub.entrySet();</span>
+<span class="fc" id="L610">        assertEquals(3, set.size());</span>
+<span class="fc" id="L611">        final Iterator&lt;Map.Entry&lt;K, V&gt;&gt; it2 = set.iterator();</span>
+<span class="fc" id="L612">        it2.next();</span>
+<span class="fc" id="L613">        final Map.Entry&lt;K, V&gt; firstEntry = cloneMapEntry(it2.next());</span>
+<span class="fc" id="L614">        final Map.Entry&lt;K, V&gt; secondEntry = cloneMapEntry(it2.next());</span>
+<span class="fc" id="L615">        assertEquals(true, sm.containsKey(first));</span>
+<span class="fc" id="L616">        assertEquals(true, sub.containsKey(first));</span>
+<span class="fc" id="L617">        assertEquals(true, set.contains(firstEntry));</span>
+<span class="fc" id="L618">        assertEquals(true, sm.containsKey(second));</span>
+<span class="fc" id="L619">        assertEquals(true, sub.containsKey(second));</span>
+<span class="fc" id="L620">        assertEquals(true, set.contains(secondEntry));</span>
+
+<span class="fc" id="L622">        set.remove(firstEntry);</span>
+<span class="fc" id="L623">        assertEquals(2, sub.size());</span>
+<span class="fc" id="L624">        assertEquals(size - 1, sm.size());</span>
+<span class="fc" id="L625">        assertEquals(size - 1, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L626">        assertEquals(false, sm.containsKey(firstEntry.getKey()));</span>
+<span class="fc" id="L627">        assertEquals(false, sm.containsValue(firstEntry.getValue()));</span>
+<span class="fc" id="L628">        assertEquals(false, sm.inverseBidiMap().containsKey(firstEntry.getValue()));</span>
+<span class="fc" id="L629">        assertEquals(false, sm.inverseBidiMap().containsValue(firstEntry.getKey()));</span>
+<span class="fc" id="L630">        assertEquals(false, sub.containsKey(firstEntry.getKey()));</span>
+<span class="fc" id="L631">        assertEquals(false, sub.containsValue(firstEntry.getValue()));</span>
+<span class="fc" id="L632">        assertEquals(false, set.contains(firstEntry));</span>
+
+<span class="fc" id="L634">        set.remove(secondEntry);</span>
+<span class="fc" id="L635">        assertEquals(1, sub.size());</span>
+<span class="fc" id="L636">        assertEquals(size - 2, sm.size());</span>
+<span class="fc" id="L637">        assertEquals(size - 2, sm.inverseBidiMap().size());</span>
+<span class="fc" id="L638">        assertEquals(false, sm.containsKey(secondEntry.getKey()));</span>
+<span class="fc" id="L639">        assertEquals(false, sm.containsValue(secondEntry.getValue()));</span>
+<span class="fc" id="L640">        assertEquals(false, sm.inverseBidiMap().containsKey(secondEntry.getValue()));</span>
+<span class="fc" id="L641">        assertEquals(false, sm.inverseBidiMap().containsValue(secondEntry.getKey()));</span>
+<span class="fc" id="L642">        assertEquals(false, sub.containsKey(secondEntry.getKey()));</span>
+<span class="fc" id="L643">        assertEquals(false, sub.containsValue(secondEntry.getValue()));</span>
+<span class="fc" id="L644">        assertEquals(false, set.contains(secondEntry));</span>
+<span class="fc" id="L645">    }</span>
+
+    //-----------------------------------------------------------------------
+    public BulkTest bulkTestHeadMap() {
+<span class="fc" id="L649">        return new AbstractSortedMapTest.TestHeadMap&lt;K, V&gt;(this);</span>
+    }
+
+    public BulkTest bulkTestTailMap() {
+<span class="fc" id="L653">        return new AbstractSortedMapTest.TestTailMap&lt;K, V&gt;(this);</span>
+    }
+
+    public BulkTest bulkTestSubMap() {
+<span class="fc" id="L657">        return new AbstractSortedMapTest.TestSubMap&lt;K, V&gt;(this);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

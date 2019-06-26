@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DefaultKeyValueTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.keyvalue</a> &gt; <span class="el_source">DefaultKeyValueTest.java</span></div><h1>DefaultKeyValueTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.keyvalue;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import junit.framework.TestCase;
+
+/**
+ * Test the DefaultKeyValue class.
+ *
+ * @since 3.0
+ * @version $Id$
+ */
+<span class="fc" id="L30">public class DefaultKeyValueTest&lt;K, V&gt; extends TestCase {</span>
+
+<span class="fc" id="L32">    private final String key = &quot;name&quot;;</span>
+<span class="fc" id="L33">    private final String value = &quot;duke&quot;;</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Make an instance of DefaultKeyValue with the default (null) key and value.
+     * Subclasses should override this method to return a DefaultKeyValue
+     * of the type being tested.
+     */
+    protected DefaultKeyValue&lt;K, V&gt; makeDefaultKeyValue() {
+<span class="fc" id="L42">        return new DefaultKeyValue&lt;K, V&gt;(null, null);</span>
+    }
+
+    /**
+     * Make an instance of DefaultKeyValue with the specified key and value.
+     * Subclasses should override this method to return a DefaultKeyValue
+     * of the type being tested.
+     */
+    protected DefaultKeyValue&lt;K, V&gt; makeDefaultKeyValue(final K key, final V value) {
+<span class="fc" id="L51">        return new DefaultKeyValue&lt;K, V&gt;(key, value);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testAccessorsAndMutators() {
+<span class="fc" id="L57">        final DefaultKeyValue&lt;K, V&gt; kv = makeDefaultKeyValue();</span>
+
+<span class="fc" id="L59">        kv.setKey((K) key);</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        assertTrue(kv.getKey() == key);</span>
+
+<span class="fc" id="L62">        kv.setValue((V) value);</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        assertTrue(kv.getValue() == value);</span>
+
+        // check that null doesn't do anything funny
+<span class="fc" id="L66">        kv.setKey(null);</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        assertTrue(kv.getKey() == null);</span>
+
+<span class="fc" id="L69">        kv.setValue(null);</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        assertTrue(kv.getValue() == null);</span>
+
+<span class="fc" id="L72">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testSelfReferenceHandling() {
+        // test that #setKey and #setValue do not permit
+        //  the KVP to contain itself (and thus cause infinite recursion
+        //  in #hashCode and #toString)
+
+<span class="fc" id="L80">        final DefaultKeyValue&lt;K, V&gt; kv = makeDefaultKeyValue();</span>
+
+        try {
+<span class="nc" id="L83">            kv.setKey((K) kv);</span>
+<span class="nc" id="L84">            fail(&quot;Should throw an IllegalArgumentException&quot;);</span>
+<span class="pc" id="L85">        } catch (final IllegalArgumentException iae) {</span>
+            // expected to happen...
+
+            // check that the KVP's state has not changed
+<span class="pc bpc" id="L89" title="2 of 4 branches missed.">            assertTrue(kv.getKey() == null &amp;&amp; kv.getValue() == null);</span>
+        }
+
+        try {
+<span class="nc" id="L93">            kv.setValue((V) kv);</span>
+<span class="nc" id="L94">            fail(&quot;Should throw an IllegalArgumentException&quot;);</span>
+<span class="pc" id="L95">        } catch (final IllegalArgumentException iae) {</span>
+            // expected to happen...
+
+            // check that the KVP's state has not changed
+<span class="pc bpc" id="L99" title="2 of 4 branches missed.">            assertTrue(kv.getKey() == null &amp;&amp; kv.getValue() == null);</span>
+        }
+<span class="fc" id="L101">    }</span>
+
+    /**
+     * Subclasses should override this method to test their own constructors.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testConstructors() {
+        // 1. test default constructor
+<span class="fc" id="L109">        DefaultKeyValue&lt;K, V&gt; kv = new DefaultKeyValue&lt;K, V&gt;();</span>
+<span class="pc bpc" id="L110" title="2 of 4 branches missed.">        assertTrue(kv.getKey() == null &amp;&amp; kv.getValue() == null);</span>
+
+        // 2. test key-value constructor
+<span class="fc" id="L113">        kv = new DefaultKeyValue&lt;K, V&gt;((K) key, (V) value);</span>
+<span class="pc bpc" id="L114" title="2 of 4 branches missed.">        assertTrue(kv.getKey() == key &amp;&amp; kv.getValue() == value);</span>
+
+        // 3. test copy constructor
+<span class="fc" id="L117">        final DefaultKeyValue&lt;K, V&gt; kv2 = new DefaultKeyValue&lt;K, V&gt;(kv);</span>
+<span class="pc bpc" id="L118" title="2 of 4 branches missed.">        assertTrue(kv2.getKey() == key &amp;&amp; kv2.getValue() == value);</span>
+
+        // test that the KVPs are independent
+<span class="fc" id="L121">        kv.setKey(null);</span>
+<span class="fc" id="L122">        kv.setValue(null);</span>
+
+<span class="pc bpc" id="L124" title="2 of 4 branches missed.">        assertTrue(kv2.getKey() == key &amp;&amp; kv2.getValue() == value);</span>
+
+        // 4. test Map.Entry constructor
+<span class="fc" id="L127">        final Map&lt;K, V&gt; map = new HashMap&lt;K, V&gt;();</span>
+<span class="fc" id="L128">        map.put((K) key, (V) value);</span>
+<span class="fc" id="L129">        final Map.Entry&lt;K, V&gt; entry = map.entrySet().iterator().next();</span>
+
+<span class="fc" id="L131">        kv = new DefaultKeyValue&lt;K, V&gt;(entry);</span>
+<span class="pc bpc" id="L132" title="2 of 4 branches missed.">        assertTrue(kv.getKey() == key &amp;&amp; kv.getValue() == value);</span>
+
+        // test that the KVP is independent of the Map.Entry
+<span class="fc" id="L135">        entry.setValue(null);</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        assertTrue(kv.getValue() == value);</span>
+
+<span class="fc" id="L138">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testEqualsAndHashCode() {
+        // 1. test with object data
+<span class="fc" id="L143">        DefaultKeyValue&lt;K, V&gt; kv = makeDefaultKeyValue((K) key, (V) value);</span>
+<span class="fc" id="L144">        DefaultKeyValue&lt;K, V&gt; kv2 = makeDefaultKeyValue((K) key, (V) value);</span>
+
+<span class="fc" id="L146">        assertTrue(kv.equals(kv));</span>
+<span class="fc" id="L147">        assertTrue(kv.equals(kv2));</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        assertTrue(kv.hashCode() == kv2.hashCode());</span>
+
+        // 2. test with nulls
+<span class="fc" id="L151">        kv = makeDefaultKeyValue(null, null);</span>
+<span class="fc" id="L152">        kv2 = makeDefaultKeyValue(null, null);</span>
+
+<span class="fc" id="L154">        assertTrue(kv.equals(kv));</span>
+<span class="fc" id="L155">        assertTrue(kv.equals(kv2));</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        assertTrue(kv.hashCode() == kv2.hashCode());</span>
+<span class="fc" id="L157">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testToString() {
+<span class="fc" id="L161">        DefaultKeyValue&lt;K, V&gt; kv = makeDefaultKeyValue((K) key, (V) value);</span>
+<span class="fc" id="L162">        assertTrue(kv.toString().equals(kv.getKey() + &quot;=&quot; + kv.getValue()));</span>
+
+        // test with nulls
+<span class="fc" id="L165">        kv = makeDefaultKeyValue(null, null);</span>
+<span class="fc" id="L166">        assertTrue(kv.toString().equals(kv.getKey() + &quot;=&quot; + kv.getValue()));</span>
+<span class="fc" id="L167">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testToMapEntry() {
+<span class="fc" id="L171">        final DefaultKeyValue&lt;K, V&gt; kv = makeDefaultKeyValue((K) key, (V) value);</span>
+
+<span class="fc" id="L173">        final Map&lt;K, V&gt; map = new HashMap&lt;K, V&gt;();</span>
+<span class="fc" id="L174">        map.put(kv.getKey(), kv.getValue());</span>
+<span class="fc" id="L175">        final Map.Entry&lt;K, V&gt; entry = map.entrySet().iterator().next();</span>
+
+<span class="fc" id="L177">        assertTrue(entry.equals(kv.toMapEntry()));</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">        assertTrue(entry.hashCode() == kv.hashCode());</span>
+<span class="fc" id="L179">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

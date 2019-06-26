@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestFlat3Map.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">TestFlat3Map.java</span></div><h1>TestFlat3Map.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.textui.TestRunner;
+
+import org.apache.commons.collections.BulkTest;
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.iterators.AbstractTestMapIterator;
+
+/**
+ * JUnit tests.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class TestFlat3Map extends AbstractTestIterableMap {
+
+<span class="fc" id="L41">    private static final Integer ONE = new Integer(1);</span>
+<span class="fc" id="L42">    private static final Integer TWO = new Integer(2);</span>
+    private static final String TEN = &quot;10&quot;;
+<span class="fc" id="L44">    private static final String TWENTY = &quot;20&quot;;</span>
+        
+    public TestFlat3Map(String testName) {
+<span class="fc" id="L47">        super(testName);</span>
+<span class="fc" id="L48">    }</span>
+
+    public static void main(String[] args) {
+<span class="nc" id="L51">        TestRunner.run(suite());</span>
+<span class="nc" id="L52">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L55" title="All 2 branches covered.">        return BulkTest.makeSuite(TestFlat3Map.class);</span>
+    }
+
+    public Map makeEmptyMap() {
+<span class="fc" id="L59">        return new Flat3Map();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testEquals1() {
+<span class="fc" id="L64">        Flat3Map map1 = new Flat3Map();</span>
+<span class="fc" id="L65">        map1.put(&quot;a&quot;, &quot;testA&quot;);</span>
+<span class="fc" id="L66">        map1.put(&quot;b&quot;, &quot;testB&quot;);</span>
+<span class="fc" id="L67">        Flat3Map map2 = new Flat3Map();</span>
+<span class="fc" id="L68">        map2.put(&quot;a&quot;, &quot;testB&quot;);</span>
+<span class="fc" id="L69">        map2.put(&quot;b&quot;, &quot;testA&quot;);</span>
+<span class="fc" id="L70">        assertEquals(false, map1.equals(map2));</span>
+<span class="fc" id="L71">    }</span>
+
+    public void testEquals2() {
+<span class="fc" id="L74">        Flat3Map map1 = new Flat3Map();</span>
+<span class="fc" id="L75">        map1.put(&quot;a&quot;, &quot;testA&quot;);</span>
+<span class="fc" id="L76">        map1.put(&quot;b&quot;, &quot;testB&quot;);</span>
+<span class="fc" id="L77">        Flat3Map map2 = new Flat3Map();</span>
+<span class="fc" id="L78">        map2.put(&quot;a&quot;, &quot;testB&quot;);</span>
+<span class="fc" id="L79">        map2.put(&quot;c&quot;, &quot;testA&quot;);</span>
+<span class="fc" id="L80">        assertEquals(false, map1.equals(map2));</span>
+<span class="fc" id="L81">    }</span>
+
+    public void testClone2() {
+<span class="fc" id="L84">        Flat3Map map = new Flat3Map();</span>
+<span class="fc" id="L85">        assertEquals(0, map.size());</span>
+<span class="fc" id="L86">        map.put(ONE, TEN);</span>
+<span class="fc" id="L87">        map.put(TWO, TWENTY);</span>
+<span class="fc" id="L88">        assertEquals(2, map.size());</span>
+<span class="fc" id="L89">        assertEquals(true, map.containsKey(ONE));</span>
+<span class="fc" id="L90">        assertEquals(true, map.containsKey(TWO));</span>
+<span class="fc" id="L91">        assertSame(TEN, map.get(ONE));</span>
+<span class="fc" id="L92">        assertSame(TWENTY, map.get(TWO));</span>
+
+        // clone works (size = 2)        
+<span class="fc" id="L95">        Flat3Map cloned = (Flat3Map) map.clone();</span>
+<span class="fc" id="L96">        assertEquals(2, cloned.size());</span>
+<span class="fc" id="L97">        assertEquals(true, cloned.containsKey(ONE));</span>
+<span class="fc" id="L98">        assertEquals(true, cloned.containsKey(TWO));</span>
+<span class="fc" id="L99">        assertSame(TEN, cloned.get(ONE));</span>
+<span class="fc" id="L100">        assertSame(TWENTY, cloned.get(TWO));</span>
+        
+        // change original doesn't change clone
+<span class="fc" id="L103">        map.put(TEN, ONE);</span>
+<span class="fc" id="L104">        map.put(TWENTY, TWO);</span>
+<span class="fc" id="L105">        assertEquals(4, map.size());</span>
+<span class="fc" id="L106">        assertEquals(2, cloned.size());</span>
+<span class="fc" id="L107">        assertEquals(true, cloned.containsKey(ONE));</span>
+<span class="fc" id="L108">        assertEquals(true, cloned.containsKey(TWO));</span>
+<span class="fc" id="L109">        assertSame(TEN, cloned.get(ONE));</span>
+<span class="fc" id="L110">        assertSame(TWENTY, cloned.get(TWO));</span>
+<span class="fc" id="L111">    }        </span>
+    public void testClone4() {
+<span class="fc" id="L113">        Flat3Map map = new Flat3Map();</span>
+<span class="fc" id="L114">        assertEquals(0, map.size());</span>
+<span class="fc" id="L115">        map.put(ONE, TEN);</span>
+<span class="fc" id="L116">        map.put(TWO, TWENTY);</span>
+<span class="fc" id="L117">        map.put(TEN, ONE);</span>
+<span class="fc" id="L118">        map.put(TWENTY, TWO);</span>
+        
+        // clone works (size = 4)
+<span class="fc" id="L121">        Flat3Map cloned = (Flat3Map) map.clone();</span>
+<span class="fc" id="L122">        assertEquals(4, map.size());</span>
+<span class="fc" id="L123">        assertEquals(4, cloned.size());</span>
+<span class="fc" id="L124">        assertEquals(true, cloned.containsKey(ONE));</span>
+<span class="fc" id="L125">        assertEquals(true, cloned.containsKey(TWO));</span>
+<span class="fc" id="L126">        assertEquals(true, cloned.containsKey(TEN));</span>
+<span class="fc" id="L127">        assertEquals(true, cloned.containsKey(TWENTY));</span>
+<span class="fc" id="L128">        assertSame(TEN, cloned.get(ONE));</span>
+<span class="fc" id="L129">        assertSame(TWENTY, cloned.get(TWO));</span>
+<span class="fc" id="L130">        assertSame(ONE, cloned.get(TEN));</span>
+<span class="fc" id="L131">        assertSame(TWO, cloned.get(TWENTY));</span>
+        
+        // change original doesn't change clone
+<span class="fc" id="L134">        map.clear();</span>
+<span class="fc" id="L135">        assertEquals(0, map.size());</span>
+<span class="fc" id="L136">        assertEquals(4, cloned.size());</span>
+<span class="fc" id="L137">        assertEquals(true, cloned.containsKey(ONE));</span>
+<span class="fc" id="L138">        assertEquals(true, cloned.containsKey(TWO));</span>
+<span class="fc" id="L139">        assertEquals(true, cloned.containsKey(TEN));</span>
+<span class="fc" id="L140">        assertEquals(true, cloned.containsKey(TWENTY));</span>
+<span class="fc" id="L141">        assertSame(TEN, cloned.get(ONE));</span>
+<span class="fc" id="L142">        assertSame(TWENTY, cloned.get(TWO));</span>
+<span class="fc" id="L143">        assertSame(ONE, cloned.get(TEN));</span>
+<span class="fc" id="L144">        assertSame(TWO, cloned.get(TWENTY));</span>
+<span class="fc" id="L145">    }</span>
+    
+    public void testSerialisation0() throws Exception {
+<span class="fc" id="L148">        Flat3Map map = new Flat3Map();</span>
+<span class="fc" id="L149">        ByteArrayOutputStream bout = new ByteArrayOutputStream();</span>
+<span class="fc" id="L150">        ObjectOutputStream out = new ObjectOutputStream(bout);</span>
+<span class="fc" id="L151">        out.writeObject(map);</span>
+<span class="fc" id="L152">        byte[] bytes = bout.toByteArray();</span>
+<span class="fc" id="L153">        out.close();</span>
+<span class="fc" id="L154">        ByteArrayInputStream bin = new ByteArrayInputStream(bytes);</span>
+<span class="fc" id="L155">        ObjectInputStream in = new ObjectInputStream(bin);</span>
+<span class="fc" id="L156">        Flat3Map ser = (Flat3Map) in.readObject();</span>
+<span class="fc" id="L157">        in.close();</span>
+<span class="fc" id="L158">        assertEquals(0, map.size());</span>
+<span class="fc" id="L159">        assertEquals(0, ser.size());</span>
+<span class="fc" id="L160">    }</span>
+    
+    public void testSerialisation2() throws Exception {
+<span class="fc" id="L163">        Flat3Map map = new Flat3Map();</span>
+<span class="fc" id="L164">        map.put(ONE, TEN);</span>
+<span class="fc" id="L165">        map.put(TWO, TWENTY);</span>
+        
+<span class="fc" id="L167">        ByteArrayOutputStream bout = new ByteArrayOutputStream();</span>
+<span class="fc" id="L168">        ObjectOutputStream out = new ObjectOutputStream(bout);</span>
+<span class="fc" id="L169">        out.writeObject(map);</span>
+<span class="fc" id="L170">        byte[] bytes = bout.toByteArray();</span>
+<span class="fc" id="L171">        out.close();</span>
+<span class="fc" id="L172">        ByteArrayInputStream bin = new ByteArrayInputStream(bytes);</span>
+<span class="fc" id="L173">        ObjectInputStream in = new ObjectInputStream(bin);</span>
+<span class="fc" id="L174">        Flat3Map ser = (Flat3Map) in.readObject();</span>
+<span class="fc" id="L175">        in.close();</span>
+<span class="fc" id="L176">        assertEquals(2, map.size());</span>
+<span class="fc" id="L177">        assertEquals(2, ser.size());</span>
+<span class="fc" id="L178">        assertEquals(true, ser.containsKey(ONE));</span>
+<span class="fc" id="L179">        assertEquals(true, ser.containsKey(TWO));</span>
+<span class="fc" id="L180">        assertEquals(TEN, ser.get(ONE));</span>
+<span class="fc" id="L181">        assertEquals(TWENTY, ser.get(TWO));</span>
+<span class="fc" id="L182">    }</span>
+    
+    public void testSerialisation4() throws Exception {
+<span class="fc" id="L185">        Flat3Map map = new Flat3Map();</span>
+<span class="fc" id="L186">        map.put(ONE, TEN);</span>
+<span class="fc" id="L187">        map.put(TWO, TWENTY);</span>
+<span class="fc" id="L188">        map.put(TEN, ONE);</span>
+<span class="fc" id="L189">        map.put(TWENTY, TWO);</span>
+        
+<span class="fc" id="L191">        ByteArrayOutputStream bout = new ByteArrayOutputStream();</span>
+<span class="fc" id="L192">        ObjectOutputStream out = new ObjectOutputStream(bout);</span>
+<span class="fc" id="L193">        out.writeObject(map);</span>
+<span class="fc" id="L194">        byte[] bytes = bout.toByteArray();</span>
+<span class="fc" id="L195">        out.close();</span>
+<span class="fc" id="L196">        ByteArrayInputStream bin = new ByteArrayInputStream(bytes);</span>
+<span class="fc" id="L197">        ObjectInputStream in = new ObjectInputStream(bin);</span>
+<span class="fc" id="L198">        Flat3Map ser = (Flat3Map) in.readObject();</span>
+<span class="fc" id="L199">        in.close();</span>
+<span class="fc" id="L200">        assertEquals(4, map.size());</span>
+<span class="fc" id="L201">        assertEquals(4, ser.size());</span>
+<span class="fc" id="L202">        assertEquals(true, ser.containsKey(ONE));</span>
+<span class="fc" id="L203">        assertEquals(true, ser.containsKey(TWO));</span>
+<span class="fc" id="L204">        assertEquals(true, ser.containsKey(TEN));</span>
+<span class="fc" id="L205">        assertEquals(true, ser.containsKey(TWENTY));</span>
+<span class="fc" id="L206">        assertEquals(TEN, ser.get(ONE));</span>
+<span class="fc" id="L207">        assertEquals(TWENTY, ser.get(TWO));</span>
+<span class="fc" id="L208">        assertEquals(ONE, ser.get(TEN));</span>
+<span class="fc" id="L209">        assertEquals(TWO, ser.get(TWENTY));</span>
+<span class="fc" id="L210">    }</span>
+    
+    //-----------------------------------------------------------------------
+    public BulkTest bulkTestMapIterator() {
+<span class="fc" id="L214">        return new TestFlatMapIterator();</span>
+    }
+    
+    public class TestFlatMapIterator extends AbstractTestMapIterator {
+        public TestFlatMapIterator() {
+<span class="fc" id="L219">            super(&quot;TestFlatMapIterator&quot;);</span>
+<span class="fc" id="L220">        }</span>
+        
+        public Object[] addSetValues() {
+<span class="fc" id="L223">            return TestFlat3Map.this.getNewSampleValues();</span>
+        }
+        
+        public boolean supportsRemove() {
+<span class="fc" id="L227">            return TestFlat3Map.this.isRemoveSupported();</span>
+        }
+
+        public boolean supportsSetValue() {
+<span class="fc" id="L231">            return TestFlat3Map.this.isSetValueSupported();</span>
+        }
+
+        public MapIterator makeEmptyMapIterator() {
+<span class="fc" id="L235">            resetEmpty();</span>
+<span class="fc" id="L236">            return ((Flat3Map) TestFlat3Map.this.map).mapIterator();</span>
+        }
+
+        public MapIterator makeFullMapIterator() {
+<span class="fc" id="L240">            resetFull();</span>
+<span class="fc" id="L241">            return ((Flat3Map) TestFlat3Map.this.map).mapIterator();</span>
+        }
+        
+        public Map getMap() {
+            // assumes makeFullMapIterator() called first
+<span class="fc" id="L246">            return TestFlat3Map.this.map;</span>
+        }
+        
+        public Map getConfirmedMap() {
+            // assumes makeFullMapIterator() called first
+<span class="fc" id="L251">            return TestFlat3Map.this.confirmed;</span>
+        }
+        
+        public void verify() {
+<span class="fc" id="L255">            super.verify();</span>
+<span class="fc" id="L256">            TestFlat3Map.this.verify();</span>
+<span class="fc" id="L257">        }</span>
+    }
+    
+    public String getCompatibilityVersion() {
+<span class="fc" id="L261">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/Flat3Map.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/Flat3Map.fullCollection.version3.1.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

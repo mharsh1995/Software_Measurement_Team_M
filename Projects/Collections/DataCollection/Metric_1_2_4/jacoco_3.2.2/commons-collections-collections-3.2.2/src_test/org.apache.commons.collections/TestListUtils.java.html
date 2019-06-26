@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestListUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestListUtils.java</span></div><h1>TestListUtils.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import junit.framework.Test;
+
+import org.apache.commons.collections.list.PredicatedList;
+
+/**
+ * Tests for ListUtils.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ * @author Neil O'Toole
+ * @author Matthew Hawthorne
+ */
+public class TestListUtils extends BulkTest {
+
+    private static final String a = &quot;a&quot;;
+    private static final String b = &quot;b&quot;;
+    private static final String c = &quot;c&quot;;
+    private static final String d = &quot;d&quot;;
+    private static final String e = &quot;e&quot;;
+    private static final String x = &quot;x&quot;;
+
+    private String[] fullArray;
+    private List fullList;
+    
+    public TestListUtils(String name) {
+<span class="fc" id="L50">        super(name);</span>
+<span class="fc" id="L51">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L54" title="All 2 branches covered.">        return BulkTest.makeSuite(TestListUtils.class);</span>
+    }
+
+    public void setUp() {
+<span class="fc" id="L58">        fullArray = new String[]{a, b, c, d, e};</span>
+<span class="fc" id="L59">        fullList = new ArrayList(Arrays.asList(fullArray));</span>
+<span class="fc" id="L60">    }</span>
+    
+    
+    public void testNothing() {
+<span class="fc" id="L64">    }</span>
+    
+    public void testpredicatedList() {
+<span class="fc" id="L67">        Predicate predicate = new Predicate() {</span>
+            public boolean evaluate(Object o) {
+<span class="nc" id="L69">                return o instanceof String;</span>
+            }
+        };
+<span class="fc" id="L72">        List list =</span>
+<span class="fc" id="L73">        ListUtils.predicatedList(new ArrayStack(), predicate);</span>
+<span class="fc" id="L74">        assertTrue(&quot;returned object should be a PredicatedList&quot;,</span>
+<span class="fc" id="L75">            list instanceof PredicatedList);</span>
+        try {
+<span class="nc" id="L77">            list =</span>
+<span class="nc" id="L78">            ListUtils.predicatedList(new ArrayStack(), null);</span>
+<span class="nc" id="L79">            fail(&quot;Expecting IllegalArgumentException for null predicate.&quot;);</span>
+<span class="pc" id="L80">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L84">            list =</span>
+<span class="nc" id="L85">            ListUtils.predicatedList(null, predicate);</span>
+<span class="nc" id="L86">            fail(&quot;Expecting IllegalArgumentException for null list.&quot;);</span>
+<span class="pc" id="L87">        } catch (IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L90">    }</span>
+
+    public void testLazyList() {
+<span class="fc" id="L93">        List list = ListUtils.lazyList(new ArrayList(), new Factory() {</span>
+
+            private int index;
+
+            public Object create() {
+<span class="fc" id="L98">                index++;</span>
+<span class="fc" id="L99">                return new Integer(index);</span>
+            }
+        });
+
+<span class="fc" id="L103">        assertNotNull((Integer)list.get(5));</span>
+<span class="fc" id="L104">        assertEquals(6, list.size());</span>
+
+<span class="fc" id="L106">        assertNotNull((Integer)list.get(5));</span>
+<span class="fc" id="L107">        assertEquals(6, list.size());</span>
+<span class="fc" id="L108">    }</span>
+
+    public void testEquals() {
+<span class="fc" id="L111">        Collection data = Arrays.asList( new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; });</span>
+        
+<span class="fc" id="L113">        List a = new ArrayList( data );</span>
+<span class="fc" id="L114">        List b = new ArrayList( data );</span>
+        
+<span class="fc" id="L116">        assertEquals(true, a.equals(b));</span>
+<span class="fc" id="L117">        assertEquals(true, ListUtils.isEqualList(a, b));</span>
+<span class="fc" id="L118">        a.clear();</span>
+<span class="fc" id="L119">        assertEquals(false, ListUtils.isEqualList(a, b));</span>
+<span class="fc" id="L120">        assertEquals(false, ListUtils.isEqualList(a, null));</span>
+<span class="fc" id="L121">        assertEquals(false, ListUtils.isEqualList(null, b));</span>
+<span class="fc" id="L122">        assertEquals(true, ListUtils.isEqualList(null, null));</span>
+<span class="fc" id="L123">    }</span>
+    
+    public void testHashCode() {
+<span class="fc" id="L126">        Collection data = Arrays.asList( new String[] { &quot;a&quot;, &quot;b&quot;, &quot;c&quot; });</span>
+            
+<span class="fc" id="L128">        List a = new ArrayList( data );</span>
+<span class="fc" id="L129">        List b = new ArrayList( data );</span>
+        
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        assertEquals(true, a.hashCode() == b.hashCode());</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        assertEquals(true, a.hashCode() == ListUtils.hashCodeForList(a));</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        assertEquals(true, b.hashCode() == ListUtils.hashCodeForList(b));</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        assertEquals(true, ListUtils.hashCodeForList(a) == ListUtils.hashCodeForList(b));</span>
+<span class="fc" id="L135">        a.clear();</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        assertEquals(false, ListUtils.hashCodeForList(a) == ListUtils.hashCodeForList(b));</span>
+<span class="fc" id="L137">        assertEquals(0, ListUtils.hashCodeForList(null));</span>
+<span class="fc" id="L138">    }</span>
+    
+    public void testRetainAll() {
+<span class="fc" id="L141">        List sub = new ArrayList();</span>
+<span class="fc" id="L142">        sub.add(a);</span>
+<span class="fc" id="L143">        sub.add(b);</span>
+<span class="fc" id="L144">        sub.add(x);</span>
+
+<span class="fc" id="L146">        List retained = ListUtils.retainAll(fullList, sub);</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        assertTrue(retained.size() == 2);</span>
+<span class="fc" id="L148">        sub.remove(x);</span>
+<span class="fc" id="L149">        assertTrue(retained.equals(sub));</span>
+<span class="fc" id="L150">        fullList.retainAll(sub);</span>
+<span class="fc" id="L151">        assertTrue(retained.equals(fullList));</span>
+        
+        try {
+<span class="nc" id="L154">            List list = ListUtils.retainAll(null, null);</span>
+<span class="nc" id="L155">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L156">        } catch(NullPointerException npe){} // this is what we want</span>
+<span class="fc" id="L157">    }</span>
+
+    public void testRemoveAll() {
+<span class="fc" id="L160">        List sub = new ArrayList();</span>
+<span class="fc" id="L161">        sub.add(a);</span>
+<span class="fc" id="L162">        sub.add(b);</span>
+<span class="fc" id="L163">        sub.add(x);</span>
+
+<span class="fc" id="L165">        List remainder = ListUtils.removeAll(fullList, sub);</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        assertTrue(remainder.size() == 3);</span>
+<span class="fc" id="L167">        fullList.removeAll(sub);</span>
+<span class="fc" id="L168">        assertTrue(remainder.equals(fullList));</span>
+        
+        try {
+<span class="nc" id="L171">            List list = ListUtils.removeAll(null, null);</span>
+<span class="nc" id="L172">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L173">        } catch(NullPointerException npe) {} // this is what we want</span>
+<span class="fc" id="L174">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

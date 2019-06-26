@@ -1,0 +1,1391 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractListTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.list</a> &gt; <span class="el_source">AbstractListTest.java</span></div><h1>AbstractListTest.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.list;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.AbstractCollection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+
+import org.apache.commons.collections4.BulkTest;
+import org.apache.commons.collections4.collection.AbstractCollectionTest;
+import org.apache.commons.collections4.iterators.AbstractListIteratorTest;
+
+/**
+ * Abstract test class for {@link java.util.List} methods and contracts.
+ * &lt;p&gt;
+ * To use, simply extend this class, and implement
+ * the {@link #makeObject} method.
+ * &lt;p&gt;
+ * If your {@link List} fails one of these tests by design,
+ * you may still use this base set of cases.  Simply override the
+ * test case (method) your {@link List} fails or override one of the
+ * protected methods from AbstractCollectionTest.
+ *
+ * @version $Id$
+ */
+public abstract class AbstractListTest&lt;E&gt; extends AbstractCollectionTest&lt;E&gt; {
+
+    /**
+     * JUnit constructor.
+     *
+     * @param testName  the test class name
+     */
+    public AbstractListTest(final String testName) {
+<span class="fc" id="L59">        super(testName);</span>
+<span class="fc" id="L60">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Returns true if the collections produced by
+     *  {@link #makeObject()} and {@link #makeFullCollection()}
+     *  support the &lt;code&gt;set operation.&lt;p&gt;
+     *  Default implementation returns true.  Override if your collection
+     *  class does not support set.
+     */
+    public boolean isSetSupported() {
+<span class="fc" id="L71">        return true;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Verifies that the test list implementation matches the confirmed list
+     *  implementation.
+     */
+    @Override
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void verify() {
+<span class="fc" id="L82">        super.verify();</span>
+
+<span class="fc" id="L84">        final List&lt;E&gt; list1 = getCollection();</span>
+<span class="fc" id="L85">        final List&lt;E&gt; list2 = getConfirmed();</span>
+
+<span class="fc" id="L87">        assertEquals(&quot;List should equal confirmed&quot;, list1, list2);</span>
+<span class="fc" id="L88">        assertEquals(&quot;Confirmed should equal list&quot;, list2, list1);</span>
+
+<span class="fc" id="L90">        assertEquals(&quot;Hash codes should be equal&quot;, list1.hashCode(), list2.hashCode());</span>
+
+<span class="fc" id="L92">        int i = 0;</span>
+<span class="fc" id="L93">        final Iterator&lt;E&gt; iterator1 = list1.iterator();</span>
+<span class="fc" id="L94">        final Iterator&lt;E&gt; iterator2 = list2.iterator();</span>
+<span class="fc" id="L95">        final E[] array = (E[]) list1.toArray();</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        while (iterator2.hasNext()) {</span>
+<span class="fc" id="L97">            assertTrue(&quot;List iterator should have next&quot;, iterator1.hasNext());</span>
+<span class="fc" id="L98">            final Object o1 = iterator1.next();</span>
+<span class="fc" id="L99">            Object o2 = iterator2.next();</span>
+<span class="fc" id="L100">            assertEquals(&quot;Iterator elements should be equal&quot;, o1, o2);</span>
+<span class="fc" id="L101">            o2 = list1.get(i);</span>
+<span class="fc" id="L102">            assertEquals(&quot;get should return correct element&quot;, o1, o2);</span>
+<span class="fc" id="L103">            o2 = array[i];</span>
+<span class="fc" id="L104">            assertEquals(&quot;toArray should have correct element&quot;, o1, o2);</span>
+<span class="fc" id="L105">            i++;</span>
+        }
+<span class="fc" id="L107">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * List equals method is defined.
+     */
+    @Override
+    public boolean isEqualsCheckable() {
+<span class="fc" id="L115">        return true;</span>
+    }
+
+    /**
+     * Returns an empty {@link ArrayList}.
+     */
+    @Override
+    public Collection&lt;E&gt; makeConfirmedCollection() {
+<span class="fc" id="L123">        final ArrayList&lt;E&gt; list = new ArrayList&lt;E&gt;();</span>
+<span class="fc" id="L124">        return list;</span>
+    }
+
+    /**
+     * Returns a full {@link ArrayList}.
+     */
+    @Override
+    public Collection&lt;E&gt; makeConfirmedFullCollection() {
+<span class="fc" id="L132">        final ArrayList&lt;E&gt; list = new ArrayList&lt;E&gt;();</span>
+<span class="fc" id="L133">        list.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L134">        return list;</span>
+    }
+
+    /**
+     * Returns {@link #makeObject()}.
+     *
+     * @return an empty list to be used for testing
+     */
+    @Override
+    public abstract List&lt;E&gt; makeObject();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;E&gt; makeFullCollection() {
+        // only works if list supports optional &quot;addAll(Collection)&quot;
+<span class="fc" id="L151">        final List&lt;E&gt; list = makeObject();</span>
+<span class="fc" id="L152">        list.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L153">        return list;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Returns the {@link #collection} field cast to a {@link List}.
+     *
+     * @return the collection field as a List
+     */
+    @Override
+    public List&lt;E&gt; getCollection() {
+<span class="fc" id="L164">        return (List&lt;E&gt;) super.getCollection();</span>
+    }
+
+    /**
+     * Returns the {@link #confirmed} field cast to a {@link List}.
+     *
+     * @return the confirmed field as a List
+     */
+    @Override
+    public List&lt;E&gt; getConfirmed() {
+<span class="fc" id="L174">        return (List&lt;E&gt;) super.getConfirmed();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Tests bounds checking for {@link List#add(int, Object)} on an
+     *  empty list.
+     */
+    public void testListAddByIndexBoundsChecking() {
+<span class="fc bfc" id="L183" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L184">            return;</span>
+        }
+
+        List&lt;E&gt; list;
+<span class="fc" id="L188">        final E element = getOtherElements()[0];</span>
+
+        try {
+<span class="fc" id="L191">            list = makeObject();</span>
+<span class="nc" id="L192">            list.add(Integer.MIN_VALUE, element);</span>
+<span class="nc" id="L193">            fail(&quot;List.add should throw IndexOutOfBoundsException [Integer.MIN_VALUE]&quot;);</span>
+<span class="pc" id="L194">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="fc" id="L199">            list = makeObject();</span>
+<span class="nc" id="L200">            list.add(-1, element);</span>
+<span class="nc" id="L201">            fail(&quot;List.add should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L202">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="fc" id="L207">            list = makeObject();</span>
+<span class="nc" id="L208">            list.add(1, element);</span>
+<span class="nc" id="L209">            fail(&quot;List.add should throw IndexOutOfBoundsException [1]&quot;);</span>
+<span class="pc" id="L210">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="fc" id="L215">            list = makeObject();</span>
+<span class="nc" id="L216">            list.add(Integer.MAX_VALUE, element);</span>
+<span class="nc" id="L217">            fail(&quot;List.add should throw IndexOutOfBoundsException [Integer.MAX_VALUE]&quot;);</span>
+<span class="pc" id="L218">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L221">    }</span>
+
+    /**
+     *  Tests bounds checking for {@link List#add(int, Object)} on a
+     *  full list.
+     */
+    public void testListAddByIndexBoundsChecking2() {
+<span class="fc bfc" id="L228" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L229">            return;</span>
+        }
+
+        List&lt;E&gt; list;
+<span class="fc" id="L233">        final E element = getOtherElements()[0];</span>
+
+        try {
+<span class="fc" id="L236">            list = makeFullCollection();</span>
+<span class="nc" id="L237">            list.add(Integer.MIN_VALUE, element);</span>
+<span class="nc" id="L238">            fail(&quot;List.add should throw IndexOutOfBoundsException [Integer.MIN_VALUE]&quot;);</span>
+<span class="pc" id="L239">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="fc" id="L244">            list = makeFullCollection();</span>
+<span class="nc" id="L245">            list.add(-1, element);</span>
+<span class="nc" id="L246">            fail(&quot;List.add should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L247">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="fc" id="L252">            list = makeFullCollection();</span>
+<span class="nc" id="L253">            list.add(list.size() + 1, element);</span>
+<span class="nc" id="L254">            fail(&quot;List.add should throw IndexOutOfBoundsException [size + 1]&quot;);</span>
+<span class="pc" id="L255">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="fc" id="L260">            list = makeFullCollection();</span>
+<span class="nc" id="L261">            list.add(Integer.MAX_VALUE, element);</span>
+<span class="nc" id="L262">            fail(&quot;List.add should throw IndexOutOfBoundsException [Integer.MAX_VALUE]&quot;);</span>
+<span class="pc" id="L263">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L266">    }</span>
+
+    /**
+     *  Tests {@link List#add(int,Object)}.
+     */
+    public void testListAddByIndex() {
+<span class="fc bfc" id="L272" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L273">            return;</span>
+        }
+
+<span class="fc" id="L276">        final E element = getOtherElements()[0];</span>
+<span class="fc" id="L277">        final int max = getFullElements().length;</span>
+
+<span class="fc bfc" id="L279" title="All 2 branches covered.">        for (int i = 0; i &lt;= max; i++) {</span>
+<span class="fc" id="L280">            resetFull();</span>
+<span class="fc" id="L281">            getCollection().add(i, element);</span>
+<span class="fc" id="L282">            getConfirmed().add(i, element);</span>
+<span class="fc" id="L283">            verify();</span>
+        }
+<span class="fc" id="L285">    }</span>
+
+    /**
+     *  Tests {@link List#equals(Object)}.
+     */
+    public void testListEquals() {
+<span class="fc" id="L291">        resetEmpty();</span>
+<span class="fc" id="L292">        List&lt;E&gt; list = getCollection();</span>
+<span class="fc" id="L293">        assertEquals(&quot;Empty lists should be equal&quot;, true, list.equals(getConfirmed()));</span>
+<span class="fc" id="L294">        verify();</span>
+<span class="fc" id="L295">        assertEquals(&quot;Empty list should equal self&quot;, true, list.equals(list));</span>
+<span class="fc" id="L296">        verify();</span>
+
+<span class="fc" id="L298">        List&lt;E&gt; list2 = Arrays.asList(getFullElements());</span>
+<span class="fc" id="L299">        assertEquals(&quot;Empty list shouldn't equal full&quot;, false, list.equals(list2));</span>
+<span class="fc" id="L300">        verify();</span>
+
+<span class="fc" id="L302">        list2 = Arrays.asList(getOtherElements());</span>
+<span class="fc" id="L303">        assertEquals(&quot;Empty list shouldn't equal other&quot;, false, list.equals(list2));</span>
+<span class="fc" id="L304">        verify();</span>
+
+<span class="fc" id="L306">        resetFull();</span>
+<span class="fc" id="L307">        list = getCollection();</span>
+<span class="fc" id="L308">        assertEquals(&quot;Full lists should be equal&quot;, true, list.equals(getConfirmed()));</span>
+<span class="fc" id="L309">        verify();</span>
+<span class="fc" id="L310">        assertEquals(&quot;Full list should equal self&quot;, true, list.equals(list));</span>
+<span class="fc" id="L311">        verify();</span>
+
+<span class="fc" id="L313">        list2 = makeObject();</span>
+<span class="fc" id="L314">        assertEquals(&quot;Full list shouldn't equal empty&quot;, false, list.equals(list2));</span>
+<span class="fc" id="L315">        verify();</span>
+
+<span class="fc" id="L317">        list2 = Arrays.asList(getOtherElements());</span>
+<span class="fc" id="L318">        assertEquals(&quot;Full list shouldn't equal other&quot;, false, list.equals(list2));</span>
+<span class="fc" id="L319">        verify();</span>
+
+<span class="fc" id="L321">        list2 = Arrays.asList(getFullElements());</span>
+<span class="pc bpc" id="L322" title="3 of 4 branches missed.">        if (list2.size() &lt; 2 &amp;&amp; isAddSupported()) {</span>
+            // main list is only size 1, so lets add other elements to get a better list
+<span class="nc" id="L324">            list.addAll(Arrays.asList(getOtherElements()));</span>
+<span class="nc" id="L325">            getConfirmed().addAll(Arrays.asList(getOtherElements()));</span>
+<span class="nc" id="L326">            list2 = new ArrayList&lt;E&gt;(list2);</span>
+<span class="nc" id="L327">            list2.addAll(Arrays.asList(getOtherElements()));</span>
+        }
+<span class="pc bpc" id="L329" title="1 of 2 branches missed.">        if (list2.size() &gt; 1) {</span>
+<span class="fc" id="L330">            Collections.reverse(list2);</span>
+<span class="fc" id="L331">            assertEquals(</span>
+<span class="fc" id="L332">                &quot;Full list shouldn't equal full list with same elements but different order&quot;,</span>
+<span class="fc" id="L333">                false, list.equals(list2));</span>
+<span class="fc" id="L334">            verify();</span>
+        }
+
+<span class="fc" id="L337">        resetFull();</span>
+<span class="fc" id="L338">        list = getCollection();</span>
+<span class="fc" id="L339">        assertEquals(&quot;List shouldn't equal String&quot;, false, list.equals(&quot;&quot;));</span>
+<span class="fc" id="L340">        verify();</span>
+
+<span class="fc" id="L342">        final List&lt;E&gt; listForC = Arrays.asList(getFullElements());</span>
+<span class="fc" id="L343">        final Collection&lt;E&gt; c = new AbstractCollection&lt;E&gt;() {</span>
+            @Override
+            public int size() {
+<span class="nc" id="L346">                return listForC.size();</span>
+            }
+
+            @Override
+            public Iterator&lt;E&gt; iterator() {
+<span class="nc" id="L351">                return listForC.iterator();</span>
+            }
+        };
+
+<span class="fc" id="L355">        assertEquals(&quot;List shouldn't equal nonlist with same elements in same order&quot;, false, list.equals(c));</span>
+<span class="fc" id="L356">        verify();</span>
+<span class="fc" id="L357">    }</span>
+
+    /**
+     *  Tests {@link List#hashCode()}.
+     */
+    public void testListHashCode() {
+<span class="fc" id="L363">        resetEmpty();</span>
+<span class="fc" id="L364">        int hash1 = getCollection().hashCode();</span>
+<span class="fc" id="L365">        int hash2 = getConfirmed().hashCode();</span>
+<span class="fc" id="L366">        assertEquals(&quot;Empty lists should have equal hashCodes&quot;, hash1, hash2);</span>
+<span class="fc" id="L367">        verify();</span>
+
+<span class="fc" id="L369">        resetFull();</span>
+<span class="fc" id="L370">        hash1 = getCollection().hashCode();</span>
+<span class="fc" id="L371">        hash2 = getConfirmed().hashCode();</span>
+<span class="fc" id="L372">        assertEquals(&quot;Full lists should have equal hashCodes&quot;, hash1, hash2);</span>
+<span class="fc" id="L373">        verify();</span>
+<span class="fc" id="L374">    }</span>
+
+    /**
+     *  Tests {@link List#get(int)}.
+     */
+    public void testListGetByIndex() {
+<span class="fc" id="L380">        resetFull();</span>
+<span class="fc" id="L381">        final List&lt;E&gt; list = getCollection();</span>
+<span class="fc" id="L382">        final E[] elements = getFullElements();</span>
+<span class="fc bfc" id="L383" title="All 2 branches covered.">        for (int i = 0; i &lt; elements.length; i++) {</span>
+<span class="fc" id="L384">            assertEquals(&quot;List should contain correct elements&quot;, elements[i], list.get(i));</span>
+<span class="fc" id="L385">            verify();</span>
+        }
+<span class="fc" id="L387">    }</span>
+
+    /**
+     *  Tests bounds checking for {@link List#get(int)} on an
+     *  empty list.
+     */
+    public void testListGetByIndexBoundsChecking() {
+<span class="fc" id="L394">        final List&lt;E&gt; list = makeObject();</span>
+
+        try {
+<span class="nc" id="L397">            list.get(Integer.MIN_VALUE);</span>
+<span class="nc" id="L398">            fail(&quot;List.get should throw IndexOutOfBoundsException [Integer.MIN_VALUE]&quot;);</span>
+<span class="pc" id="L399">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L404">            list.get(-1);</span>
+<span class="nc" id="L405">            fail(&quot;List.get should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L406">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L411">            list.get(0);</span>
+<span class="nc" id="L412">            fail(&quot;List.get should throw IndexOutOfBoundsException [0]&quot;);</span>
+<span class="pc" id="L413">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L418">            list.get(1);</span>
+<span class="nc" id="L419">            fail(&quot;List.get should throw IndexOutOfBoundsException [1]&quot;);</span>
+<span class="pc" id="L420">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L425">            list.get(Integer.MAX_VALUE);</span>
+<span class="nc" id="L426">            fail(&quot;List.get should throw IndexOutOfBoundsException [Integer.MAX_VALUE]&quot;);</span>
+<span class="pc" id="L427">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L430">    }</span>
+
+    /**
+     *  Tests bounds checking for {@link List#get(int)} on a
+     *  full list.
+     */
+    public void testListGetByIndexBoundsChecking2() {
+<span class="fc" id="L437">        final List&lt;E&gt; list = makeFullCollection();</span>
+
+        try {
+<span class="nc" id="L440">            list.get(Integer.MIN_VALUE);</span>
+<span class="nc" id="L441">            fail(&quot;List.get should throw IndexOutOfBoundsException [Integer.MIN_VALUE]&quot;);</span>
+<span class="pc" id="L442">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L447">            list.get(-1);</span>
+<span class="nc" id="L448">            fail(&quot;List.get should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L449">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L454">            list.get(getFullElements().length);</span>
+<span class="nc" id="L455">            fail(&quot;List.get should throw IndexOutOfBoundsException [size]&quot;);</span>
+<span class="pc" id="L456">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L461">            list.get(Integer.MAX_VALUE);</span>
+<span class="nc" id="L462">            fail(&quot;List.get should throw IndexOutOfBoundsException [Integer.MAX_VALUE]&quot;);</span>
+<span class="pc" id="L463">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L466">    }</span>
+
+    /**
+     *  Tests {@link List#indexOf}.
+     */
+    public void testListIndexOf() {
+<span class="fc" id="L472">        resetFull();</span>
+<span class="fc" id="L473">        final List&lt;E&gt; list1 = getCollection();</span>
+<span class="fc" id="L474">        final List&lt;E&gt; list2 = getConfirmed();</span>
+
+<span class="fc bfc" id="L476" title="All 2 branches covered.">        for (E element : list2) {</span>
+<span class="fc" id="L477">            assertEquals(&quot;indexOf should return correct result&quot;,</span>
+<span class="fc" id="L478">                    list1.indexOf(element), list2.indexOf(element));</span>
+<span class="fc" id="L479">            verify();</span>
+        }
+
+<span class="fc" id="L482">        final E[] other = getOtherElements();</span>
+<span class="fc bfc" id="L483" title="All 2 branches covered.">        for (final E element : other) {</span>
+<span class="fc" id="L484">            assertEquals(&quot;indexOf should return -1 for nonexistent element&quot;,</span>
+<span class="fc" id="L485">                -1, list1.indexOf(element));</span>
+<span class="fc" id="L486">            verify();</span>
+        }
+<span class="fc" id="L488">    }</span>
+
+    /**
+     *  Tests {@link List#lastIndexOf}.
+     */
+    public void testListLastIndexOf() {
+<span class="fc" id="L494">        resetFull();</span>
+<span class="fc" id="L495">        final List&lt;E&gt; list1 = getCollection();</span>
+<span class="fc" id="L496">        final List&lt;E&gt; list2 = getConfirmed();</span>
+
+<span class="fc" id="L498">        final Iterator&lt;E&gt; iterator = list2.iterator();</span>
+<span class="fc bfc" id="L499" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="fc" id="L500">            final E element = iterator.next();</span>
+<span class="fc" id="L501">            assertEquals(&quot;lastIndexOf should return correct result&quot;,</span>
+<span class="fc" id="L502">              list1.lastIndexOf(element), list2.lastIndexOf(element));</span>
+<span class="fc" id="L503">            verify();</span>
+        }
+
+<span class="fc" id="L506">        final E[] other = getOtherElements();</span>
+<span class="fc bfc" id="L507" title="All 2 branches covered.">        for (final E element : other) {</span>
+<span class="fc" id="L508">            assertEquals(&quot;lastIndexOf should return -1 for nonexistent &quot; +</span>
+<span class="fc" id="L509">                &quot;element&quot;, -1, list1.lastIndexOf(element));</span>
+<span class="fc" id="L510">            verify();</span>
+        }
+<span class="fc" id="L512">    }</span>
+
+    /**
+     *  Tests bounds checking for {@link List#set(int,Object)} on an
+     *  empty list.
+     */
+    public void testListSetByIndexBoundsChecking() {
+<span class="fc bfc" id="L519" title="All 2 branches covered.">        if (!isSetSupported()) {</span>
+<span class="fc" id="L520">            return;</span>
+        }
+
+<span class="fc" id="L523">        final List&lt;E&gt; list = makeObject();</span>
+<span class="fc" id="L524">        final E element = getOtherElements()[0];</span>
+
+        try {
+<span class="nc" id="L527">            list.set(Integer.MIN_VALUE, element);</span>
+<span class="nc" id="L528">            fail(&quot;List.set should throw IndexOutOfBoundsException [Integer.MIN_VALUE]&quot;);</span>
+<span class="pc" id="L529">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L534">            list.set(-1, element);</span>
+<span class="nc" id="L535">            fail(&quot;List.set should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L536">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L541">            list.set(0, element);</span>
+<span class="nc" id="L542">            fail(&quot;List.set should throw IndexOutOfBoundsException [0]&quot;);</span>
+<span class="pc" id="L543">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L548">            list.set(1, element);</span>
+<span class="nc" id="L549">            fail(&quot;List.set should throw IndexOutOfBoundsException [1]&quot;);</span>
+<span class="pc" id="L550">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L555">            list.set(Integer.MAX_VALUE, element);</span>
+<span class="nc" id="L556">            fail(&quot;List.set should throw IndexOutOfBoundsException [Integer.MAX_VALUE]&quot;);</span>
+<span class="pc" id="L557">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L560">    }</span>
+
+
+    /**
+     *  Tests bounds checking for {@link List#set(int,Object)} on a
+     *  full list.
+     */
+    public void testListSetByIndexBoundsChecking2() {
+<span class="fc bfc" id="L568" title="All 2 branches covered.">        if (!isSetSupported()) {</span>
+<span class="fc" id="L569">            return;</span>
+        }
+
+<span class="fc" id="L572">        final List&lt;E&gt; list = makeFullCollection();</span>
+<span class="fc" id="L573">        final E element = getOtherElements()[0];</span>
+
+        try {
+<span class="nc" id="L576">            list.set(Integer.MIN_VALUE, element);</span>
+<span class="nc" id="L577">            fail(&quot;List.set should throw IndexOutOfBoundsException &quot; +</span>
+              &quot;[Integer.MIN_VALUE]&quot;);
+<span class="pc" id="L579">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L584">            list.set(-1, element);</span>
+<span class="nc" id="L585">            fail(&quot;List.set should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L586">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L591">            list.set(getFullElements().length, element);</span>
+<span class="nc" id="L592">            fail(&quot;List.set should throw IndexOutOfBoundsException [size]&quot;);</span>
+<span class="pc" id="L593">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L598">            list.set(Integer.MAX_VALUE, element);</span>
+<span class="nc" id="L599">            fail(&quot;List.set should throw IndexOutOfBoundsException &quot; +</span>
+              &quot;[Integer.MAX_VALUE]&quot;);
+<span class="pc" id="L601">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L604">    }</span>
+
+
+    /**
+     *  Test {@link List#set(int,Object)}.
+     */
+    public void testListSetByIndex() {
+<span class="fc bfc" id="L611" title="All 2 branches covered.">        if (!isSetSupported()) {</span>
+<span class="fc" id="L612">            return;</span>
+        }
+
+<span class="fc" id="L615">        resetFull();</span>
+<span class="fc" id="L616">        final E[] elements = getFullElements();</span>
+<span class="fc" id="L617">        final E[] other = getOtherElements();</span>
+
+<span class="fc bfc" id="L619" title="All 2 branches covered.">        for (int i = 0; i &lt; elements.length; i++) {</span>
+<span class="fc" id="L620">            final E n = other[i % other.length];</span>
+<span class="fc" id="L621">            final E v = getCollection().set(i, n);</span>
+<span class="fc" id="L622">            assertEquals(&quot;Set should return correct element&quot;, elements[i], v);</span>
+<span class="fc" id="L623">            getConfirmed().set(i, n);</span>
+<span class="fc" id="L624">            verify();</span>
+        }
+<span class="fc" id="L626">    }</span>
+
+    /**
+     *  If {@link #isSetSupported()} returns false, tests that set operation
+     *  raises &lt;Code&gt;UnsupportedOperationException.
+     */
+    public void testUnsupportedSet() {
+<span class="fc bfc" id="L633" title="All 2 branches covered.">        if (isSetSupported()) {</span>
+<span class="fc" id="L634">            return;</span>
+        }
+
+<span class="fc" id="L637">        resetFull();</span>
+        try {
+<span class="nc" id="L639">            getCollection().set(0, getFullElements()[0]);</span>
+<span class="nc" id="L640">            fail(&quot;Emtpy collection should not support set.&quot;);</span>
+<span class="pc" id="L641">        } catch (final UnsupportedOperationException e) {</span>
+            // expected
+        }
+        // make sure things didn't change even if the expected exception was
+        // thrown.
+<span class="fc" id="L646">        verify();</span>
+<span class="fc" id="L647">    }</span>
+
+    /**
+     *  Tests bounds checking for {@link List#remove(int)} on an
+     *  empty list.
+     */
+    public void testListRemoveByIndexBoundsChecking() {
+<span class="fc bfc" id="L654" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L655">            return;</span>
+        }
+
+<span class="fc" id="L658">        final List&lt;E&gt; list = makeObject();</span>
+
+        try {
+<span class="nc" id="L661">            list.remove(Integer.MIN_VALUE);</span>
+<span class="nc" id="L662">            fail(&quot;List.remove should throw IndexOutOfBoundsException [Integer.MIN_VALUE]&quot;);</span>
+<span class="pc" id="L663">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L668">            list.remove(-1);</span>
+<span class="nc" id="L669">            fail(&quot;List.remove should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L670">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L675">            list.remove(0);</span>
+<span class="nc" id="L676">            fail(&quot;List.remove should throw IndexOutOfBoundsException [0]&quot;);</span>
+<span class="pc" id="L677">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L682">            list.remove(1);</span>
+<span class="nc" id="L683">            fail(&quot;List.remove should throw IndexOutOfBoundsException [1]&quot;);</span>
+<span class="pc" id="L684">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L689">            list.remove(Integer.MAX_VALUE);</span>
+<span class="nc" id="L690">            fail(&quot;List.remove should throw IndexOutOfBoundsException [Integer.MAX_VALUE]&quot;);</span>
+<span class="pc" id="L691">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L694">    }</span>
+
+    /**
+     *  Tests bounds checking for {@link List#remove(int)} on a
+     *  full list.
+     */
+    public void testListRemoveByIndexBoundsChecking2() {
+<span class="fc bfc" id="L701" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L702">            return;</span>
+        }
+
+<span class="fc" id="L705">        final List&lt;E&gt; list = makeFullCollection();</span>
+
+        try {
+<span class="nc" id="L708">            list.remove(Integer.MIN_VALUE);</span>
+<span class="nc" id="L709">            fail(&quot;List.remove should throw IndexOutOfBoundsException &quot; +</span>
+              &quot;[Integer.MIN_VALUE]&quot;);
+<span class="pc" id="L711">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L716">            list.remove(-1);</span>
+<span class="nc" id="L717">            fail(&quot;List.remove should throw IndexOutOfBoundsException [-1]&quot;);</span>
+<span class="pc" id="L718">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L723">            list.remove(getFullElements().length);</span>
+<span class="nc" id="L724">            fail(&quot;List.remove should throw IndexOutOfBoundsException [size]&quot;);</span>
+<span class="pc" id="L725">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L730">            list.remove(Integer.MAX_VALUE);</span>
+<span class="nc" id="L731">            fail(&quot;List.remove should throw IndexOutOfBoundsException &quot; +</span>
+              &quot;[Integer.MAX_VALUE]&quot;);
+<span class="pc" id="L733">        } catch(final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="fc" id="L736">    }</span>
+
+
+    /**
+     *  Tests {@link List#remove(int)}.
+     */
+    public void testListRemoveByIndex() {
+<span class="fc bfc" id="L743" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L744">            return;</span>
+        }
+
+<span class="fc" id="L747">        final int max = getFullElements().length;</span>
+<span class="fc bfc" id="L748" title="All 2 branches covered.">        for (int i = 0; i &lt; max; i++) {</span>
+<span class="fc" id="L749">            resetFull();</span>
+<span class="fc" id="L750">            final E o1 = getCollection().remove(i);</span>
+<span class="fc" id="L751">            final E o2 = getConfirmed().remove(i);</span>
+<span class="fc" id="L752">            assertEquals(&quot;remove should return correct element&quot;, o1, o2);</span>
+<span class="fc" id="L753">            verify();</span>
+        }
+<span class="fc" id="L755">    }</span>
+
+    /**
+     *  Tests the read-only bits of {@link List#listIterator()}.
+     */
+    public void testListListIterator() {
+<span class="fc" id="L761">        resetFull();</span>
+<span class="fc" id="L762">        forwardTest(getCollection().listIterator(), 0);</span>
+<span class="fc" id="L763">        backwardTest(getCollection().listIterator(), 0);</span>
+<span class="fc" id="L764">    }</span>
+
+    /**
+     *  Tests the read-only bits of {@link List#listIterator(int)}.
+     */
+    public void testListListIteratorByIndex() {
+<span class="fc" id="L770">        resetFull();</span>
+        try {
+<span class="nc" id="L772">            getCollection().listIterator(-1);</span>
+<span class="pc" id="L773">        } catch (final IndexOutOfBoundsException ex) {}</span>
+<span class="fc" id="L774">        resetFull();</span>
+        try {
+<span class="nc" id="L776">            getCollection().listIterator(getCollection().size() + 1);</span>
+<span class="pc" id="L777">        } catch (final IndexOutOfBoundsException ex) {}</span>
+<span class="fc" id="L778">        resetFull();</span>
+<span class="fc bfc" id="L779" title="All 2 branches covered.">        for (int i = 0; i &lt;= getConfirmed().size(); i++) {</span>
+<span class="fc" id="L780">            forwardTest(getCollection().listIterator(i), i);</span>
+<span class="fc" id="L781">            backwardTest(getCollection().listIterator(i), i);</span>
+        }
+<span class="fc" id="L783">        resetFull();</span>
+<span class="fc bfc" id="L784" title="All 2 branches covered.">        for (int i = 0; i &lt;= getConfirmed().size(); i++) {</span>
+<span class="fc" id="L785">            backwardTest(getCollection().listIterator(i), i);</span>
+        }
+<span class="fc" id="L787">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Tests remove on list iterator is correct.
+     */
+    public void testListListIteratorPreviousRemoveNext() {
+<span class="fc bfc" id="L794" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L795">            return;</span>
+        }
+<span class="fc" id="L797">        resetFull();</span>
+<span class="pc bpc" id="L798" title="1 of 2 branches missed.">        if (getCollection().size() &lt; 4) {</span>
+<span class="nc" id="L799">            return;</span>
+        }
+<span class="fc" id="L801">        final ListIterator&lt;E&gt; it = getCollection().listIterator();</span>
+<span class="fc" id="L802">        final E zero = it.next();</span>
+<span class="fc" id="L803">        final E one = it.next();</span>
+<span class="fc" id="L804">        final E two = it.next();</span>
+<span class="fc" id="L805">        final E two2 = it.previous();</span>
+<span class="fc" id="L806">        final E one2 = it.previous();</span>
+<span class="fc" id="L807">        assertEquals(one, one2);</span>
+<span class="fc" id="L808">        assertEquals(two, two2);</span>
+<span class="fc" id="L809">        assertEquals(zero, getCollection().get(0));</span>
+<span class="fc" id="L810">        assertEquals(one, getCollection().get(1));</span>
+<span class="fc" id="L811">        assertEquals(two, getCollection().get(2));</span>
+
+<span class="fc" id="L813">        it.remove(); // removed element at index 1 (one)</span>
+<span class="fc" id="L814">        assertEquals(zero, getCollection().get(0));</span>
+<span class="fc" id="L815">        assertEquals(two, getCollection().get(1));</span>
+<span class="fc" id="L816">        final E two3 = it.next();  // do next after remove</span>
+<span class="fc" id="L817">        assertEquals(two, two3);</span>
+<span class="pc bpc" id="L818" title="1 of 2 branches missed.">        assertEquals(getCollection().size() &gt; 2, it.hasNext());</span>
+<span class="fc" id="L819">        assertEquals(true, it.hasPrevious());</span>
+<span class="fc" id="L820">    }</span>
+
+    /**
+     * Tests remove on list iterator is correct.
+     */
+    public void testListListIteratorPreviousRemovePrevious() {
+<span class="fc bfc" id="L826" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L827">            return;</span>
+        }
+<span class="fc" id="L829">        resetFull();</span>
+<span class="pc bpc" id="L830" title="1 of 2 branches missed.">        if (getCollection().size() &lt; 4) {</span>
+<span class="nc" id="L831">            return;</span>
+        }
+<span class="fc" id="L833">        final ListIterator&lt;E&gt; it = getCollection().listIterator();</span>
+<span class="fc" id="L834">        final E zero = it.next();</span>
+<span class="fc" id="L835">        final E one = it.next();</span>
+<span class="fc" id="L836">        final E two = it.next();</span>
+<span class="fc" id="L837">        final E two2 = it.previous();</span>
+<span class="fc" id="L838">        final E one2 = it.previous();</span>
+<span class="fc" id="L839">        assertEquals(one, one2);</span>
+<span class="fc" id="L840">        assertEquals(two, two2);</span>
+<span class="fc" id="L841">        assertEquals(zero, getCollection().get(0));</span>
+<span class="fc" id="L842">        assertEquals(one, getCollection().get(1));</span>
+<span class="fc" id="L843">        assertEquals(two, getCollection().get(2));</span>
+
+<span class="fc" id="L845">        it.remove(); // removed element at index 1 (one)</span>
+<span class="fc" id="L846">        assertEquals(zero, getCollection().get(0));</span>
+<span class="fc" id="L847">        assertEquals(two, getCollection().get(1));</span>
+<span class="fc" id="L848">        final E zero3 = it.previous();  // do previous after remove</span>
+<span class="fc" id="L849">        assertEquals(zero, zero3);</span>
+<span class="fc" id="L850">        assertEquals(false, it.hasPrevious());</span>
+<span class="pc bpc" id="L851" title="1 of 2 branches missed.">        assertEquals(getCollection().size() &gt; 2, it.hasNext());</span>
+<span class="fc" id="L852">    }</span>
+
+    /**
+     * Tests remove on list iterator is correct.
+     */
+    public void testListListIteratorNextRemoveNext() {
+<span class="fc bfc" id="L858" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L859">            return;</span>
+        }
+<span class="fc" id="L861">        resetFull();</span>
+<span class="pc bpc" id="L862" title="1 of 2 branches missed.">        if (getCollection().size() &lt; 4) {</span>
+<span class="nc" id="L863">            return;</span>
+        }
+<span class="fc" id="L865">        final ListIterator&lt;E&gt; it = getCollection().listIterator();</span>
+<span class="fc" id="L866">        final E zero = it.next();</span>
+<span class="fc" id="L867">        final E one = it.next();</span>
+<span class="fc" id="L868">        final E two = it.next();</span>
+<span class="fc" id="L869">        assertEquals(zero, getCollection().get(0));</span>
+<span class="fc" id="L870">        assertEquals(one, getCollection().get(1));</span>
+<span class="fc" id="L871">        assertEquals(two, getCollection().get(2));</span>
+<span class="fc" id="L872">        final E three = getCollection().get(3);</span>
+
+<span class="fc" id="L874">        it.remove(); // removed element at index 2 (two)</span>
+<span class="fc" id="L875">        assertEquals(zero, getCollection().get(0));</span>
+<span class="fc" id="L876">        assertEquals(one, getCollection().get(1));</span>
+<span class="fc" id="L877">        final E three2 = it.next();  // do next after remove</span>
+<span class="fc" id="L878">        assertEquals(three, three2);</span>
+<span class="pc bpc" id="L879" title="1 of 2 branches missed.">        assertEquals(getCollection().size() &gt; 3, it.hasNext());</span>
+<span class="fc" id="L880">        assertEquals(true, it.hasPrevious());</span>
+<span class="fc" id="L881">    }</span>
+
+    /**
+     * Tests remove on list iterator is correct.
+     */
+    public void testListListIteratorNextRemovePrevious() {
+<span class="fc bfc" id="L887" title="All 2 branches covered.">        if (!isRemoveSupported()) {</span>
+<span class="fc" id="L888">            return;</span>
+        }
+<span class="fc" id="L890">        resetFull();</span>
+<span class="pc bpc" id="L891" title="1 of 2 branches missed.">        if (getCollection().size() &lt; 4) {</span>
+<span class="nc" id="L892">            return;</span>
+        }
+<span class="fc" id="L894">        final ListIterator&lt;E&gt; it = getCollection().listIterator();</span>
+<span class="fc" id="L895">        final E zero = it.next();</span>
+<span class="fc" id="L896">        final E one = it.next();</span>
+<span class="fc" id="L897">        final E two = it.next();</span>
+<span class="fc" id="L898">        assertEquals(zero, getCollection().get(0));</span>
+<span class="fc" id="L899">        assertEquals(one, getCollection().get(1));</span>
+<span class="fc" id="L900">        assertEquals(two, getCollection().get(2));</span>
+
+<span class="fc" id="L902">        it.remove(); // removed element at index 2 (two)</span>
+<span class="fc" id="L903">        assertEquals(zero, getCollection().get(0));</span>
+<span class="fc" id="L904">        assertEquals(one, getCollection().get(1));</span>
+<span class="fc" id="L905">        final E one2 = it.previous();  // do previous after remove</span>
+<span class="fc" id="L906">        assertEquals(one, one2);</span>
+<span class="fc" id="L907">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L908">        assertEquals(true, it.hasPrevious());</span>
+<span class="fc" id="L909">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Traverses to the end of the given iterator.
+     *
+     *  @param iter  the iterator to traverse
+     *  @param i     the starting index
+     */
+    private void forwardTest(final ListIterator&lt;E&gt; iter, int i) {
+<span class="fc" id="L919">        final List&lt;E&gt; list = getCollection();</span>
+<span class="fc" id="L920">        final int max = getFullElements().length;</span>
+
+<span class="fc bfc" id="L922" title="All 2 branches covered.">        while (i &lt; max) {</span>
+<span class="fc" id="L923">            assertTrue(&quot;Iterator should have next&quot;, iter.hasNext());</span>
+<span class="fc" id="L924">            assertEquals(&quot;Iterator.nextIndex should work&quot;,</span>
+<span class="fc" id="L925">                i, iter.nextIndex());</span>
+<span class="fc" id="L926">            assertEquals(&quot;Iterator.previousIndex should work&quot;,</span>
+<span class="fc" id="L927">                i - 1, iter.previousIndex());</span>
+<span class="fc" id="L928">            final Object o = iter.next();</span>
+<span class="fc" id="L929">            assertEquals(&quot;Iterator returned correct element&quot;, list.get(i), o);</span>
+<span class="fc" id="L930">            i++;</span>
+        }
+
+<span class="pc bpc" id="L933" title="1 of 2 branches missed.">        assertTrue(&quot;Iterator shouldn't have next&quot;, !iter.hasNext());</span>
+<span class="fc" id="L934">        assertEquals(&quot;nextIndex should be size&quot;, max, iter.nextIndex());</span>
+<span class="fc" id="L935">        assertEquals(&quot;previousIndex should be size - 1&quot;, max - 1, iter.previousIndex());</span>
+
+        try {
+<span class="nc" id="L938">            iter.next();</span>
+<span class="nc" id="L939">            fail(&quot;Exhausted iterator should raise NoSuchElement&quot;);</span>
+<span class="pc" id="L940">        } catch (final NoSuchElementException e) {</span>
+            // expected
+        }
+<span class="fc" id="L943">    }</span>
+
+    /**
+     *  Traverses to the beginning of the given iterator.
+     *
+     *  @param iter  the iterator to traverse
+     *  @param i     the starting index
+     */
+    private void backwardTest(final ListIterator&lt;E&gt; iter, int i) {
+<span class="fc" id="L952">        final List&lt;E&gt; list = getCollection();</span>
+
+<span class="fc bfc" id="L954" title="All 2 branches covered.">        while (i &gt; 0) {</span>
+<span class="fc" id="L955">            assertTrue(&quot;Iterator should have previous, i:&quot; + i,</span>
+<span class="fc" id="L956">                iter.hasPrevious());</span>
+<span class="fc" id="L957">            assertEquals(&quot;Iterator.nextIndex should work, i:&quot; + i,</span>
+<span class="fc" id="L958">                i, iter.nextIndex());</span>
+<span class="fc" id="L959">            assertEquals(&quot;Iterator.previousIndex should work, i:&quot; + i,</span>
+<span class="fc" id="L960">                i - 1, iter.previousIndex());</span>
+<span class="fc" id="L961">            final E o = iter.previous();</span>
+<span class="fc" id="L962">            assertEquals(&quot;Iterator returned correct element&quot;,</span>
+<span class="fc" id="L963">                list.get(i - 1), o);</span>
+<span class="fc" id="L964">            i--;</span>
+        }
+
+<span class="pc bpc" id="L967" title="1 of 2 branches missed.">        assertTrue(&quot;Iterator shouldn't have previous&quot;, !iter.hasPrevious());</span>
+<span class="fc" id="L968">        final int nextIndex = iter.nextIndex();</span>
+<span class="fc" id="L969">        assertEquals(&quot;nextIndex should be 0&quot;, 0, nextIndex);</span>
+<span class="fc" id="L970">        final int prevIndex = iter.previousIndex();</span>
+<span class="fc" id="L971">        assertEquals(&quot;previousIndex should be -1&quot;, -1, prevIndex);</span>
+
+        try {
+<span class="nc" id="L974">            iter.previous();</span>
+<span class="nc" id="L975">            fail(&quot;Exhausted iterator should raise NoSuchElement&quot;);</span>
+<span class="pc" id="L976">        } catch (final NoSuchElementException e) {</span>
+            // expected
+        }
+
+<span class="fc" id="L980">    }</span>
+
+
+    /**
+     *  Tests the {@link ListIterator#add(Object)} method of the list
+     *  iterator.
+     */
+    public void testListIteratorAdd() {
+<span class="fc bfc" id="L988" title="All 2 branches covered.">        if (!isAddSupported()) {</span>
+<span class="fc" id="L989">            return;</span>
+        }
+
+<span class="fc" id="L992">        resetEmpty();</span>
+<span class="fc" id="L993">        final List&lt;E&gt; list1 = getCollection();</span>
+<span class="fc" id="L994">        final List&lt;E&gt; list2 = getConfirmed();</span>
+
+<span class="fc" id="L996">        final E[] elements = getFullElements();</span>
+<span class="fc" id="L997">        ListIterator&lt;E&gt; iter1 = list1.listIterator();</span>
+<span class="fc" id="L998">        ListIterator&lt;E&gt; iter2 = list2.listIterator();</span>
+
+<span class="fc bfc" id="L1000" title="All 2 branches covered.">        for (final E element : elements) {</span>
+<span class="fc" id="L1001">            iter1.add(element);</span>
+<span class="fc" id="L1002">            iter2.add(element);</span>
+<span class="fc" id="L1003">            verify();</span>
+        }
+
+<span class="fc" id="L1006">        resetFull();</span>
+<span class="fc" id="L1007">        iter1 = getCollection().listIterator();</span>
+<span class="fc" id="L1008">        iter2 = getConfirmed().listIterator();</span>
+<span class="fc bfc" id="L1009" title="All 2 branches covered.">        for (final E element : elements) {</span>
+<span class="fc" id="L1010">            iter1.next();</span>
+<span class="fc" id="L1011">            iter2.next();</span>
+<span class="fc" id="L1012">            iter1.add(element);</span>
+<span class="fc" id="L1013">            iter2.add(element);</span>
+<span class="fc" id="L1014">            verify();</span>
+        }
+<span class="fc" id="L1016">    }</span>
+
+    /**
+     *  Tests the {@link ListIterator#set(Object)} method of the list
+     *  iterator.
+     */
+    public void testListIteratorSet() {
+<span class="fc bfc" id="L1023" title="All 2 branches covered.">        if (!isSetSupported()) {</span>
+<span class="fc" id="L1024">            return;</span>
+        }
+
+<span class="fc" id="L1027">        final E[] elements = getFullElements();</span>
+
+<span class="fc" id="L1029">        resetFull();</span>
+<span class="fc" id="L1030">        final ListIterator&lt;E&gt; iter1 = getCollection().listIterator();</span>
+<span class="fc" id="L1031">        final ListIterator&lt;E&gt; iter2 = getConfirmed().listIterator();</span>
+<span class="fc bfc" id="L1032" title="All 2 branches covered.">        for (final E element : elements) {</span>
+<span class="fc" id="L1033">            iter1.next();</span>
+<span class="fc" id="L1034">            iter2.next();</span>
+<span class="fc" id="L1035">            iter1.set(element);</span>
+<span class="fc" id="L1036">            iter2.set(element);</span>
+<span class="fc" id="L1037">            verify();</span>
+        }
+<span class="fc" id="L1039">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testEmptyListSerialization() throws IOException, ClassNotFoundException {
+<span class="fc" id="L1043">        final List&lt;E&gt; list = makeObject();</span>
+<span class="fc bfc" id="L1044" title="All 4 branches covered.">        if (!(list instanceof Serializable &amp;&amp; isTestSerialization())) {</span>
+<span class="fc" id="L1045">            return;</span>
+        }
+
+<span class="fc" id="L1048">        final byte[] objekt = writeExternalFormToBytes((Serializable) list);</span>
+<span class="fc" id="L1049">        final List&lt;E&gt; list2 = (List&lt;E&gt;) readExternalFormFromBytes(objekt);</span>
+
+<span class="fc" id="L1051">        assertEquals(&quot;Both lists are empty&quot;, 0, list.size());</span>
+<span class="fc" id="L1052">        assertEquals(&quot;Both lists are empty&quot;, 0, list2.size());</span>
+<span class="fc" id="L1053">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testFullListSerialization() throws IOException, ClassNotFoundException {
+<span class="fc" id="L1057">        final List&lt;E&gt; list = makeFullCollection();</span>
+<span class="fc" id="L1058">        final int size = getFullElements().length;</span>
+<span class="fc bfc" id="L1059" title="All 4 branches covered.">        if (!(list instanceof Serializable &amp;&amp; isTestSerialization())) {</span>
+<span class="fc" id="L1060">            return;</span>
+        }
+
+<span class="fc" id="L1063">        final byte[] objekt = writeExternalFormToBytes((Serializable) list);</span>
+<span class="fc" id="L1064">        final List&lt;E&gt; list2 = (List&lt;E&gt;) readExternalFormFromBytes(objekt);</span>
+
+<span class="fc" id="L1066">        assertEquals(&quot;Both lists are same size&quot;, size, list.size());</span>
+<span class="fc" id="L1067">        assertEquals(&quot;Both lists are same size&quot;, size, list2.size());</span>
+<span class="fc" id="L1068">    }</span>
+
+    /**
+     * Compare the current serialized form of the List
+     * against the canonical version in SVN.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testEmptyListCompatibility() throws IOException, ClassNotFoundException {
+        /**
+         * Create canonical objects with this code
+        List list = makeEmptyList();
+        if (!(list instanceof Serializable)) return;
+
+        writeExternalFormToDisk((Serializable) list, getCanonicalEmptyCollectionName(list));
+        */
+
+        // test to make sure the canonical form has been preserved
+<span class="fc" id="L1085">        final List&lt;E&gt; list = makeObject();</span>
+<span class="pc bpc" id="L1086" title="1 of 4 branches missed.">        if (list instanceof Serializable &amp;&amp; !skipSerializedCanonicalTests()</span>
+<span class="fc bfc" id="L1087" title="All 2 branches covered.">                &amp;&amp; isTestSerialization()) {</span>
+<span class="fc" id="L1088">            final List&lt;E&gt; list2 = (List&lt;E&gt;) readExternalFormFromDisk(getCanonicalEmptyCollectionName(list));</span>
+<span class="fc" id="L1089">            assertEquals(&quot;List is empty&quot;, 0, list2.size());</span>
+<span class="fc" id="L1090">            assertEquals(list, list2);</span>
+        }
+<span class="fc" id="L1092">    }</span>
+
+    /**
+     * Compare the current serialized form of the List
+     * against the canonical version in SVN.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testFullListCompatibility() throws IOException, ClassNotFoundException {
+        /**
+         * Create canonical objects with this code
+        List list = makeFullList();
+        if (!(list instanceof Serializable)) return;
+
+        writeExternalFormToDisk((Serializable) list, getCanonicalFullCollectionName(list));
+        */
+
+        // test to make sure the canonical form has been preserved
+<span class="fc" id="L1109">        final List&lt;E&gt; list = makeFullCollection();</span>
+<span class="pc bpc" id="L1110" title="1 of 6 branches missed.">        if(list instanceof Serializable &amp;&amp; !skipSerializedCanonicalTests() &amp;&amp; isTestSerialization()) {</span>
+<span class="fc" id="L1111">            final List&lt;E&gt; list2 = (List&lt;E&gt;) readExternalFormFromDisk(getCanonicalFullCollectionName(list));</span>
+<span class="pc bpc" id="L1112" title="1 of 2 branches missed.">            if (list2.size() == 4) {</span>
+                // old serialized tests
+<span class="nc" id="L1114">                return;</span>
+            }
+<span class="fc" id="L1116">            assertEquals(&quot;List is the right size&quot;,list.size(), list2.size());</span>
+<span class="fc" id="L1117">            assertEquals(list, list2);</span>
+        }
+<span class="fc" id="L1119">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     *  Returns a {@link BulkTest} for testing {@link List#subList(int,int)}.
+     *  The returned bulk test will run through every &lt;code&gt;TestList&lt;/code&gt;
+     *  method, &lt;i&gt;including&lt;/i&gt; another &lt;code&gt;bulkTestSubList&lt;/code&gt;.
+     *  Sublists are tested until the size of the sublist is less than 10.
+     *  Each sublist is 6 elements smaller than its parent list.
+     *  (By default this means that two rounds of sublists will be tested).
+     *  The verify() method is overloaded to test that the original list is
+     *  modified when the sublist is.
+     */
+    public BulkTest bulkTestSubList() {
+<span class="fc bfc" id="L1133" title="All 2 branches covered.">        if (getFullElements().length - 6 &lt; 10) {</span>
+<span class="fc" id="L1134">            return null;</span>
+        }
+<span class="fc" id="L1136">        return new BulkTestSubList&lt;E&gt;(this);</span>
+    }
+
+   public static class BulkTestSubList&lt;E&gt; extends AbstractListTest&lt;E&gt; {
+
+       private final AbstractListTest&lt;E&gt; outer;
+
+       public BulkTestSubList(final AbstractListTest&lt;E&gt; outer) {
+<span class="fc" id="L1144">           super(&quot;&quot;);</span>
+<span class="fc" id="L1145">           this.outer = outer;</span>
+<span class="fc" id="L1146">       }</span>
+
+       @Override
+       @SuppressWarnings(&quot;unchecked&quot;)
+       public E[] getFullElements() {
+<span class="fc" id="L1151">           final List&lt;E&gt; l = Arrays.asList(outer.getFullElements());</span>
+<span class="fc" id="L1152">           return (E[]) l.subList(3, l.size() - 3).toArray();</span>
+       }
+
+       @Override
+       public E[] getOtherElements() {
+<span class="fc" id="L1157">           return outer.getOtherElements();</span>
+       }
+
+       @Override
+       public boolean isAddSupported() {
+<span class="fc" id="L1162">           return outer.isAddSupported();</span>
+       }
+
+       @Override
+       public boolean isSetSupported() {
+<span class="fc" id="L1167">           return outer.isSetSupported();</span>
+       }
+
+       @Override
+       public boolean isRemoveSupported() {
+<span class="fc" id="L1172">           return outer.isRemoveSupported();</span>
+       }
+
+       @Override
+       public List&lt;E&gt; makeObject() {
+<span class="fc" id="L1177">           return outer.makeFullCollection().subList(4, 4);</span>
+       }
+
+       @Override
+       public List&lt;E&gt; makeFullCollection() {
+<span class="fc" id="L1182">           final int size = getFullElements().length;</span>
+<span class="fc" id="L1183">           return outer.makeFullCollection().subList(3, size - 3);</span>
+       }
+
+       @Override
+       public void resetEmpty() {
+<span class="fc" id="L1188">           outer.resetFull();</span>
+<span class="fc" id="L1189">           this.setCollection(outer.getCollection().subList(4, 4));</span>
+<span class="fc" id="L1190">           this.setConfirmed(outer.getConfirmed().subList(4, 4));</span>
+<span class="fc" id="L1191">       }</span>
+
+       @Override
+       public void resetFull() {
+<span class="fc" id="L1195">           outer.resetFull();</span>
+<span class="fc" id="L1196">           final int size = outer.getConfirmed().size();</span>
+<span class="fc" id="L1197">           this.setCollection(outer.getCollection().subList(3, size - 3));</span>
+<span class="fc" id="L1198">           this.setConfirmed(outer.getConfirmed().subList(3, size - 3));</span>
+<span class="fc" id="L1199">       }</span>
+
+       @Override
+       public void verify() {
+<span class="fc" id="L1203">           super.verify();</span>
+<span class="fc" id="L1204">           outer.verify();</span>
+<span class="fc" id="L1205">       }</span>
+
+       @Override
+       public boolean isTestSerialization() {
+<span class="fc" id="L1209">           return false;</span>
+       }
+   }
+
+   /**
+    *  Tests that a sublist raises a {@link java.util.ConcurrentModificationException ConcurrentModificationException}
+    *  if elements are added to the original list.
+    */
+   public void testListSubListFailFastOnAdd() {
+<span class="pc bpc" id="L1218" title="1 of 2 branches missed.">       if (!isFailFastSupported()) {</span>
+<span class="fc" id="L1219">        return;</span>
+    }
+<span class="nc bnc" id="L1221" title="All 2 branches missed.">       if (!isAddSupported()) {</span>
+<span class="nc" id="L1222">        return;</span>
+    }
+
+<span class="nc" id="L1225">       resetFull();</span>
+<span class="nc" id="L1226">       final int size = getCollection().size();</span>
+<span class="nc" id="L1227">       List&lt;E&gt; sub = getCollection().subList(1, size);</span>
+<span class="nc" id="L1228">       getCollection().add(getOtherElements()[0]);</span>
+<span class="nc" id="L1229">       failFastAll(sub);</span>
+
+<span class="nc" id="L1231">       resetFull();</span>
+<span class="nc" id="L1232">       sub = getCollection().subList(1, size);</span>
+<span class="nc" id="L1233">       getCollection().add(0, getOtherElements()[0]);</span>
+<span class="nc" id="L1234">       failFastAll(sub);</span>
+
+<span class="nc" id="L1236">       resetFull();</span>
+<span class="nc" id="L1237">       sub = getCollection().subList(1, size);</span>
+<span class="nc" id="L1238">       getCollection().addAll(Arrays.asList(getOtherElements()));</span>
+<span class="nc" id="L1239">       failFastAll(sub);</span>
+
+<span class="nc" id="L1241">       resetFull();</span>
+<span class="nc" id="L1242">       sub = getCollection().subList(1, size);</span>
+<span class="nc" id="L1243">       getCollection().addAll(0, Arrays.asList(getOtherElements()));</span>
+<span class="nc" id="L1244">       failFastAll(sub);</span>
+<span class="nc" id="L1245">   }</span>
+
+   /**
+    *  Tests that a sublist raises a {@link java.util.ConcurrentModificationException ConcurrentModificationException}
+    *  if elements are removed from the original list.
+    */
+   public void testListSubListFailFastOnRemove() {
+<span class="pc bpc" id="L1252" title="1 of 2 branches missed.">       if (!isFailFastSupported()) {</span>
+<span class="fc" id="L1253">        return;</span>
+    }
+<span class="nc bnc" id="L1255" title="All 2 branches missed.">       if (!isRemoveSupported()) {</span>
+<span class="nc" id="L1256">        return;</span>
+    }
+
+<span class="nc" id="L1259">       resetFull();</span>
+<span class="nc" id="L1260">       final int size = getCollection().size();</span>
+<span class="nc" id="L1261">       List&lt;E&gt; sub = getCollection().subList(1, size);</span>
+<span class="nc" id="L1262">       getCollection().remove(0);</span>
+<span class="nc" id="L1263">       failFastAll(sub);</span>
+
+<span class="nc" id="L1265">       resetFull();</span>
+<span class="nc" id="L1266">       sub = getCollection().subList(1, size);</span>
+<span class="nc" id="L1267">       getCollection().remove(getFullElements()[2]);</span>
+<span class="nc" id="L1268">       failFastAll(sub);</span>
+
+<span class="nc" id="L1270">       resetFull();</span>
+<span class="nc" id="L1271">       sub = getCollection().subList(1, size);</span>
+<span class="nc" id="L1272">       getCollection().removeAll(Arrays.asList(getFullElements()));</span>
+<span class="nc" id="L1273">       failFastAll(sub);</span>
+
+<span class="nc" id="L1275">       resetFull();</span>
+<span class="nc" id="L1276">       sub = getCollection().subList(1, size);</span>
+<span class="nc" id="L1277">       getCollection().retainAll(Arrays.asList(getOtherElements()));</span>
+<span class="nc" id="L1278">       failFastAll(sub);</span>
+
+<span class="nc" id="L1280">       resetFull();</span>
+<span class="nc" id="L1281">       sub = getCollection().subList(1, size);</span>
+<span class="nc" id="L1282">       getCollection().clear();</span>
+<span class="nc" id="L1283">       failFastAll(sub);</span>
+<span class="nc" id="L1284">   }</span>
+
+   /**
+    *  Invokes all the methods on the given sublist to make sure they raise
+    *  a {@link java.util.ConcurrentModificationException ConcurrentModificationException}.
+    */
+   protected void failFastAll(final List&lt;E&gt; list) {
+<span class="nc" id="L1291">       final Method[] methods = List.class.getMethods();</span>
+<span class="nc bnc" id="L1292" title="All 2 branches missed.">       for (final Method method : methods) {</span>
+<span class="nc" id="L1293">           failFastMethod(list, method);</span>
+       }
+<span class="nc" id="L1295">   }</span>
+
+   /**
+    *  Invokes the given method on the given sublist to make sure it raises
+    *  a {@link java.util.ConcurrentModificationException ConcurrentModificationException}.
+    *
+    *  Unless the method happens to be the equals() method, in which case
+    *  the test is skipped.  There seems to be a bug in
+    *  java.util.AbstractList.subList(int,int).equals(Object) -- it never
+    *  raises a ConcurrentModificationException.
+    *
+    *  @param list  the sublist to test
+    *  @param m     the method to invoke
+    */
+   protected void failFastMethod(final List&lt;E&gt; list, final Method m) {
+<span class="nc bnc" id="L1310" title="All 2 branches missed.">       if (m.getName().equals(&quot;equals&quot;)) {</span>
+<span class="nc" id="L1311">        return;</span>
+    }
+
+<span class="nc" id="L1314">       final E element = getOtherElements()[0];</span>
+<span class="nc" id="L1315">       final Collection&lt;E&gt; c = Collections.singleton(element);</span>
+
+<span class="nc" id="L1317">       final Class&lt;?&gt;[] types = m.getParameterTypes();</span>
+<span class="nc" id="L1318">       final Object[] params = new Object[types.length];</span>
+<span class="nc bnc" id="L1319" title="All 2 branches missed.">       for (int i = 0; i &lt; params.length; i++) {</span>
+<span class="nc bnc" id="L1320" title="All 2 branches missed.">           if (types[i] == Integer.TYPE) {</span>
+<span class="nc" id="L1321">            params[i] = Integer.valueOf(0);</span>
+<span class="nc bnc" id="L1322" title="All 2 branches missed.">        } else if (types[i] == Collection.class) {</span>
+<span class="nc" id="L1323">            params[i] = c;</span>
+<span class="nc bnc" id="L1324" title="All 2 branches missed.">        } else if (types[i] == Object.class) {</span>
+<span class="nc" id="L1325">            params[i] = element;</span>
+<span class="nc bnc" id="L1326" title="All 2 branches missed.">        } else if (types[i] == Object[].class) {</span>
+<span class="nc" id="L1327">            params[i] = new Object[0];</span>
+        }
+       }
+
+       try {
+<span class="nc" id="L1332">           m.invoke(list, params);</span>
+<span class="nc" id="L1333">           fail(m.getName() + &quot; should raise ConcurrentModification&quot;);</span>
+<span class="nc" id="L1334">       } catch (final IllegalAccessException e) {</span>
+           // impossible
+<span class="nc" id="L1336">       } catch (final InvocationTargetException e) {</span>
+<span class="nc" id="L1337">           final Throwable t = e.getTargetException();</span>
+<span class="nc bnc" id="L1338" title="All 2 branches missed.">           if (t instanceof ConcurrentModificationException) {</span>
+               // expected
+<span class="nc" id="L1340">               return;</span>
+           } else {
+<span class="nc" id="L1342">               fail(m.getName() + &quot; raised unexpected &quot; + e);</span>
+           }
+       }
+<span class="nc" id="L1345">   }</span>
+
+   //-----------------------------------------------------------------------
+   public BulkTest bulkTestListIterator() {
+<span class="fc" id="L1349">       return new TestListIterator();</span>
+   }
+
+   public class TestListIterator extends AbstractListIteratorTest&lt;E&gt; {
+<span class="fc" id="L1353">       public TestListIterator() {</span>
+<span class="fc" id="L1354">           super(&quot;TestListIterator&quot;);</span>
+<span class="fc" id="L1355">       }</span>
+
+       @Override
+       public E addSetValue() {
+<span class="fc" id="L1359">           return AbstractListTest.this.getOtherElements()[0];</span>
+       }
+
+       @Override
+       public boolean supportsRemove() {
+<span class="fc" id="L1364">           return AbstractListTest.this.isRemoveSupported();</span>
+       }
+
+       @Override
+       public boolean supportsAdd() {
+<span class="fc" id="L1369">           return AbstractListTest.this.isAddSupported();</span>
+       }
+
+       @Override
+       public boolean supportsSet() {
+<span class="fc" id="L1374">           return AbstractListTest.this.isSetSupported();</span>
+       }
+
+       @Override
+       public ListIterator&lt;E&gt; makeEmptyIterator() {
+<span class="fc" id="L1379">           resetEmpty();</span>
+<span class="fc" id="L1380">           return AbstractListTest.this.getCollection().listIterator();</span>
+       }
+
+       @Override
+       public ListIterator&lt;E&gt; makeObject() {
+<span class="fc" id="L1385">           resetFull();</span>
+<span class="fc" id="L1386">           return AbstractListTest.this.getCollection().listIterator();</span>
+       }
+   }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

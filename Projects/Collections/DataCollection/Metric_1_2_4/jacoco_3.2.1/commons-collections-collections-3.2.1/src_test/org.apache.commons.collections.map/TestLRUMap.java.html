@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestLRUMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">TestLRUMap.java</span></div><h1>TestLRUMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.textui.TestRunner;
+
+import org.apache.commons.collections.BulkTest;
+import org.apache.commons.collections.OrderedMap;
+import org.apache.commons.collections.ResettableIterator;
+
+/**
+ * JUnit tests.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class TestLRUMap extends AbstractTestOrderedMap {
+
+    public TestLRUMap(String testName) {
+<span class="fc" id="L41">        super(testName);</span>
+<span class="fc" id="L42">    }</span>
+
+    public static void main(String[] args) {
+<span class="nc" id="L45">        TestRunner.run(suite());</span>
+<span class="nc" id="L46">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L49" title="All 2 branches covered.">        return BulkTest.makeSuite(TestLRUMap.class);</span>
+    }
+
+    public Map makeEmptyMap() {
+<span class="fc" id="L53">        return new LRUMap();</span>
+    }
+
+    public boolean isGetStructuralModify() {
+<span class="fc" id="L57">        return true;</span>
+    }
+    
+    public String getCompatibilityVersion() {
+<span class="fc" id="L61">        return &quot;3&quot;;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testLRU() {
+<span class="pc bpc" id="L66" title="2 of 4 branches missed.">        if (isPutAddSupported() == false || isPutChangeSupported() == false) return;</span>
+<span class="fc" id="L67">        Object[] keys = getSampleKeys();</span>
+<span class="fc" id="L68">        Object[] values = getSampleValues();</span>
+<span class="fc" id="L69">        Iterator it = null;</span>
+        
+<span class="fc" id="L71">        LRUMap map = new LRUMap(2);</span>
+<span class="fc" id="L72">        assertEquals(0, map.size());</span>
+<span class="fc" id="L73">        assertEquals(false, map.isFull());</span>
+<span class="fc" id="L74">        assertEquals(2, map.maxSize());</span>
+        
+<span class="fc" id="L76">        map.put(keys[0], values[0]);</span>
+<span class="fc" id="L77">        assertEquals(1, map.size());</span>
+<span class="fc" id="L78">        assertEquals(false, map.isFull());</span>
+<span class="fc" id="L79">        assertEquals(2, map.maxSize());</span>
+        
+<span class="fc" id="L81">        map.put(keys[1], values[1]);</span>
+<span class="fc" id="L82">        assertEquals(2, map.size());</span>
+<span class="fc" id="L83">        assertEquals(true, map.isFull());</span>
+<span class="fc" id="L84">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L85">        it = map.keySet().iterator();</span>
+<span class="fc" id="L86">        assertSame(keys[0], it.next());</span>
+<span class="fc" id="L87">        assertSame(keys[1], it.next());</span>
+<span class="fc" id="L88">        it = map.values().iterator();</span>
+<span class="fc" id="L89">        assertSame(values[0], it.next());</span>
+<span class="fc" id="L90">        assertSame(values[1], it.next());</span>
+
+<span class="fc" id="L92">        map.put(keys[2], values[2]);</span>
+<span class="fc" id="L93">        assertEquals(2, map.size());</span>
+<span class="fc" id="L94">        assertEquals(true, map.isFull());</span>
+<span class="fc" id="L95">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L96">        it = map.keySet().iterator();</span>
+<span class="fc" id="L97">        assertSame(keys[1], it.next());</span>
+<span class="fc" id="L98">        assertSame(keys[2], it.next());</span>
+<span class="fc" id="L99">        it = map.values().iterator();</span>
+<span class="fc" id="L100">        assertSame(values[1], it.next());</span>
+<span class="fc" id="L101">        assertSame(values[2], it.next());</span>
+
+<span class="fc" id="L103">        map.put(keys[2], values[0]);</span>
+<span class="fc" id="L104">        assertEquals(2, map.size());</span>
+<span class="fc" id="L105">        assertEquals(true, map.isFull());</span>
+<span class="fc" id="L106">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L107">        it = map.keySet().iterator();</span>
+<span class="fc" id="L108">        assertSame(keys[1], it.next());</span>
+<span class="fc" id="L109">        assertSame(keys[2], it.next());</span>
+<span class="fc" id="L110">        it = map.values().iterator();</span>
+<span class="fc" id="L111">        assertSame(values[1], it.next());</span>
+<span class="fc" id="L112">        assertSame(values[0], it.next());</span>
+
+<span class="fc" id="L114">        map.put(keys[1], values[3]);</span>
+<span class="fc" id="L115">        assertEquals(2, map.size());</span>
+<span class="fc" id="L116">        assertEquals(true, map.isFull());</span>
+<span class="fc" id="L117">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L118">        it = map.keySet().iterator();</span>
+<span class="fc" id="L119">        assertSame(keys[2], it.next());</span>
+<span class="fc" id="L120">        assertSame(keys[1], it.next());</span>
+<span class="fc" id="L121">        it = map.values().iterator();</span>
+<span class="fc" id="L122">        assertSame(values[0], it.next());</span>
+<span class="fc" id="L123">        assertSame(values[3], it.next());</span>
+<span class="fc" id="L124">    }</span>
+    
+    //-----------------------------------------------------------------------    
+    public void testReset() {
+        resetEmpty();
+        OrderedMap ordered = (OrderedMap) map;
+<span class="fc" id="L130">        ((ResettableIterator) ordered.mapIterator()).reset();</span>
+        
+        resetFull();
+        ordered = (OrderedMap) map;
+        List list = new ArrayList(ordered.keySet());
+        ResettableIterator it = (ResettableIterator) ordered.mapIterator();
+        assertSame(list.get(0), it.next());
+        assertSame(list.get(1), it.next());
+        it.reset();
+        assertSame(list.get(0), it.next());
+    }
+    
+    //-----------------------------------------------------------------------
+    public void testAccessOrder() {
+<span class="pc bpc" id="L144" title="2 of 4 branches missed.">        if (isPutAddSupported() == false || isPutChangeSupported() == false) return;</span>
+<span class="fc" id="L145">        Object[] keys = getSampleKeys();</span>
+<span class="fc" id="L146">        Object[] values = getSampleValues();</span>
+<span class="fc" id="L147">        Iterator it = null;</span>
+        
+<span class="fc" id="L149">        resetEmpty();</span>
+<span class="fc" id="L150">        map.put(keys[0], values[0]);</span>
+<span class="fc" id="L151">        map.put(keys[1], values[1]);</span>
+<span class="fc" id="L152">        it = map.keySet().iterator();</span>
+<span class="fc" id="L153">        assertSame(keys[0], it.next());</span>
+<span class="fc" id="L154">        assertSame(keys[1], it.next());</span>
+<span class="fc" id="L155">        it = map.values().iterator();</span>
+<span class="fc" id="L156">        assertSame(values[0], it.next());</span>
+<span class="fc" id="L157">        assertSame(values[1], it.next());</span>
+
+        // no change to order
+<span class="fc" id="L160">        map.put(keys[1], values[1]);</span>
+<span class="fc" id="L161">        it = map.keySet().iterator();</span>
+<span class="fc" id="L162">        assertSame(keys[0], it.next());</span>
+<span class="fc" id="L163">        assertSame(keys[1], it.next());</span>
+<span class="fc" id="L164">        it = map.values().iterator();</span>
+<span class="fc" id="L165">        assertSame(values[0], it.next());</span>
+<span class="fc" id="L166">        assertSame(values[1], it.next());</span>
+
+        // no change to order
+<span class="fc" id="L169">        map.put(keys[1], values[2]);</span>
+<span class="fc" id="L170">        it = map.keySet().iterator();</span>
+<span class="fc" id="L171">        assertSame(keys[0], it.next());</span>
+<span class="fc" id="L172">        assertSame(keys[1], it.next());</span>
+<span class="fc" id="L173">        it = map.values().iterator();</span>
+<span class="fc" id="L174">        assertSame(values[0], it.next());</span>
+<span class="fc" id="L175">        assertSame(values[2], it.next());</span>
+
+        // change to order
+<span class="fc" id="L178">        map.put(keys[0], values[3]);</span>
+<span class="fc" id="L179">        it = map.keySet().iterator();</span>
+<span class="fc" id="L180">        assertSame(keys[1], it.next());</span>
+<span class="fc" id="L181">        assertSame(keys[0], it.next());</span>
+<span class="fc" id="L182">        it = map.values().iterator();</span>
+<span class="fc" id="L183">        assertSame(values[2], it.next());</span>
+<span class="fc" id="L184">        assertSame(values[3], it.next());</span>
+
+        // change to order
+<span class="fc" id="L187">        map.get(keys[1]);</span>
+<span class="fc" id="L188">        it = map.keySet().iterator();</span>
+<span class="fc" id="L189">        assertSame(keys[0], it.next());</span>
+<span class="fc" id="L190">        assertSame(keys[1], it.next());</span>
+<span class="fc" id="L191">        it = map.values().iterator();</span>
+<span class="fc" id="L192">        assertSame(values[3], it.next());</span>
+<span class="fc" id="L193">        assertSame(values[2], it.next());</span>
+
+        // change to order
+<span class="fc" id="L196">        map.get(keys[0]);</span>
+<span class="fc" id="L197">        it = map.keySet().iterator();</span>
+<span class="fc" id="L198">        assertSame(keys[1], it.next());</span>
+<span class="fc" id="L199">        assertSame(keys[0], it.next());</span>
+<span class="fc" id="L200">        it = map.values().iterator();</span>
+<span class="fc" id="L201">        assertSame(values[2], it.next());</span>
+<span class="fc" id="L202">        assertSame(values[3], it.next());</span>
+
+        // no change to order
+<span class="fc" id="L205">        map.get(keys[0]);</span>
+<span class="fc" id="L206">        it = map.keySet().iterator();</span>
+<span class="fc" id="L207">        assertSame(keys[1], it.next());</span>
+<span class="fc" id="L208">        assertSame(keys[0], it.next());</span>
+<span class="fc" id="L209">        it = map.values().iterator();</span>
+<span class="fc" id="L210">        assertSame(values[2], it.next());</span>
+<span class="fc" id="L211">        assertSame(values[3], it.next());</span>
+<span class="fc" id="L212">    }</span>
+    
+    public void testClone() {
+<span class="fc" id="L215">        LRUMap map = new LRUMap(10);</span>
+<span class="fc" id="L216">        map.put(&quot;1&quot;, &quot;1&quot;);</span>
+<span class="fc" id="L217">        Map cloned = (Map) map.clone();</span>
+<span class="fc" id="L218">        assertEquals(map.size(), cloned.size());</span>
+<span class="fc" id="L219">        assertSame(map.get(&quot;1&quot;), cloned.get(&quot;1&quot;));</span>
+<span class="fc" id="L220">    }</span>
+    
+    public void testRemoveLRU() {
+<span class="fc" id="L223">        MockLRUMapSubclass map = new MockLRUMapSubclass(2);</span>
+<span class="fc" id="L224">        assertNull(map.entry);</span>
+<span class="fc" id="L225">        map.put(&quot;A&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L226">        assertNull(map.entry);</span>
+<span class="fc" id="L227">        map.put(&quot;B&quot;, &quot;b&quot;);</span>
+<span class="fc" id="L228">        assertNull(map.entry);</span>
+<span class="fc" id="L229">        map.put(&quot;C&quot;, &quot;c&quot;);  // removes oldest, which is A=a</span>
+<span class="fc" id="L230">        assertNotNull(map.entry);</span>
+<span class="fc" id="L231">        assertEquals(&quot;A&quot;, map.key);</span>
+<span class="fc" id="L232">        assertEquals(&quot;a&quot;, map.value);</span>
+<span class="fc" id="L233">        assertEquals(&quot;C&quot;, map.entry.getKey());  // entry is reused</span>
+<span class="fc" id="L234">        assertEquals(&quot;c&quot;, map.entry.getValue());  // entry is reused</span>
+<span class="fc" id="L235">        assertEquals(false, map.containsKey(&quot;A&quot;));</span>
+<span class="fc" id="L236">        assertEquals(true, map.containsKey(&quot;B&quot;));</span>
+<span class="fc" id="L237">        assertEquals(true, map.containsKey(&quot;C&quot;));</span>
+<span class="fc" id="L238">    }</span>
+    
+    static class MockLRUMapSubclass extends LRUMap {
+        LinkEntry entry;
+        Object key;
+        Object value;
+
+        MockLRUMapSubclass(int size) {
+<span class="fc" id="L246">            super(size);</span>
+<span class="fc" id="L247">        }</span>
+
+        protected boolean removeLRU(LinkEntry entry) {
+<span class="fc" id="L250">            this.entry = entry;</span>
+<span class="fc" id="L251">            this.key = entry.getKey();</span>
+<span class="fc" id="L252">            this.value = entry.getValue();</span>
+<span class="fc" id="L253">            return true;</span>
+        }
+    }
+    
+    public void testRemoveLRUBlocksRemove() {
+<span class="fc" id="L258">        MockLRUMapSubclassBlocksRemove map = new MockLRUMapSubclassBlocksRemove(2, false);</span>
+<span class="fc" id="L259">        assertEquals(0, map.size());</span>
+<span class="fc" id="L260">        map.put(&quot;A&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L261">        assertEquals(1, map.size());</span>
+<span class="fc" id="L262">        map.put(&quot;B&quot;, &quot;b&quot;);</span>
+<span class="fc" id="L263">        assertEquals(2, map.size());</span>
+<span class="fc" id="L264">        map.put(&quot;C&quot;, &quot;c&quot;);  // should remove oldest, which is A=a, but this is blocked</span>
+<span class="fc" id="L265">        assertEquals(3, map.size());</span>
+<span class="fc" id="L266">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L267">        assertEquals(true, map.containsKey(&quot;A&quot;));</span>
+<span class="fc" id="L268">        assertEquals(true, map.containsKey(&quot;B&quot;));</span>
+<span class="fc" id="L269">        assertEquals(true, map.containsKey(&quot;C&quot;));</span>
+<span class="fc" id="L270">    }</span>
+
+    public void testRemoveLRUBlocksRemoveScan() {
+<span class="fc" id="L273">        MockLRUMapSubclassBlocksRemove map = new MockLRUMapSubclassBlocksRemove(2, true);</span>
+<span class="fc" id="L274">        assertEquals(0, map.size());</span>
+<span class="fc" id="L275">        map.put(&quot;A&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L276">        assertEquals(1, map.size());</span>
+<span class="fc" id="L277">        map.put(&quot;B&quot;, &quot;b&quot;);</span>
+<span class="fc" id="L278">        assertEquals(2, map.size());</span>
+<span class="fc" id="L279">        map.put(&quot;C&quot;, &quot;c&quot;);  // should remove oldest, which is A=a, but this is blocked</span>
+<span class="fc" id="L280">        assertEquals(3, map.size());</span>
+<span class="fc" id="L281">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L282">        assertEquals(true, map.containsKey(&quot;A&quot;));</span>
+<span class="fc" id="L283">        assertEquals(true, map.containsKey(&quot;B&quot;));</span>
+<span class="fc" id="L284">        assertEquals(true, map.containsKey(&quot;C&quot;));</span>
+<span class="fc" id="L285">    }</span>
+    
+    static class MockLRUMapSubclassBlocksRemove extends LRUMap {
+        MockLRUMapSubclassBlocksRemove(int size, boolean scanUntilRemove) {
+<span class="fc" id="L289">            super(size, scanUntilRemove);</span>
+<span class="fc" id="L290">        }</span>
+
+        protected boolean removeLRU(LinkEntry entry) {
+<span class="fc" id="L293">            return false;</span>
+        }
+    }
+    
+    public void testRemoveLRUFirstBlocksRemove() {
+<span class="fc" id="L298">        MockLRUMapSubclassFirstBlocksRemove map = new MockLRUMapSubclassFirstBlocksRemove(2);</span>
+<span class="fc" id="L299">        assertEquals(0, map.size());</span>
+<span class="fc" id="L300">        map.put(&quot;A&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L301">        assertEquals(1, map.size());</span>
+<span class="fc" id="L302">        map.put(&quot;B&quot;, &quot;b&quot;);</span>
+<span class="fc" id="L303">        assertEquals(2, map.size());</span>
+<span class="fc" id="L304">        map.put(&quot;C&quot;, &quot;c&quot;);  // should remove oldest, which is A=a  but this is blocked - so advance to B=b</span>
+<span class="fc" id="L305">        assertEquals(2, map.size());</span>
+<span class="fc" id="L306">        assertEquals(2, map.maxSize());</span>
+<span class="fc" id="L307">        assertEquals(true, map.containsKey(&quot;A&quot;));</span>
+<span class="fc" id="L308">        assertEquals(false, map.containsKey(&quot;B&quot;));</span>
+<span class="fc" id="L309">        assertEquals(true, map.containsKey(&quot;C&quot;));</span>
+<span class="fc" id="L310">    }</span>
+
+    static class MockLRUMapSubclassFirstBlocksRemove extends LRUMap {
+        MockLRUMapSubclassFirstBlocksRemove(int size) {
+<span class="fc" id="L314">            super(size, true);</span>
+<span class="fc" id="L315">        }</span>
+
+        protected boolean removeLRU(LinkEntry entry) {
+<span class="fc bfc" id="L318" title="All 2 branches covered.">            if (&quot;a&quot;.equals(entry.getValue())) {</span>
+<span class="fc" id="L319">                return false;</span>
+            } else {
+<span class="fc" id="L321">                return true;</span>
+            }
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    static class SingleHashCode {
+        private final String code;
+<span class="fc" id="L329">        SingleHashCode(String code) {</span>
+<span class="fc" id="L330">            this.code = code;</span>
+<span class="fc" id="L331">        }</span>
+        public int hashCode() {
+            // always return the same hashcode
+            // that way, it will end up in the same bucket
+<span class="fc" id="L335">            return 12;</span>
+        }
+        public String toString() {
+<span class="nc" id="L338">            return &quot;SingleHashCode:&quot; + code;</span>
+        }
+    }
+
+    public void testInternalState_Buckets() {
+<span class="pc bpc" id="L343" title="2 of 4 branches missed.">        if (isPutAddSupported() == false || isPutChangeSupported() == false) return;</span>
+<span class="fc" id="L344">        SingleHashCode one = new SingleHashCode(&quot;1&quot;);</span>
+<span class="fc" id="L345">        SingleHashCode two = new SingleHashCode(&quot;2&quot;);</span>
+<span class="fc" id="L346">        SingleHashCode three = new SingleHashCode(&quot;3&quot;);</span>
+<span class="fc" id="L347">        SingleHashCode four = new SingleHashCode(&quot;4&quot;);</span>
+<span class="fc" id="L348">        SingleHashCode five = new SingleHashCode(&quot;5&quot;);</span>
+<span class="fc" id="L349">        SingleHashCode six = new SingleHashCode(&quot;6&quot;);</span>
+
+<span class="fc" id="L351">        LRUMap map = new LRUMap(3, 1.0f);</span>
+<span class="fc" id="L352">        int hashIndex = map.hashIndex(map.hash(one), 4);</span>
+<span class="fc" id="L353">        map.put(one, &quot;A&quot;);</span>
+<span class="fc" id="L354">        map.put(two, &quot;B&quot;);</span>
+<span class="fc" id="L355">        map.put(three, &quot;C&quot;);</span>
+        
+<span class="fc" id="L357">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L358">        assertEquals(3, map.size);</span>
+<span class="fc" id="L359">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L360">        assertEquals(one, map.header.after.key);  // LRU</span>
+<span class="fc" id="L361">        assertEquals(two, map.header.after.after.key);</span>
+<span class="fc" id="L362">        assertEquals(three, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L363">        assertEquals(three, map.data[hashIndex].key);</span>
+<span class="fc" id="L364">        assertEquals(two, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L365">        assertEquals(one, map.data[hashIndex].next.next.key);</span>
+        
+<span class="fc" id="L367">        map.put(four, &quot;D&quot;);  // reuses last in next list</span>
+        
+<span class="fc" id="L369">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L370">        assertEquals(3, map.size);</span>
+<span class="fc" id="L371">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L372">        assertEquals(two, map.header.after.key);  // LRU</span>
+<span class="fc" id="L373">        assertEquals(three, map.header.after.after.key);</span>
+<span class="fc" id="L374">        assertEquals(four, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L375">        assertEquals(four, map.data[hashIndex].key);</span>
+<span class="fc" id="L376">        assertEquals(three, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L377">        assertEquals(two, map.data[hashIndex].next.next.key);</span>
+        
+<span class="fc" id="L379">        map.get(three);</span>
+        
+<span class="fc" id="L381">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L382">        assertEquals(3, map.size);</span>
+<span class="fc" id="L383">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L384">        assertEquals(two, map.header.after.key);  // LRU</span>
+<span class="fc" id="L385">        assertEquals(four, map.header.after.after.key);</span>
+<span class="fc" id="L386">        assertEquals(three, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L387">        assertEquals(four, map.data[hashIndex].key);</span>
+<span class="fc" id="L388">        assertEquals(three, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L389">        assertEquals(two, map.data[hashIndex].next.next.key);</span>
+        
+<span class="fc" id="L391">        map.put(five, &quot;E&quot;);  // reuses last in next list</span>
+        
+<span class="fc" id="L393">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L394">        assertEquals(3, map.size);</span>
+<span class="fc" id="L395">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L396">        assertEquals(four, map.header.after.key);  // LRU</span>
+<span class="fc" id="L397">        assertEquals(three, map.header.after.after.key);</span>
+<span class="fc" id="L398">        assertEquals(five, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L399">        assertEquals(five, map.data[hashIndex].key);</span>
+<span class="fc" id="L400">        assertEquals(four, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L401">        assertEquals(three, map.data[hashIndex].next.next.key);</span>
+        
+<span class="fc" id="L403">        map.get(three);</span>
+<span class="fc" id="L404">        map.get(five);</span>
+        
+<span class="fc" id="L406">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L407">        assertEquals(3, map.size);</span>
+<span class="fc" id="L408">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L409">        assertEquals(four, map.header.after.key);  // LRU</span>
+<span class="fc" id="L410">        assertEquals(three, map.header.after.after.key);</span>
+<span class="fc" id="L411">        assertEquals(five, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L412">        assertEquals(five, map.data[hashIndex].key);</span>
+<span class="fc" id="L413">        assertEquals(four, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L414">        assertEquals(three, map.data[hashIndex].next.next.key);</span>
+        
+<span class="fc" id="L416">        map.put(six, &quot;F&quot;);  // reuses middle in next list</span>
+        
+<span class="fc" id="L418">        assertEquals(4, map.data.length);</span>
+<span class="fc" id="L419">        assertEquals(3, map.size);</span>
+<span class="fc" id="L420">        assertEquals(null, map.header.next);</span>
+<span class="fc" id="L421">        assertEquals(three, map.header.after.key);  // LRU</span>
+<span class="fc" id="L422">        assertEquals(five, map.header.after.after.key);</span>
+<span class="fc" id="L423">        assertEquals(six, map.header.after.after.after.key);  // MRU</span>
+<span class="fc" id="L424">        assertEquals(six, map.data[hashIndex].key);</span>
+<span class="fc" id="L425">        assertEquals(five, map.data[hashIndex].next.key);</span>
+<span class="fc" id="L426">        assertEquals(three, map.data[hashIndex].next.next.key);</span>
+<span class="fc" id="L427">    }</span>
+
+    public void testInternalState_getEntry_int() {
+<span class="pc bpc" id="L430" title="2 of 4 branches missed.">        if (isPutAddSupported() == false || isPutChangeSupported() == false) return;</span>
+<span class="fc" id="L431">        SingleHashCode one = new SingleHashCode(&quot;1&quot;);</span>
+<span class="fc" id="L432">        SingleHashCode two = new SingleHashCode(&quot;2&quot;);</span>
+<span class="fc" id="L433">        SingleHashCode three = new SingleHashCode(&quot;3&quot;);</span>
+<span class="fc" id="L434">        SingleHashCode four = new SingleHashCode(&quot;4&quot;);</span>
+<span class="fc" id="L435">        SingleHashCode five = new SingleHashCode(&quot;5&quot;);</span>
+<span class="fc" id="L436">        SingleHashCode six = new SingleHashCode(&quot;6&quot;);</span>
+
+<span class="fc" id="L438">        LRUMap map = new LRUMap(3, 1.0f);</span>
+<span class="fc" id="L439">        int hashIndex = map.hashIndex(map.hash(one), 4);</span>
+<span class="fc" id="L440">        map.put(one, &quot;A&quot;);</span>
+<span class="fc" id="L441">        map.put(two, &quot;B&quot;);</span>
+<span class="fc" id="L442">        map.put(three, &quot;C&quot;);</span>
+        
+<span class="fc" id="L444">        assertEquals(one, map.getEntry(0).key);</span>
+<span class="fc" id="L445">        assertEquals(two, map.getEntry(1).key);</span>
+<span class="fc" id="L446">        assertEquals(three, map.getEntry(2).key);</span>
+        try {
+<span class="nc" id="L448">            map.getEntry(-1);</span>
+<span class="nc" id="L449">            fail();</span>
+<span class="pc" id="L450">        } catch (IndexOutOfBoundsException ex) {}</span>
+        try {
+<span class="nc" id="L452">            map.getEntry(3);</span>
+<span class="nc" id="L453">            fail();</span>
+<span class="pc" id="L454">        } catch (IndexOutOfBoundsException ex) {}</span>
+<span class="fc" id="L455">    }</span>
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) map, &quot;D:/dev/collections/data/test/LRUMap.emptyCollection.version3.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) map, &quot;D:/dev/collections/data/test/LRUMap.fullCollection.version3.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

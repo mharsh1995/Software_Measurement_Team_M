@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestBidiMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.bidimap</a> &gt; <span class="el_source">AbstractTestBidiMap.java</span></div><h1>AbstractTestBidiMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.bidimap;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.collections.BidiMap;
+import org.apache.commons.collections.BulkTest;
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.iterators.AbstractTestMapIterator;
+import org.apache.commons.collections.map.AbstractTestMap;
+
+/**
+ * Abstract test class for {@link BidiMap} methods and contracts.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Matthew Hawthorne
+ * @author Stephen Colebourne
+ */
+public abstract class AbstractTestBidiMap extends AbstractTestMap {
+
+    // Test data.
+<span class="fc" id="L42">    private static final Object[][] entriesKV =</span>
+<span class="fc" id="L43">        new Object[][] {</span>
+<span class="fc" id="L44">            new Object[] { &quot;key1&quot;, &quot;value1&quot; },</span>
+<span class="fc" id="L45">            new Object[] { &quot;key2&quot;, &quot;value2&quot; },</span>
+<span class="fc" id="L46">            new Object[] { &quot;key3&quot;, &quot;value3&quot; }</span>
+    };
+<span class="fc" id="L48">    private static final Object[][] entriesVK =</span>
+<span class="fc" id="L49">        new Object[][] {</span>
+<span class="fc" id="L50">            new Object[] { &quot;value1&quot;, &quot;key1&quot; },</span>
+<span class="fc" id="L51">            new Object[] { &quot;value2&quot;, &quot;key2&quot; },</span>
+<span class="fc" id="L52">            new Object[] { &quot;value3&quot;, &quot;key3&quot; }</span>
+<span class="fc" id="L53">    };</span>
+    protected final Object[][] entries;
+
+    public AbstractTestBidiMap(String testName) {
+<span class="fc" id="L57">        super(testName);</span>
+<span class="fc" id="L58">        entries = entriesKV;</span>
+<span class="fc" id="L59">    }</span>
+
+    public AbstractTestBidiMap() {
+<span class="fc" id="L62">        super(&quot;Inverse&quot;);</span>
+<span class="fc" id="L63">        entries = entriesVK;</span>
+<span class="fc" id="L64">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Implement to create an empty &lt;code&gt;BidiMap&lt;/code&gt;.
+     * 
+     * @return an empty &lt;code&gt;BidiMap&lt;/code&gt; implementation.
+     */
+    public abstract BidiMap makeEmptyBidiMap();
+
+    /**
+     * Override to create a full &lt;code&gt;BidiMap&lt;/code&gt; other than the default.
+     * 
+     * @return a full &lt;code&gt;BidiMap&lt;/code&gt; implementation.
+     */
+    public BidiMap makeFullBidiMap() {
+<span class="fc" id="L80">        final BidiMap map = makeEmptyBidiMap();</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        for (int i = 0; i &lt; entries.length; i++) {</span>
+<span class="fc" id="L82">            map.put(entries[i][0], entries[i][1]);</span>
+        }
+<span class="fc" id="L84">        return map;</span>
+    }
+
+    /**
+     * Override to return the empty BidiMap.
+     */
+    public final  Map makeEmptyMap() {
+<span class="fc" id="L91">        return makeEmptyBidiMap();</span>
+    }
+
+    /**
+     * Override to indicate to AbstractTestMap this is a BidiMap.
+     */
+    public boolean isAllowDuplicateValues() {
+<span class="fc" id="L98">        return false;</span>
+    }
+    
+    /**
+     * Override as DualHashBidiMap didn't exist until version 3.
+     */
+    public String getCompatibilityVersion() {
+<span class="fc" id="L105">        return &quot;3&quot;;</span>
+    }
+
+    // BidiPut
+    //-----------------------------------------------------------------------
+    public void testBidiPut() {
+<span class="pc bpc" id="L111" title="1 of 4 branches missed.">        if (isPutAddSupported() == false || isPutChangeSupported() == false) return;</span>
+
+<span class="fc" id="L113">        BidiMap map = makeEmptyBidiMap();</span>
+<span class="fc" id="L114">        BidiMap inverse = map.inverseBidiMap();</span>
+<span class="fc" id="L115">        assertEquals(0, map.size());</span>
+<span class="fc" id="L116">        assertEquals(map.size(), inverse.size());</span>
+        
+<span class="fc" id="L118">        map.put(&quot;A&quot;, &quot;B&quot;);</span>
+<span class="fc" id="L119">        assertEquals(1, map.size());</span>
+<span class="fc" id="L120">        assertEquals(map.size(), inverse.size());</span>
+<span class="fc" id="L121">        assertEquals(&quot;B&quot;, map.get(&quot;A&quot;));</span>
+<span class="fc" id="L122">        assertEquals(&quot;A&quot;, inverse.get(&quot;B&quot;));</span>
+        
+<span class="fc" id="L124">        map.put(&quot;A&quot;, &quot;C&quot;);</span>
+<span class="fc" id="L125">        assertEquals(1, map.size());</span>
+<span class="fc" id="L126">        assertEquals(map.size(), inverse.size());</span>
+<span class="fc" id="L127">        assertEquals(&quot;C&quot;, map.get(&quot;A&quot;));</span>
+<span class="fc" id="L128">        assertEquals(&quot;A&quot;, inverse.get(&quot;C&quot;));</span>
+        
+<span class="fc" id="L130">        map.put(&quot;B&quot;, &quot;C&quot;);</span>
+<span class="fc" id="L131">        assertEquals(1, map.size());</span>
+<span class="fc" id="L132">        assertEquals(map.size(), inverse.size());</span>
+<span class="fc" id="L133">        assertEquals(&quot;C&quot;, map.get(&quot;B&quot;));</span>
+<span class="fc" id="L134">        assertEquals(&quot;B&quot;, inverse.get(&quot;C&quot;));</span>
+        
+<span class="fc" id="L136">        map.put(&quot;E&quot;, &quot;F&quot;);</span>
+<span class="fc" id="L137">        assertEquals(2, map.size());</span>
+<span class="fc" id="L138">        assertEquals(map.size(), inverse.size());</span>
+<span class="fc" id="L139">        assertEquals(&quot;F&quot;, map.get(&quot;E&quot;));</span>
+<span class="fc" id="L140">        assertEquals(&quot;E&quot;, inverse.get(&quot;F&quot;));</span>
+<span class="fc" id="L141">    }</span>
+
+    /**
+     * Verifies that {@link #map} is still equal to {@link #confirmed}.
+     * &lt;p&gt;
+     * This implementation checks the inverse map as well.
+     */
+    public void verify() {
+<span class="fc" id="L149">        verifyInverse();</span>
+<span class="fc" id="L150">        super.verify();</span>
+<span class="fc" id="L151">    }</span>
+
+    public void verifyInverse() {
+<span class="fc" id="L154">        assertEquals(map.size(), ((BidiMap) map).inverseBidiMap().size());</span>
+<span class="fc" id="L155">        Map map1 = new HashMap(map);</span>
+<span class="fc" id="L156">        Map map2 = new HashMap(((BidiMap) map).inverseBidiMap());</span>
+<span class="fc" id="L157">        Set keys1 = map1.keySet();</span>
+<span class="fc" id="L158">        Set keys2 = map2.keySet();</span>
+<span class="fc" id="L159">        Collection values1 = map1.values();</span>
+<span class="fc" id="L160">        Collection values2 = map2.values();</span>
+<span class="fc" id="L161">        assertEquals(true, keys1.containsAll(values2));</span>
+<span class="fc" id="L162">        assertEquals(true, values2.containsAll(keys1));</span>
+<span class="fc" id="L163">        assertEquals(true, values1.containsAll(keys2));</span>
+<span class="fc" id="L164">        assertEquals(true, keys2.containsAll(values1));</span>
+<span class="fc" id="L165">    }</span>
+    
+    // testGetKey
+    //-----------------------------------------------------------------------
+    public void testBidiGetKey() {
+<span class="fc" id="L170">        doTestGetKey(makeFullBidiMap(), entries[0][0], entries[0][1]);</span>
+<span class="fc" id="L171">    }</span>
+
+    public void testBidiGetKeyInverse() {
+<span class="fc" id="L174">        doTestGetKey(</span>
+<span class="fc" id="L175">            makeFullBidiMap().inverseBidiMap(),</span>
+<span class="fc" id="L176">            entries[0][1],</span>
+<span class="fc" id="L177">            entries[0][0]);</span>
+<span class="fc" id="L178">    }</span>
+
+    private final void doTestGetKey(BidiMap map, Object key, Object value) {
+<span class="fc" id="L181">        assertEquals(&quot;Value not found for key.&quot;, value, map.get(key));</span>
+<span class="fc" id="L182">        assertEquals(&quot;Key not found for value.&quot;, key, map.getKey(value));</span>
+<span class="fc" id="L183">    }</span>
+
+    // testInverse
+    //-----------------------------------------------------------------------
+    public void testBidiInverse() {
+<span class="fc" id="L188">        final BidiMap map = makeFullBidiMap();</span>
+<span class="fc" id="L189">        final BidiMap inverseMap = map.inverseBidiMap();</span>
+
+<span class="fc" id="L191">        assertSame(</span>
+<span class="fc" id="L192">            &quot;Inverse of inverse is not equal to original.&quot;,</span>
+<span class="fc" id="L193">            map,</span>
+<span class="fc" id="L194">            inverseMap.inverseBidiMap());</span>
+
+<span class="fc" id="L196">        assertEquals(</span>
+<span class="fc" id="L197">            &quot;Value not found for key.&quot;,</span>
+<span class="fc" id="L198">            entries[0][0],</span>
+<span class="fc" id="L199">            inverseMap.get(entries[0][1]));</span>
+
+<span class="fc" id="L201">        assertEquals(</span>
+<span class="fc" id="L202">            &quot;Key not found for value.&quot;,</span>
+<span class="fc" id="L203">            entries[0][1],</span>
+<span class="fc" id="L204">            inverseMap.getKey(entries[0][0]));</span>
+<span class="fc" id="L205">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiModifyEntrySet() {
+<span class="fc bfc" id="L209" title="All 2 branches covered.">        if (isSetValueSupported() == false) return;</span>
+        
+<span class="fc" id="L211">        modifyEntrySet(makeFullBidiMap());</span>
+<span class="fc" id="L212">        modifyEntrySet(makeFullBidiMap().inverseBidiMap());</span>
+<span class="fc" id="L213">    }</span>
+
+    private final void modifyEntrySet(BidiMap map) {
+        // Gets first entry
+<span class="fc" id="L217">        final Map.Entry entry = (Map.Entry)map.entrySet().iterator().next();</span>
+
+        // Gets key and value
+<span class="fc" id="L220">        final Object key = entry.getKey();</span>
+<span class="fc" id="L221">        final Object oldValue = entry.getValue();</span>
+
+        // Sets new value
+<span class="fc" id="L224">        final Object newValue = &quot;newValue&quot;;</span>
+<span class="fc" id="L225">        entry.setValue(newValue);</span>
+
+<span class="fc" id="L227">        assertEquals(</span>
+<span class="fc" id="L228">            &quot;Modifying entrySet did not affect underlying Map.&quot;,</span>
+<span class="fc" id="L229">            newValue,</span>
+<span class="fc" id="L230">            map.get(key));</span>
+
+<span class="fc" id="L232">        assertNull(</span>
+<span class="fc" id="L233">            &quot;Modifying entrySet did not affect inverse Map.&quot;,</span>
+<span class="fc" id="L234">            map.getKey(oldValue));</span>
+<span class="fc" id="L235">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiClear() {
+<span class="fc bfc" id="L239" title="All 2 branches covered.">        if (isRemoveSupported() == false) {</span>
+            try {
+<span class="nc" id="L241">                makeFullBidiMap().clear();</span>
+<span class="nc" id="L242">                fail();</span>
+<span class="pc" id="L243">            } catch(UnsupportedOperationException ex) {}</span>
+<span class="fc" id="L244">            return;</span>
+        }
+
+<span class="fc" id="L247">        BidiMap map = makeFullBidiMap();</span>
+<span class="fc" id="L248">        map.clear();</span>
+<span class="fc" id="L249">        assertTrue(&quot;Map was not cleared.&quot;, map.isEmpty());</span>
+<span class="fc" id="L250">        assertTrue(&quot;Inverse map was not cleared.&quot;, map.inverseBidiMap().isEmpty());</span>
+
+        // Tests clear on inverse
+<span class="fc" id="L253">        map = makeFullBidiMap().inverseBidiMap();</span>
+<span class="fc" id="L254">        map.clear();</span>
+<span class="fc" id="L255">        assertTrue(&quot;Map was not cleared.&quot;, map.isEmpty());</span>
+<span class="fc" id="L256">        assertTrue(&quot;Inverse map was not cleared.&quot;, map.inverseBidiMap().isEmpty());</span>
+
+<span class="fc" id="L258">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiRemove() {
+<span class="fc bfc" id="L262" title="All 2 branches covered.">        if (isRemoveSupported() == false) {</span>
+            try {
+<span class="nc" id="L264">                makeFullBidiMap().remove(entries[0][0]);</span>
+<span class="nc" id="L265">                fail();</span>
+<span class="pc" id="L266">            } catch(UnsupportedOperationException ex) {}</span>
+            try {
+<span class="nc" id="L268">                makeFullBidiMap().removeValue(entries[0][1]);</span>
+<span class="nc" id="L269">                fail();</span>
+<span class="pc" id="L270">            } catch(UnsupportedOperationException ex) {}</span>
+<span class="fc" id="L271">            return;</span>
+        }
+        
+<span class="fc" id="L274">        remove(makeFullBidiMap(), entries[0][0]);</span>
+<span class="fc" id="L275">        remove(makeFullBidiMap().inverseBidiMap(), entries[0][1]);</span>
+
+<span class="fc" id="L277">        removeValue(makeFullBidiMap(), entries[0][1]);</span>
+<span class="fc" id="L278">        removeValue(makeFullBidiMap().inverseBidiMap(), entries[0][0]);</span>
+        
+<span class="fc" id="L280">        assertEquals(null, makeFullBidiMap().removeValue(&quot;NotPresent&quot;));</span>
+<span class="fc" id="L281">    }</span>
+
+    private final void remove(BidiMap map, Object key) {
+<span class="fc" id="L284">        final Object value = map.remove(key);</span>
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">        assertTrue(&quot;Key was not removed.&quot;, !map.containsKey(key));</span>
+<span class="fc" id="L286">        assertNull(&quot;Value was not removed.&quot;, map.getKey(value));</span>
+<span class="fc" id="L287">    }</span>
+
+    private final void removeValue(BidiMap map, Object value) {
+<span class="fc" id="L290">        final Object key = map.removeValue(value);</span>
+<span class="pc bpc" id="L291" title="1 of 2 branches missed.">        assertTrue(&quot;Key was not removed.&quot;, !map.containsKey(key));</span>
+<span class="fc" id="L292">        assertNull(&quot;Value was not removed.&quot;, map.getKey(value));</span>
+<span class="fc" id="L293">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiKeySetValuesOrder() {
+<span class="fc" id="L297">        resetFull();</span>
+<span class="fc" id="L298">        Iterator keys = map.keySet().iterator();</span>
+<span class="fc" id="L299">        Iterator values = map.values().iterator();</span>
+<span class="pc bpc" id="L300" title="1 of 4 branches missed.">        for (; keys.hasNext() &amp;&amp; values.hasNext();) {</span>
+<span class="fc" id="L301">            Object key = keys.next();</span>
+<span class="fc" id="L302">            Object value = values.next();</span>
+<span class="fc" id="L303">            assertSame(map.get(key), value);</span>
+        }
+<span class="fc" id="L305">        assertEquals(false, keys.hasNext());</span>
+<span class="fc" id="L306">        assertEquals(false, values.hasNext());</span>
+<span class="fc" id="L307">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiRemoveByKeySet() {
+<span class="fc bfc" id="L311" title="All 2 branches covered.">        if (isRemoveSupported() == false) return;</span>
+        
+<span class="fc" id="L313">        removeByKeySet(makeFullBidiMap(), entries[0][0], entries[0][1]);</span>
+<span class="fc" id="L314">        removeByKeySet(makeFullBidiMap().inverseBidiMap(), entries[0][1], entries[0][0]);</span>
+<span class="fc" id="L315">    }</span>
+
+    private final void removeByKeySet(BidiMap map, Object key, Object value) {
+<span class="fc" id="L318">        map.keySet().remove(key);</span>
+
+<span class="pc bpc" id="L320" title="1 of 2 branches missed.">        assertTrue(&quot;Key was not removed.&quot;, !map.containsKey(key));</span>
+<span class="pc bpc" id="L321" title="1 of 2 branches missed.">        assertTrue(&quot;Value was not removed.&quot;, !map.containsValue(value));</span>
+
+<span class="fc" id="L323">        assertTrue(</span>
+<span class="fc" id="L324">            &quot;Key was not removed from inverse map.&quot;,</span>
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">            !map.inverseBidiMap().containsValue(key));</span>
+<span class="fc" id="L326">        assertTrue(</span>
+<span class="fc" id="L327">            &quot;Value was not removed from inverse map.&quot;,</span>
+<span class="pc bpc" id="L328" title="1 of 2 branches missed.">            !map.inverseBidiMap().containsKey(value));</span>
+<span class="fc" id="L329">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testBidiRemoveByEntrySet() {
+<span class="fc bfc" id="L333" title="All 2 branches covered.">        if (isRemoveSupported() == false) return;</span>
+        
+<span class="fc" id="L335">        removeByEntrySet(makeFullBidiMap(), entries[0][0], entries[0][1]);</span>
+<span class="fc" id="L336">        removeByEntrySet(makeFullBidiMap().inverseBidiMap(), entries[0][1], entries[0][0]);</span>
+<span class="fc" id="L337">    }</span>
+
+    private final void removeByEntrySet(BidiMap map, Object key, Object value) {
+<span class="fc" id="L340">        Map temp = new HashMap();</span>
+<span class="fc" id="L341">        temp.put(key, value);</span>
+<span class="fc" id="L342">        map.entrySet().remove(temp.entrySet().iterator().next());</span>
+
+<span class="pc bpc" id="L344" title="1 of 2 branches missed.">        assertTrue(&quot;Key was not removed.&quot;, !map.containsKey(key));</span>
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">        assertTrue(&quot;Value was not removed.&quot;, !map.containsValue(value));</span>
+
+<span class="fc" id="L347">        assertTrue(</span>
+<span class="fc" id="L348">            &quot;Key was not removed from inverse map.&quot;,</span>
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">            !map.inverseBidiMap().containsValue(key));</span>
+<span class="fc" id="L350">        assertTrue(</span>
+<span class="fc" id="L351">            &quot;Value was not removed from inverse map.&quot;,</span>
+<span class="pc bpc" id="L352" title="1 of 2 branches missed.">            !map.inverseBidiMap().containsKey(value));</span>
+<span class="fc" id="L353">    }</span>
+
+    //-----------------------------------------------------------------------
+    public BulkTest bulkTestMapEntrySet() {
+<span class="fc" id="L357">        return new TestBidiMapEntrySet();</span>
+    }
+
+    public class TestBidiMapEntrySet extends TestMapEntrySet {
+        public TestBidiMapEntrySet() {
+<span class="fc" id="L362">            super();</span>
+<span class="fc" id="L363">        }</span>
+        public void testMapEntrySetIteratorEntrySetValueCrossCheck() {
+<span class="fc" id="L365">            Object key1 = getSampleKeys()[0];</span>
+<span class="fc" id="L366">            Object key2 = getSampleKeys()[1];</span>
+<span class="fc" id="L367">            Object newValue1 = getNewSampleValues()[0];</span>
+<span class="fc" id="L368">            Object newValue2 = getNewSampleValues()[1];</span>
+                
+<span class="fc" id="L370">            resetFull();</span>
+            // explicitly get entries as sample values/keys are connected for some maps
+            // such as BeanMap
+<span class="fc" id="L373">            Iterator it = TestBidiMapEntrySet.this.collection.iterator();</span>
+<span class="fc" id="L374">            Map.Entry entry1 = getEntry(it, key1);</span>
+<span class="fc" id="L375">            it = TestBidiMapEntrySet.this.collection.iterator();</span>
+<span class="fc" id="L376">            Map.Entry entry2 = getEntry(it, key2);</span>
+<span class="fc" id="L377">            Iterator itConfirmed = TestBidiMapEntrySet.this.confirmed.iterator();</span>
+<span class="fc" id="L378">            Map.Entry entryConfirmed1 = getEntry(itConfirmed, key1);</span>
+<span class="fc" id="L379">            itConfirmed = TestBidiMapEntrySet.this.confirmed.iterator();</span>
+<span class="fc" id="L380">            Map.Entry entryConfirmed2 = getEntry(itConfirmed, key2);</span>
+<span class="fc" id="L381">            TestBidiMapEntrySet.this.verify();</span>
+                
+<span class="fc bfc" id="L383" title="All 2 branches covered.">            if (isSetValueSupported() == false) {</span>
+                try {
+<span class="nc" id="L385">                    entry1.setValue(newValue1);</span>
+<span class="pc" id="L386">                } catch (UnsupportedOperationException ex) {</span>
+                }
+<span class="fc" id="L388">                return;</span>
+            }
+
+            // these checked in superclass                
+<span class="fc" id="L392">            entry1.setValue(newValue1);</span>
+<span class="fc" id="L393">            entryConfirmed1.setValue(newValue1);</span>
+<span class="fc" id="L394">            entry2.setValue(newValue2);</span>
+<span class="fc" id="L395">            entryConfirmed2.setValue(newValue2);</span>
+            
+            // at this point
+            // key1=newValue1, key2=newValue2
+            try {
+<span class="nc" id="L400">                entry2.setValue(newValue1);  // should remove key1</span>
+<span class="pc" id="L401">            } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L402">                return;  // simplest way of dealing with tricky situation</span>
+            }
+<span class="nc" id="L404">            entryConfirmed2.setValue(newValue1);</span>
+<span class="nc" id="L405">            AbstractTestBidiMap.this.confirmed.remove(key1);</span>
+<span class="nc" id="L406">            assertEquals(newValue1, entry2.getValue());</span>
+<span class="nc" id="L407">            assertEquals(true, AbstractTestBidiMap.this.map.containsKey(entry2.getKey()));</span>
+<span class="nc" id="L408">            assertEquals(true, AbstractTestBidiMap.this.map.containsValue(newValue1));</span>
+<span class="nc" id="L409">            assertEquals(newValue1, AbstractTestBidiMap.this.map.get(entry2.getKey()));</span>
+<span class="nc" id="L410">            assertEquals(false, AbstractTestBidiMap.this.map.containsKey(key1));</span>
+<span class="nc" id="L411">            assertEquals(false, AbstractTestBidiMap.this.map.containsValue(newValue2));</span>
+<span class="nc" id="L412">            TestBidiMapEntrySet.this.verify();</span>
+            
+            // check for ConcurrentModification
+<span class="nc" id="L415">            it.next();  // if you fail here, maybe you should be throwing an IAE, see above</span>
+<span class="nc bnc" id="L416" title="All 2 branches missed.">            if (isRemoveSupported()) {</span>
+<span class="nc" id="L417">                it.remove();</span>
+            }
+<span class="nc" id="L419">        }</span>
+    }
+        
+    public BulkTest bulkTestInverseMap() {
+<span class="fc" id="L423">        return new TestInverseBidiMap(this);</span>
+    }
+
+    public class TestInverseBidiMap extends AbstractTestBidiMap {
+        final AbstractTestBidiMap main;
+        
+        public TestInverseBidiMap(AbstractTestBidiMap main) {
+<span class="fc" id="L430">            super();</span>
+<span class="fc" id="L431">            this.main = main;</span>
+<span class="fc" id="L432">        }</span>
+        public BidiMap makeEmptyBidiMap() {
+<span class="fc" id="L434">            return main.makeEmptyBidiMap().inverseBidiMap();</span>
+        }
+        public BidiMap makeFullBidiMap() {
+<span class="fc" id="L437">            return main.makeFullBidiMap().inverseBidiMap();</span>
+        }
+        public Map makeFullMap() {
+<span class="fc" id="L440">            return ((BidiMap) main.makeFullMap()).inverseBidiMap();</span>
+        }
+        public Object[] getSampleKeys() {
+<span class="fc" id="L443">            return main.getSampleValues();</span>
+        }
+        public Object[] getSampleValues() {
+<span class="fc" id="L446">            return main.getSampleKeys();</span>
+        }
+        
+        public String getCompatibilityVersion() {
+<span class="fc" id="L450">            return main.getCompatibilityVersion();</span>
+        }
+        public boolean isAllowNullKey() {
+<span class="fc" id="L453">            return main.isAllowNullKey();</span>
+        }
+        public boolean isAllowNullValue() {
+<span class="fc" id="L456">            return main.isAllowNullValue();</span>
+        }
+        public boolean isPutAddSupported() {
+<span class="fc" id="L459">            return main.isPutAddSupported();</span>
+        }
+        public boolean isPutChangeSupported() {
+<span class="fc" id="L462">            return main.isPutChangeSupported();</span>
+        }
+        public boolean isSetValueSupported() {
+<span class="fc" id="L465">            return main.isSetValueSupported();</span>
+        }
+        public boolean isRemoveSupported() {
+<span class="fc" id="L468">            return main.isRemoveSupported();</span>
+        }
+
+    }
+    
+    //-----------------------------------------------------------------------
+    public BulkTest bulkTestBidiMapIterator() {
+<span class="fc" id="L475">        return new TestBidiMapIterator();</span>
+    }
+    
+    public class TestBidiMapIterator extends AbstractTestMapIterator {
+        public TestBidiMapIterator() {
+<span class="fc" id="L480">            super(&quot;TestBidiMapIterator&quot;);</span>
+<span class="fc" id="L481">        }</span>
+        
+        public Object[] addSetValues() {
+<span class="fc" id="L484">            return AbstractTestBidiMap.this.getNewSampleValues();</span>
+        }
+        
+        public boolean supportsRemove() {
+<span class="fc" id="L488">            return AbstractTestBidiMap.this.isRemoveSupported();</span>
+        }
+
+        public boolean supportsSetValue() {
+<span class="fc" id="L492">            return AbstractTestBidiMap.this.isSetValueSupported();</span>
+        }
+
+        public MapIterator makeEmptyMapIterator() {
+<span class="fc" id="L496">            resetEmpty();</span>
+<span class="fc" id="L497">            return ((BidiMap) AbstractTestBidiMap.this.map).mapIterator();</span>
+        }
+
+        public MapIterator makeFullMapIterator() {
+<span class="fc" id="L501">            resetFull();</span>
+<span class="fc" id="L502">            return ((BidiMap) AbstractTestBidiMap.this.map).mapIterator();</span>
+        }
+        
+        public Map getMap() {
+            // assumes makeFullMapIterator() called first
+<span class="fc" id="L507">            return AbstractTestBidiMap.this.map;</span>
+        }
+        
+        public Map getConfirmedMap() {
+            // assumes makeFullMapIterator() called first
+<span class="fc" id="L512">            return AbstractTestBidiMap.this.confirmed;</span>
+        }
+        
+        public void verify() {
+<span class="fc" id="L516">            super.verify();</span>
+<span class="fc" id="L517">            AbstractTestBidiMap.this.verify();</span>
+<span class="fc" id="L518">        }</span>
+    }
+    
+    //-----------------------------------------------------------------------
+    public void testBidiMapIteratorSet() {
+<span class="fc" id="L523">        Object newValue1 = getOtherValues()[0];</span>
+<span class="fc" id="L524">        Object newValue2 = getOtherValues()[1];</span>
+        
+<span class="fc" id="L526">        resetFull();</span>
+<span class="fc" id="L527">        BidiMap bidi = (BidiMap) map;</span>
+<span class="fc" id="L528">        MapIterator it = bidi.mapIterator();</span>
+<span class="fc" id="L529">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L530">        Object key1 = it.next();</span>
+        
+<span class="fc bfc" id="L532" title="All 2 branches covered.">        if (isSetValueSupported() == false) {</span>
+            try {
+<span class="nc" id="L534">                it.setValue(newValue1);</span>
+<span class="nc" id="L535">                fail();</span>
+<span class="pc" id="L536">            } catch (UnsupportedOperationException ex) {</span>
+            }
+<span class="fc" id="L538">            return;</span>
+        }
+        
+<span class="fc" id="L541">        it.setValue(newValue1);</span>
+<span class="fc" id="L542">        confirmed.put(key1, newValue1);</span>
+<span class="fc" id="L543">        assertSame(key1, it.getKey());</span>
+<span class="fc" id="L544">        assertSame(newValue1, it.getValue());</span>
+<span class="fc" id="L545">        assertEquals(true, bidi.containsKey(key1));</span>
+<span class="fc" id="L546">        assertEquals(true, bidi.containsValue(newValue1));</span>
+<span class="fc" id="L547">        assertEquals(newValue1, bidi.get(key1));</span>
+<span class="fc" id="L548">        verify();</span>
+        
+<span class="fc" id="L550">        it.setValue(newValue1);  // same value - should be OK</span>
+<span class="fc" id="L551">        confirmed.put(key1, newValue1);</span>
+<span class="fc" id="L552">        assertSame(key1, it.getKey());</span>
+<span class="fc" id="L553">        assertSame(newValue1, it.getValue());</span>
+<span class="fc" id="L554">        assertEquals(true, bidi.containsKey(key1));</span>
+<span class="fc" id="L555">        assertEquals(true, bidi.containsValue(newValue1));</span>
+<span class="fc" id="L556">        assertEquals(newValue1, bidi.get(key1));</span>
+<span class="fc" id="L557">        verify();</span>
+        
+<span class="fc" id="L559">        Object key2 = it.next();</span>
+<span class="fc" id="L560">        it.setValue(newValue2);</span>
+<span class="fc" id="L561">        confirmed.put(key2, newValue2);</span>
+<span class="fc" id="L562">        assertSame(key2, it.getKey());</span>
+<span class="fc" id="L563">        assertSame(newValue2, it.getValue());</span>
+<span class="fc" id="L564">        assertEquals(true, bidi.containsKey(key2));</span>
+<span class="fc" id="L565">        assertEquals(true, bidi.containsValue(newValue2));</span>
+<span class="fc" id="L566">        assertEquals(newValue2, bidi.get(key2));</span>
+<span class="fc" id="L567">        verify();</span>
+        
+        // at this point
+        // key1=newValue1, key2=newValue2
+        try {
+<span class="nc" id="L572">            it.setValue(newValue1);  // should remove key1</span>
+<span class="nc" id="L573">            fail();</span>
+<span class="pc" id="L574">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L575">            return;  // simplest way of dealing with tricky situation</span>
+        }
+<span class="nc" id="L577">        confirmed.put(key2, newValue1);</span>
+<span class="nc" id="L578">        AbstractTestBidiMap.this.confirmed.remove(key1);</span>
+<span class="nc" id="L579">        assertEquals(newValue1, it.getValue());</span>
+<span class="nc" id="L580">        assertEquals(true, bidi.containsKey(it.getKey()));</span>
+<span class="nc" id="L581">        assertEquals(true, bidi.containsValue(newValue1));</span>
+<span class="nc" id="L582">        assertEquals(newValue1, bidi.get(it.getKey()));</span>
+<span class="nc" id="L583">        assertEquals(false, bidi.containsKey(key1));</span>
+<span class="nc" id="L584">        assertEquals(false, bidi.containsValue(newValue2));</span>
+<span class="nc" id="L585">        verify();</span>
+            
+        // check for ConcurrentModification
+<span class="nc" id="L588">        it.next();  // if you fail here, maybe you should be throwing an IAE, see above</span>
+<span class="nc bnc" id="L589" title="All 2 branches missed.">        if (isRemoveSupported()) {</span>
+<span class="nc" id="L590">            it.remove();</span>
+        }
+<span class="nc" id="L592">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

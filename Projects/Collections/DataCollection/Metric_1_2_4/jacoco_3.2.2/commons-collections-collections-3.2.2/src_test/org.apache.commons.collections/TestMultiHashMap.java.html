@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestMultiHashMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestMultiHashMap.java</span></div><h1>TestMultiHashMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.map.AbstractTestMap;
+
+/**
+ * Unit Tests for &lt;code&gt;MultiHashMap&lt;/code&gt;.
+ * 
+ * @version $Revision$ $Date$
+ *
+ * @author Unknown
+ */
+public class TestMultiHashMap extends AbstractTestMap {
+
+    public TestMultiHashMap(String testName) {
+<span class="fc" id="L41">        super(testName);</span>
+<span class="fc" id="L42">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L45" title="All 2 branches covered.">        return new TestSuite(TestMultiHashMap.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        String[] testCaseName = { TestMultiHashMap.class.getName()};</span>
+<span class="nc" id="L50">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L51">    }</span>
+
+    // MutltiHashMap was introduced in Collections 2.x
+    public String getCompatibilityVersion() {
+<span class="fc" id="L55">        return &quot;2&quot;;</span>
+    }
+
+    public Map makeEmptyMap() {
+<span class="fc" id="L59">        return new MultiHashMap();</span>
+    }
+    
+    //----------------------------
+    //          Tests
+    //----------------------------
+    public void testPutNGet() {
+<span class="fc" id="L66">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L67">        loadMap(map);</span>
+<span class="fc" id="L68">        checkMap(map);</span>
+
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        assertTrue(map.get(new Integer(99)) == null);</span>
+
+<span class="fc" id="L72">        map.clear();</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        assertTrue(map.size() == 0);</span>
+<span class="fc" id="L74">    }</span>
+
+    public void testContainsValue() {
+<span class="fc" id="L77">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L78">        loadMap(map);</span>
+
+<span class="fc" id="L80">        assertTrue(map.containsValue(&quot;uno&quot;));</span>
+<span class="fc" id="L81">        assertTrue(map.containsValue(&quot;quatro&quot;));</span>
+<span class="fc" id="L82">        assertTrue(map.containsValue(&quot;two&quot;));</span>
+
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        assertTrue(!map.containsValue(&quot;uggaBugga&quot;));</span>
+
+<span class="fc" id="L86">        map.clear();</span>
+<span class="fc" id="L87">    }</span>
+    
+    public void testValues() {
+<span class="fc" id="L90">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L91">        loadMap(map);</span>
+
+<span class="fc" id="L93">        Collection vals = map.values();</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        assertTrue(vals.size() == getFullSize());</span>
+
+<span class="fc" id="L96">        map.clear();</span>
+<span class="fc" id="L97">    }</span>
+
+    static private class MapPair {
+<span class="fc" id="L100">        MapPair(int key, String val) {</span>
+<span class="fc" id="L101">            mKey = new Integer(key);</span>
+<span class="fc" id="L102">            mValue = val;</span>
+<span class="fc" id="L103">        }</span>
+
+<span class="fc" id="L105">        Integer mKey = null;</span>
+<span class="fc" id="L106">        String mValue = null;</span>
+    }
+    
+<span class="fc" id="L109">    static private MapPair[][] sMapPairs =</span>
+<span class="fc" id="L110">    {</span>
+<span class="fc" id="L111">        {new MapPair(0,&quot;zero&quot;)},</span>
+<span class="fc" id="L112">        {new MapPair(1,&quot;one&quot;), new MapPair(1,&quot;ONE&quot;), new MapPair(1,&quot;uno&quot;)},</span>
+<span class="fc" id="L113">        {new MapPair(2,&quot;two&quot;), new MapPair(2,&quot;two&quot;) },</span>
+<span class="fc" id="L114">        {new MapPair(3,&quot;three&quot;), new MapPair(3,&quot;THREE&quot;), new MapPair(3,&quot;tres&quot;)},</span>
+<span class="fc" id="L115">        {new MapPair(4,&quot;four&quot;), new MapPair(4,&quot;quatro&quot;)}</span>
+<span class="fc" id="L116">    };</span>
+    
+    private void loadMap(MultiHashMap map) {
+        // Set up so that we load the keys &quot;randomly&quot;
+        // (i.e. we don't want to load int row-order, so that all like keys
+        // load together. We want to mix it up...)
+
+<span class="fc" id="L123">        int numRows = sMapPairs.length;</span>
+<span class="fc" id="L124">        int maxCols = 0;</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        for (int ii = 0; ii &lt; sMapPairs.length; ii++) {</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">            if (sMapPairs[ii].length &gt; maxCols) {</span>
+<span class="fc" id="L127">                maxCols = sMapPairs[ii].length;</span>
+            }
+        }
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        for (int ii = 0; ii &lt; maxCols; ii++) {</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">            for (int jj = 0; jj &lt; numRows; jj++) {</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">                if (ii &lt; sMapPairs[jj].length) {</span>
+<span class="fc" id="L133">                    map.put(sMapPairs[jj][ii].mKey, sMapPairs[jj][ii].mValue);</span>
+                    //---------------------------------------------------------
+                }
+            }
+        }
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        assertTrue(map.size() == sMapPairs.length);</span>
+<span class="fc" id="L139">    }</span>
+    
+    private void checkMap(MultiHashMap map) {
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        for (int ii = 0; ii &lt; sMapPairs.length; ii++) {</span>
+<span class="fc" id="L143">            checkKeyList(map, ii);</span>
+        }
+<span class="fc" id="L145">    }</span>
+
+    private void checkKeyList(MultiHashMap map, int index) {
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        assertTrue(index &lt; sMapPairs.length);</span>
+<span class="fc" id="L149">        Integer key = sMapPairs[index][0].mKey;</span>
+
+<span class="fc" id="L151">        Object obj = map.get(key);</span>
+        //--------------------------
+
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        assertTrue(obj != null);</span>
+<span class="fc" id="L155">        assertTrue(obj instanceof Collection);</span>
+<span class="fc" id="L156">        Collection keyList = (Collection) obj;</span>
+
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">        assertTrue(keyList.size() == sMapPairs[index].length);</span>
+<span class="fc" id="L159">        Iterator iter = keyList.iterator();</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L161">            Object oval = iter.next();</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">            assertTrue(oval != null);</span>
+<span class="fc" id="L163">            assertTrue(oval instanceof String);</span>
+<span class="fc" id="L164">            String val = (String) oval;</span>
+<span class="fc" id="L165">            boolean foundIt = false;</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">            for (int ii = 0; ii &lt; sMapPairs[index].length; ii++) {</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">                if (val.equals(sMapPairs[index][ii].mValue)) {</span>
+<span class="fc" id="L168">                    foundIt = true;</span>
+                }
+            }
+<span class="fc" id="L171">            assertTrue(foundIt);</span>
+        }
+<span class="fc" id="L173">    }</span>
+    
+    public int getFullSize() {
+<span class="fc" id="L176">        int len = 0;</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        for (int ii = 0; ii &lt; sMapPairs.length; ii++) {</span>
+<span class="fc" id="L178">            len += sMapPairs[ii].length;</span>
+        }
+<span class="fc" id="L180">        return len;</span>
+    }
+    
+
+    public void testEntrySetIterator() {
+<span class="fc" id="L185">    }</span>
+    public void testEntrySetContainsProperMappings() {
+<span class="fc" id="L187">    }</span>
+    public void testEntrySetIteratorHasProperMappings() {
+        // override and ignore test -- it will fail when verifying the iterator for
+        // the set contains the right value -- we're not returning the value, we're
+        // returning a collection.
+        // TODO: re-implement this test to ensure the values of the iterator match
+        // the proper collection rather than the value the superclass is checking
+        // for.
+<span class="fc" id="L195">        return;</span>
+    }
+
+    // Next methods are overriden because MultiHashMap values are always a
+    // collection, and deviate from the Map contract because of this.
+
+    // TODO: implement the tests to ensure that Map.get(Object) returns the
+    // appropriate collection of values
+
+    public void testMapGet() {
+<span class="fc" id="L205">    }</span>
+
+    public void testMapPut() {
+<span class="fc" id="L208">    }</span>
+
+    public void testMapPutAll() {
+<span class="fc" id="L211">    }</span>
+
+    public void testMapRemove() {
+<span class="fc" id="L214">    }</span>
+
+    public void testMapEquals() {
+<span class="fc" id="L217">        MultiHashMap one = new MultiHashMap();</span>
+<span class="fc" id="L218">        Integer value = new Integer(1);</span>
+<span class="fc" id="L219">        one.put(&quot;One&quot;, value);</span>
+<span class="nc" id="L220">        one.remove(&quot;One&quot;, value);</span>
+        
+<span class="nc" id="L222">        MultiHashMap two = new MultiHashMap();</span>
+<span class="nc" id="L223">        assertEquals(two, one);</span>
+<span class="nc" id="L224">    }</span>
+
+    public void testMapHashCode() {
+<span class="fc" id="L227">    }</span>
+
+    // The verification for the map and its entry set must also be overridden
+    // because the values are not going to be the same as the values in the
+    // confirmed map (they're going to be collections of values instead).
+    public void verifyMap() {
+        // TODO: implement test to ensure that map is the same as confirmed if
+        // its values were converted into collections.
+<span class="fc" id="L235">    }</span>
+
+    public void verifyEntrySet() {
+        // TODO: implement test to ensure that each entry is the same as one in
+        // the confirmed map, but with the value wrapped in a collection.
+<span class="fc" id="L240">    }</span>
+
+    // The verification method must be overridden because MultiHashMap's
+    // values() is not properly backed by the map (Bug 9573).
+
+    public void verifyValues() {
+        // update the values view to the latest version, then proceed to verify
+        // as usual.  
+<span class="fc" id="L248">        values = map.values();</span>
+<span class="fc" id="L249">        super.verifyValues();</span>
+<span class="fc" id="L250">    }</span>
+    
+    //-----------------------------------------------------------------------
+    public void testGetCollection() {
+<span class="fc" id="L254">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L255">        map.put(&quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L256">        assertSame(map.get(&quot;A&quot;), map.getCollection(&quot;A&quot;));</span>
+<span class="fc" id="L257">    }</span>
+    
+    public void testTotalSize() {
+<span class="fc" id="L260">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L261">        assertEquals(0, map.totalSize());</span>
+<span class="fc" id="L262">        map.put(&quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L263">        assertEquals(1, map.totalSize());</span>
+<span class="fc" id="L264">        map.put(&quot;B&quot;, &quot;BA&quot;);</span>
+<span class="fc" id="L265">        assertEquals(2, map.totalSize());</span>
+<span class="fc" id="L266">        map.put(&quot;B&quot;, &quot;BB&quot;);</span>
+<span class="fc" id="L267">        assertEquals(3, map.totalSize());</span>
+<span class="fc" id="L268">        map.put(&quot;B&quot;, &quot;BC&quot;);</span>
+<span class="fc" id="L269">        assertEquals(4, map.totalSize());</span>
+<span class="fc" id="L270">        map.remove(&quot;A&quot;);</span>
+<span class="fc" id="L271">        assertEquals(3, map.totalSize());</span>
+<span class="nc" id="L272">        map.remove(&quot;B&quot;, &quot;BC&quot;);</span>
+<span class="nc" id="L273">        assertEquals(2, map.totalSize());</span>
+<span class="nc" id="L274">    }</span>
+    
+    public void testSize_Key() {
+<span class="fc" id="L277">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L278">        assertEquals(0, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L279">        assertEquals(0, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L280">        map.put(&quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L281">        assertEquals(1, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L282">        assertEquals(0, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L283">        map.put(&quot;B&quot;, &quot;BA&quot;);</span>
+<span class="fc" id="L284">        assertEquals(1, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L285">        assertEquals(1, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L286">        map.put(&quot;B&quot;, &quot;BB&quot;);</span>
+<span class="fc" id="L287">        assertEquals(1, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L288">        assertEquals(2, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L289">        map.put(&quot;B&quot;, &quot;BC&quot;);</span>
+<span class="fc" id="L290">        assertEquals(1, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L291">        assertEquals(3, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L292">        map.remove(&quot;A&quot;);</span>
+<span class="fc" id="L293">        assertEquals(0, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L294">        assertEquals(3, map.size(&quot;B&quot;));</span>
+<span class="nc" id="L295">        map.remove(&quot;B&quot;, &quot;BC&quot;);</span>
+<span class="nc" id="L296">        assertEquals(0, map.size(&quot;A&quot;));</span>
+<span class="nc" id="L297">        assertEquals(2, map.size(&quot;B&quot;));</span>
+<span class="nc" id="L298">    }</span>
+    
+    public void testIterator_Key() {
+<span class="fc" id="L301">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L302">        assertEquals(false, map.iterator(&quot;A&quot;).hasNext());</span>
+<span class="fc" id="L303">        map.put(&quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L304">        Iterator it = map.iterator(&quot;A&quot;);</span>
+<span class="fc" id="L305">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L306">        it.next();</span>
+<span class="fc" id="L307">        assertEquals(false, it.hasNext());</span>
+<span class="fc" id="L308">    }</span>
+    
+    public void testContainsValue_Key() {
+<span class="fc" id="L311">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L312">        assertEquals(false, map.containsValue(&quot;A&quot;, &quot;AA&quot;));</span>
+<span class="fc" id="L313">        assertEquals(false, map.containsValue(&quot;B&quot;, &quot;BB&quot;));</span>
+<span class="fc" id="L314">        map.put(&quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L315">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;AA&quot;));</span>
+<span class="fc" id="L316">        assertEquals(false, map.containsValue(&quot;A&quot;, &quot;AB&quot;));</span>
+<span class="fc" id="L317">    }</span>
+
+    public void testPutAll_Map1() {
+<span class="fc" id="L320">        MultiMap original = new MultiHashMap();</span>
+<span class="fc" id="L321">        original.put(&quot;key&quot;, &quot;object1&quot;);</span>
+<span class="fc" id="L322">        original.put(&quot;key&quot;, &quot;object2&quot;);</span>
+
+<span class="fc" id="L324">        MultiHashMap test = new MultiHashMap();</span>
+<span class="fc" id="L325">        test.put(&quot;keyA&quot;, &quot;objectA&quot;);</span>
+<span class="fc" id="L326">        test.put(&quot;key&quot;, &quot;object0&quot;);</span>
+<span class="fc" id="L327">        test.putAll(original);</span>
+
+<span class="fc" id="L329">        assertEquals(2, test.size());</span>
+<span class="fc" id="L330">        assertEquals(4, test.totalSize());</span>
+<span class="fc" id="L331">        assertEquals(1, test.getCollection(&quot;keyA&quot;).size());</span>
+<span class="fc" id="L332">        assertEquals(3, test.getCollection(&quot;key&quot;).size());</span>
+<span class="fc" id="L333">        assertEquals(true, test.containsValue(&quot;objectA&quot;));</span>
+<span class="fc" id="L334">        assertEquals(true, test.containsValue(&quot;object0&quot;));</span>
+<span class="fc" id="L335">        assertEquals(true, test.containsValue(&quot;object1&quot;));</span>
+<span class="fc" id="L336">        assertEquals(true, test.containsValue(&quot;object2&quot;));</span>
+<span class="fc" id="L337">    }</span>
+
+    public void testPutAll_Map2() {
+<span class="fc" id="L340">        Map original = new HashMap();</span>
+<span class="fc" id="L341">        original.put(&quot;keyX&quot;, &quot;object1&quot;);</span>
+<span class="fc" id="L342">        original.put(&quot;keyY&quot;, &quot;object2&quot;);</span>
+
+<span class="fc" id="L344">        MultiHashMap test = new MultiHashMap();</span>
+<span class="fc" id="L345">        test.put(&quot;keyA&quot;, &quot;objectA&quot;);</span>
+<span class="fc" id="L346">        test.put(&quot;keyX&quot;, &quot;object0&quot;);</span>
+<span class="fc" id="L347">        test.putAll(original);</span>
+
+<span class="fc" id="L349">        assertEquals(3, test.size());</span>
+<span class="fc" id="L350">        assertEquals(4, test.totalSize());</span>
+<span class="fc" id="L351">        assertEquals(1, test.getCollection(&quot;keyA&quot;).size());</span>
+<span class="fc" id="L352">        assertEquals(2, test.getCollection(&quot;keyX&quot;).size());</span>
+<span class="fc" id="L353">        assertEquals(1, test.getCollection(&quot;keyY&quot;).size());</span>
+<span class="fc" id="L354">        assertEquals(true, test.containsValue(&quot;objectA&quot;));</span>
+<span class="fc" id="L355">        assertEquals(true, test.containsValue(&quot;object0&quot;));</span>
+<span class="fc" id="L356">        assertEquals(true, test.containsValue(&quot;object1&quot;));</span>
+<span class="fc" id="L357">        assertEquals(true, test.containsValue(&quot;object2&quot;));</span>
+<span class="fc" id="L358">    }</span>
+
+    public void testPutAll_KeyCollection() {
+<span class="fc" id="L361">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L362">        Collection coll = Arrays.asList(new Object[] {&quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;});</span>
+        
+<span class="fc" id="L364">        assertEquals(true, map.putAll(&quot;A&quot;, coll));</span>
+<span class="fc" id="L365">        assertEquals(3, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L366">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;X&quot;));</span>
+<span class="fc" id="L367">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Y&quot;));</span>
+<span class="fc" id="L368">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Z&quot;));</span>
+        
+<span class="fc" id="L370">        assertEquals(false, map.putAll(&quot;A&quot;, null));</span>
+<span class="fc" id="L371">        assertEquals(3, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L372">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;X&quot;));</span>
+<span class="fc" id="L373">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Y&quot;));</span>
+<span class="fc" id="L374">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Z&quot;));</span>
+        
+<span class="fc" id="L376">        assertEquals(false, map.putAll(&quot;A&quot;, new ArrayList()));</span>
+<span class="fc" id="L377">        assertEquals(3, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L378">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;X&quot;));</span>
+<span class="fc" id="L379">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Y&quot;));</span>
+<span class="fc" id="L380">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Z&quot;));</span>
+        
+<span class="fc" id="L382">        coll = Arrays.asList(new Object[] {&quot;M&quot;});</span>
+<span class="fc" id="L383">        assertEquals(true, map.putAll(&quot;A&quot;, coll));</span>
+<span class="fc" id="L384">        assertEquals(4, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L385">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;X&quot;));</span>
+<span class="fc" id="L386">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Y&quot;));</span>
+<span class="fc" id="L387">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Z&quot;));</span>
+<span class="fc" id="L388">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;M&quot;));</span>
+<span class="fc" id="L389">    }</span>
+
+    public void testClone() {
+<span class="fc" id="L392">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L393">        map.put(&quot;A&quot;, &quot;1&quot;);</span>
+<span class="fc" id="L394">        map.put(&quot;A&quot;, &quot;2&quot;);</span>
+<span class="fc" id="L395">        Collection coll = (Collection) map.get(&quot;A&quot;);</span>
+<span class="fc" id="L396">        assertEquals(1, map.size());</span>
+<span class="fc" id="L397">        assertEquals(2, coll.size());</span>
+        
+<span class="fc" id="L399">        MultiHashMap cloned = (MultiHashMap) map.clone();</span>
+<span class="fc" id="L400">        Collection clonedColl = (Collection) cloned.get(&quot;A&quot;);</span>
+<span class="fc" id="L401">        assertNotSame(map, cloned);</span>
+<span class="fc" id="L402">        assertNotSame(coll, clonedColl);</span>
+<span class="fc" id="L403">        assertEquals(1, map.size());</span>
+<span class="fc" id="L404">        assertEquals(2, coll.size());</span>
+<span class="fc" id="L405">        assertEquals(1, cloned.size());</span>
+<span class="fc" id="L406">        assertEquals(2, clonedColl.size());</span>
+<span class="fc" id="L407">        map.put(&quot;A&quot;, &quot;3&quot;);</span>
+<span class="fc" id="L408">        assertEquals(1, map.size());</span>
+<span class="fc" id="L409">        assertEquals(3, coll.size());</span>
+<span class="fc" id="L410">        assertEquals(1, cloned.size());</span>
+<span class="fc" id="L411">        assertEquals(2, clonedColl.size());</span>
+<span class="fc" id="L412">    }</span>
+
+    public void testConstructorCopy1() {
+<span class="fc" id="L415">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L416">        map.put(&quot;A&quot;, &quot;1&quot;);</span>
+<span class="fc" id="L417">        map.put(&quot;A&quot;, &quot;2&quot;);</span>
+<span class="fc" id="L418">        Collection coll = (Collection) map.get(&quot;A&quot;);</span>
+<span class="fc" id="L419">        assertEquals(1, map.size());</span>
+<span class="fc" id="L420">        assertEquals(2, coll.size());</span>
+        
+<span class="fc" id="L422">        MultiHashMap newMap = new MultiHashMap(map);</span>
+<span class="fc" id="L423">        Collection newColl = (Collection) newMap.get(&quot;A&quot;);</span>
+<span class="fc" id="L424">        assertNotSame(map, newMap);</span>
+<span class="fc" id="L425">        assertNotSame(coll, newColl);</span>
+<span class="fc" id="L426">        assertEquals(1, map.size());</span>
+<span class="fc" id="L427">        assertEquals(2, coll.size());</span>
+<span class="fc" id="L428">        assertEquals(1, newMap.size());</span>
+<span class="fc" id="L429">        assertEquals(2, newColl.size());</span>
+        
+<span class="fc" id="L431">        map.put(&quot;A&quot;, &quot;3&quot;);</span>
+<span class="fc" id="L432">        assertEquals(1, map.size());</span>
+<span class="fc" id="L433">        assertEquals(3, coll.size());</span>
+<span class="fc" id="L434">        assertEquals(1, newMap.size());</span>
+<span class="fc" id="L435">        assertEquals(2, newColl.size());</span>
+<span class="fc" id="L436">    }</span>
+
+    public void testConstructorCopy2() {
+<span class="fc" id="L439">        Map map = new HashMap();</span>
+<span class="fc" id="L440">        map.put(&quot;A&quot;, &quot;1&quot;);</span>
+<span class="fc" id="L441">        map.put(&quot;B&quot;, &quot;2&quot;);</span>
+<span class="fc" id="L442">        assertEquals(2, map.size());</span>
+        
+<span class="fc" id="L444">        MultiHashMap newMap = new MultiHashMap(map);</span>
+<span class="fc" id="L445">        Collection newColl = (Collection) newMap.get(&quot;A&quot;);</span>
+<span class="fc" id="L446">        assertNotSame(map, newMap);</span>
+<span class="fc" id="L447">        assertEquals(2, map.size());</span>
+<span class="fc" id="L448">        assertEquals(2, newMap.size());</span>
+<span class="fc" id="L449">        assertEquals(1, newColl.size());</span>
+        
+<span class="fc" id="L451">        map.put(&quot;A&quot;, &quot;3&quot;);</span>
+<span class="fc" id="L452">        assertEquals(2, map.size());</span>
+<span class="fc" id="L453">        assertEquals(2, newMap.size());</span>
+<span class="fc" id="L454">        assertEquals(1, newColl.size());</span>
+        
+<span class="fc" id="L456">        map.put(&quot;C&quot;, &quot;4&quot;);</span>
+<span class="fc" id="L457">        assertEquals(3, map.size());</span>
+<span class="fc" id="L458">        assertEquals(2, newMap.size());</span>
+<span class="fc" id="L459">        assertEquals(1, newColl.size());</span>
+<span class="fc" id="L460">    }</span>
+
+    public void testRemove_KeyItem() {
+<span class="fc" id="L463">        MultiHashMap map = new MultiHashMap();</span>
+<span class="fc" id="L464">        map.put(&quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L465">        map.put(&quot;A&quot;, &quot;AB&quot;);</span>
+<span class="fc" id="L466">        map.put(&quot;A&quot;, &quot;AC&quot;);</span>
+<span class="nc" id="L467">        assertEquals(null, map.remove(&quot;C&quot;, &quot;CA&quot;));</span>
+<span class="nc" id="L468">        assertEquals(null, map.remove(&quot;A&quot;, &quot;AD&quot;));</span>
+<span class="nc" id="L469">        assertEquals(&quot;AC&quot;, map.remove(&quot;A&quot;, &quot;AC&quot;));</span>
+<span class="nc" id="L470">        assertEquals(&quot;AB&quot;, map.remove(&quot;A&quot;, &quot;AB&quot;));</span>
+<span class="nc" id="L471">        assertEquals(&quot;AA&quot;, map.remove(&quot;A&quot;, &quot;AA&quot;));</span>
+<span class="nc" id="L472">        assertEquals(new MultiHashMap(), map);</span>
+<span class="nc" id="L473">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

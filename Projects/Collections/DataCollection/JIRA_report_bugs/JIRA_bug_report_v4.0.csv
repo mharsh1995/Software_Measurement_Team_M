@@ -1,0 +1,1481 @@
+Summary,Issue key,Issue id,Issue Type,Status,Project key,Project name,Project type,Project lead,Project description,Project url,Priority,Resolution,Assignee,Reporter,Creator,Created,Updated,Last Viewed,Resolved,Affects Version/s,Affects Version/s,Fix Version/s,Fix Version/s,Component/s,Component/s,Component/s,Due Date,Votes,Labels,Labels,Labels,Description,Environment,Original Estimate,Remaining Estimate,Time Spent,Work Ratio,Σ Original Estimate,Σ Remaining Estimate,Σ Time Spent,Security Level,Outward issue link (Cloners),Outward issue link (Incorporates),Outward issue link (Reference),Outward issue link (Reference),Attachment,Attachment,Custom field (Attachment count),Custom field (Blog - New Blog Administrators),Custom field (Blog - New Blog PMC),Custom field (Blog - Write access),Custom field (Blog Administrator?),Custom field (Blogs - Admin for blog),Custom field (Blogs - Email Address),Custom field (Blogs - Existing Blog Access Level),Custom field (Blogs - Existing Blog Name),Custom field (Blogs - New Blog Write Access),Custom field (Blogs - Username),Custom field (Bug Category),Custom field (Bugzilla - Email Notification Address),Custom field (Bugzilla - List of usernames),Custom field (Bugzilla - PMC Name),Custom field (Bugzilla - Project Name),Custom field (Bugzilla Id),Custom field (Change Category),Custom field (Complexity),Custom field (Date of First Response),Custom field (Discovered By),Custom field (Docs Text),Custom field (Enable Automatic Patch Review),Custom field (Epic Link),Custom field (Existing GitBox Approval),Custom field (External issue ID),Custom field (External issue URL),Custom field (Flags),Custom field (Git Notification Mailing List),Custom field (Git Repository Import Path),Custom field (Git Repository Name),Custom field (Git Repository Type),Custom field (GitHub Options),Custom field (Github Integration),Custom field (Github Integrations - Other),Custom field (Global Rank),Custom field (INFRA - Subversion Repository Path),Custom field (Initial Confluence Contributors),Custom field (Last public comment date),Custom field (Machine Readable Info),Custom field (New-TLP-TLPName),Custom field (Priority),Custom field (Project),Custom field (Protected Branch),Custom field (Rank),Custom field (Rank (Obsolete)),Custom field (Severity),Custom field (Severity),Custom field (Source Control Link),Custom field (Space Description),Custom field (Space Key),Custom field (Space Name),Custom field (Test and Documentation Plan),Custom field (Testcase included),Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment,Comment
+PatriciaTrie bugs when only a few bits change,COLLECTIONS-577,12896510,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Critical,Duplicate,,veqryn,veqryn,25/Sep/15 22:27,27/Nov/15 21:47,13/Jun/19 02:04,28/Sep/15 09:45,4.0,,4.1,,Map,,,,0,,,,"I have a bug report for you, for the class AbstractPatriciaTrie.  
+It has to do with how you handle bits when they are very close to each other.  
+For example, some of your methods seem to think that if the only difference between a prefix and a longer string, is a single additional bit, then they are actually the same data.  Or if the only difference is some number of zero bits, then it also thinks they are the same data.  
+There are also MANY situations where the prefixMap does not return all the strings that start with the prefix.
+
+Can you also make AbstractPatriciaTrie public, and your other package level methods into protected level, that way I don't have to copy the entire class and subclasse's code out into another class just to extend it?
+
+thank you,
+Chris Duncan (github user: VEQRYN)
+",,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2015-09-25 22:47:30.632,,,false,,,,,,,,,,,,,9223372036854775807,,,Mon Sep 28 09:45:19 UTC 2015,,,,,,0|i2ll0f:,9223372036854775807,,,,,,,,,"25/Sep/15 22:47;adrianc@hlmksw.com;Please don't put pages of text in the issue description. It uses a lot of bandwith and makes reading email notifications difficult. The description should contain a brief description of the problem, and code examples should go in the comments.","25/Sep/15 22:51;veqryn;Sorry, didn't know that. Should I move the code to comments now, or would that be worse since it would just make a new email?","25/Sep/15 22:53;adrianc@hlmksw.com;That would be helpful, thanks. I tried doing that myself, but I don't have permission to edit the description.","25/Sep/15 22:56;veqryn;Take the following code for example, which shows the bugs happening in a very simple context.
+I create two strings.  The first string is always a prefix of the second string.  Here are the characters I am using:
+{code}
+    final char u0000 = Character.toChars(0)[0]; // U+0000 (0000000000000000)
+    final char u0001 = Character.toChars(1)[0]; // U+0001 (0000000000000001)
+    final char u8000 = Character.toChars(32768)[0]; // U+8000 (1000000000000000)
+    final char uffff = Character.toChars(65535)[0]; // U+FFFF (1111111111111111)
+    final char char_b = 'b'; // 1100010
+    final char char_c = 'c'; // 1100011
+    final PatriciaTrie<String> trie = new PatriciaTrie<>();
+{code}
+
+And here is a quick example of the trie working correctly, showing how it should work:
+{code}
+    final String prefixString = """" + char_b;
+    final String longerString = prefixString + char_c;
+    System.out.println(trie.prefixMap(prefixString)); // {b=prefixString, bc=longerString} // correct!
+{code}
+
+In the first example, I show that a character who's bits are all zeros is always mishandled:
+{code}
+    final String prefixString = """" + char_b;
+    final String longerString = prefixString + u0000;
+
+    System.out.println(prefixString);
+    System.out.println(prefixString.length()); // 1
+
+    System.out.println(longerString);
+    System.out.println(longerString.length()); // 2
+
+    System.out.println(longerString.startsWith(prefixString)); // true
+
+    trie.put(prefixString, ""prefixString"");
+    System.out.println(trie); // prefixString is in
+
+    trie.put(longerString, ""longerString"");
+    System.out.println(trie); // only longerString shown... prefixString has disappeared
+
+    System.out.println(trie.prefixMap(prefixString).size()); // prints 1, but should be 2
+    System.out.println(trie.prefixMap(prefixString)); // {b =longerString} // prefixString should be here, but isn't
+
+    trie.put(prefixString, ""prefixString"");
+    System.out.println(trie); // prefixString is in again, but longerString has now disappeared
+
+    System.out.println(trie.prefixMap(prefixString).size()); // prints 1, but should be 2
+    System.out.println(trie.prefixMap(prefixString)); // {b=prefixString} // longerString should be here, but isn't
+{code}
+
+Next, I show that if the longer string is only 1 bit longer (ignoring zeros) than the prefix string, then the PatriciaTree fails to include it in the prefix map.
+Here the string would look like: 0000000001100011 1000000000000000
+{code}
+    final String prefixString = """" + char_c;  // you can use any character for the prefix, same results
+    final String longerString = prefixString + u8000;
+
+    System.out.println(prefixString);
+    System.out.println(prefixString.length()); // 1
+
+    System.out.println(longerString);
+    System.out.println(longerString.length()); // 2
+
+    System.out.println(longerString.startsWith(prefixString)); // true
+
+    trie.put(prefixString, ""prefixString"");
+    System.out.println(trie); // prefixString is in
+
+    trie.put(longerString, ""longerString"");
+    System.out.println(trie); // both are in
+
+    System.out.println(trie.prefixMap(prefixString).size()); // prints 1, but should be 2
+    System.out.println(trie.prefixMap(prefixString)); // {c=prefixString} // longerString should be here, but isn't
+{code}
+
+And again, except flipping it so that the prefix ends with a 1, and the longer string starts with 1's:
+{code}
+    final String prefixString = """" + u0003;
+    final String longerString = prefixString + u8000; // can also use uffff here, same result
+
+    System.out.println(prefixString);
+    System.out.println(prefixString.length()); // 1
+
+    System.out.println(longerString);
+    System.out.println(longerString.length()); // 2
+
+    System.out.println(longerString.startsWith(prefixString)); // true
+
+    trie.put(prefixString, ""prefixString"");
+    System.out.println(trie); // prefixString is in
+
+    trie.put(longerString, ""longerString"");
+    System.out.println(trie); // both are in
+
+    System.out.println(trie.prefixMap(prefixString).size()); // prints 1, but should be 2
+    System.out.println(trie.prefixMap(prefixString)); // {c=prefixString} // longerString should be here, but isn't
+{code}
+
+The class is honestly pretty complex and I wasn't able to completely debug why this is behaving badly, but I believe it is because of how you are handling the ""bitIndex"" and ""bitLength"".
+For example, in the method AbstractPatriciaTrie .subtree(), my comments in bold (this definitely isn't the only place with weird handling of bitIndex and lengthInBits):
+{code}
+    TrieEntry<K, V> subtree(final K prefix, final int offsetInBits, final int lengthInBits) {
+        TrieEntry<K, V> current = root.left;
+        TrieEntry<K, V> path = root;
+        while(true) {
+// If our bit index has only increased by 1, then our bitIndex will never get to be greater than lengthInBits, we could still start with the prefix, yet we have no way to break out of here with current being set to the longer string.
+            if (current.bitIndex <= path.bitIndex || lengthInBits < current.bitIndex) {
+                break;
+            }
+            path = current;
+            if (!isBitSet(prefix, offsetInBits + current.bitIndex, offsetInBits + lengthInBits)) {
+                current = current.left;
+            } else {
+                current = current.right;
+            }
+        }
+      ...
+{code}","26/Sep/15 10:56;tn;I just quickly tested your code snippets, but this problem should already be fixed in trunk.
+
+The problems with truncated output is most likely related to adding u0000 to the string which is a native string terminator in c.","28/Sep/15 09:45;tn;In r1705637, I have added additional testcases for a Trie.
+
+The problem has already been fixed by COLLECTIONS-525.
+
+Thanks for the report and tests!",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+PatriciaTrie,COLLECTIONS-525,12713013,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Critical,Fixed,,zigler,zigler,08/May/14 04:38,27/Nov/15 21:11,13/Jun/19 02:04,01/Jan/15 21:11,4.0,,4.1,,Collection,,,,0,,,," the result of trie tree prefixMap function is inconsistent. it would contain a key but the size is 0;
+some unittest codes as below: 
+
+  PatriciaTrie<String> aTree =
+        new PatriciaTrie<String> ();
+    aTree.put(""点评"", ""测试"");
+    aTree.put(""书评"", ""测试"");
+    assertTrue(aTree.prefixMap(""点"").containsKey(""点评"")); //pass
+    assertEquals(""测试"", aTree.prefixMap(""点"").get(""点评"")); //pass
+    assertFalse(aTree.prefixMap(""点"").isEmpty());                 //fail
+    assertEquals(1, aTree.prefixMap(""点"").size());                 //fail actural 0
+    assertEquals(1, aTree.prefixMap(""点"").keySet().size());   //fail actural 0
+    assertEquals(1, aTree.prefixMap(""点"").entrySet().size()); //fail actural 0
+    assertEquals(1, aTree.prefixMap(""点评"").values().size()); //fail actural 0",android,,,,,,,,,COLLECTIONS-526,,,,09/May/14 16:55;zigler;525.patch;https://issues.apache.org/jira/secure/attachment/12644130/525.patch,,1.0,,,,,,,,,,,,,,,,,,,2014-05-14 13:30:58.869,,,false,,,,,,,,,,,,,391329,,,Thu Jan 01 21:11:08 UTC 2015,,,,,,0|i1vedr:,391549,,,,,,,,,"09/May/14 07:53;zigler;take some time to investigate, I found this line:
+
+       if (isBitSet(prefix, endIndexInBits, endIndexInBits)
+                != isBitSet(entry.key, lengthInBits, lengthInBits(entry.key))) {
+            return null;
+        }
+
+in subtree functions.
+
+It simply check the last bits of the prefix and the entry.key, however, as we use string as key, the endIndexInBits would be set the character length, 
+and it would make the codes check the next character of the prefix and the entry.key instead as expected.  Then for the character of the low region(which the highest bit is always 0) this judgment is always return true. But for other characters this would not return as expected.
+
+In other worlds, it use a open boundary as an close one.
+
+ if (isBitSet(prefix, endIndexInBits-1, endIndexInBits)
+                != isBitSet(entry.key, lengthInBits-1, lengthInBits(entry.key)))
+would fix it. 
+","09/May/14 11:17;zigler;I'm afraid there are two other places make the same mistake:
+the test code as below:
+		PatriciaTrie<String> aTree2 = new PatriciaTrie<String> ();
+		aTree2.put(""点评"", ""联盟"");
+		aTree2.put(""点版"", ""定向"");
+		System.out.println(aTree2.prefixMap(""点"").values());
+",09/May/14 16:55;zigler;I hope the patch could make some sense,"14/May/14 13:30;tn;Thanks for the report and patch.
+It seems to fix the problem, but needs more investigation to make sure the problem is fully resolved by this change.","01/Jan/15 21:11;tn;Fixed in r1648941.
+
+Thanks for the report and patch!",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+PatriciaTrie,COLLECTIONS-526,12713014,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Critical,Duplicate,,zigler,zigler,08/May/14 04:38,08/May/14 06:04,13/Jun/19 02:04,08/May/14 06:04,4.0,,,,Collection,,,,0,,,,"the result of trie tree prefixMap function is inconsistent. it would contain a key but the size is 0;
+some unittest codes as below: 
+
+  PatriciaTrie<String> aTree =
+        new PatriciaTrie<String> ();
+    aTree.put(""点评"", ""测试"");
+    aTree.put(""书评"", ""测试"");
+    assertTrue(aTree.prefixMap(""点"").containsKey(""点评"")); //pass
+    assertEquals(""测试"", aTree.prefixMap(""点"").get(""点评"")); //pass
+    assertFalse(aTree.prefixMap(""点"").isEmpty());                 //fail
+    assertEquals(1, aTree.prefixMap(""点"").size());                 //fail
+    assertEquals(1, aTree.prefixMap(""点"").keySet().size());   //fail
+    assertEquals(1, aTree.prefixMap(""点"").entrySet().size()); //fail
+    assertEquals(1, aTree.prefixMap(""点评"").values().size()); //fail",android,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,,391330,,,2014-05-08 04:38:52.0,,,,,,0|i1vedz:,391550,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Arbitrary remote code execution with InvokerTransformer,COLLECTIONS-580,12911300,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,marschall,marschall,07/Nov/15 13:28,12/Jan/16 08:07,13/Jun/19 02:04,21/Nov/15 10:02,3.0,4.0,3.2.2,4.1,,,,,66,,,,"With {{InvokerTransformer}} serializable collections can be build that execute arbitrary Java code. {{sun.reflect.annotation.AnnotationInvocationHandler#readObject}} invokes {{#entrySet}} and {{#get}} on a deserialized collection. If you have an endpoint that accepts serialized Java objects (JMX, RMI, remote EJB, ...) you can combine the two to create arbitrary remote code execution vulnerability.
+
+I don't know of a good fix short of removing {{InvokerTransformer}} or making it not Serializable. Both probably break existing applications.
+
+This is not my research, but has been discovered by other people.
+
+https://github.com/frohoff/ysoserial
+
+http://foxglovesecurity.com/2015/11/06/what-do-weblogic-websphere-jboss-jenkins-opennms-and-your-application-have-in-common-this-vulnerability/
+",,,,,,,,,,,,IO-487,KARAF-4135,10/Nov/15 09:33;jochen@apache.org;COLLECTIONS-580.patch;https://issues.apache.org/jira/secure/attachment/12771520/COLLECTIONS-580.patch,,1.0,,,,,,,,,,,,,,,,,,,2015-11-08 16:55:57.872,,,false,,,,,,,,,,,,,9223372036854775807,,,Tue Dec 08 09:14:01 UTC 2015,,,,,,0|i2o3kf:,9223372036854775807,,,,,,,,,"08/Nov/15 16:55;ddossot;This vulnerability puts the whole library at risk of being vetoed in places where security is tight. If InvokerTransformer has to be kept, can it be moved to a different artifacts? Or could we have a build that doesn't contain it (like with a ""secure"" qualifier).","08/Nov/15 17:08;tn;We are currently working on a new release to address the issue.
+
+As a solution, we prefer to introduce a new system property that controls whether the InvokerTransformer can be serialized or not. The default would be false, thus using the new version of the library will mean that any attempt to de-serialize an InvokerTransformer will result in an exception.","08/Nov/15 21:00;ddossot;This sounds great [~tn], thank you!","08/Nov/15 22:20;tn;Proposed fix committed in r1713307 for the 3.2.X branch, see here: http://svn.apache.org/viewvc?view=revision&revision=1713307","09/Nov/15 00:55;paul;Re ""r1713307 for the 3.2.X branch"" ... can the same change be cherry-picked back other major/minor branches and those re-released to 'central' too please?","09/Nov/15 08:44;joehni;Hi Paul,
+
+we do not re-release, Thomas intends to release new version 3.2.2 only (with some additional cheep bug fixes). I don't know if we gain a lot if we also make releases for older code lines (e.g. release new 3.1.1, 3.0.1, 2.1.2 , 2.0.1 and/or 1.0.1) with this cherry-pick only. The line is supposed to be binary compatible anyway. If someone does not want to upgrade to 3.2.2, why should he consider to upgrade to one of the other ""new"" releases?
+
+Cheers,
+Jörg","09/Nov/15 08:52;tn;We will at least make also a release for the 4.x branch.
+
+The problematic class was introduced in 3.0, so in theory we could also make a 3.0.1 and 3.1.1 bugfix release, but as Joerg pointed out users should be able to upgrade to 3.2.2.
+Could you point out cases where this might not be possible?",09/Nov/15 09:01;ebourg;I think we should release the fix for COLLECTIONS-580 alone with no other modification. Otherwise people may hesitate to upgrade in fear of a regression. The other changes can be released later.,"09/Nov/15 09:08;tn;This should please be discussed on the mailinglist.
+I hand-picked the bugfixes that have been backported from the 4.0 release and they only include things that are clearly wrong, and anybody using this functionality must have a broken application.","09/Nov/15 09:25;ebourg;I don't doubt you've done the things properly Thomas and I'm glad you're there to do that. My point is that from a user perspective, an update that just contains a security fix is likely to be a no-brainer, but a security update combined with other changes may trigger a full QA cycle in some development teams.
+","10/Nov/15 09:25;jochen@apache.org;Alothough deserialization is the actual problem, I do thing that we should handle serialization, and deserialization in the same manner. I am attaching a suggested patch.
+","10/Nov/15 09:48;ebourg;Serialization isn't an issue, I don't see the point of changing that.","10/Nov/15 09:52;jochen@apache.org;We are introducing an incompatible change. The more people know about it, the better.
+","10/Nov/15 10:00;tn;Indeed, I was thinking about that as well. The point is that within the same application it does not make sense to allow serialization when de-serialization will certainly fail.
+This will allow people to spot regressions earlier when using the updated jar with serialization disabled.
+
+Furthermore, as mentioned by Chris Frohoff on the mailinglist, the following classes might be unsecure as well:
+
+ * InstantiateFactory
+ * InstantiateTransformer
+ * PrototypeFactory
+
+I think PrototypeFactory is safe: it calls clone on an object that has been de-serialized already, but for the other 2 I am not sure. Basically they allow an attacker to call an arbitrary public constructor of any class in the application's classpath. There might be a possible attack vector for it, although none is known atm.
+
+If we add the same fix there as well, I would also suggest to change the property to enable the serialization to that: ""org.apache.commons.collections.enableUnsafeSerialization""",10/Nov/15 16:08;jglick@netbeans.org;FWIW the Jenkins project has been assuming that the whole {{org.apache.commons.collections.functors}} package is vulnerable and should be blocked from deserialization.,"10/Nov/15 19:27;drosenbauer;I think that whatever is done with InvokerTransformer should also be done with InstantiationTransformer (and the various related Factories and Closures and such). There are classes that do unsafe things in their constructors. For that matter, there may be classes that do unsafe things in their toStrings.","11/Nov/15 13:07;tn;There are also other vulnerable classes that allow an attacker to create a quite simple DOS attack.
+A gadget like that will result in an infinite loop:
+{code}
+final Transformer[] transformers = new Transformer[] {
+	new ConstantTransformer(Runtime.class),
+	new ClosureTransformer(
+	        new WhileClosure(TruePredicate.INSTANCE,
+                new TransformerClosure(CloneTransformer.INSTANCE), false)),
+{code}","13/Nov/15 12:13;karsten.klein@gmail.com;We (not having seen the attached patch before) have come up with the following solution:
+
+{code}
+    /**
+     * Transforms the input to result by invoking a method on the input.
+     * 
+     * @param input  the input object to transform
+     * @return the transformed result, null if null input
+     */
+    public Object transform(Object input) {
+        if (input == null) {
+            return null;
+        }
+        
+        if (deserialized) {
+            throw new IllegalStateException(""Transformation on deserialized object not supported. ""
+                    + ""Using this function may indicate an attempted SECURITY BREACH."");
+        }
+        
+        try {
+            Class cls = input.getClass();
+            Method method = cls.getMethod(iMethodName, iParamTypes);
+            return method.invoke(input, iArgs);
+                
+        } catch (NoSuchMethodException ex) {
+            throw new FunctorException(""InvokerTransformer: The method '"" + iMethodName + ""' on '"" + input.getClass() + ""' does not exist"");
+        } catch (IllegalAccessException ex) {
+            throw new FunctorException(""InvokerTransformer: The method '"" + iMethodName + ""' on '"" + input.getClass() + ""' cannot be accessed"");
+        } catch (InvocationTargetException ex) {
+            throw new FunctorException(""InvokerTransformer: The method '"" + iMethodName + ""' on '"" + input.getClass() + ""' threw an exception"", ex);
+        }
+    }
+    
+    private transient boolean deserialized = false;
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        deserialized = true;
+    }
+{code}
+
+This approach is a little more 'compatible' and less invasive. It will only fail if transform is invoked on a deserialized object. In particular it does not fail at deserialization time. Only when the transform method is invoked. This may reduce the effects of the change.
+","13/Nov/15 12:24;tn;I prefer a fail-fast approach.
+
+btw. a successful attack will call the transform as part of the call to readObject, thus it will fail during de-serialization.","13/Nov/15 12:35;karsten.klein@gmail.com;Not sure I fully understand. The critical piece of code is always executed on a fully deserialized object. So the approach should work (or I apologize for not having understood the subject matter).
+
+However, awareness is required on how people have to deal with this finding. The lib is very wide-spread. Thus a minimum behavior change in the software stack is preferred.
+
+For newer versions (major/minor) I would agree to your fail-fast approach. Here I would also suggest to remove the complete Serialization feature.","13/Nov/15 13:25;tn;{quote}
+Not sure I fully understand. The critical piece of code is always executed on a fully deserialized object. So the approach should work (or I apologize for not having understood the subject matter).
+{quote}
+
+I did not question your approach, I wanted to point out that in the attack vector, i.e. InvokerTransformer#transform will already be called during de-serialization (of another object).
+
+{quote}
+However, awareness is required on how people have to deal with this finding. The lib is very wide-spread. Thus a minimum behavior change in the software stack is preferred.
+{quote}
+
+We are trying to do this, but the rationale is as follows: if an application uses the unsafe classes in a legit way, i.e. will de-serialize them from a trusted source, the application will most likely also *use* these objects in a way or another. It means that the application will fail in any way, but it will be easier to spot/fix if it happens already during the de-serialization, but please correct me if you have a use-case where your approach would be more suitable.
+
+{quote}
+For newer versions (major/minor) I would agree to your fail-fast approach. Here I would also suggest to remove the complete Serialization feature.
+{quote}
+
+This is indeed the plan, for the 4.1 release we will hopefully remove the Serializable interface from the unsafe classes.",13/Nov/15 20:10;tn;Committed in r1714262 for collections4: unsafe classes do not implement the Serializable interface anymore.,13/Nov/15 21:03;tn;The new MultiValuedMap in collections4 uses internally an InstantiateFactory which is serialized. Need to find a better solution for this before we can resolve the issue.,14/Nov/15 09:56;tn;In collections4 there is also an inner factory class in MultiValueMap that is serializable. This can be solved with a readObject method that checks whether the de-serialized class extends Collection.,14/Nov/15 20:25;tn;Fixed MultiValueMap issue in r1714360.,"16/Nov/15 10:22;rchamarthy;Hi,
+
+Would be interested to know an estimated data on the availability the commons collections with the fix.
+
+Advance Thanks,
+Ravi Chamarthy","16/Nov/15 10:42;tn;collections 3.2.2 has been released yesterday.
+
+A new release for collections4 will be done this week hopefully.",16/Nov/15 11:38;rchamarthy;Thanks Thomas for the confirmation.,16/Nov/15 12:39;schudel;Thanks Thomas for the quick fix,16/Nov/15 21:56;yoderme;Let me also extend my thanks for the fix. Question: is there an assigned CVE number for this? I couldn't find one after a quick search.,"17/Nov/15 14:48;Stevie Beck;+1 (thanks for the fix!)
+Regarding CVE number: Mitre did not (yet?) assign one, and there has been a controversial discussion in the OSS Security list around it, see: http://seclists.org/oss-sec/2015/q4/280
+CVE-2015-4852 was assigned by Oracle and is started to be used by other vendors, whose products are impacted by the issue.","18/Nov/15 14:50;tdaitx;According to CVE assignment team [1] no CVE ID will be allocated for this issue and:
+
+""The CVE-2015-4852 ID came from Oracle and must remain associated only with Oracle's own software (WebLogic Server is the product they've named).""
+
+but then Oracle's Thomas Keefe reply [1] to that thread stated:
+
+""We do not have a problem with this use of the CVE# we registered (CVE-2015-4852).""
+
+[1] http://www.openwall.com/lists/oss-security/2015/11/17/19
+[2] http://www.openwall.com/lists/oss-security/2015/11/18/1","19/Nov/15 06:22;taromaru;I used commons-collections-3.2.2.
+
+ForClosure and WhileClosure can not deserialize.
+But, ChainedTransformer can deserialize.
+A DoS attack similar to an infinite loop becomes possible by the following way.
+
+{code:java}
+	HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+	for (int i = Integer.MIN_VALUE + 1; i <= Integer.MIN_VALUE + 10; i++) {
+		map.put(i, i);
+	}
+	Transformer constantTransformer = ConstantTransformer.getInstance(map);
+	Transformer stringValueTransformer = StringValueTransformer.getInstance();
+	Transformer transformerChain = ChainedTransformer.getInstance(constantTransformer, stringValueTransformer);
+	for (int i = 0; i < 10; i++) {
+		Transformer[] transformers = new Transformer[10];
+		Arrays.fill(transformers, transformerChain);
+		transformerChain = ChainedTransformer.getInstance(transformers);
+	}
+{code}
+
+This serialized file size is less than 2KB.
+But it takes 6~7 hours for deserialize. (Core i5 CPU)
+
+I think the similar way is also possible in ChainedClosure, AllPredicate, AnyPredicate.
+
+When other class of org.apache.commons.collections.functors package was used,
+it was possible to make OutOfMemoryError occur.
+
+I think all classes of org.apache.commons.collections.functors package should call FunctorUtils#checkUnsafeSerialization.
+","19/Nov/15 08:03;tn;Hmm I feared that it would be too easy to create other, similar exploits with still serializable classes.
+
+btw. for the same DOS attack, the guava lib might be exploitable as well. The lib also provides predicates and functions that can be chained in a way or another and are serializable.","19/Nov/15 10:58;Stevie Beck;This reminds me of the the general ""SerialDoS"" code, published here: https://gist.github.com/coekie/a27cc406fc9f3dc7a70d
+I am not THAT Java expert, so I just assume, that any application that allows deserialization from untrusted input, can be DoS'ed - regardless what libraries are included in the classpath.
+Just creation of code execution needs more investigation and creativity and the need to find suitable gadgets...","19/Nov/15 23:09;tn;In the collections4 branch, the MultiValuedMap implementations do not use the InstantiateFactory anymore.
+Committed in r1715302. This required a huge refactoring effort, but should definitely be safer as no reflection is used anymore.","21/Nov/15 00:19;yoderme;""No reflection is used anymore"" sounds like a really good thing. Might I ask when you expect a release of collecions4 to be out?  Thanks!",21/Nov/15 06:16;tn;in the next days hopefully.,21/Nov/15 10:02;tn;Closing this issue as it is fixed in both branches.,24/Nov/15 13:49;schudel;Any info on when commons-collections 4.1 will be released?,"24/Nov/15 16:07;tn;the release has been prepared, currently the vote is ongoing.","02/Dec/15 14:45;mceli;[~tn] Is this issue also present in Apache Commons Collection v3.1? I see that the affected versions listed on the details as 3.0, 4.0.
+","02/Dec/15 15:51;tn;All 3.X releases and the 4.0 release are affected.
+
+For the 3.X branch we have released 3.2.2 to which all users of the 3.X branch are encouraged to upgrade.
+For the 4.X branch we have released 4.1 (same as above applies).",02/Dec/15 15:58;mceli;Thank you for your prompt response!,08/Dec/15 06:07;sunnykumar;[~tn] Is commons-collections 2.x library affected by this vulnerability ?. I can see there is no functions package inside the 2.x jar.,"08/Dec/15 07:58;tn;The collections 2.x branch is not affected.
+
+@all the issue tracker is no discussion forum, please use the user/dev mailinglist for questions. Furthermore this issue is closed, I will not answer anything here anymore.","08/Dec/15 09:14;joehni;THIS IS NOT A HELP FORUM! If you have questions, go ask on the user's list!
+
+(Note, this was a reply to a comment that has been deleted afterwards by its original author)."
+PassiveExpiringMap doesn't work when the key is a byte array,COLLECTIONS-579,12910338,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Invalid,,rabit,rabit,04/Nov/15 12:48,27/Nov/15 21:47,13/Jun/19 02:04,04/Nov/15 13:19,4.0,,,,Map,,,,0,,,,"When you put a (key,value) pair in a PassiveExpiringMap and the key is byte[] you can't retrieve it.
+
+Code to reproduce the problem:
+
+byte[] key = {0,0,0,1};
+PassiveExpiringMap<byte[],byte[]> map = new PassiveExpiringMap<byte[],byte[]> ();
+map.put(key,key);
+
+byte[] queryKey = {0,0,0,1};
+//this should be true
+map.containsKey(queryKey) == false
+
+","GNU/Linux Ubuntu 15.10 64 bits, OpenJDK 1.8.0_65",,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2015-11-04 13:19:47.903,,,false,,,,,Important,,,,,,,,9223372036854775807,,,Thu Nov 05 15:26:58 UTC 2015,,,,,,0|i2nxsf:,9223372036854775807,,,,,,,,,"04/Nov/15 13:19;tn;A plain array can not be used as-is in collection-like classes.
+
+The reason for this is that an Array will use the default hashCode implementation from Object which means its hashcode depends on its reference. You can test the same example and replace the PassiveExpiringMap with a normal HashMap and you will get the same behavior just because the hashCode for key and queryKey will be different.
+
+In order to use arrays in a Map you will need a wrapper that properly implements hashCode and equals by using e.g. the functions available in the Arrays class.","05/Nov/15 15:26;rabit;Yes, thank you for pointing this out. I don't know how it's never bitten me before. Sorry for the trouble. Here is the code I should have used first:
+
+{code:title=ByteArray.java|borderStyle=solid}
+public class ByteArray {
+	private volatile int hashCode = 0;
+	private byte[] bytes = null;
+	private final Object lock = new Object();
+
+	public ByteArray(byte[] bytes) {
+		 this.bytes = bytes;
+ 	}
+
+        /**
+       * Redefine the backing array
+       * @param bytes original array
+       */
+       public void set(byte[] bytes) {
+	 synchronized (lock) {
+  	 this.bytes = bytes;
+	 hashCode = 0;
+       }
+	}
+	
+	/**
+	 * @return original backing array
+	 */
+	public byte[] get(){
+		return bytes;
+	}
+
+	@Override
+	public int hashCode() {
+   		synchronized (lock) {
+			if (hashCode == 0) {
+				int hash = 11;
+				hashCode = 29 * hash + Arrays.hashCode(this.bytes);
+			}
+		}
+		return hashCode;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final ByteArray other = (ByteArray) obj;
+		if (!Arrays.equals(this.bytes, other.bytes)) {
+			return false;
+		}
+		return true;
+	}
+}
+{code}",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+NullPointerException in MapBackedSet.mapBackedSet,COLLECTIONS-514,12707636,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Invalid,,Telcontar,Telcontar,10/Apr/14 04:31,27/Nov/15 21:47,13/Jun/19 02:04,10/Apr/14 20:59,4.0,,,,Bag,Collection,Set,,0,,,,"It seems that addAll has issues with adding a set that is backed by a singleton map with entry null -> null. However, the javadoc of the involved classes does not state that null entries are disallowed.
+Either the code should allow adding a null entry to a bag, or the documentation should state that null entries are not allowed.
+
+See the attached unit test in JUnit format to reproduce the problem.","MacOS 10.9, Java 6",,,,,,,,,,,,,10/Apr/14 04:33;Telcontar;Report2.java;https://issues.apache.org/jira/secure/attachment/12639530/Report2.java,,1.0,,,,,,,,,,,,,,,,,,,2014-04-10 20:59:08.83,,,false,,,,,,,,,,,,,385959,,,Thu Apr 10 20:59:08 UTC 2014,,,,,,0|i1uhmv:,386223,,,,,,,,,10/Apr/14 04:33;Telcontar;JUnit test that produces a NullPointerException.,"10/Apr/14 20:59;tn;The use TreeBag states that it uses a TreeMap as underlying data structure, this the same limitations apply as for a TreeMap.
+
+In fact I consider this even a bug in the jdk, as the TreeMap states that adding a mapping with a null key and natural ordering will result in a NullPointerException, although it does not immediately, only when you try to get the entry with a null key:
+
+{noformat}
+        SortedMap<String, String> map = new TreeMap<String, String>();
+        map.put(null, null);
+        System.out.println(map.get(null));
+{noformat}
+
+The NullPointerException is only thrown in the call to get().",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+NullPointerException in SwitchTransformer.transform,COLLECTIONS-513,12707623,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Invalid,,Telcontar,Telcontar,10/Apr/14 02:00,27/Nov/15 21:47,13/Jun/19 02:04,10/Apr/14 20:28,4.0,,,,Functor,,,,0,,,,"A relatively complex test case generated by Randoop results in a NullPointerException in SwitchTransformer.transform.
+
+I'm not sure if this is an incorrect usage of the method, or if it is a real bug.","Mac OS 10.9, Java 6 and Java 7",,,,,,,,,,,,,10/Apr/14 02:00;Telcontar;BugReport2.java;https://issues.apache.org/jira/secure/attachment/12639514/BugReport2.java,,1.0,,,,,,,,,,,,,,,,,,,2014-04-10 20:28:21.882,,,false,,,,,,,,,,,,,385946,,,Thu Apr 10 23:18:06 UTC 2014,,,,,,0|i1uhjz:,386210,,,,,,,,,10/Apr/14 02:00;Telcontar;A unit test in JUnit format to reproduce the problem. The last line results in a NullPointerException.,"10/Apr/14 04:44;Telcontar;According to the documentation in Transformer.transform (the interface that is implemented), the exception should probably be IllegalArgumentException, if any.
+The javadoc of related classes suggests this as well.","10/Apr/14 20:28;tn;This is not a bug.
+
+The constructor of SwitchTransformer states that the array of predicates must not contain null values:
+
+{noformat}
+     * @param predicates  array of predicates, cloned, no nulls
+{noformat}
+
+but the provided array of predicates is an array with one null value.
+
+I think the way these tests are created are flawed:
+
+{noformat}
+        org.apache.commons.collections4.set.CompositeSet var1 = new org.apache.commons.collections4.set.CompositeSet(
+                var0);
+        org.apache.commons.collections4.functors.UniquePredicate var2 = new org.apache.commons.collections4.functors.UniquePredicate();
+        org.apache.commons.collections4.Predicate[] var3 = new org.apache.commons.collections4.Predicate[] { var2 };
+        java.lang.Object[] var4 = var1.toArray((java.lang.Object[]) var3);
+{noformat}
+
+Here var1 is an empty set, whose contents are copied into an object array var4. But the toArray() method is called with an non-empty array, which will be modified by the toArray() call and result in this 1-element array with a null value.
+
+I fail to see what this tries to test, as the result of this operation will be in any case wrong","10/Apr/14 23:18;Telcontar;Thank you for confirming this as a false positive.
+Basically the tool we use generates random sequences of method calls. Parameters have valid types but may not always fulfill other requirements (entries being non-null, for example). We have filtered out other (simpler) cases ourselves from the bug reports, but we were not sure about this one.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+ClassCastException in LazySortedMap when used with equals/transformers,COLLECTIONS-515,12707637,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Invalid,,Telcontar,Telcontar,10/Apr/14 04:36,27/Nov/15 21:47,13/Jun/19 02:04,10/Apr/14 20:46,4.0,,,,Collection,Map,,,0,,,,"When LazySortedMap is used by equals, the result is
+java.lang.ClassCastException: org.apache.commons.collections4.map.LazySortedMap cannot be cast to java.lang.String
+
+This seems to be odd, as the use of the different transformations should not result in internal casting to String. See the attached unit test to reproduce.","Mac OS 10.9, Java 6",,,,,,,,,,,,,10/Apr/14 04:36;Telcontar;Report3.java;https://issues.apache.org/jira/secure/attachment/12639532/Report3.java,,1.0,,,,,,,,,,,,,,,,,,,2014-04-10 20:46:41.875,,,false,,,,,,,,,,,,,385960,,,Thu Apr 10 20:46:41 UTC 2014,,,,,,0|i1uhn3:,386224,,,,,,,,,10/Apr/14 04:36;Telcontar;A JUnit test that results in a ClassCastException even though no explicit cast to String is made.,"10/Apr/14 20:46;tn;There is no surprise here to get a ClassCastException as you provide a wrong key to the tailMap() method.
+
+{noformat}
+      org.apache.commons.collections4.trie.PatriciaTrie var0 = new org.apache.commons.collections4.trie.PatriciaTrie();
+      org.apache.commons.collections4.Transformer var1 = org.apache.commons.collections4.functors.ExceptionTransformer.exceptionTransformer();
+      java.util.SortedMap var2 = org.apache.commons.collections4.MapUtils.lazySortedMap((java.util.SortedMap)var0, (org.apache.commons.collections4.Transformer)var1);
+      java.util.SortedMap var3 = var2.tailMap((java.lang.Object)var2);
+{noformat}
+
+So var2 is a PatriciaTrie, and you try to construct a tailMap with the trie itself as key. Of course this will result in a ClassCastException, the only surprise here is that it is not thrown immediately.
+
+Trying the same with a java.util.TreeMap will throw the ClassCastException immediately during the call to tailMap.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+AbstractCollectionDecorator should not delegate equals and hashcode,COLLECTIONS-543,12765478,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,tn,tn,07/Jan/15 22:05,27/Nov/15 21:11,13/Jun/19 02:04,12/Jan/15 15:21,4.0,,4.1,,,,,,0,,,,"In order to preserve the symmetry of equals the AbstractCollectionDecorator shall not forward calls to equals and hashcode to the decorated collection.
+
+The test for equality usually also includes a test for the specific interface, e.g. List, which the collection decorator does not implement.
+
+The relevant sub-classes like AbstractListDecorator can delegate the calls to safely fulfill the Collections contract.",,,,,,,,,,,COLLECTIONS-553,,,,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,,9223372036854775807,,,Mon Jan 12 15:21:31 UTC 2015,,,,,,0|i241uf:,9223372036854775807,,,,,,,,,12/Jan/15 15:21;tn;Fixed in r1651115.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+IteratorUtils.collatedIterator do not use natural ordering if no comparator was provided,COLLECTIONS-566,12835517,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,tn,tn,04/Jun/15 20:19,27/Nov/15 21:11,13/Jun/19 02:04,04/Jun/15 20:36,4.0,,4.1,,,,,,0,,,,"In case a null comparator was provided natural ordering should be used, as stated in the javadoc.
+
+In fact an exception is thrown the first time the returned iterator is used.",,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,,9223372036854775807,,,Thu Jun 04 20:36:34 UTC 2015,,,,,,0|i2fnj3:,9223372036854775807,,,,,,,,,04/Jun/15 20:36;tn;Fixed in r1683631.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Result of CollectionUtils are different between version 3.2.1 and version 4.0,COLLECTIONS-506,12686070,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,anthonyC,anthonyC,22/Dec/13 19:13,27/Nov/15 21:11,13/Jun/19 02:04,31/Dec/13 16:25,4.0,,4.1,,,,,,0,,,,"CollectionUtils V3 uses equals to compute results but not CollectionUtils v4 (it seems to use ==)
+
+The following exemple with subtract method :
+
+ List<ObjectTest> listA = new ArrayList<ObjectTest>();
+        List<ObjectTest> listB = new ArrayList<ObjectTest>();
+
+        listA.add(new ObjectTest(""Test1""));
+        listA.add(new ObjectTest(""Test2""));
+        listA.add(new ObjectTest(""Test3""));
+
+        listB.add(new ObjectTest(""Test1""));
+        listB.add(new ObjectTest(""Test2""));
+
+
+        Collection<?> res1 = org.apache.commons.collections.CollectionUtils.subtract(listA, listB);
+        System.out.println(""Res1 size = "" +res1.size());
+        Collection<?> res2 =  org.apache.commons.collections4.CollectionUtils.subtract(listA, listB);
+        System.out.println(""Res2 size = "" +res2.size());
+
+
+Produces this : 
+Res1 size = 1
+Res2 size = 3
+
+The new behaviour is not useful. It would be better to have the V3 behaviour
+
+",,,,,,,,,,,,,,22/Dec/13 19:14;anthonyC;test-common-collection.zip;https://issues.apache.org/jira/secure/attachment/12620095/test-common-collection.zip,,1.0,,,,,,,,,,,,,,,,,,,2013-12-22 20:04:50.793,,,false,,,,,,,,,,,,,365027,,,Thu Jan 02 11:34:45 UTC 2014,,,,,,0|i1qx3b:,365335,,,,,,,,,22/Dec/13 19:14;anthonyC;This is the example,"22/Dec/13 20:04;tn;I could not yet test your example but looking at the source of ObjectTest it looks like you did not implement hashCode properly.
+
+As the subtract method puts the items in a HashBag it is absolutely necessary that you follow the contract for Object#equals (see http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#equals%28java.lang.Object%29) for more details.","22/Dec/13 20:47;anthonyC;You're right, it works well when hashCode is implemented properly.  Thank you.
+
+It would be nice to have a remark in javadoc to know the requirement in order to make CollectionUtils methods working. It could be a class or method comment or something like a migration guide or a warning.
+
+Thank you for those useful methods.
+
+Best regards",31/Dec/13 16:25;tn;Added clarification to the class javadoc of CollectionUtils in r1554554.,02/Jan/14 11:34;anthonyC;Thank you !,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+NullPointerException in MapUtils.toProperties,COLLECTIONS-516,12707638,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,Telcontar,Telcontar,10/Apr/14 04:39,27/Nov/15 21:11,13/Jun/19 02:04,19/May/14 20:38,4.0,,4.1,,Collection,,,,0,,,,"calling MapUtils.toProperties with a map having null entries results in a NullPointerException. In this case the Map has only entry <null, null>.
+
+However, javadoc states ""A null input will return an empty
+properties object."" so (1) this should be clarified as it would
+only apply to the map reference itself, not its contents, or (2)
+an empty property object should be generated for null entries in
+the map as well.","Mac OS 10.9, Java 6",,,,,,,,,,,,,10/Apr/14 04:39;Telcontar;Report4.java;https://issues.apache.org/jira/secure/attachment/12639533/Report4.java,,1.0,,,,,,,,,,,,,,,,,,,2014-04-10 20:38:41.329,,,false,,,,,,,,,,,,,385961,,,Mon May 19 20:38:20 UTC 2014,,,,,,0|i1uhnb:,386225,,,,,,,,,10/Apr/14 04:39;Telcontar;A JUnit test to reproduce the issue.,"10/Apr/14 20:38;tn;The javadoc comment refers to the case when the provided map is null, not individual entries within the map.
+
+We could add a check to prevent adding null keys to the Properties object, but I think this would just hide wrong usage, so I would prefer to add additional clarification to the javadoc that null keys / values will result in a NullPointerException.","10/Apr/14 23:08;Telcontar;Thank you for commenting on this. Based on your opinion, I agree that a minor change in the javadoc comment is probably best. Maybe:
+""Entries in the map must be non-null. If a null reference is given for the map, this method will return an empty properties object.""","19/May/14 20:38;tn;Added javadoc clarification in r1596050.
+
+Thanks for the report!",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+TransformedMultiValuedMap.equals() fails when comparing the value with itself,COLLECTIONS-553,12775398,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,mjkim0324,mjkim0324,16/Feb/15 16:09,27/Nov/15 21:11,13/Jun/19 02:04,07/Apr/15 11:41,4.0,,4.1,,Map,,,,0,,,,"TransformedMultiValuedMap.equals() does not return true when comparing a value of a Collection key with itself. Is it allowed to put Collection as a key in TransformedMultiValuedMap at all? If not, I think it should be specified in the document. Or, equals() should be fixed accordingly. 
+
+Reproduce step
+{code:title=Test.java|borderStyle=solid}
+public void test()
+{
+  TransformedMultiValuedMap map = TransformedMultiValuedMap.transformingMap((MultiValuedMap)new MultiValuedHashMap(),TransformerUtils.stringValueTransformer(),  TransformerUtils.stringValueTransformer());
+  
+  MultiValuedHashMap helperMap = new MultiValuedHashMap();
+  helperMap.put(""KEY"", ""Value"");
+  Collection key = helperMap.keySet();
+  map.put(key, ""Hi"");
+  Collection value = map.get(key);
+  assertTrue(""Contract failed: value.equals(value)"", value.equals(value));
+}
+{code}",,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2015-04-07 11:41:46.44,,,false,,,,,,,,,,,,,9223372036854775807,,,Tue Apr 07 11:41:46 UTC 2015,,,,,,0|i25onj:,9223372036854775807,,,,,,,,,07/Apr/15 11:41;tn;Problem solved after fixing COLLECTIONS-543.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+PredicateUtils (all|any)Predicate type misbehaviour Array vs. Collection,COLLECTIONS-537,12755049,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,fj,fj,13/Nov/14 12:47,27/Nov/15 21:11,13/Jun/19 02:04,30/Dec/14 18:25,4.0,,4.1,,Functor,,,,0,,,,"Migrating from collections-generic to collections4 we encountered a type problem with PredicateUtils. When you look at the method anyPredicate(), the signature with array is typed with ""Predicate<? super T>"" whereas the signature with Collection is typed ""? extends Predicate<T>"", so the both methods are not equivalent.
+We think both methods should have the same types, so it would not break compatibility with a lot of legacy code.",,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-12-26 13:29:22.68,,,false,,,,,,,,,,,,,9223372036854775807,,,Tue Dec 30 18:25:09 UTC 2014,,,,,,0|i22bvr:,9223372036854775807,,,,,,,,,"26/Dec/14 13:29;tn;Yes indeed, the correct signature should be:
+
+{code}
+    Predicate<T> anyPredicate(final Collection<? extends Predicate<? super T>> predicates)
+{code}
+
+This change will require some more changes in other places too for sake of consistency.
+The test case to demonstrate the change:
+
+{code}
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.PredicateUtils;
+
+public class MyTest {
+
+
+    public static class A {
+        int val;
+        
+        public A(int val) {
+            this.val = val;
+        }
+        
+        public String toString() {
+            return ""A"";
+        }
+    }
+    
+    public static class B extends A {
+        
+        public B(int val) {
+            super(val);
+        }
+        
+        public String toString() {
+            return ""B"";
+        }
+    }
+    
+    public static class MyPredicate implements Predicate<A> {
+
+        private int eval;
+        
+        public MyPredicate(int eval) {
+            this.eval = eval;
+        }
+
+        @Override
+        public boolean evaluate(A object) {
+            return object.val < eval;
+        }
+        
+    }
+
+    public static void main(String[] args) {
+        MyPredicate p1 = new MyPredicate(10);
+        MyPredicate p2 = new MyPredicate(20);
+
+        Predicate<B> anyPredicate = PredicateUtils.anyPredicate(p1, p2);
+        
+        System.out.println(anyPredicate.evaluate(new B(10)));
+        
+        List<Predicate<A>> list = new ArrayList<Predicate<A>>();
+        list.add(p1);
+        list.add(p2);
+        
+        Predicate<B> anyPredicate2 = PredicateUtils.anyPredicate(list);
+        
+        System.out.println(anyPredicate2.evaluate(new B(10)));
+    }
+}
+{code}","30/Dec/14 18:25;tn;Fixed in r1648561 for the following classes:
+
+ * AllPredicate
+ * AnyPredicate
+ * NonePredicate
+ * OnePredicate
+ * ChainedTransformer
+ * ChainedClosure
+
+Thanks for the report!",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+ComparatorUtils.chainedComparator(..) should not force the objects to implement Comparable,COLLECTIONS-507,12694830,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,gersonk,gersonk,12/Feb/14 20:29,27/Nov/15 21:11,13/Jun/19 02:04,12/Feb/14 21:18,4.0,,4.1,,Comparator,,,,0,,,,,,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-02-12 21:18:17.379,,,false,,,,,,,,,,,,,373338,,,Wed Feb 12 21:18:17 UTC 2014,,,,,,0|i1sc6n:,373639,,,,,,,,,"12/Feb/14 21:18;tn;That is quite a stupid mistake, fixed in r1567759.
+Thanks for spotting and reporting this!",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+ListOrderedSet#remove(int) should return E instead of Object,COLLECTIONS-558,12785536,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,frabe,frabe,25/Mar/15 14:46,27/Nov/15 21:11,13/Jun/19 02:04,25/Mar/15 16:03,4.0,,4.1,,Set,,,,0,,,,"Since {{List#remove(int)}} returns {{E}} the implementation in {{ListOrderedSet}} should also return {{E}}.
+
+Minimal example that fails to compile:
+{code:java}
+ListOrderedSet<String> los = new ListOrderedSet<String>();
+los.add(""foo"");
+String s = los.remove(0);
+{code}",,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2015-03-25 16:03:04.611,,,false,,,,,,,,,,,,,9223372036854775807,,,Wed Mar 25 21:40:16 UTC 2015,,,,,,0|i27c8f:,9223372036854775807,,,,,,,,,"25/Mar/15 16:03;tn;Fixed in r1669140.
+
+Thanks for the report!","25/Mar/15 21:40;frabe;Well, thank you for your work and thanks for the Apache Commons Collections :)",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Clarify javadoc of CollectionBag,COLLECTIONS-509,12699628,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,tn,tn,08/Mar/14 18:45,27/Nov/15 21:11,13/Jun/19 02:04,08/Mar/14 18:47,4.0,,4.1,,,,,,0,,,,The javadoc of CollectionBag should clarify which methods have changed wrt the original Bag interface.,,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,,377975,,,Sat Mar 08 18:47:22 UTC 2014,,,,,,0|i1t4of:,378267,,,,,,,,,08/Mar/14 18:47;tn;Done in r1575586.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+equals/hashCode mismatch,COLLECTIONS-512,12707621,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,Telcontar,Telcontar,10/Apr/14 01:56,27/Nov/15 21:11,13/Jun/19 02:04,02/Jan/15 13:03,4.0,,4.1,,Collection,Comparator,,,0,,,,"We used Randoop on the collection classes, which found several test cases where two objects are equal but their hash code differs.
+
+I will attach a file containing two test cases that are different; the other tests seem to be longer versions showing the same issue.","Mac OS 10.9, Java 6 and Java 7",,,,,,,,,,,COLLECTIONS-543,,10/Apr/14 01:57;Telcontar;BugReport1.java;https://issues.apache.org/jira/secure/attachment/12639513/BugReport1.java,10/Apr/14 04:26;Telcontar;BugReport1_1.java;https://issues.apache.org/jira/secure/attachment/12639528/BugReport1_1.java,2.0,,,,,,,,,,,,,,,,,,,2014-04-10 21:55:57.03,,,false,,,,,,,,,,,,,385944,,,Fri Jan 02 13:03:08 UTC 2015,,,,,,0|i1uhjj:,386208,,,,,,,,,10/Apr/14 01:57;Telcontar;This file contains two unit tests (for JUnit) to reproduce the problems.,10/Apr/14 04:26;Telcontar;We found another test case that does not seem to overlap with the existing tests. It shows the same issue but uses a different sequence with (mostly) different classes.,10/Apr/14 21:55;tn;Fixed the issue with the TransformingComparator in r1586477.,"10/Apr/14 22:12;tn;The same wrong statement is also used in FixedOrderComparator, so this might be affected too.",06/May/14 20:42;tn;Fixed FixedOrderComparator in r1592874.,26/Jun/14 12:03;brentworden;[~tn] Can this be marked as resolved?,"26/Jun/14 12:26;tn;Not yet, as discussed here: http://markmail.org/message/n5hmqap7z3ftv7jw we should document the behavior of equals for the decorators in collections.",02/Jan/15 13:03;tn;Added note to AbstractCollectionDecorator#equals in r1649014.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+MultiKey subclassing has deserialization problem since COLLECTIONS-266: either declare protected readResolve() or MultiKey must be final,COLLECTIONS-576,12861500,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,stephanroch,stephanroch,03/Sep/15 08:44,27/Nov/15 21:11,13/Jun/19 02:04,28/Sep/15 08:54,4.0,,4.1,,KeyValue,,,,0,,,,"MultiKey from collections 4 provides a transient hashCode and a *private* readResolve to resolve COLLECTIONS-266: Issue with MultiKey when serialized/deserialized via RMI.
+
+Unfortunately the solution does not work in case of *subclassing*: readResolve in MultiKey should be declared *protected* readResolve() to be called during deserialization of the subclass. Otherwise MultiKey must be final to avoid such subclassing.
+
+*Testcase*:
+{code:java|title=MultiKeySerializationTest.java}
+package de.ivu.test.common.collections4;
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import org.apache.commons.collections4.keyvalue.MultiKey;
+import org.junit.Test;
+
+public class MultiKeySerializationTest {
+
+    @Test
+    @SuppressWarnings(""unchecked"")
+    public void testReadResolveEqualHashCode()
+            throws IOException, ClassNotFoundException {
+        class MultiKey2<A, B>
+                extends MultiKey {
+
+            private static final long serialVersionUID = 1928896152249821416L;
+
+            public MultiKey2(A key1, B key2) {
+                super(key1, key2);
+            }
+
+            public A getFirst() {
+                return (A) getKey(0);
+            }
+
+            public B getSecond() {
+                return (B) getKey(1);
+            }
+            
+            // FIXME: MultiKey should either declare protected readResolve() or must be final.
+        }
+        MultiKey2<String, String> one = new MultiKey2<>(""bla"", ""blub"");
+        System.out.println(one.hashCode());
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(byteOut);
+        out.writeObject(one);
+        out.close();
+        byte[] serialized = byteOut.toByteArray();
+        ByteArrayInputStream byteIn = new ByteArrayInputStream(serialized);
+        ObjectInputStream in = new ObjectInputStream(byteIn);
+        MultiKey2<String, String> two = (MultiKey2<String, String>) in.readObject();
+        System.out.println(two.hashCode());
+        assertEquals(""hashCode must be equal - please check for protected readResolve in MultiKey*"", one.hashCode(),
+            two.hashCode());
+    }
+}
+{code}
+
+*Fix:*
+{code:java|title=MultiKey.java}
+@@ -274,7 +274,7 @@
+      * only stable for the same process).
+      * @return the instance with recalculated hash code
+      */
+-    private Object readResolve() {
++    protected Object readResolve() {
+         calculateHashCode(keys);
+         return this;
+     }
+{code}",,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2015-09-28 08:54:20.421,,,false,,,,,,,,,,,,,9223372036854775807,,,Mon Sep 28 08:54:20 UTC 2015,,,,,,0|i2jqh3:,9223372036854775807,,,,,,,,,"28/Sep/15 08:54;tn;Fixed in r1705620.
+
+Thanks for the report and testcase.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Performance bug in CollectionBag::retainAll,COLLECTIONS-534,12748417,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,oswaldo_o,oswaldo_o,15/Oct/14 21:01,27/Nov/15 21:11,13/Jun/19 02:04,19/Oct/14 12:44,4.0,,4.1,,Bag,Collection,,,0,perfomance,,,"Hi,
+There seems to be a performance bug in the method retainAll in the CollectionBag class.
+The problem is that the code is checking containment over the parameter collection, which could be expensive for some types of collections like ArrayLists.
+One solution could be to convert the Collection into a HashSet and check containment in the HashSet.
+ If this is done, then running retainAll on a 1,000,000 collection would take less than 2 seconds instead of 27 mins, according to my experiments.
+
+____________________________________________
+Here's a function to expose the bug:
+
+ public static void collectionBagRetainAllTest() {
+
+	ArrayList<Integer> coll=new ArrayList<Integer>();
+	for(int i=0;i<=1000000;++i)
+	    coll.add(new Integer(i));
+
+	TreeBag<Integer> treeBag=new TreeBag<Integer>(coll);
+
+	CollectionBag<Integer> bag = new CollectionBag<Integer>(treeBag);
+
+	bag.retainAll(coll);
+     }
+_____________________________________
+
+Here's a proposed patch:
+
+  public boolean retainAll(final Collection<?> coll) {
+        if (coll != null) {
+            boolean modified = false;
+            final Iterator<E> e = iterator();
+	    HashSet<Object> set=new HashSet<Object>(coll);
+            while (e.hasNext()) {
+                if (!set.contains(e.next())) {
+                    e.remove();
+                    modified = true;
+                }
+            }
+            return modified;
+        } else {
+            // let the decorated bag handle the case of null argument
+            return decorated().retainAll(null);
+        }
+    }
+_____________________________________",Ubuntu 12.04,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-10-15 21:12:21.374,,,false,,,,,,,,,,,,,9223372036854775807,,,Sun Oct 19 12:44:59 UTC 2014,,,,,,0|i217vb:,9223372036854775807,,,,,,,,,"15/Oct/14 21:12;sebb;However for smaller data sets, adding the extra conversion would probably reduce performance.
+Have you tested that?","15/Oct/14 21:40;oswaldo_o;Hi Sebb,
+Here are some results I've gathered for different sizes:
+
+     Size         Fixed           Original
+
+     1000000  0m1.696s    27m35.343s
+      500000   0m1.392s    11m22.767s
+      100000   0m1.172s      0m1.136s
+       10000    0m1.068s      0m1.132s
+        1000     0m0.972s      0m0.988s
+         100      0m0.968s      0m0.936s
+          10       0m0.948s      0m0.908s","16/Oct/14 19:39;tn;If we can update the algorithm to get a better performance I am very much in favor of it, but just copying the input arguments to a different collection to improve the runtime performance is not what we should do imho.
+
+In similar cases we added something like that to the javadoc:
+
+{noformat}
+         * This implementation iterates over the elements of this collection, checking each element in
+         * turn to see if it's contained in <code>coll</code>. If it's not contained, it's removed
+         * from this collection. As a consequence, it is advised to use a collection type for
+         * <code>coll</code> that provides a fast (e.g. O(1)) implementation of
+         * {@link Collection#contains(Object)}.
+{noformat}
+
+The rationale behind it is that we can not be sure about the runtime complexity of the provided collection and just copying it to another collection seems to be a waste if the user already uses something like a set or another collection that supports O(1) for contains.",16/Oct/14 19:42;tn;btw. our implementation is more or less equivalent to the one of the default collections in the jdk.,"19/Oct/14 12:44;tn;Added comment in r1632904.
+
+Thanks for the report.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+ListOrderedSet can have duplicates,COLLECTIONS-524,12712470,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,jggoodfe,jggoodfe,06/May/14 00:58,27/Nov/15 21:11,13/Jun/19 02:04,06/May/14 22:14,3.2.1,4.0,4.1,,,,,,0,,,,"The static method, org.apache.commons.collections.set.ListOrderedSet.decorate(List list), has a comment ""If the list contains duplicates, the duplicates are removed"".  It does not remove duplicates and will leave you in an inconsistent state if your list has duplicates.  (i.e. the .size() result is smaller than the number of iterations from the iterator)","tomcat 7, linux",,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-05-06 22:13:14.51,,,false,,,,,,,,,,,,,390786,,,Tue May 06 22:13:14 UTC 2014,,,,,,0|i1vb5z:,391026,,,,,,,,,"06/May/14 22:13;tn;Fixed in r1592910.
+
+The method will now correctly remove duplicates.
+Thanks for the report!",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Objects which are not of type V can be placed in a MultiValueMap<K,V>.",COLLECTIONS-559,12787445,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Invalid,,peturingi,peturingi,01/Apr/15 19:26,01/Apr/15 19:41,13/Jun/19 02:04,01/Apr/15 19:41,4.0,,,,KeyValue,,,,0,,,,"I declared a MultiValueMap as this:
+{code}
+MultiValueMap<Integer, Path> duplicates = new MultiValueMap<Integer, Path>();
+{code}
+
+Elsewhere in code I doing (by accident) something in this direction
+{code}
+duplicates.put(number, new LinkedList<Path>());
+{code}
+
+Exceptions were being thrown when values returned from the list could not be assigned to variables of type Path.
+
+{code:title=org.apache.commons.collections4.map.MultiValueMap.java}
+public Object put(final K key, final Object value) {
+...
+{code}
+I propose that Object in the above decleration is changed to T.","java version ""1.8.0_25""
+Java(TM) SE Runtime Environment (build 1.8.0_25-b17)
+Java HotSpot(TM) 64-Bit Server VM (build 25.25-b02, mixed mode)
+OS X 10.10",600,600,,0%,600,600,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,,9223372036854775807,,,2015-04-01 19:26:34.0,,,,,,0|i27nsv:,9223372036854775807,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Inconsistent Javadoc comment and code for mapTransformer(Map<? super I, ? extends O>) in org.apache.commons.collections.TransformerUtils",COLLECTIONS-389,12537666,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,shinhwei,shinhwei,08/Jan/12 08:31,09/Nov/14 14:31,13/Jun/19 02:04,09/Apr/12 17:21,4.0,4.x,4.0,4.0-alpha1,Collection,,,,0,javadoc,null,,"The Javadoc comment below states that the method ""throws IllegalArgumentException if the map is null"":
+   	    /** 
+	     ....
+	     * @param map  the map to use to transform the objects
+	     * @return the transformer
+	     * @throws IllegalArgumentException if the map is null
+	     */
+	    public static <I, O> Transformer<I, O> mapTransformer(Map<? super I, ? extends O> map) {
+	        return MapTransformer.mapTransformer(map);
+	    }
+However, the method returns a NULL_INSTANCE object instead of throwing IllegalArgumentException when called with null.
+
+Suggested Fixes:
+1. Change ""@throws IllegalArgumentException if the map is null"" and ""@return"" to ""@return NULL_INSTANCE if the map is null"".
+or
+2. Remove the entire ""throws IllegalArgumentException if the map is null"".
+",Platform Independent,120,120,,0%,120,120,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2012-04-09 17:21:08.026,,,false,,,,,,,,,,,,,223172,,,Mon Apr 09 17:33:23 UTC 2012,,,,,,0|i0shtz:,164366,,,,,,,,,"09/Apr/12 17:21;tn;Thanks for the report. It has been fixed in r1311337.
+
+I have picked option 1.","09/Apr/12 17:33;hudson;Integrated in commons-collections #16 (See [https://builds.apache.org/job/commons-collections/16/])
+    [COLLECTIONS-389] Fixed javadoc, thanks to Shin Hwei Tan. (Revision 1311337)
+
+     Result = SUCCESS
+tn : http://svn.apache.org/viewvc/?view=rev&rev=1311337
+Files : 
+* /commons/proper/collections/trunk/src/main/java/org/apache/commons/collections/TransformerUtils.java
+",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Inconsistent Javadoc comment and code for toProperties(final Map<K, V>) in org.apache.commons.collections.MapUtils",COLLECTIONS-391,12537668,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,shinhwei,shinhwei,08/Jan/12 08:38,09/Nov/14 14:31,13/Jun/19 02:04,09/Apr/12 18:03,4.0,4.x,4.0,4.0-alpha1,Collection,,,,0,javadoc,null,,"The Javadoc comment below states that the parameter map ""..., may not be null"":
+   	   /**
+	    ..
+	     * @param map  the map to convert to a Properties object, may not be null
+	     * @return the properties object
+	     */
+	    public static <K, V> Properties toProperties(final Map<K, V> map) {
+	        Properties answer = new Properties();
+	        if (map != null) {
+	            ...
+	        }
+	        return answer;
+	    }
+However, the method return normally without throwing any exception when called with null.
+
+Suggested Fixes:
+1. Change ""@param map  the map to convert to a Properties object, may not be null"" to ""@param map  the map to convert to a Properties object, may be null""
+or
+2. Remove ""may not be null"" from @param.
+",Platform Indepedent,120,120,,0%,120,120,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2012-04-09 18:03:18.814,,,false,,,,,,,,,,,,,223174,,,Mon Apr 09 18:45:04 UTC 2012,,,,,,0|i0shtj:,164364,,,,,,,,,"09/Apr/12 18:03;tn;Thanks for the report. Fixed in r1311359.
+
+The additional constraint about the map parameter has been removed, as the javadoc already states that a null input will result in an empty properties object.","09/Apr/12 18:45;hudson;Integrated in commons-collections #17 (See [https://builds.apache.org/job/commons-collections/17/])
+    [COLLECTIONS-391] Fixed javadoc, thanks to Shin Hwei Tan. (Revision 1311359)
+
+     Result = SUCCESS
+tn : http://svn.apache.org/viewvc/?view=rev&rev=1311359
+Files : 
+* /commons/proper/collections/trunk/src/main/java/org/apache/commons/collections/MapUtils.java
+",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Exception in ListOrderedMap#putAll if map contains null values,COLLECTIONS-474,12654559,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,cning,cning,24/Jun/13 18:22,09/Nov/14 14:31,13/Jun/19 02:04,30/Jun/13 20:10,4.0,,4.0,4.0-alpha1,Map,,,,0,,,,"Dear apache developers, thanks for the great project. Recently, I encountered an IndexOutOfBoundsException in ListOrderedMap in the latest revision (r1495998) with the crash stack trace: 
+Exception in thread ""main"" java.lang.IndexOutOfBoundsException: Index: 2, Size: 1
+	at java.util.ArrayList.add(ArrayList.java:367)
+	at org.apache.commons.collections4.map.ListOrderedMap.put(ListOrderedMap.java:448)
+	at org.apache.commons.collections4.map.ListOrderedMap.putAll(ListOrderedMap.java:246)
+	at Test.main(Test.java:15)
+
+I've also attached a test case that can reproduce this crash.
+
+I think this test case actually reveals the bug reported in COLLECTIONS-411 (https://issues.apache.org/jira/browse/COLLECTIONS-411). However, it seems that the original patch for COLLECTIONS-411 missed a corner case.
+
+Could you please check if this is indeed a bug? Thanks!",java 1.7.0_09,,,,,,,,,,,,,24/Jun/13 18:23;cning;Test.java;https://issues.apache.org/jira/secure/attachment/12589457/Test.java,,1.0,,,,,,,,,,,,,,,,,,,2013-06-24 18:55:12.1,,,false,,,,,,,,,,,,,334836,,,Sun Jun 30 20:10:32 UTC 2013,,,,,,0|i1lrbb:,335160,,,,,,,,,"24/Jun/13 18:55;tn;Thanks for the report.
+
+The putAll javadoc does not mention it explicitly, but the provided index has to be in range (see javadoc for put(int, Object, Object)) otherwise an IndexOutOfBoundsException will be thrown. So the behavior is actually correct, but the javadoc should be updated.","24/Jun/13 18:59;sebb;Looks like a bug to me, because the size() is 2 just before the putAll().
+
+The problem is that the code assumes that the put method will only return null if the key was not replaced; however that is only true if the original value was not null. For maps that allow null, the return value of put cannot be used to determine if the key was replaced.","24/Jun/13 19:06;tn;Inserting with an index >= size() usually does not work in list-based collections, so I think the behavior is correct.
+What worries me more is that the exception in put is thrown *after* the collection has been modified, leaving it in an inconsistent state.
+
+We should check the index first and throw the exception if it is out-of-range.","24/Jun/13 19:20;sebb;I've just added two tests - one uses null values (as per the issue description) and the other uses non-null values.
+
+Only the null value test fails, so I think there is a bug; easy to fix.
+Just replace
+
+{code}
+final V old = put(index, entry.getKey(), entry.getValue());
+if (old == null) {
+{code}
+
+with
+
+{code}
+final boolean contains = containsKey(entry.getKey());
+put(index, entry.getKey(), entry.getValue());
+if (!contains) {
+{code}
+","24/Jun/13 19:32;tn;Ok agree, we can fix this in the next RC if one is needed, or for alpha2.","24/Jun/13 19:39;cning;Wow! Thanks for the quick responses! 
+
+Just to make sure, after applying the patch, is the ""index == size"" case considered in-range (no exception raised)? 
+
+FYI, it is also possible to reproduce the exception even when ""index < size"": 
+    Object key1 = new Object();
+    Object key2 = new Object();
+    Object key3 = new Object();
+    HashMap<Object, Object> map = new HashMap<Object, Object>();
+    map.put(key1, null);
+    map.put(key2, null);
+    map.put(key3, null);
+
+    ListOrderedMap<Object, Object> listMap = new ListOrderedMap<Object, Object>();
+    listMap.put(key1, null);
+    listMap.put(key2, null);
+    listMap.put(key3, null);
+    listMap.putAll(2, map);","24/Jun/13 19:42;tn;Looking at List.add(int, Object), the supported range is index >= 0 && index <= size(), so I guess we should do the same here.","24/Jun/13 19:53;sebb;URL: http://svn.apache.org/r1496182
+Log:
+COLLECTIONS-474 Exception in ListOrderedMap#putAll if map contains null values
+
+Modified:
+    commons/proper/collections/trunk/src/changes/changes.xml
+    commons/proper/collections/trunk/src/main/java/org/apache/commons/collections4/map/ListOrderedMap.java
+","24/Jun/13 19:58;sebb;putAll calls put before it changes anything, so I think we can leave the index check to the put method.",30/Jun/13 20:10;tn;Will be part of 4.0-alpha1 RC2.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Inconsistent Javadoc comment and code for prototypeFactory(T) in org.apache.commons.collections.FactoryUtils,COLLECTIONS-388,12537665,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Fixed,,shinhwei,shinhwei,08/Jan/12 08:29,09/Nov/14 14:31,13/Jun/19 02:04,09/Apr/12 17:16,4.0,4.x,4.0,4.0-alpha1,Collection,,,,0,javadoc,null,,"The Javadoc comment below states that the method ""throws IllegalArgumentException if the prototype is null"":
+   	    /**	     
+	     ..
+	     * @param prototype  the object to clone each time in the factory
+	     * @return the <code>prototype</code> factory
+	     * @throws IllegalArgumentException if the prototype is null
+	     * @throws IllegalArgumentException if the prototype cannot be cloned
+	     */
+	    public static <T> Factory<T> prototypeFactory(T  prototype) {
+	        return PrototypeFactory.<T>prototypeFactory(prototype);
+	    }
+
+However, the method returns a NULL_INSTANCE object instead of throwing IllegalArgumentException when called with null.
+
+Suggested Fixes:
+1. Change ""@throws IllegalArgumentException if the prototype is null"" and ""@return"" to ""@return NULL_INSTANCE if the prototype is null"".
+or
+2. Remove the entire ""throws IllegalArgumentException if the prototype is null"".",Platform independent,120,120,,0%,120,120,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2012-04-09 17:14:34.604,,,false,,,,,,,,,,,,,223171,,,Mon Apr 09 17:33:23 UTC 2012,,,,,,0|i0shu7:,164367,,,,,,,,,"09/Apr/12 17:14;tn;Thanks for the hint, it has been fixed in r1311334.","09/Apr/12 17:33;hudson;Integrated in commons-collections #16 (See [https://builds.apache.org/job/commons-collections/16/])
+    [COLLECTIONS-388] Fixed javadoc, thanks to Shin Hwei Tan. (Revision 1311334)
+
+     Result = SUCCESS
+tn : http://svn.apache.org/viewvc/?view=rev&rev=1311334
+Files : 
+* /commons/proper/collections/trunk/src/main/java/org/apache/commons/collections/FactoryUtils.java
+* /commons/proper/collections/trunk/src/main/java/org/apache/commons/collections/functors/PrototypeFactory.java
+",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Inconsistent Javadoc comment and code for mapTransformer(Map<? super I, ? extends O>) in org.apache.commons.collections.TransformerUtils",COLLECTIONS-390,12537667,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Major,Duplicate,,shinhwei,shinhwei,08/Jan/12 08:31,24/Jun/13 19:34,13/Jun/19 02:04,08/Jan/12 08:32,4.0,,,,Buffer,,,,0,,,,"The Javadoc comment below states that the method ""throws IllegalArgumentException if the map is null"":
+   	    /** 
+	     ....
+	     * @param map  the map to use to transform the objects
+	     * @return the transformer
+	     * @throws IllegalArgumentException if the map is null
+	     */
+	    public static <I, O> Transformer<I, O> mapTransformer(Map<? super I, ? extends O> map) {
+	        return MapTransformer.mapTransformer(map);
+	    }
+However, the method returns a NULL_INSTANCE object instead of throwing IllegalArgumentException when called with null.
+
+Suggested Fixes:
+1. Change ""@throws IllegalArgumentException if the map is null"" and ""@return"" to ""@return NULL_INSTANCE if the map is null"".
+or
+2. Remove the entire ""throws IllegalArgumentException if the map is null"".
+",Platform Independent,120,120,,0%,120,120,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,,223173,,,2012-01-08 08:31:53.0,,,,,,0|i0shtr:,164365,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Deletions/insertions get lost in the ReplacementsFinder if they're at the end of the compared sequences,COLLECTIONS-592,12980680,Bug,Open,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Minor,,,Unda,Unda,19/Jun/16 22:19,20/Jun/16 07:31,13/Jun/19 02:04,,4.0,4.1,,,,,,,0,,,,"In the {{sequence}} package, when comparing 2 lists with a {{SequencesComparator}} and visiting the {{EditScript}} with a {{ReplacementsFinder}}, pending deletions and insertions get lost in the {{ReplacementsFinder}} when they're at the end of the sequences.
+
+The {{ReplacementsFinder}} stores the deletions and insertions until it encounters a {{KeepCommand}}, when it flushes the pending commands by triggering the {{handleReplacement}} method of its {{ReplacementHandler}}.
+
+The problem is, when edit commands are at the end of the sequences, the {{ReplacementsFinder}} will never encounter a {{KeepCommand}} to flush them, so they're stuck here and will never be handed over the {{ReplacementHandler}}.
+
+To fix this behavior in client code, one can manually call {{ReplacementsFinder.visitKeepCommand(null)}} after the {{EditScript.visit()}} call.
+
+I patched this bug in the library by adding a {{CommandVisitor.endOfVisit}} method and calling it at the end of the {{EditScript.visit}} method, so it allows to flush the pending deletions/insertions in the {{ReplacementsFinder}} when the end of the {{EditScript}} is reached.",,,,,,,,,,,,,,19/Jun/16 22:20;Unda;ReplacementsFinder.patch;https://issues.apache.org/jira/secure/attachment/12811732/ReplacementsFinder.patch,,1.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,Patch,,,,,,,,9223372036854775807,,,2016-06-19 22:19:09.0,,,,,,0|i2zpnr:,9223372036854775807,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Performance issue in SetUtils::isEqualSet,COLLECTIONS-547,12769111,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Minor,Not A Problem,,oswaldo_o,oswaldo_o,21/Jan/15 21:10,27/Nov/15 21:47,13/Jun/19 02:04,22/Jan/15 09:18,4.0,,,,Set,,,,0,perfomance,,,"There seems to be a performance problem with the function isEqualSet of 
+SetUtils when the first parameter is of a collection type that has a slow containsAll/contains method.
+
+The following is the code of the function:
+
+{code}
+    /**
+     * Tests two sets for equality as per the <code>equals()</code> contract
+     * in {@link java.util.Set#equals(java.lang.Object)}.
+     * <p>
+     * This method is useful for implementing <code>Set</code> when you cannot
+     * extend AbstractSet. The method takes Collection instances to enable other
+     * collection types to use the Set implementation algorithm.
+     * <p>
+     * The relevant text (slightly paraphrased as this is a static method) is:
+     * <blockquote>
+     * <p>Two sets are considered equal if they have
+     * the same size, and every member of the first set is contained in
+     * the second. This ensures that the <tt>equals</tt> method works
+     * properly across different implementations of the <tt>Set</tt>
+     * interface.</p>
+     *
+     * <p>
+     * This implementation first checks if the two sets are the same object:
+     * if so it returns <tt>true</tt>.  Then, it checks if the two sets are
+     * identical in size; if not, it returns false. If so, it returns
+     * <tt>a.containsAll((Collection) b)</tt>.</p>
+     * </blockquote>
+     *
+     * @see java.util.Set
+     * @param set1  the first set, may be null
+     * @param set2  the second set, may be null
+     * @return whether the sets are equal by value comparison
+     */
+    public static boolean isEqualSet(final Collection<?> set1, final Collection<?> set2) {
+        if (set1 == set2) {
+            return true;
+        }
+        if (set1 == null || set2 == null || set1.size() != set2.size()) {
+            return false;
+        }
+
+        return set1.containsAll(set2);
+    }
+
+{code}
+
+The problem is that in the last return statement, the function relies on the 
+containsAll method of the class of the set1, which can be any type of collection.
+
+The following test harness shows the performance degradation between 
+using a list and using a set as a first parameter, across different collection sizes.
+
+{code}
+    public static void 	setUtilsisEqualSetTest(boolean original) {
+
+	int N=500000;
+	ArrayList<Integer> firstArrayList=new ArrayList<Integer>();
+	ArrayList<Integer> secondArrayList=new ArrayList<Integer>();
+	for(int i=0;i<N;++i) {
+
+	    firstArrayList.add(new Integer(i));
+	    secondArrayList.add(new Integer((N-1)-i));
+	    
+	}
+
+	SetUtils.isEqualSet(original?firstArrayList:(new HashSet<Integer>(firstArrayList)),secondArrayList);
+	
+{code}
+
+In the following table ""Original"" corresponds to the time taken by 
+the existing implementation of SetUtils::isEqualSet, ""Repaired"" to the time 
+taken by the function invoked with the first parameter converted into a 
+set, and ""Speed-up"" to the speed-up obtained after the repair.
+
+
+       N	Original(s)	Repaired(s)	Speed-up(X)
+
+      10	          1.01		    1.02		     0.99
+     100	          1.02		    1.02		     1
+    1000	          1.04		    1.04		     1
+   10000	          1.15		    1.09		     1.05
+  100000	          9.33		    1.11		     8.40
+  500000	        > 300	            1.26		     > 238.09
+
+
+One way to deal with this would be to call the CollectionUtils::containsAll method instead of Collection::containsAll, since it has a linear time implementation instead of quadratic, and can handle the types of isEqualSet.
+
+Another solution would be to include a warning to the user in the documentation that the first parameter should have a fast containment method when possible.
+
+ 
+",Ubuntu 14.04,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2015-01-22 09:18:20.552,,,false,,,,,,,,,,,,,9223372036854775807,,,Thu Jan 22 09:18:20 UTC 2015,,,,,,0|i24mx3:,9223372036854775807,,,,,,,,,"22/Jan/15 09:18;tn;The javadoc of the method clearly states the purpose and function of this method.
+
+It should only be used when the first parameter is a Set or set-like data structure with a fast contains implementation. In other cases this method should not be used.
+
+Delegating this method to CollectionUtils.containsAll() is no good as it has an additional memory overhead which is not needed when used properly.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Performance issue in CompositeCollection::retainAll,COLLECTIONS-548,12769127,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Minor,Won't Fix,,oswaldo_o,oswaldo_o,21/Jan/15 21:50,27/Nov/15 21:47,13/Jun/19 02:04,24/Jan/15 12:59,4.0,,,,Collection,,,,0,performance,,,"There seems to be a performance problem with the function retainAll of 
+CompositeCollection. This is analogous to https://issues.apache.org/jira/browse/COLLECTIONS-534 .
+
+The following is the code of the function:
+
+{code}
+ 
+    /**
+     * Retains all the elements in the specified collection in this composite collection,
+     * removing all others.
+     * <p>
+     * This implementation calls <code>retainAll()</code> on each collection.
+     *
+     * @param coll  the collection to remove
+     * @return true if the collection was modified
+     * @throws UnsupportedOperationException if retainAll is unsupported
+     */
+    public boolean retainAll(final Collection<?> coll) {
+        boolean changed = false;
+        for (final Collection<E> item : all) {
+            changed |= item.retainAll(coll);
+        }
+        return changed;
+    }
+
+
+{code}
+
+The performance problem occurs when the underlying collections in the current collection have a slow retainAll method. Whenever we're relying on Collection::retainAll, slow cases tend to occur when the parameter collection has a slow contains method.
+
+The following test harness shows the performance degradation between 
+using a list and using a set as a parameter, across different collection sizes.
+
+{code}
+ public static void 	compositeCollectionRetainAllTest(boolean original) {
+
+	int N=500000;
+
+	ArrayList<Integer> firstArrayList=new ArrayList<Integer>();
+	ArrayList<Integer> secondArrayList=new ArrayList<Integer>();
+
+	for(int i=0;i<N;++i) {
+
+	    firstArrayList.add(new Integer(i));
+	    secondArrayList.add(new Integer(N-1-i));
+	    
+	}
+	CompositeCollection col = new CompositeCollection(firstArrayList);
+
+	col.retainAll(original ? secondArrayList : (new HashSet<Integer>(secondArrayList)));
+	
+
+    }
+
+
+{code}
+
+In the following table ""Original"" corresponds to the time taken by 
+the existing implementation of CompositeCollection::retainAll, ""Repaired"" to the time taken by the function invoked with the parameter converted into a set, and ""Speed-up"" to the speed-up obtained after the repair.
+
+N		Original(s)	Repaired(s)	Speed-up(X)
+
+10	         1.04		1.04		        1.00
+100	         1.04		1.05		        0.99
+1000	1.06		        1.06		        1.00
+10000	1.12		        1.10		        1.01
+100000	9.34		        1.15		        8.12
+500000	> 300		1.29		        > 232.55
+
+
+If it's unacceptable to convert the parameter into a set before calling 
+retainsAll, a solution would be to include a warning to the user in the documentation that the parameter should have a fast contains method when possible.
+",Ubuntu 14.04,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2015-01-24 12:59:07.43,,,false,,,,,,,,,,,,,9223372036854775807,,,Sat Jan 24 15:48:02 UTC 2015,,,,,,0|i24n0n:,9223372036854775807,,,,,,,,,"22/Jan/15 00:04;oswaldo_o;Here's another potential fix by using a more efficient retainAll method in the spirit of CollectionUtils::containsAll
+
+
+{code}
+------------------------------------------------------------
+
+    // Eliminates from coll1 all elements that are not in coll2.
+    // It runs in O(m+n) size, requiring additional O(m) space.
+    public static boolean efficientRetainAll(final Collection<?> coll1,final Collection<?> coll2) {
+
+	// If coll2 is empty there are no elements to retain.
+	if(coll2.isEmpty()) {
+	    return coll1.removeAll(coll1);
+	}
+
+	// Simple case when we're supposed to retain all elements
+	// in the first collection.
+	if(coll1==coll2)
+	    return false;
+	
+	// it1 iterates over coll1 and it2 iterares over coll2,
+	// and seen contains all the elements before it2, allowing 
+	// us to never revisit previous elements.
+	// The algorithm iterates through it1, checks to see if we've 
+	// already seen the current element of it1 via a Hashset 
+	// efficient check, or traverses elements of it2 until we find 
+	// it or it2 ends. At each iteration over it2 we add the
+	// elements to seen to avoid revisiting items.
+	Iterator<?> it1 = coll1.iterator();
+	Iterator<?> it2 = coll2.iterator();
+	HashSet<Object> seen = new HashSet<Object>();
+	boolean changed=false;
+	// Traverse all the elements in coll1.
+	while(it1.hasNext()) {
+	    final Object o=it1.next();
+	    // If we've seen this element in coll2, keep it.
+	    if(seen.contains(o))
+		continue;
+	    // Otherwise, check for its containment in coll2, while
+	    // adding the elements to seen.
+	    boolean contained=false;
+	    while(it2.hasNext()) {
+		final Object o2=it2.next();
+		seen.add(o2);
+		// Found the element in coll2.
+		if(o2.equals(o)) {
+		    contained=true;
+		    break;
+		}
+	    }
+	    // If the element was not found in coll2, remove it from it1.
+	    if(!contained) {
+		changed=true;
+		it1.remove();
+	    }
+
+	}
+	
+
+	return changed;
+    }
+{code}
+----------------------
+
+
+And the harness:
+
+-----------------------
+{code}
+
+    public static void 	compositeCollectionRetainAllTest(boolean original) {
+
+	int N=500000;
+
+	ArrayList<Integer> firstArrayList=new ArrayList<Integer>();
+	ArrayList<Integer> secondArrayList=new ArrayList<Integer>();
+
+	for(int i=0;i<N;++i) {
+
+	    firstArrayList.add(new Integer(i));
+	    secondArrayList.add(new Integer(N-1-i));
+	    
+	}
+	CompositeCollection col = new CompositeCollection(firstArrayList);
+
+	if(original)
+	    col.retainAll(secondArrayList);
+	else 
+	    efficientRetainAll(col,secondArrayList);
+
+
+
+    }
+{code}
+
+------------------------------
+
+The results are:
+
+N		Original(s)	Repaired(s)	Speed-up(X)
+
+10	         1.04		1.05		        0.99
+100	         1.04		1.05		        0.99
+1000		 1.06		1.06		        1.00
+10000		 1.12		1.10		        1.01
+100000		 9.34		1.15		        8.12
+500000		 > 300		1.34		        > 223.88
+","24/Jan/15 12:59;tn;Close as won't fix, similar to other issues.
+
+The implementation of CompositeCollection delegates the call of retainAll to the composited collections. Thus its performance is dependent on the implementation of the relevant collections.
+
+Instead of pre-optimizing methods, users should use appropriate collection types for their need, but I am in favor of adding a dedicated CollectionUtils.retainAll method that provides a linear-time implementation.","24/Jan/15 15:38;oswaldo_o;Hi Thomas,
+
+It's understandable that changing the code might be undesirable.
+
+But shouldn't there be a warning to the user in the documentation about the pathological cases in the invoked function (contains in other cases, retainAll in this one) ? 
+
+In the case of AbstracLinkedList::retainAll, you would need to peek at the contains method implementation to see the performance impact, but in CompositeCollection::retainAll you would probably need to look at the implementation of retainAll of the underlying collections, and then the contains of these collections. 
+More layers of function invocations w.r.t. the problematic method are more likely to obscure the performance bottleneck, making a stronger case to document the  higher level functions.","24/Jan/15 15:48;tn;The documentation clearly states what the method is doing:
+
+{noformat}
+     * This implementation calls <code>retainAll()</code> on each collection.
+{noformat}
+
+The retainAll() method of the Collection interface is also well-known and by default (see AbstractCollection) calls contains() on the provided collection. Thus users should be aware of this by now (2015). If a user is really calling retainAll() with a huge list, it's probably better to put the elements in a set and provide this as an argument to retainAll().
+
+My whole point is that there's no use in providing uber-collection types that have an optimal runtime-complexity in all cases but with the trade-off of additional memory requirements. Users have to chose and use proper collection types for their use case.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Generic Wildcards specified in CollectionUtils#isEqualCollection(Collection, Collection, Equator) may throw ClassCastException in certain cases",COLLECTIONS-531,12716766,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Minor,Fixed,,dipanjan21,dipanjan21,27/May/14 10:13,27/Nov/15 21:11,13/Jun/19 02:04,29/May/14 18:34,4.0,,4.1,,Collection,,,,0,,,,"CollectionUtils#isEqualCollection(Collection, Collection, Equator) is defined as
+{code}
+public static boolean isEqualCollection(final Collection<?> a, final Collection<?> b, final Equator<?> equator) {
+...
+}
+{code}
+
+This makes it possible to invoke it with a code like
+{code}
+public static class IntegerEquator implements Equator<Integer> {
+        public boolean equate(Integer o1, Integer o2) {
+            return o1.intValue() == o2.intValue();
+        }
+        public int hash(Integer o) {
+            return o.intValue();
+        }
+    }
+
+    @Test
+    public void test() {
+        List<Long> longList = Arrays.asList(1L, 2L);
+        List<Integer> intList = Arrays.asList(1, 2);
+        assertTrue(CollectionUtils.isEqualCollection(longList, intList, new IntegerEquator()));
+
+    }
+{code}
+which compiles perfectly but throws a ClassCastException as Long cannot be cast to an Integer. However, the generics should be defined such that this is stopped at compile time itself.
+
+If we modify the method to something like
+{code}
+public static <E> boolean isEqualCollection(final Collection<? extends E> a, final Collection<? extends E> b, final Equator<? super E> equator) {
+...
+}
+{code}
+the above example would give a compile time error. imho we should modify this method with bounded wildcards. I don't think this change would break any existing binaries if the method is being used correctly, otherwise it is probably throwing ClassCastExceptions anyway.
+
+Test case attached",,,,,,,,,,,,,,27/May/14 10:13;dipanjan21;IsEqualCollectionTest.java;https://issues.apache.org/jira/secure/attachment/12646885/IsEqualCollectionTest.java,,1.0,,,,,,,,,,,,,,,,,,,2014-05-29 18:34:28.247,,,false,,,,,,,,,,,,,394974,,,Thu May 29 18:34:28 UTC 2014,,,,,,0|i1w06v:,395109,,,,,,,,,"29/May/14 18:34;tn;Committed in r1598357.
+
+I have verified that the change does not break b/c and it should be fine.
+
+Additionally added a note to the javadoc that providing incompatible types, e.g. by casting, will result in a ClassCastException at runtime. This is probably a worthwhile distinction to the isEqualCollection(C, C) method which does support incompatible types (although will always return false for non-empty collections in such a case).
+
+Thanks for the report!",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+All decorators shall throw a NullPointerException if the decorated argument is null,COLLECTIONS-570,12839496,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Minor,Fixed,,tn,tn,22/Jun/15 09:50,27/Nov/15 21:11,13/Jun/19 02:04,22/Jun/15 13:02,4.0,,4.1,,,,,,0,,,,"To be consistent, the constructor shall throw a NullPointerException instead of a IllegalArgumentException if the argument is null.",,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,,9223372036854775807,,,Mon Jun 22 13:02:48 UTC 2015,,,,,,0|i2gbtb:,9223372036854775807,,,,,,,,,22/Jun/15 13:02;tn;Fixed in r1686855.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+AbstractIterableGetMapDecorator should be abstract,COLLECTIONS-518,12708186,Bug,Reopened,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Minor,,,dipanjan21,dipanjan21,14/Apr/14 05:36,31/May/15 18:52,13/Jun/19 02:04,,4.0,,5.0,,Map,,,,0,,,,"AbstractIterableGetMapDecorator should be abstract, but is not",,,,,,,,,,,,,,14/Apr/14 05:37;dipanjan21;AbstractIterableGetMapDecorator.patch;https://issues.apache.org/jira/secure/attachment/12640027/AbstractIterableGetMapDecorator.patch,,1.0,,,,,,,,,,,,,,,,,,,2014-05-06 21:01:43.958,,,false,,,,,,,,,,,,,386509,,,Sun May 31 18:52:05 UTC 2015,,,,,,0|i1ul0n:,386773,,,,,,,,,14/Apr/14 05:37;dipanjan21;Patch to make it abstract,"06/May/14 21:01;tn;This change will break binary compatibility.
+
+Would be acceptable in this case imho, but needs to be clearly documented in the release notes.
+","07/May/14 11:37;dipanjan21;@Binary Compatibility: True it would break it, but as you said, this should be acceptable 
+
+So maybe you can commit it and keep the issue open till we document it in the release notes.","29/Oct/14 21:19;tn;Fixed in r1635305.
+
+Added a todo entry to mention it in the release notes.","31/May/15 18:52;tn;Reverted the change in r1682770.
+
+It is not really important and can be postponed to 5.0, as I want to avoid introducing a potential problem wrt binary compatibility.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+CompositeMap should support compositing of maps of derived types,COLLECTIONS-504,12682510,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Minor,Invalid,,petercooperjr-efi,petercooperjr-efi,03/Dec/13 20:33,04/Dec/13 15:32,13/Jun/19 02:04,04/Dec/13 12:56,4.0,,,,Map,,,,0,,,,"I'm attempting to composite two maps, one of which is a {{Map<String, String>}} and the other of which is a {{Map<String, Object>}}. I would have expected that I could composite them into a {{CompositeMap<String, Object>}}, but the constructors of CompositeMap expect all of the maps being composited to have exactly the same type arguments.
+
+That is, I think the constructors should take arguments of {{Map<? extends K, ? extends V>}} instead of what they currently have of {{Map<K, V>}}, much like most collection methods, since there shouldn't be a problem accepting type arguments that are subtypes of the composite map types.
+
+Thanks!",,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2013-12-03 22:07:56.236,,,false,,,,,,,,,,,,,361767,,,Wed Dec 04 15:32:10 UTC 2013,,,,,,0|i1qczz:,362064,,,,,,,,,"03/Dec/13 22:07;tn;Unfortunately this would only be possible for an immutable CompositeMap. If there is a mutator defined, it would be possible that an unexpected type may appear in a composited map, e.g.
+
+{noformat}
+        Map<String, String> map1 = new HashMap<String, String>();
+        Map<String, Object> map2 = new HashMap<String, Object>();
+        
+        map1.put(""key1"", ""value1"");
+        map2.put(""key2"", Integer.valueOf(1));
+        
+        CompositeMap<String, Object> composite =
+                new CompositeMap<String, Object>(map1, map2, new CompositeMap.MapMutator<String, Object>() {
+
+                    public Object put(CompositeMap<String, Object> map, Map<String, Object>[] composited, String key,
+                            Object value) {
+                        return composited[1].put(key, value);
+                    }
+        });
+
+        composite.put(""key3"", Integer.valueOf(2));
+        
+        for (Map.Entry<String, String> entry : map1.entrySet()) {
+            System.out.println(entry.getValue());
+        }
+{noformat}
+
+will result in
+
+{noformat}
+Exception in thread ""main"" java.lang.ClassCastException: java.lang.Integer
+{noformat}
+
+So I do not think that this is a good idea unless we add Immutable versions of various collection types similar to what guava does.","04/Dec/13 12:54;petercooperjr-efi;Oh, of course. The maps I was trying to use were in fact immutable, which is why I didn't think of that, though it's obvious in retrospect. Thank you for your time.","04/Dec/13 15:32;tn;What you proposed makes sense, but is not possible atm.
+
+In case you would like to see Immutable collections also in Apache Commons Collections you could already create a feature request.
+I think there are surely use-cases for them and the memory savings can be crucial in various applications.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Correction of Javadoc for org.apache.commons.collections4.functors.CatchAndRethrowClosure,COLLECTIONS-597,13013873,Bug,Resolved,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Trivial,Fixed,ggregory,sadguten,sadguten,20/Oct/16 13:47,21/Oct/16 05:53,13/Jun/19 02:04,21/Oct/16 05:53,4.0,4.1,4.2,,Functor,,,,0,documentation,,,"Correct the javadoc for org.apache.commons.collections4.functors.CatchAndRethrowClosure, replacing:
+CollctionUtils.forAllDo(strList, writer);
+by:
+CollectionUtils.forAllDo(strList, writer);
+",,300,300,,0%,300,300,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2016-10-21 05:53:34.639,,,false,,,,,,,,,,,,,9223372036854775807,,,Fri Oct 21 05:53:34 UTC 2016,,,,,,0|i355kf:,9223372036854775807,,,,,,,,,21/Oct/16 05:53;ggregory;In SVN trunk.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Undocumented performance issue in the removeAll method in CollectionUtils,COLLECTIONS-545,12766770,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Trivial,Fixed,,oswaldo_o,oswaldo_o,12/Jan/15 06:04,27/Nov/15 21:11,13/Jun/19 02:04,23/Jan/15 09:34,4.0,,4.1,,Collection,,,,0,Collections,documentaion,performance,"This bug is analogous to https://issues.apache.org/jira/browse/COLLECTIONS-544
+
+The method removeAll in CollectionUtils is inefficient when the second parameter collection has a slow containment method.
+
+The following is the current implementation with its documentation:
+============================
+     /**
+     * Removes the elements in <code>remove</code> from <code>collection</code>. That is, this
+     * method returns a collection containing all the elements in <code>c</code>
+     * that are not in <code>remove</code>. The cardinality of an element <code>e</code>
+     * in the returned collection is the same as the cardinality of <code>e</code>
+     * in <code>collection</code> unless <code>remove</code> contains <code>e</code>, in which
+     * case the cardinality is zero. This method is useful if you do not wish to modify
+     * the collection <code>c</code> and thus cannot call <code>collection.removeAll(remove);</code>.
+     *
+     * @param <E>  the type of object the {@link Collection} contains
+     * @param collection  the collection from which items are removed (in the returned collection)
+     * @param remove  the items to be removed from the returned <code>collection</code>
+     * @return a <code>Collection</code> containing all the elements of <code>collection</code> except
+     * any elements that also occur in <code>remove</code>.
+     * @throws NullPointerException if either parameter is null
+     * @since 4.0 (method existed in 3.2 but was completely broken)
+     */
+    public static <E> Collection<E> removeAll(final Collection<E> collection, final Collection<?> remove) {
+        return ListUtils.removeAll(collection, remove);
+    }
+
+
+=======================================
+
+We can notice the inefficiency by looking at the removeAll method in ListUtils.
+The removeAll method from ListUtils is implemented and documented as follows:
+
+=======================================
+
+     /**
+     * Removes the elements in <code>remove</code> from <code>collection</code>. That is, this
+     * method returns a list containing all the elements in <code>collection</code>
+     * that are not in <code>remove</code>. The cardinality of an element <code>e</code>
+     * in the returned collection is the same as the cardinality of <code>e</code>
+     * in <code>collection</code> unless <code>remove</code> contains <code>e</code>, in which
+     * case the cardinality is zero. This method is useful if you do not wish to modify
+     * <code>collection</code> and thus cannot call <code>collection.removeAll(remove);</code>.
+     * <p>
+     * This implementation iterates over <code>collection</code>, checking each element in
+     * turn to see if it's contained in <code>remove</code>. If it's not contained, it's added
+     * to the returned list. As a consequence, it is advised to use a collection type for
+     * <code>remove</code> that provides a fast (e.g. O(1)) implementation of
+     * {@link Collection#contains(Object)}.
+     *
+     * @param <E>  the element type
+     * @param collection  the collection from which items are removed (in the returned collection)
+     * @param remove  the items to be removed from the returned <code>collection</code>
+     * @return a <code>List</code> containing all the elements of <code>c</code> except
+     * any elements that also occur in <code>remove</code>.
+     * @throws NullPointerException if either parameter is null
+     * @since 3.2
+     */
+    public static <E> List<E> removeAll(final Collection<E> collection, final Collection<?> remove) {
+        final List<E> list = new ArrayList<E>();
+        for (final E obj : collection) {
+            if (!remove.contains(obj)) {
+                list.add(obj);
+            }
+        }
+        return list;
+    }
+
+=======================================
+
+In the case of ListUtils:removeAll, the inefficiency is properly documented.
+
+Perhaps the disclaimer about potential inefficiencies depending on the type 
+of the parameter collection in ListUtils:removeAll should also be included in CollectionUtils:removeAll.",Ubuntu 14.04,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2015-01-23 09:34:34.74,,,false,,,,,,,,,,,,,9223372036854775807,,,Fri Jan 23 09:34:34 UTC 2015,,,,,,0|i248xr:,9223372036854775807,,,,,,,,,"23/Jan/15 09:34;tn;Fixed in r1654156.
+
+Thanks for the report!",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+(Code style) map.size() call in MapUtils.putAll(),COLLECTIONS-536,12751294,Bug,Closed,COLLECTIONS,Commons Collections,software,issues@commons.apache.org,,http://commons.apache.org/collections/,Trivial,Fixed,,lany,lany,29/Oct/14 02:58,27/Nov/15 21:11,13/Jun/19 02:04,29/Oct/14 21:05,3.2.1,4.0,4.1,,Map,,,,0,performance,,,"In class org.apache.commons.collections(4).MapUtils there's a method putAll(final Map<K, V> map, final Object[] array) which starts with 
+{noformat}
+map.size();  // force NPE
+{noformat}
+
+Actually map.size() is not that harmless call for any map. For example, consider java.util.concurrent.ConcurrentHashMap size() implementation: depending on the circumstances it may take even more time than the rest of the putAll method (at least prior to JDK 8). Things are even worse for ConcurrentSkipListMap: its size() method iterates over all the map elements. Thus I'd suggest to replace this call with more conventional check like:
+{noformat}
+if(map == null) {
+    throw new NullPointerException();
+}
+{noformat}
+
+If you still want to save bytes, you may use {{map.getClass()}}. It's final, so it will never be overridden to do something strange and it's even used by JavaC for the same purpose (to trigger NPE). For example, if you compile and disassemble this code:
+{noformat}
+public class Outer {
+    public class Inner {}
+    public void test(Outer n) { n.new Inner(); }
+}
+{noformat}
+You will see a getClass() call which is used to trigger NPE.",Any,,,,,,,,,,,,,,,0.0,,,,,,,,,,,,,,,,,,,2014-10-29 21:05:23.417,,,false,,,,,,,,,,,,,9223372036854775807,,,Wed Oct 29 21:05:23 UTC 2014,,,,,,0|i21pc7:,9223372036854775807,,,,,,,,,"29/Oct/14 21:05;tn;Fixed in r1635303.
+
+Thanks for the report!",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

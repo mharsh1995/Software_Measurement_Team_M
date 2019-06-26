@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FunctorException.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">FunctorException.java</span></div><h1>FunctorException.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+/**
+ * Runtime exception thrown from functors.
+ * If required, a root cause error can be wrapped within this one.
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ *
+ * @author Stephen Colebourne
+ */
+public class FunctorException extends RuntimeException {
+    
+    /**
+     * Does JDK support nested exceptions
+     */
+    private static final boolean JDK_SUPPORTS_NESTED;
+    
+    static {
+<span class="fc" id="L39">        boolean flag = false;</span>
+        try {
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">            Throwable.class.getDeclaredMethod(&quot;getCause&quot;, new Class[0]);</span>
+<span class="fc" id="L42">            flag = true;</span>
+<span class="pc" id="L43">        } catch (NoSuchMethodException ex) {</span>
+<span class="nc" id="L44">            flag = false;</span>
+        }
+<span class="fc" id="L46">        JDK_SUPPORTS_NESTED = flag;</span>
+<span class="fc" id="L47">    }</span>
+    
+    /**
+     * Root cause of the exception
+     */
+    private final Throwable rootCause;
+
+    /**
+     * Constructs a new &lt;code&gt;FunctorException&lt;/code&gt; without specified
+     * detail message.
+     */
+    public FunctorException() {
+<span class="nc" id="L59">        super();</span>
+<span class="nc" id="L60">        this.rootCause = null;</span>
+<span class="nc" id="L61">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;FunctorException&lt;/code&gt; with specified
+     * detail message.
+     *
+     * @param msg  the error message.
+     */
+    public FunctorException(String msg) {
+<span class="fc" id="L70">        super(msg);</span>
+<span class="fc" id="L71">        this.rootCause = null;</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;FunctorException&lt;/code&gt; with specified
+     * nested &lt;code&gt;Throwable&lt;/code&gt; root cause.
+     *
+     * @param rootCause  the exception or error that caused this exception
+     *                   to be thrown.
+     */
+    public FunctorException(Throwable rootCause) {
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        super((rootCause == null ? null : rootCause.getMessage()));</span>
+<span class="fc" id="L83">        this.rootCause = rootCause;</span>
+<span class="fc" id="L84">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;FunctorException&lt;/code&gt; with specified
+     * detail message and nested &lt;code&gt;Throwable&lt;/code&gt; root cause.
+     *
+     * @param msg        the error message.
+     * @param rootCause  the exception or error that caused this exception
+     *                   to be thrown.
+     */
+    public FunctorException(String msg, Throwable rootCause) {
+<span class="nc" id="L95">        super(msg);</span>
+<span class="nc" id="L96">        this.rootCause = rootCause;</span>
+<span class="nc" id="L97">    }</span>
+
+    /**
+     * Gets the cause of this throwable.
+     * 
+     * @return  the cause of this throwable, or &lt;code&gt;null&lt;/code&gt;
+     */
+    public Throwable getCause() {
+<span class="fc" id="L105">        return rootCause;</span>
+    }
+
+    /**
+     * Prints the stack trace of this exception to the standard error stream.
+     */
+    public void printStackTrace() {
+<span class="nc" id="L112">        printStackTrace(System.err);</span>
+<span class="nc" id="L113">    }</span>
+
+    /**
+     * Prints the stack trace of this exception to the specified stream.
+     *
+     * @param out  the &lt;code&gt;PrintStream&lt;/code&gt; to use for output
+     */
+    public void printStackTrace(PrintStream out) {
+<span class="nc" id="L121">        synchronized (out) {</span>
+<span class="nc" id="L122">            PrintWriter pw = new PrintWriter(out, false);</span>
+<span class="nc" id="L123">            printStackTrace(pw);</span>
+            // Flush the PrintWriter before it's GC'ed.
+<span class="nc" id="L125">            pw.flush();</span>
+        }
+<span class="nc" id="L127">    }</span>
+
+    /**
+     * Prints the stack trace of this exception to the specified writer.
+     *
+     * @param out  the &lt;code&gt;PrintWriter&lt;/code&gt; to use for output
+     */
+    public void printStackTrace(PrintWriter out) {
+<span class="nc" id="L135">        synchronized (out) {</span>
+<span class="nc" id="L136">            super.printStackTrace(out);</span>
+<span class="nc bnc" id="L137" title="All 4 branches missed.">            if (rootCause != null &amp;&amp; JDK_SUPPORTS_NESTED == false) {</span>
+<span class="nc" id="L138">                out.print(&quot;Caused by: &quot;);</span>
+<span class="nc" id="L139">                rootCause.printStackTrace(out);</span>
+            }
+        }
+<span class="nc" id="L142">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

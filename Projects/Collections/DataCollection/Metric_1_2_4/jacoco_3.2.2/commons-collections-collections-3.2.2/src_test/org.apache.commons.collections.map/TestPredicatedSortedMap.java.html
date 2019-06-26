@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestPredicatedSortedMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">TestPredicatedSortedMap.java</span></div><h1>TestPredicatedSortedMap.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
+
+/**
+ * Extension of {@link TestPredicatedMap} for exercising the 
+ * {@link PredicatedSortedMap} implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Phil Steitz
+ */
+public class TestPredicatedSortedMap extends AbstractTestSortedMap{
+    
+<span class="fc" id="L43">    protected static final Predicate truePredicate = PredicateUtils.truePredicate();</span>
+<span class="fc" id="L44">    protected static final Predicate testPredicate = new Predicate() {</span>
+        public boolean evaluate(Object o) {
+<span class="fc" id="L46">            return (o instanceof String);</span>
+        }
+<span class="fc" id="L48">    };</span>
+    
+    public TestPredicatedSortedMap(String testName) {
+<span class="fc" id="L51">        super(testName);</span>
+<span class="fc" id="L52">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L55" title="All 2 branches covered.">        return new TestSuite(TestPredicatedSortedMap.class);</span>
+    }
+    
+    public static void main(String args[]) {
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        String[] testCaseName = { TestPredicatedSortedMap.class.getName()};</span>
+<span class="nc" id="L60">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L61">    }</span>
+
+    //-----------------------------------------------------------------------
+    protected SortedMap decorateMap(SortedMap map, Predicate keyPredicate, 
+        Predicate valuePredicate) {
+<span class="fc" id="L66">        return PredicatedSortedMap.decorate(map, keyPredicate, valuePredicate);</span>
+    }
+    
+    public Map makeEmptyMap() {
+<span class="fc" id="L70">        return decorateMap(new TreeMap(), truePredicate, truePredicate);</span>
+    }
+   
+    public Map makeTestMap() {
+<span class="fc" id="L74">        return decorateMap(new TreeMap(), testPredicate, testPredicate);</span>
+    } 
+    
+    public SortedMap makeTestSortedMap() {
+<span class="fc" id="L78">        return decorateMap(new TreeMap(), testPredicate, testPredicate);</span>
+    }
+    
+    public boolean isSubMapViewsSerializable() {
+        // TreeMap sub map views have a bug in deserialization.
+<span class="nc" id="L83">        return false;</span>
+    }
+
+    public boolean isAllowNullKey() {
+<span class="fc" id="L87">        return false;</span>
+    }
+
+    // from TestPredicatedMap
+    //-----------------------------------------------------------------------
+    public void testEntrySet() {
+<span class="fc" id="L93">        SortedMap map = makeTestSortedMap();</span>
+<span class="fc" id="L94">        assertTrue(&quot;returned entryset should not be null&quot;,</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            map.entrySet() != null);</span>
+<span class="fc" id="L96">        map = decorateMap(new TreeMap(), null, null);</span>
+<span class="fc" id="L97">        map.put(&quot;oneKey&quot;, &quot;oneValue&quot;);</span>
+<span class="fc" id="L98">        assertTrue(&quot;returned entryset should contain one entry&quot;,</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">            map.entrySet().size() == 1); </span>
+<span class="fc" id="L100">        map = decorateMap(map, null, null);</span>
+<span class="fc" id="L101">    }</span>
+    
+    public void testPut() {
+<span class="fc" id="L104">        Map map = makeTestMap();</span>
+        try {
+<span class="nc" id="L106">            map.put(&quot;Hi&quot;, new Integer(3));</span>
+<span class="nc" id="L107">            fail(&quot;Illegal value should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L108">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L113">            map.put(new Integer(3), &quot;Hi&quot;);</span>
+<span class="nc" id="L114">            fail(&quot;Illegal key should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L115">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        assertTrue(!map.containsKey(new Integer(3)));</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        assertTrue(!map.containsValue(new Integer(3)));</span>
+
+<span class="fc" id="L122">        Map map2 = new HashMap();</span>
+<span class="fc" id="L123">        map2.put(&quot;A&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L124">        map2.put(&quot;B&quot;, &quot;b&quot;);</span>
+<span class="fc" id="L125">        map2.put(&quot;C&quot;, &quot;c&quot;);</span>
+<span class="fc" id="L126">        map2.put(&quot;c&quot;, new Integer(3));</span>
+
+        try {
+<span class="nc" id="L129">            map.putAll(map2);</span>
+<span class="nc" id="L130">            fail(&quot;Illegal value should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L131">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+
+<span class="fc" id="L135">        map.put(&quot;E&quot;, &quot;e&quot;);</span>
+<span class="fc" id="L136">        Iterator iterator = map.entrySet().iterator();</span>
+        try {
+<span class="fc" id="L138">            Map.Entry entry = (Map.Entry)iterator.next();</span>
+<span class="nc" id="L139">            entry.setValue(new Integer(3));</span>
+<span class="nc" id="L140">            fail(&quot;Illegal value should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L141">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+        
+<span class="fc" id="L145">        map.put(&quot;F&quot;, &quot;f&quot;);</span>
+<span class="fc" id="L146">        iterator = map.entrySet().iterator();</span>
+<span class="fc" id="L147">        Map.Entry entry = (Map.Entry)iterator.next();</span>
+<span class="fc" id="L148">        entry.setValue(&quot;x&quot;);</span>
+        
+<span class="fc" id="L150">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testSortOrder() {
+<span class="fc" id="L154">        SortedMap map = makeTestSortedMap();</span>
+<span class="fc" id="L155">        map.put(&quot;A&quot;,  &quot;a&quot;);</span>
+<span class="fc" id="L156">        map.put(&quot;B&quot;, &quot;b&quot;);</span>
+        try {
+<span class="nc" id="L158">            map.put(null, &quot;c&quot;);</span>
+<span class="nc" id="L159">            fail(&quot;Null key should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L160">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+<span class="fc" id="L163">        map.put(&quot;C&quot;, &quot;c&quot;);</span>
+        try {
+<span class="nc" id="L165">            map.put(&quot;D&quot;, null);</span>
+<span class="nc" id="L166">            fail(&quot;Null value should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L167">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+<span class="fc" id="L170">        assertEquals(&quot;First key should be A&quot;, map.firstKey(), &quot;A&quot;);</span>
+<span class="fc" id="L171">        assertEquals(&quot;Last key should be C&quot;, map.lastKey(), &quot;C&quot;);</span>
+<span class="fc" id="L172">        assertEquals(&quot;First key in tail map should be B&quot;, </span>
+<span class="fc" id="L173">            map.tailMap(&quot;B&quot;).firstKey(), &quot;B&quot;);</span>
+<span class="fc" id="L174">        assertEquals(&quot;Last key in head map should be B&quot;, </span>
+<span class="fc" id="L175">            map.headMap(&quot;C&quot;).lastKey(), &quot;B&quot;);</span>
+<span class="fc" id="L176">        assertEquals(&quot;Last key in submap should be B&quot;,</span>
+<span class="fc" id="L177">           map.subMap(&quot;A&quot;,&quot;C&quot;).lastKey(), &quot;B&quot;);</span>
+        
+<span class="fc" id="L179">        Comparator c = map.comparator();</span>
+<span class="fc" id="L180">        assertTrue(&quot;natural order, so comparator should be null&quot;, </span>
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">            c == null);</span>
+<span class="fc" id="L182">    }</span>
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L185">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/PredicatedSortedMap.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/PredicatedSortedMap.fullCollection.version3.1.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestTransformedCollection.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.collection</a> &gt; <span class="el_source">TestTransformedCollection.java</span></div><h1>TestTransformedCollection.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.collection;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections.TransformerUtils;
+
+/**
+ * Extension of {@link TestCollection} for exercising the {@link TransformedCollection}
+ * implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public class TestTransformedCollection extends AbstractTestCollection {
+    
+    private static class StringToInteger implements Transformer {
+        public Object transform(Object input) {
+<span class="fc" id="L43">            return new Integer((String) input);</span>
+        }
+    }
+    
+<span class="fc" id="L47">    public static final Transformer NOOP_TRANSFORMER = TransformerUtils.nopTransformer();</span>
+<span class="fc" id="L48">    public static final Transformer STRING_TO_INTEGER_TRANSFORMER = new StringToInteger();</span>
+
+    public TestTransformedCollection(String testName) {
+<span class="fc" id="L51">        super(testName);</span>
+<span class="fc" id="L52">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L55" title="All 2 branches covered.">        return new TestSuite(TestTransformedCollection.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        String[] testCaseName = { TestTransformedCollection.class.getName()};</span>
+<span class="nc" id="L60">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L61">    }</span>
+
+    //-----------------------------------------------------------------------
+    public Collection makeConfirmedCollection() {
+<span class="fc" id="L65">        return new ArrayList();</span>
+    }
+
+    public Collection makeConfirmedFullCollection() {
+<span class="fc" id="L69">        List list = new ArrayList();</span>
+<span class="fc" id="L70">        list.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L71">        return list;</span>
+    }
+    
+    public Collection makeCollection() {
+<span class="fc" id="L75">        return TransformedCollection.decorate(new ArrayList(), NOOP_TRANSFORMER);</span>
+    }
+
+    public Collection makeFullCollection() {
+<span class="fc" id="L79">        List list = new ArrayList();</span>
+<span class="fc" id="L80">        list.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L81">        return TransformedCollection.decorate(list, NOOP_TRANSFORMER);</span>
+    }
+    
+    //-----------------------------------------------------------------------
+    public Object[] getFullElements() {
+<span class="fc" id="L86">        return new Object[] {&quot;1&quot;, &quot;3&quot;, &quot;5&quot;, &quot;7&quot;, &quot;2&quot;, &quot;4&quot;, &quot;6&quot;};</span>
+    }
+
+    public Object[] getOtherElements() {
+<span class="fc" id="L90">        return new Object[] {&quot;9&quot;, &quot;88&quot;, &quot;678&quot;, &quot;87&quot;, &quot;98&quot;, &quot;78&quot;, &quot;99&quot;};</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testTransformedCollection() {
+<span class="fc" id="L95">        Collection coll = TransformedCollection.decorate(new ArrayList(), STRING_TO_INTEGER_TRANSFORMER);</span>
+<span class="fc" id="L96">        assertEquals(0, coll.size());</span>
+<span class="fc" id="L97">        Object[] els = getFullElements();</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        for (int i = 0; i &lt; els.length; i++) {</span>
+<span class="fc" id="L99">            coll.add(els[i]);</span>
+<span class="fc" id="L100">            assertEquals(i + 1, coll.size());</span>
+<span class="fc" id="L101">            assertEquals(true, coll.contains(new Integer((String) els[i])));</span>
+<span class="fc" id="L102">            assertEquals(false, coll.contains(els[i]));</span>
+        }
+        
+<span class="fc" id="L105">        assertEquals(true, coll.remove(new Integer((String) els[0])));</span>
+<span class="fc" id="L106">    }</span>
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L109">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/TransformedCollection.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/TransformedCollection.fullCollection.version3.1.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

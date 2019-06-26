@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestBooleanComparator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.comparators</a> &gt; <span class="el_source">TestBooleanComparator.java</span></div><h1>TestBooleanComparator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.comparators;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+/**
+ * Tests for {@link BooleanComparator}.
+ * 
+ * @version $Revision$ $Date$
+ * 
+ * @author Rodney Waldhoff
+ */
+public class TestBooleanComparator extends AbstractTestComparator {
+
+    // conventional
+    // ------------------------------------------------------------------------
+
+    public TestBooleanComparator(String testName) {
+<span class="fc" id="L39">        super(testName);</span>
+<span class="fc" id="L40">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L43" title="All 2 branches covered.">        return new TestSuite(TestBooleanComparator.class);</span>
+    }
+
+    // collections testing framework
+    // ------------------------------------------------------------------------
+
+    public Comparator makeComparator() {
+<span class="fc" id="L50">        return new BooleanComparator();</span>
+    }
+
+    public List getComparableObjectsOrdered() {
+<span class="fc" id="L54">        List list = new ArrayList();</span>
+<span class="fc" id="L55">        list.add(new Boolean(false));</span>
+<span class="fc" id="L56">        list.add(Boolean.FALSE);</span>
+<span class="fc" id="L57">        list.add(new Boolean(false));</span>
+<span class="fc" id="L58">        list.add(Boolean.TRUE);</span>
+<span class="fc" id="L59">        list.add(new Boolean(true));</span>
+<span class="fc" id="L60">        list.add(Boolean.TRUE);</span>
+<span class="fc" id="L61">        return list;</span>
+    }
+    
+    public String getCompatibilityVersion() {
+<span class="fc" id="L65">        return &quot;3&quot;;</span>
+    }
+
+    // tests
+    // ------------------------------------------------------------------------
+
+    public void testConstructors() {
+<span class="fc" id="L72">        allTests(false,new BooleanComparator());</span>
+<span class="fc" id="L73">        allTests(false,new BooleanComparator(false));</span>
+<span class="fc" id="L74">        allTests(true,new BooleanComparator(true));        </span>
+<span class="fc" id="L75">    }</span>
+    
+    public void testStaticFactoryMethods() {
+<span class="fc" id="L78">        allTests(false,BooleanComparator.getFalseFirstComparator());</span>
+<span class="fc" id="L79">        allTests(false,BooleanComparator.getBooleanComparator(false));</span>
+<span class="fc" id="L80">        allTests(true,BooleanComparator.getTrueFirstComparator());</span>
+<span class="fc" id="L81">        allTests(true,BooleanComparator.getBooleanComparator(true));</span>
+<span class="fc" id="L82">    }</span>
+    
+    public void testEqualsCompatibleInstance() {
+<span class="fc" id="L85">        assertEquals(new BooleanComparator(),new BooleanComparator(false));</span>
+<span class="fc" id="L86">        assertEquals(new BooleanComparator(false),new BooleanComparator(false));</span>
+<span class="fc" id="L87">        assertEquals(new BooleanComparator(false),BooleanComparator.getFalseFirstComparator());</span>
+<span class="fc" id="L88">        assertSame(BooleanComparator.getFalseFirstComparator(),BooleanComparator.getBooleanComparator(false));</span>
+
+<span class="fc" id="L90">        assertEquals(new BooleanComparator(true),new BooleanComparator(true));</span>
+<span class="fc" id="L91">        assertEquals(new BooleanComparator(true),BooleanComparator.getTrueFirstComparator());</span>
+<span class="fc" id="L92">        assertSame(BooleanComparator.getTrueFirstComparator(),BooleanComparator.getBooleanComparator(true));</span>
+
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        assertTrue(!(new BooleanComparator().equals(new BooleanComparator(true))));</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        assertTrue(!(new BooleanComparator(true).equals(new BooleanComparator(false))));</span>
+<span class="fc" id="L96">    }</span>
+    
+    // utilities
+    // ------------------------------------------------------------------------
+
+    protected void allTests(boolean trueFirst, BooleanComparator comp) {
+<span class="fc" id="L102">        orderIndependentTests(comp);</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if(trueFirst) {</span>
+<span class="fc" id="L104">            trueFirstTests(comp);</span>
+<span class="fc" id="L105">        } else {</span>
+<span class="fc" id="L106">            falseFirstTests(comp);</span>
+        }
+<span class="fc" id="L108">    }</span>
+
+    protected void trueFirstTests(BooleanComparator comp) {
+<span class="fc" id="L111">        assertNotNull(comp);</span>
+<span class="fc" id="L112">        assertEquals(0,comp.compare(Boolean.TRUE,Boolean.TRUE));</span>
+<span class="fc" id="L113">        assertEquals(0,comp.compare(Boolean.FALSE,Boolean.FALSE));</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        assertTrue(comp.compare(Boolean.FALSE,Boolean.TRUE) &gt; 0);</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        assertTrue(comp.compare(Boolean.TRUE,Boolean.FALSE) &lt; 0);</span>
+
+<span class="fc" id="L117">        assertEquals(0,comp.compare((Object)(Boolean.TRUE),(Object)(Boolean.TRUE)));</span>
+<span class="fc" id="L118">        assertEquals(0,comp.compare((Object)(Boolean.FALSE),(Object)(Boolean.FALSE)));</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        assertTrue(comp.compare((Object)(Boolean.FALSE),(Object)(Boolean.TRUE)) &gt; 0);</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        assertTrue(comp.compare((Object)(Boolean.TRUE),(Object)(Boolean.FALSE)) &lt; 0);</span>
+<span class="fc" id="L121">    }</span>
+
+    protected void falseFirstTests(BooleanComparator comp) {
+<span class="fc" id="L124">        assertNotNull(comp);</span>
+<span class="fc" id="L125">        assertEquals(0,comp.compare(Boolean.TRUE,Boolean.TRUE));</span>
+<span class="fc" id="L126">        assertEquals(0,comp.compare(Boolean.FALSE,Boolean.FALSE));</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">        assertTrue(comp.compare(Boolean.FALSE,Boolean.TRUE) &lt; 0);</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        assertTrue(comp.compare(Boolean.TRUE,Boolean.FALSE) &gt; 0);</span>
+
+<span class="fc" id="L130">        assertEquals(0,comp.compare((Object)(Boolean.TRUE),(Object)(Boolean.TRUE)));</span>
+<span class="fc" id="L131">        assertEquals(0,comp.compare((Object)(Boolean.FALSE),(Object)(Boolean.FALSE)));</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        assertTrue(comp.compare((Object)(Boolean.FALSE),(Object)(Boolean.TRUE)) &lt; 0);</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        assertTrue(comp.compare((Object)(Boolean.TRUE),(Object)(Boolean.FALSE)) &gt; 0);</span>
+<span class="fc" id="L134">    }</span>
+
+    protected void orderIndependentTests(BooleanComparator comp) {
+<span class="fc" id="L137">        nullArgumentTests(comp);</span>
+<span class="fc" id="L138">        nonBooleanArgumentTests(comp);</span>
+<span class="fc" id="L139">        nullAndNonBooleanArgumentsTests(comp);</span>
+<span class="fc" id="L140">    }</span>
+    
+    protected void nullArgumentTests(BooleanComparator comp) {
+<span class="fc" id="L143">        assertNotNull(comp);</span>
+        try {
+<span class="nc" id="L145">            comp.compare(null,null);</span>
+<span class="nc" id="L146">            fail(&quot;Expected NullPointerException&quot;);</span>
+<span class="pc" id="L147">        } catch(NullPointerException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L151">            comp.compare(Boolean.TRUE,null);</span>
+<span class="nc" id="L152">            fail(&quot;Expected NullPointerException&quot;);</span>
+<span class="pc" id="L153">        } catch(NullPointerException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L157">            comp.compare(Boolean.FALSE,null);</span>
+<span class="nc" id="L158">            fail(&quot;Expected NullPointerException&quot;);</span>
+<span class="pc" id="L159">        } catch(NullPointerException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L163">            comp.compare(null,Boolean.TRUE);</span>
+<span class="nc" id="L164">            fail(&quot;Expected NullPointerException&quot;);</span>
+<span class="pc" id="L165">        } catch(NullPointerException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L169">            comp.compare(null,Boolean.FALSE);</span>
+<span class="nc" id="L170">            fail(&quot;Expected NullPointerException&quot;);</span>
+<span class="pc" id="L171">        } catch(NullPointerException e) {</span>
+            // expected
+        }
+<span class="fc" id="L174">    }</span>
+    
+    protected void nonBooleanArgumentTests(BooleanComparator comp) {
+<span class="fc" id="L177">        assertNotNull(comp);</span>
+        try {
+<span class="nc" id="L179">            comp.compare(&quot;string&quot;,&quot;string&quot;);</span>
+<span class="nc" id="L180">            fail(&quot;Expected ClassCastException&quot;);</span>
+<span class="pc" id="L181">        } catch(ClassCastException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L185">            comp.compare(Boolean.TRUE,&quot;string&quot;);</span>
+<span class="nc" id="L186">            fail(&quot;Expected ClassCastException&quot;);</span>
+<span class="pc" id="L187">        } catch(ClassCastException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L191">            comp.compare(&quot;string&quot;,Boolean.TRUE);</span>
+<span class="nc" id="L192">            fail(&quot;Expected ClassCastException&quot;);</span>
+<span class="pc" id="L193">        } catch(ClassCastException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L197">            comp.compare(&quot;string&quot;,new Integer(3));</span>
+<span class="nc" id="L198">            fail(&quot;Expected ClassCastException&quot;);</span>
+<span class="pc" id="L199">        } catch(ClassCastException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L203">            comp.compare(new Integer(3),&quot;string&quot;);</span>
+<span class="nc" id="L204">            fail(&quot;Expected ClassCastException&quot;);</span>
+<span class="pc" id="L205">        } catch(ClassCastException e) {</span>
+            // expected
+        }
+<span class="fc" id="L208">    }</span>
+    
+    protected void nullAndNonBooleanArgumentsTests(BooleanComparator comp) {
+<span class="fc" id="L211">        assertNotNull(comp);</span>
+        try {
+<span class="nc" id="L213">            comp.compare(null,&quot;string&quot;);</span>
+<span class="nc" id="L214">            fail(&quot;Expected ClassCast or NullPointer Exception&quot;);</span>
+<span class="pc" id="L215">        } catch(ClassCastException e) {</span>
+            // expected
+<span class="nc" id="L217">        } catch(NullPointerException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L221">            comp.compare(&quot;string&quot;,null);</span>
+<span class="nc" id="L222">            fail(&quot;Expected ClassCast or NullPointer Exception&quot;);</span>
+<span class="pc" id="L223">        } catch(ClassCastException e) {</span>
+            // expected
+<span class="nc" id="L225">        } catch(NullPointerException e) {</span>
+            // expected
+        }
+<span class="fc" id="L228">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

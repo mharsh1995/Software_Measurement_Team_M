@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestSetUniqueList.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.list</a> &gt; <span class="el_source">TestSetUniqueList.java</span></div><h1>TestSetUniqueList.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.list;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
+/**
+ * JUnit tests.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Matthew Hawthorne
+ * @author Tom Dunham
+ */
+public class TestSetUniqueList extends AbstractTestList {
+
+    public static void main(String[] args) {
+<span class="nc" id="L42">        TestRunner.run(suite());</span>
+<span class="nc" id="L43">    }</span>
+
+    public static Test suite() {
+<span class="pc bfc" id="L46" title="All 2 branches covered.">        return new TestSuite(TestSetUniqueList.class);</span>
+    }
+
+    public TestSetUniqueList(String testName) {
+<span class="fc" id="L50">        super(testName);</span>
+<span class="fc" id="L51">    }</span>
+
+    //-----------------------------------------------------------------------
+    public List makeEmptyList() {
+<span class="fc" id="L55">        return new SetUniqueList(new ArrayList(), new HashSet());</span>
+    }
+
+    public void testListIteratorSet() {
+        // override to block
+<span class="fc" id="L60">        resetFull();</span>
+<span class="fc" id="L61">        ListIterator it = getList().listIterator();</span>
+<span class="fc" id="L62">        it.next();</span>
+        try {
+<span class="nc" id="L64">            it.set(null);</span>
+<span class="nc" id="L65">            fail();</span>
+<span class="pc" id="L66">        } catch (UnsupportedOperationException ex) {}</span>
+<span class="fc" id="L67">    }</span>
+    
+    public Object[] getFullNonNullElements() {
+        // override to avoid duplicate &quot;One&quot;
+<span class="fc" id="L71">        return new Object[] {</span>
+<span class="fc" id="L72">            new String(&quot;&quot;),</span>
+<span class="fc" id="L73">            new String(&quot;One&quot;),</span>
+<span class="fc" id="L74">            new Integer(2),</span>
+<span class="fc" id="L75">            &quot;Three&quot;,</span>
+<span class="fc" id="L76">            new Integer(4),</span>
+<span class="fc" id="L77">            new Double(5),</span>
+<span class="fc" id="L78">            new Float(6),</span>
+<span class="fc" id="L79">            &quot;Seven&quot;,</span>
+<span class="fc" id="L80">            &quot;Eight&quot;,</span>
+<span class="fc" id="L81">            new String(&quot;Nine&quot;),</span>
+<span class="fc" id="L82">            new Integer(10),</span>
+<span class="fc" id="L83">            new Short((short)11),</span>
+<span class="fc" id="L84">            new Long(12),</span>
+<span class="fc" id="L85">            &quot;Thirteen&quot;,</span>
+<span class="fc" id="L86">            &quot;14&quot;,</span>
+<span class="fc" id="L87">            &quot;15&quot;,</span>
+<span class="fc" id="L88">            new Byte((byte)16)</span>
+        };
+    }
+    
+    public void testListIteratorAdd() {
+        // override to cope with Set behaviour
+<span class="fc" id="L94">        resetEmpty();</span>
+<span class="fc" id="L95">        List list1 = getList();</span>
+<span class="fc" id="L96">        List list2 = getConfirmedList();</span>
+
+<span class="fc" id="L98">        Object[] elements = getOtherElements();  // changed here</span>
+<span class="fc" id="L99">        ListIterator iter1 = list1.listIterator();</span>
+<span class="fc" id="L100">        ListIterator iter2 = list2.listIterator();</span>
+
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        for (int i = 0; i &lt; elements.length; i++) {</span>
+<span class="fc" id="L103">            iter1.add(elements[i]);</span>
+<span class="fc" id="L104">            iter2.add(elements[i]);</span>
+<span class="fc" id="L105">            super.verify();  // changed here</span>
+        }
+
+<span class="fc" id="L108">        resetFull();</span>
+<span class="fc" id="L109">        iter1 = getList().listIterator();</span>
+<span class="fc" id="L110">        iter2 = getConfirmedList().listIterator();</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (int i = 0; i &lt; elements.length; i++) {</span>
+<span class="fc" id="L112">            iter1.next();</span>
+<span class="fc" id="L113">            iter2.next();</span>
+<span class="fc" id="L114">            iter1.add(elements[i]);</span>
+<span class="fc" id="L115">            iter2.add(elements[i]);</span>
+<span class="fc" id="L116">            super.verify();  // changed here</span>
+        }
+<span class="fc" id="L118">    }</span>
+    
+    public void testCollectionAddAll() {
+        // override for set behaviour
+<span class="fc" id="L122">        resetEmpty();</span>
+<span class="fc" id="L123">        Object[] elements = getFullElements();</span>
+<span class="fc" id="L124">        boolean r = collection.addAll(Arrays.asList(elements));</span>
+<span class="fc" id="L125">        confirmed.addAll(Arrays.asList(elements));</span>
+<span class="fc" id="L126">        verify();</span>
+<span class="fc" id="L127">        assertTrue(&quot;Empty collection should change after addAll&quot;, r);</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        for (int i = 0; i &lt; elements.length; i++) {</span>
+<span class="fc" id="L129">            assertTrue(&quot;Collection should contain added element&quot;,</span>
+<span class="fc" id="L130">                       collection.contains(elements[i]));</span>
+        }
+
+<span class="fc" id="L133">        resetFull();</span>
+<span class="fc" id="L134">        int size = collection.size();</span>
+<span class="fc" id="L135">        elements = getOtherElements();</span>
+<span class="fc" id="L136">        r = collection.addAll(Arrays.asList(elements));</span>
+<span class="fc" id="L137">        confirmed.addAll(Arrays.asList(elements));</span>
+<span class="fc" id="L138">        verify();</span>
+<span class="fc" id="L139">        assertTrue(&quot;Full collection should change after addAll&quot;, r);</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">        for (int i = 0; i &lt; elements.length; i++) {</span>
+<span class="fc" id="L141">            assertTrue(&quot;Full collection should contain added element &quot; + i,</span>
+<span class="fc" id="L142">                       collection.contains(elements[i]));</span>
+        }
+<span class="fc" id="L144">        assertEquals(&quot;Size should increase after addAll&quot;, </span>
+<span class="fc" id="L145">                     size + elements.length, collection.size());</span>
+<span class="fc" id="L146">    }</span>
+    
+    public void testListSetByIndex() {
+        // override for set behaviour
+<span class="fc" id="L150">        resetFull();</span>
+<span class="fc" id="L151">        int size = collection.size();</span>
+<span class="fc" id="L152">        getList().set(0, new Long(1000));</span>
+<span class="fc" id="L153">        assertEquals(size, collection.size());</span>
+
+<span class="fc" id="L155">        getList().set(2, new Long(1000));</span>
+<span class="fc" id="L156">        assertEquals(size - 1, collection.size());</span>
+<span class="fc" id="L157">        assertEquals(new Long(1000), getList().get(1));  // set into 2, but shifted down to 1</span>
+<span class="fc" id="L158">    }</span>
+    
+<span class="fc" id="L160">    boolean extraVerify = true;</span>
+    public void testCollectionIteratorRemove() {
+        try {
+<span class="fc" id="L163">            extraVerify = false;</span>
+<span class="fc" id="L164">            super.testCollectionIteratorRemove();</span>
+<span class="fc" id="L165">        } finally {</span>
+<span class="fc" id="L166">            extraVerify = true;</span>
+        }
+<span class="fc" id="L168">    }</span>
+    
+    public void verify() {
+<span class="fc" id="L171">        super.verify();</span>
+        
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        if (extraVerify) {</span>
+<span class="fc" id="L174">            int size = collection.size();</span>
+<span class="fc" id="L175">            getList().add(new Long(1000));</span>
+<span class="fc" id="L176">            assertEquals(size + 1, collection.size());</span>
+
+<span class="fc" id="L178">            getList().add(new Long(1000));</span>
+<span class="fc" id="L179">            assertEquals(size + 1, collection.size());</span>
+<span class="fc" id="L180">            assertEquals(new Long(1000), getList().get(size));</span>
+        
+<span class="fc" id="L182">            getList().remove(size);</span>
+        }
+<span class="fc" id="L184">    }</span>
+    
+    //-----------------------------------------------------------------------
+    public void testFactory() {
+<span class="fc" id="L188">        Integer[] array = new Integer[] {new Integer(1), new Integer(2), new Integer(1)};</span>
+<span class="fc" id="L189">        ArrayList list = new ArrayList(Arrays.asList(array));</span>
+<span class="fc" id="L190">        final SetUniqueList lset = SetUniqueList.decorate(list);</span>
+
+<span class="fc" id="L192">        assertEquals(&quot;Duplicate element was added.&quot;, 2, lset.size());</span>
+<span class="fc" id="L193">        assertEquals(new Integer(1), lset.get(0));</span>
+<span class="fc" id="L194">        assertEquals(new Integer(2), lset.get(1));</span>
+<span class="fc" id="L195">        assertEquals(new Integer(1), list.get(0));</span>
+<span class="fc" id="L196">        assertEquals(new Integer(2), list.get(1));</span>
+<span class="fc" id="L197">    }</span>
+
+    public void testAdd() {
+<span class="fc" id="L200">        final SetUniqueList lset = new SetUniqueList(new ArrayList(), new HashSet());</span>
+
+        // Duplicate element
+<span class="fc" id="L203">        final Object obj = new Integer(1);</span>
+<span class="fc" id="L204">        lset.add(obj);</span>
+<span class="fc" id="L205">        lset.add(obj);</span>
+<span class="fc" id="L206">        assertEquals(&quot;Duplicate element was added.&quot;, 1, lset.size());</span>
+
+        // Unique element
+<span class="fc" id="L209">        lset.add(new Integer(2));</span>
+<span class="fc" id="L210">        assertEquals(&quot;Unique element was not added.&quot;, 2, lset.size());</span>
+<span class="fc" id="L211">    }</span>
+
+    public void testAddAll() {
+<span class="fc" id="L214">        final SetUniqueList lset = new SetUniqueList(new ArrayList(), new HashSet());</span>
+
+<span class="fc" id="L216">        lset.addAll(</span>
+<span class="fc" id="L217">            Arrays.asList(new Integer[] { new Integer(1), new Integer(1)}));</span>
+
+<span class="fc" id="L219">        assertEquals(&quot;Duplicate element was added.&quot;, 1, lset.size());</span>
+<span class="fc" id="L220">    }</span>
+
+    public void testSet() {
+<span class="fc" id="L223">        final SetUniqueList lset = new SetUniqueList(new ArrayList(), new HashSet());</span>
+
+        // Duplicate element
+<span class="fc" id="L226">        final Object obj1 = new Integer(1);</span>
+<span class="fc" id="L227">        final Object obj2 = new Integer(2);</span>
+<span class="fc" id="L228">        final Object obj3 = new Integer(3);</span>
+
+<span class="fc" id="L230">        lset.add(obj1);</span>
+<span class="fc" id="L231">        lset.add(obj2);</span>
+<span class="fc" id="L232">        lset.set(0, obj1);</span>
+<span class="fc" id="L233">        assertEquals(2, lset.size());</span>
+<span class="fc" id="L234">        assertSame(obj1, lset.get(0));</span>
+<span class="fc" id="L235">        assertSame(obj2, lset.get(1));</span>
+
+<span class="fc" id="L237">        lset.clear();</span>
+<span class="fc" id="L238">        lset.add(obj1);</span>
+<span class="fc" id="L239">        lset.add(obj2);</span>
+<span class="fc" id="L240">        lset.set(0, obj2);</span>
+<span class="fc" id="L241">        assertEquals(1, lset.size());</span>
+<span class="fc" id="L242">        assertSame(obj2, lset.get(0));</span>
+
+<span class="fc" id="L244">        lset.clear();</span>
+<span class="fc" id="L245">        lset.add(obj1);</span>
+<span class="fc" id="L246">        lset.add(obj2);</span>
+<span class="fc" id="L247">        lset.set(0, obj3);</span>
+<span class="fc" id="L248">        assertEquals(2, lset.size());</span>
+<span class="fc" id="L249">        assertSame(obj3, lset.get(0));</span>
+<span class="fc" id="L250">        assertSame(obj2, lset.get(1));</span>
+
+<span class="fc" id="L252">        lset.clear();</span>
+<span class="fc" id="L253">        lset.add(obj1);</span>
+<span class="fc" id="L254">        lset.add(obj2);</span>
+<span class="fc" id="L255">        lset.set(1, obj1);</span>
+<span class="fc" id="L256">        assertEquals(1, lset.size());</span>
+<span class="fc" id="L257">        assertSame(obj1, lset.get(0));</span>
+<span class="fc" id="L258">    }</span>
+
+    public void testListIterator() {
+<span class="fc" id="L261">        final SetUniqueList lset = new SetUniqueList(new ArrayList(), new HashSet());</span>
+
+<span class="fc" id="L263">        final Object obj1 = new Integer(1);</span>
+<span class="fc" id="L264">        final Object obj2 = new Integer(2);</span>
+<span class="fc" id="L265">        lset.add(obj1);</span>
+<span class="fc" id="L266">        lset.add(obj2);</span>
+
+        // Attempts to add a duplicate object
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">        for (final ListIterator it = lset.listIterator(); it.hasNext();) {</span>
+<span class="fc" id="L270">            it.next();</span>
+
+<span class="fc bfc" id="L272" title="All 2 branches covered.">            if (!it.hasNext()) {</span>
+<span class="fc" id="L273">                it.add(obj1);</span>
+<span class="fc" id="L274">                break;</span>
+            }
+        }
+
+<span class="fc" id="L278">        assertEquals(&quot;Duplicate element was added&quot;, 2, lset.size());</span>
+<span class="fc" id="L279">    }</span>
+
+    public void testUniqueListReInsert() {
+<span class="fc" id="L282">        List l = SetUniqueList.decorate(new LinkedList());</span>
+<span class="fc" id="L283">        l.add(new Object());</span>
+<span class="fc" id="L284">        l.add(new Object());</span>
+        
+<span class="fc" id="L286">        Object a = l.get(0);</span>
+        
+        // duplicate is removed
+<span class="fc" id="L289">        l.set(0, l.get(1)); </span>
+<span class="fc" id="L290">        assertEquals(1, l.size());</span>
+        
+        // old object is added back in 
+<span class="fc" id="L293">        l.add(1, a); </span>
+<span class="fc" id="L294">        assertEquals(2, l.size());</span>
+<span class="fc" id="L295">    }</span>
+    
+    public void testUniqueListDoubleInsert() {
+<span class="fc" id="L298">        List l = SetUniqueList.decorate(new LinkedList());</span>
+<span class="fc" id="L299">        l.add(new Object());</span>
+<span class="fc" id="L300">        l.add(new Object());</span>
+        
+        // duplicate is removed
+<span class="fc" id="L303">        l.set(0, l.get(1)); </span>
+<span class="fc" id="L304">        assertEquals(1, l.size());</span>
+        
+        // duplicate should be removed again
+<span class="fc" id="L307">        l.add(1, l.get(0));</span>
+<span class="fc" id="L308">        assertEquals(1, l.size());</span>
+<span class="fc" id="L309">    }</span>
+
+    public void testSetDownwardsInList() {
+        /*
+         * Checks the following semantics
+         * [a,b]
+         * set(0,b): [b]-&gt;a
+         * So UniqList contains [b] and a is returned
+         */
+<span class="fc" id="L318">        ArrayList l = new ArrayList();</span>
+<span class="fc" id="L319">        HashSet s = new HashSet();</span>
+<span class="fc" id="L320">        final SetUniqueList ul = new SetUniqueList(l, s);</span>
+
+<span class="fc" id="L322">        Object a = new Object();</span>
+<span class="fc" id="L323">        Object b = new Object();</span>
+<span class="fc" id="L324">        ul.add(a);</span>
+<span class="fc" id="L325">        ul.add(b);</span>
+<span class="fc" id="L326">        assertEquals(a, l.get(0));</span>
+<span class="fc" id="L327">        assertEquals(b, l.get(1));</span>
+<span class="fc" id="L328">        assertTrue(s.contains(a)); </span>
+<span class="fc" id="L329">        assertTrue(s.contains(b));</span>
+        
+<span class="fc" id="L331">        assertEquals(a, ul.set(0, b));</span>
+<span class="fc" id="L332">        assertEquals(1, s.size());</span>
+<span class="fc" id="L333">        assertEquals(1, l.size());</span>
+<span class="fc" id="L334">        assertEquals(b, l.get(0));</span>
+<span class="fc" id="L335">        assertTrue(s.contains(b));</span>
+<span class="fc" id="L336">        assertFalse(s.contains(a));</span>
+<span class="fc" id="L337">    }</span>
+
+    public void testSetInBiggerList() {
+        /*
+         * Checks the following semantics
+         * [a,b,c]
+         * set(0,b): [b,c]-&gt;a
+         * So UniqList contains [b,c] and a is returned
+         */
+<span class="fc" id="L346">        ArrayList l = new ArrayList();</span>
+<span class="fc" id="L347">        HashSet s = new HashSet();</span>
+<span class="fc" id="L348">        final SetUniqueList ul = new SetUniqueList(l, s);</span>
+
+<span class="fc" id="L350">        Object a = new Object();</span>
+<span class="fc" id="L351">        Object b = new Object();</span>
+<span class="fc" id="L352">        Object c = new Object();</span>
+
+<span class="fc" id="L354">        ul.add(a);</span>
+<span class="fc" id="L355">        ul.add(b);</span>
+<span class="fc" id="L356">        ul.add(c);</span>
+<span class="fc" id="L357">        assertEquals(a, l.get(0));</span>
+<span class="fc" id="L358">        assertEquals(b, l.get(1));</span>
+<span class="fc" id="L359">        assertEquals(c, l.get(2));</span>
+<span class="fc" id="L360">        assertTrue(s.contains(a)); </span>
+<span class="fc" id="L361">        assertTrue(s.contains(b));</span>
+<span class="fc" id="L362">        assertTrue(s.contains(c));</span>
+        
+<span class="fc" id="L364">        assertEquals(a, ul.set(0, b));</span>
+<span class="fc" id="L365">        assertEquals(2, s.size());</span>
+<span class="fc" id="L366">        assertEquals(2, l.size());</span>
+<span class="fc" id="L367">        assertEquals(b, l.get(0));</span>
+<span class="fc" id="L368">        assertEquals(c, l.get(1));</span>
+<span class="fc" id="L369">        assertFalse(s.contains(a));</span>
+<span class="fc" id="L370">        assertTrue(s.contains(b));</span>
+<span class="fc" id="L371">        assertTrue(s.contains(c));</span>
+<span class="fc" id="L372">    }    </span>
+
+    public void testSetUpwardsInList() {
+        /*
+         * Checks the following semantics
+         * [a,b,c]
+         * set(1,a): [a,c]-&gt;b
+         * So UniqList contains [a,c] and b is returned
+         */
+<span class="fc" id="L381">        ArrayList l = new ArrayList();</span>
+<span class="fc" id="L382">        HashSet s = new HashSet();</span>
+<span class="fc" id="L383">        final SetUniqueList ul = new SetUniqueList(l, s);</span>
+
+<span class="fc" id="L385">        Object a = new String(&quot;A&quot;);</span>
+<span class="fc" id="L386">        Object b = new String(&quot;B&quot;);</span>
+<span class="fc" id="L387">        Object c = new String(&quot;C&quot;);</span>
+
+<span class="fc" id="L389">        ul.add(a);</span>
+<span class="fc" id="L390">        ul.add(b);</span>
+<span class="fc" id="L391">        ul.add(c);</span>
+<span class="fc" id="L392">        assertEquals(a, l.get(0));</span>
+<span class="fc" id="L393">        assertEquals(b, l.get(1));</span>
+<span class="fc" id="L394">        assertEquals(c, l.get(2));</span>
+<span class="fc" id="L395">        assertTrue(s.contains(a)); </span>
+<span class="fc" id="L396">        assertTrue(s.contains(b));</span>
+<span class="fc" id="L397">        assertTrue(s.contains(c));</span>
+        
+<span class="fc" id="L399">        assertEquals(b, ul.set(1, a));</span>
+<span class="fc" id="L400">        assertEquals(2, s.size());</span>
+<span class="fc" id="L401">        assertEquals(2, l.size());</span>
+<span class="fc" id="L402">        assertEquals(a, l.get(0));</span>
+<span class="fc" id="L403">        assertEquals(c, l.get(1));</span>
+<span class="fc" id="L404">        assertTrue(s.contains(a));</span>
+<span class="fc" id="L405">        assertFalse(s.contains(b));</span>
+<span class="fc" id="L406">        assertTrue(s.contains(c));</span>
+<span class="fc" id="L407">    }</span>
+
+    //-----------------------------------------------------------------------
+    public String getCompatibilityVersion() {
+<span class="fc" id="L411">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/SetUniqueList.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/SetUniqueList.fullCollection.version3.1.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

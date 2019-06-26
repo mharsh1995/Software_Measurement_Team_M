@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UnmodifiableMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">UnmodifiableMap.java</span></div><h1>UnmodifiableMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.collections.IterableMap;
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.Unmodifiable;
+import org.apache.commons.collections.collection.UnmodifiableCollection;
+import org.apache.commons.collections.iterators.EntrySetMapIterator;
+import org.apache.commons.collections.iterators.UnmodifiableMapIterator;
+import org.apache.commons.collections.set.UnmodifiableSet;
+
+/**
+ * Decorates another &lt;code&gt;Map&lt;/code&gt; to ensure it can't be altered.
+ * &lt;p&gt;
+ * This class is Serializable from Commons Collections 3.1.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public final class UnmodifiableMap
+        extends AbstractMapDecorator
+        implements IterableMap, Unmodifiable, Serializable {
+
+    /** Serialization version */
+    private static final long serialVersionUID = 2737023427269031941L;
+
+    /**
+     * Factory method to create an unmodifiable map.
+     * 
+     * @param map  the map to decorate, must not be null
+     * @throws IllegalArgumentException if map is null
+     */
+    public static Map decorate(Map map) {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (map instanceof Unmodifiable) {</span>
+<span class="fc" id="L60">            return map;</span>
+        }
+<span class="fc" id="L62">        return new UnmodifiableMap(map);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Constructor that wraps (not copies).
+     * 
+     * @param map  the map to decorate, must not be null
+     * @throws IllegalArgumentException if map is null
+     */
+    private UnmodifiableMap(Map map) {
+<span class="fc" id="L73">        super(map);</span>
+<span class="fc" id="L74">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Write the map out using a custom routine.
+     * 
+     * @param out  the output stream
+     * @throws IOException
+     * @since Commons Collections 3.1
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+<span class="fc" id="L85">        out.defaultWriteObject();</span>
+<span class="fc" id="L86">        out.writeObject(map);</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * Read the map in using a custom routine.
+     * 
+     * @param in  the input stream
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @since Commons Collections 3.1
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L98">        in.defaultReadObject();</span>
+<span class="fc" id="L99">        map = (Map) in.readObject();</span>
+<span class="fc" id="L100">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void clear() {
+<span class="fc" id="L104">        throw new UnsupportedOperationException();</span>
+    }
+
+    public Object put(Object key, Object value) {
+<span class="fc" id="L108">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void putAll(Map mapToCopy) {
+<span class="fc" id="L112">        throw new UnsupportedOperationException();</span>
+    }
+
+    public Object remove(Object key) {
+<span class="fc" id="L116">        throw new UnsupportedOperationException();</span>
+    }
+
+    public MapIterator mapIterator() {
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (map instanceof IterableMap) {</span>
+<span class="nc" id="L121">            MapIterator it = ((IterableMap) map).mapIterator();</span>
+<span class="nc" id="L122">            return UnmodifiableMapIterator.decorate(it);</span>
+        } else {
+<span class="nc" id="L124">            MapIterator it = new EntrySetMapIterator(map);</span>
+<span class="nc" id="L125">            return UnmodifiableMapIterator.decorate(it);</span>
+        }
+    }
+
+    public Set entrySet() {
+<span class="fc" id="L130">        Set set = super.entrySet();</span>
+<span class="fc" id="L131">        return UnmodifiableEntrySet.decorate(set);</span>
+    }
+
+    public Set keySet() {
+<span class="fc" id="L135">        Set set = super.keySet();</span>
+<span class="fc" id="L136">        return UnmodifiableSet.decorate(set);</span>
+    }
+
+    public Collection values() {
+<span class="fc" id="L140">        Collection coll = super.values();</span>
+<span class="fc" id="L141">        return UnmodifiableCollection.decorate(coll);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

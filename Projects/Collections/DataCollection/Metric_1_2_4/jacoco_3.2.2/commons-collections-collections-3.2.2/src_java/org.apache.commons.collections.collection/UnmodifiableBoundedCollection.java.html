@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UnmodifiableBoundedCollection.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.collection</a> &gt; <span class="el_source">UnmodifiableBoundedCollection.java</span></div><h1>UnmodifiableBoundedCollection.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.collection;
+
+import java.util.Collection;
+import java.util.Iterator;
+
+import org.apache.commons.collections.BoundedCollection;
+import org.apache.commons.collections.iterators.UnmodifiableIterator;
+
+/**
+ * &lt;code&gt;UnmodifiableBoundedCollection&lt;/code&gt; decorates another 
+ * &lt;code&gt;BoundedCollection&lt;/code&gt; to ensure it can't be altered.
+ * &lt;p&gt;
+ * If a BoundedCollection is first wrapped in some other collection decorator,
+ * such as synchronized or predicated, the BoundedCollection methods are no 
+ * longer accessible.
+ * The factory on this class will attempt to retrieve the bounded nature by
+ * examining the package scope variables.
+ * &lt;p&gt;
+ * This class is Serializable from Commons Collections 3.1.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Stephen Colebourne
+ */
+public final class UnmodifiableBoundedCollection
+        extends AbstractSerializableCollectionDecorator
+        implements BoundedCollection {
+
+    /** Serialization version */
+    private static final long serialVersionUID = -7112672385450340330L;
+
+    /**
+     * Factory method to create an unmodifiable bounded collection.
+     * 
+     * @param coll  the &lt;code&gt;BoundedCollection&lt;/code&gt; to decorate, must not be null
+     * @return a new unmodifiable bounded collection
+     * @throws IllegalArgumentException if bag is null
+     */
+    public static BoundedCollection decorate(BoundedCollection coll) {
+<span class="nc" id="L57">        return new UnmodifiableBoundedCollection(coll);</span>
+    }
+    
+    /**
+     * Factory method to create an unmodifiable bounded collection.
+     * &lt;p&gt;
+     * This method is capable of drilling down through up to 1000 other decorators 
+     * to find a suitable BoundedCollection.
+     * 
+     * @param coll  the &lt;code&gt;BoundedCollection&lt;/code&gt; to decorate, must not be null
+     * @return a new unmodifiable bounded collection
+     * @throws IllegalArgumentException if bag is null
+     */
+    public static BoundedCollection decorateUsing(Collection coll) {
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (coll == null) {</span>
+<span class="nc" id="L72">            throw new IllegalArgumentException(&quot;The collection must not be null&quot;);</span>
+        }
+        
+        // handle decorators
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        for (int i = 0; i &lt; 1000; i++) {  // counter to prevent infinite looping</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            if (coll instanceof BoundedCollection) {</span>
+<span class="fc" id="L78">                break;  // normal loop exit</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">            } else if (coll instanceof AbstractCollectionDecorator) {</span>
+<span class="nc" id="L80">                coll = ((AbstractCollectionDecorator) coll).collection;</span>
+<span class="pc bfc" id="L81" title="All 2 branches covered.">            } else if (coll instanceof SynchronizedCollection) {</span>
+<span class="fc" id="L82">                coll = ((SynchronizedCollection) coll).collection;</span>
+            } else {
+                break;  // normal loop exit
+            }
+        }
+            
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (coll instanceof BoundedCollection == false) {</span>
+<span class="fc" id="L89">            throw new IllegalArgumentException(&quot;The collection is not a bounded collection&quot;);</span>
+        }
+<span class="fc" id="L91">        return new UnmodifiableBoundedCollection((BoundedCollection) coll);</span>
+    }    
+    
+    /**
+     * Constructor that wraps (not copies).
+     * 
+     * @param coll  the collection to decorate, must not be null
+     * @throws IllegalArgumentException if coll is null
+     */
+    private UnmodifiableBoundedCollection(BoundedCollection coll) {
+<span class="fc" id="L101">        super(coll);</span>
+<span class="fc" id="L102">    }</span>
+
+    //-----------------------------------------------------------------------
+    public Iterator iterator() {
+<span class="nc" id="L106">        return UnmodifiableIterator.decorate(getCollection().iterator());</span>
+    }
+
+    public boolean add(Object object) {
+<span class="nc" id="L110">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean addAll(Collection coll) {
+<span class="nc" id="L114">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void clear() {
+<span class="nc" id="L118">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean remove(Object object) {
+<span class="nc" id="L122">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean removeAll(Collection coll) {
+<span class="nc" id="L126">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean retainAll(Collection coll) {
+<span class="nc" id="L130">        throw new UnsupportedOperationException();</span>
+    }
+
+    //-----------------------------------------------------------------------    
+    public boolean isFull() {
+<span class="fc" id="L135">        return ((BoundedCollection) collection).isFull();</span>
+    }
+
+    public int maxSize() {
+<span class="fc" id="L139">        return ((BoundedCollection) collection).maxSize();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

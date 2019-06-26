@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>PredicateUtilsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4</a> &gt; <span class="el_source">PredicateUtilsTest.java</span></div><h1>PredicateUtilsTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4;
+
+import static org.apache.commons.collections4.functors.NullPredicate.nullPredicate;
+import static org.apache.commons.collections4.functors.TruePredicate.truePredicate;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections4.functors.AbstractPredicateTest;
+import org.apache.commons.collections4.functors.AllPredicate;
+import org.apache.commons.collections4.functors.EqualPredicate;
+import org.apache.commons.collections4.functors.ExceptionPredicate;
+import org.apache.commons.collections4.functors.FalsePredicate;
+import org.apache.commons.collections4.functors.NotNullPredicate;
+import org.apache.commons.collections4.functors.NullPredicate;
+import org.apache.commons.collections4.functors.TruePredicate;
+import org.junit.Test;
+
+/**
+ * Tests the PredicateUtils class.
+ *
+ * @since 3.0
+ * @version $Id$
+ */
+@SuppressWarnings(&quot;boxing&quot;)
+<span class="fc" id="L50">public class PredicateUtilsTest extends AbstractPredicateTest {</span>
+    /**
+     * Set up instance variables required by this test case.
+     */
+    public void setUp() {
+<span class="nc" id="L55">    }</span>
+
+    /**
+     * Tear down instance variables required by this test case.
+     */
+    public void tearDown() {
+<span class="nc" id="L61">    }</span>
+
+    // exceptionPredicate
+    //------------------------------------------------------------------
+
+    @Test public void testExceptionPredicate() {
+<span class="fc" id="L67">        assertNotNull(PredicateUtils.exceptionPredicate());</span>
+<span class="fc" id="L68">        assertSame(PredicateUtils.exceptionPredicate(), PredicateUtils.exceptionPredicate());</span>
+        try {
+<span class="nc" id="L70">            PredicateUtils.exceptionPredicate().evaluate(null);</span>
+<span class="pc" id="L71">        } catch (final FunctorException ex) {</span>
+            try {
+<span class="nc" id="L73">                PredicateUtils.exceptionPredicate().evaluate(cString);</span>
+<span class="pc" id="L74">            } catch (final FunctorException ex2) {</span>
+<span class="fc" id="L75">                return;</span>
+            }
+        }
+<span class="nc" id="L78">        fail();</span>
+<span class="nc" id="L79">    }</span>
+
+    // notNullPredicate
+    //------------------------------------------------------------------
+
+    @Test public void testIsNotNullPredicate() {
+<span class="fc" id="L85">        assertNotNull(PredicateUtils.notNullPredicate());</span>
+<span class="fc" id="L86">        assertSame(PredicateUtils.notNullPredicate(), PredicateUtils.notNullPredicate());</span>
+<span class="fc" id="L87">        assertEquals(false, PredicateUtils.notNullPredicate().evaluate(null));</span>
+<span class="fc" id="L88">        assertEquals(true, PredicateUtils.notNullPredicate().evaluate(cObject));</span>
+<span class="fc" id="L89">        assertEquals(true, PredicateUtils.notNullPredicate().evaluate(cString));</span>
+<span class="fc" id="L90">        assertEquals(true, PredicateUtils.notNullPredicate().evaluate(cInteger));</span>
+<span class="fc" id="L91">    }</span>
+
+    // identityPredicate
+    //------------------------------------------------------------------
+
+    @Test public void testIdentityPredicate() {
+<span class="fc" id="L97">        assertSame(nullPredicate(), PredicateUtils.identityPredicate(null));</span>
+<span class="fc" id="L98">        assertNotNull(PredicateUtils.identityPredicate(Integer.valueOf(6)));</span>
+<span class="fc" id="L99">        assertEquals(false, PredicateUtils.identityPredicate(Integer.valueOf(6)).evaluate(null));</span>
+<span class="fc" id="L100">        assertEquals(false, PredicateUtils.&lt;Object&gt;identityPredicate(Integer.valueOf(6)).evaluate(cObject));</span>
+<span class="fc" id="L101">        assertEquals(false, PredicateUtils.&lt;Object&gt;identityPredicate(Integer.valueOf(6)).evaluate(cString));</span>
+<span class="fc" id="L102">        assertEquals(false, PredicateUtils.identityPredicate(new Integer(6)).evaluate(cInteger)); // Cannot use valueOf here</span>
+<span class="fc" id="L103">        assertEquals(true, PredicateUtils.identityPredicate(cInteger).evaluate(cInteger));</span>
+<span class="fc" id="L104">    }</span>
+
+    // truePredicate
+    //------------------------------------------------------------------
+
+    @Test public void testTruePredicate() {
+<span class="fc" id="L110">        assertNotNull(TruePredicate.truePredicate());</span>
+<span class="fc" id="L111">        assertSame(TruePredicate.truePredicate(), TruePredicate.truePredicate());</span>
+<span class="fc" id="L112">        assertEquals(true, TruePredicate.truePredicate().evaluate(null));</span>
+<span class="fc" id="L113">        assertEquals(true, TruePredicate.truePredicate().evaluate(cObject));</span>
+<span class="fc" id="L114">        assertEquals(true, TruePredicate.truePredicate().evaluate(cString));</span>
+<span class="fc" id="L115">        assertEquals(true, TruePredicate.truePredicate().evaluate(cInteger));</span>
+<span class="fc" id="L116">    }</span>
+
+    // falsePredicate
+    //------------------------------------------------------------------
+
+    @Test public void testFalsePredicate() {
+<span class="fc" id="L122">        assertNotNull(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L123">        assertSame(FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L124">        assertEquals(false, FalsePredicate.falsePredicate().evaluate(null));</span>
+<span class="fc" id="L125">        assertEquals(false, FalsePredicate.falsePredicate().evaluate(cObject));</span>
+<span class="fc" id="L126">        assertEquals(false, FalsePredicate.falsePredicate().evaluate(cString));</span>
+<span class="fc" id="L127">        assertEquals(false, FalsePredicate.falsePredicate().evaluate(cInteger));</span>
+<span class="fc" id="L128">    }</span>
+
+    // notPredicate
+    //------------------------------------------------------------------
+
+    @Test public void testNotPredicate() {
+<span class="fc" id="L134">        assertNotNull(PredicateUtils.notPredicate(TruePredicate.truePredicate()));</span>
+<span class="fc" id="L135">        assertEquals(false, PredicateUtils.notPredicate(TruePredicate.truePredicate()).evaluate(null));</span>
+<span class="fc" id="L136">        assertEquals(false, PredicateUtils.notPredicate(TruePredicate.truePredicate()).evaluate(cObject));</span>
+<span class="fc" id="L137">        assertEquals(false, PredicateUtils.notPredicate(TruePredicate.truePredicate()).evaluate(cString));</span>
+<span class="fc" id="L138">        assertEquals(false, PredicateUtils.notPredicate(TruePredicate.truePredicate()).evaluate(cInteger));</span>
+<span class="fc" id="L139">    }</span>
+
+    @Test(expected=IllegalArgumentException.class) 
+    public void testNotPredicateEx() {
+<span class="nc" id="L143">        PredicateUtils.notPredicate(null);</span>
+<span class="nc" id="L144">    }</span>
+
+    // andPredicate
+    //------------------------------------------------------------------
+
+    @Test public void testAndPredicate() {
+<span class="fc" id="L150">        assertEquals(true, PredicateUtils.andPredicate(TruePredicate.truePredicate(), TruePredicate.truePredicate()).evaluate(null));</span>
+<span class="fc" id="L151">        assertEquals(false, PredicateUtils.andPredicate(TruePredicate.truePredicate(), FalsePredicate.falsePredicate()).evaluate(null));</span>
+<span class="fc" id="L152">        assertEquals(false, PredicateUtils.andPredicate(FalsePredicate.falsePredicate(), TruePredicate.truePredicate()).evaluate(null));</span>
+<span class="fc" id="L153">        assertEquals(false, PredicateUtils.andPredicate(FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate()).evaluate(null));</span>
+<span class="fc" id="L154">    }</span>
+
+    @Test(expected=IllegalArgumentException.class) 
+    public void testAndPredicateEx() {
+<span class="nc" id="L158">        PredicateUtils.andPredicate(null, null);</span>
+<span class="nc" id="L159">    }</span>
+
+    // allPredicate
+    //------------------------------------------------------------------
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test public void testAllPredicate() {
+<span class="fc" id="L166">        assertTrue(AllPredicate.allPredicate(new Predicate[] {}), null);</span>
+<span class="fc" id="L167">        assertEquals(true, AllPredicate.allPredicate(new Predicate[] {</span>
+<span class="fc" id="L168">                TruePredicate.truePredicate(), TruePredicate.truePredicate(), TruePredicate.truePredicate()}).evaluate(null));</span>
+<span class="fc" id="L169">        assertEquals(false, AllPredicate.allPredicate(new Predicate[] {</span>
+<span class="fc" id="L170">                TruePredicate.truePredicate(), FalsePredicate.falsePredicate(), TruePredicate.truePredicate()}).evaluate(null));</span>
+<span class="fc" id="L171">        assertEquals(false, AllPredicate.allPredicate(new Predicate[] {</span>
+<span class="fc" id="L172">                FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate(), TruePredicate.truePredicate()}).evaluate(null));</span>
+<span class="fc" id="L173">        assertEquals(false, AllPredicate.allPredicate(new Predicate[] {</span>
+<span class="fc" id="L174">                FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate()}).evaluate(null));</span>
+<span class="fc" id="L175">        final Collection&lt;Predicate&lt;Object&gt;&gt; coll = new ArrayList&lt;Predicate&lt;Object&gt;&gt;();</span>
+<span class="fc" id="L176">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L177">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L178">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L179">        assertEquals(true, AllPredicate.allPredicate(coll).evaluate(null));</span>
+<span class="fc" id="L180">        coll.clear();</span>
+<span class="fc" id="L181">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L182">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L183">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L184">        assertEquals(false, AllPredicate.allPredicate(coll).evaluate(null));</span>
+<span class="fc" id="L185">        coll.clear();</span>
+<span class="fc" id="L186">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L187">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L188">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L189">        assertEquals(false, AllPredicate.allPredicate(coll).evaluate(null));</span>
+<span class="fc" id="L190">        coll.clear();</span>
+<span class="fc" id="L191">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L192">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L193">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L194">        assertEquals(false, AllPredicate.allPredicate(coll).evaluate(null));</span>
+<span class="fc" id="L195">        coll.clear();</span>
+<span class="fc" id="L196">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L197">        assertFalse(AllPredicate.allPredicate(coll), null);</span>
+<span class="fc" id="L198">        coll.clear();</span>
+<span class="fc" id="L199">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L200">        assertTrue(AllPredicate.allPredicate(coll), null);</span>
+<span class="fc" id="L201">        coll.clear();</span>
+<span class="fc" id="L202">        assertTrue(AllPredicate.allPredicate(coll), null);</span>
+<span class="fc" id="L203">    }</span>
+
+    @Test(expected=IllegalArgumentException.class) 
+    public void testAllPredicateEx1() {
+<span class="nc" id="L207">        AllPredicate.allPredicate((Predicate&lt;Object&gt;[]) null);</span>
+<span class="nc" id="L208">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test(expected=IllegalArgumentException.class) 
+    public void testAllPredicateEx2() {
+<span class="nc" id="L213">        AllPredicate.&lt;Object&gt;allPredicate(new Predicate[] { null });</span>
+<span class="nc" id="L214">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test(expected=IllegalArgumentException.class) 
+    public void testAllPredicateEx3() {
+<span class="nc" id="L219">        AllPredicate.allPredicate(new Predicate[] { null, null });</span>
+<span class="nc" id="L220">    }</span>
+
+    @Test(expected=IllegalArgumentException.class) 
+    public void testAllPredicateEx4() {
+<span class="nc" id="L224">        AllPredicate.allPredicate((Collection&lt;Predicate&lt;Object&gt;&gt;) null);</span>
+<span class="nc" id="L225">    }</span>
+
+    @Test public void testAllPredicateEx5() {
+<span class="fc" id="L228">        AllPredicate.allPredicate(Collections.&lt;Predicate&lt;Object&gt;&gt;emptyList());</span>
+<span class="fc" id="L229">    }</span>
+
+    @Test(expected=IllegalArgumentException.class) 
+    public void testAllPredicateEx6() {
+<span class="fc" id="L233">        final Collection&lt;Predicate&lt;Object&gt;&gt; coll = new ArrayList&lt;Predicate&lt;Object&gt;&gt;();</span>
+<span class="fc" id="L234">        coll.add(null);</span>
+<span class="fc" id="L235">        coll.add(null);</span>
+<span class="nc" id="L236">        AllPredicate.allPredicate(coll);</span>
+<span class="nc" id="L237">    }</span>
+
+    // orPredicate
+    //------------------------------------------------------------------
+
+    @Test public void testOrPredicate() {
+<span class="fc" id="L243">        assertEquals(true, PredicateUtils.orPredicate(TruePredicate.truePredicate(), TruePredicate.truePredicate()).evaluate(null));</span>
+<span class="fc" id="L244">        assertEquals(true, PredicateUtils.orPredicate(TruePredicate.truePredicate(), FalsePredicate.falsePredicate()).evaluate(null));</span>
+<span class="fc" id="L245">        assertEquals(true, PredicateUtils.orPredicate(FalsePredicate.falsePredicate(), TruePredicate.truePredicate()).evaluate(null));</span>
+<span class="fc" id="L246">        assertEquals(false, PredicateUtils.orPredicate(FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate()).evaluate(null));</span>
+<span class="fc" id="L247">    }</span>
+
+    @Test(expected=IllegalArgumentException.class) 
+    public void testOrPredicateEx() {
+<span class="nc" id="L251">        PredicateUtils.orPredicate(null, null);</span>
+<span class="nc" id="L252">    }</span>
+
+    // anyPredicate
+    //------------------------------------------------------------------
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test public void testAnyPredicate() {
+<span class="fc" id="L259">        assertFalse(PredicateUtils.anyPredicate(new Predicate[] {}), null);</span>
+
+<span class="fc" id="L261">        assertEquals(true, PredicateUtils.anyPredicate(new Predicate[] {</span>
+<span class="fc" id="L262">                TruePredicate.truePredicate(), TruePredicate.truePredicate(), TruePredicate.truePredicate()}).evaluate(null));</span>
+<span class="fc" id="L263">        assertEquals(true, PredicateUtils.anyPredicate(new Predicate[] {</span>
+<span class="fc" id="L264">                TruePredicate.truePredicate(), FalsePredicate.falsePredicate(), TruePredicate.truePredicate()}).evaluate(null));</span>
+<span class="fc" id="L265">        assertEquals(true, PredicateUtils.anyPredicate(new Predicate[] {</span>
+<span class="fc" id="L266">                FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate(), TruePredicate.truePredicate()}).evaluate(null));</span>
+<span class="fc" id="L267">        assertEquals(false, PredicateUtils.anyPredicate(new Predicate[] {</span>
+<span class="fc" id="L268">                FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate()}).evaluate(null));</span>
+<span class="fc" id="L269">        final Collection&lt;Predicate&lt;Object&gt;&gt; coll = new ArrayList&lt;Predicate&lt;Object&gt;&gt;();</span>
+<span class="fc" id="L270">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L271">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L272">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L273">        assertEquals(true, PredicateUtils.anyPredicate(coll).evaluate(null));</span>
+<span class="fc" id="L274">        coll.clear();</span>
+<span class="fc" id="L275">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L276">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L277">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L278">        assertEquals(true, PredicateUtils.anyPredicate(coll).evaluate(null));</span>
+<span class="fc" id="L279">        coll.clear();</span>
+<span class="fc" id="L280">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L281">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L282">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L283">        assertEquals(true, PredicateUtils.anyPredicate(coll).evaluate(null));</span>
+<span class="fc" id="L284">        coll.clear();</span>
+<span class="fc" id="L285">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L286">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L287">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L288">        assertEquals(false, PredicateUtils.anyPredicate(coll).evaluate(null));</span>
+<span class="fc" id="L289">        coll.clear();</span>
+<span class="fc" id="L290">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L291">        assertFalse(PredicateUtils.anyPredicate(coll), null);</span>
+<span class="fc" id="L292">        coll.clear();</span>
+<span class="fc" id="L293">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L294">        assertTrue(PredicateUtils.anyPredicate(coll), null);</span>
+<span class="fc" id="L295">        coll.clear();</span>
+<span class="fc" id="L296">        assertFalse(PredicateUtils.anyPredicate(coll), null);</span>
+<span class="fc" id="L297">    }</span>
+
+    @Test(expected=IllegalArgumentException.class) 
+    public void testAnyPredicateEx1() {
+<span class="nc" id="L301">        PredicateUtils.anyPredicate((Predicate&lt;Object&gt;[]) null);</span>
+<span class="nc" id="L302">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test(expected=IllegalArgumentException.class) 
+    public void testAnyPredicateEx2() {
+<span class="nc" id="L307">        PredicateUtils.anyPredicate(new Predicate[] {null});</span>
+<span class="nc" id="L308">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test(expected=IllegalArgumentException.class) 
+    public void testAnyPredicateEx3() {
+<span class="nc" id="L313">        PredicateUtils.anyPredicate(new Predicate[] {null, null});</span>
+<span class="nc" id="L314">    }</span>
+
+    @Test(expected=IllegalArgumentException.class) 
+    public void testAnyPredicateEx4() {
+<span class="nc" id="L318">        PredicateUtils.anyPredicate((Collection&lt;Predicate&lt;Object&gt;&gt;) null);</span>
+<span class="nc" id="L319">    }</span>
+
+    @Test public void testAnyPredicateEx5() {
+<span class="fc" id="L322">        PredicateUtils.anyPredicate(Collections.&lt;Predicate&lt;Object&gt;&gt;emptyList());</span>
+<span class="fc" id="L323">    }</span>
+
+    @Test(expected=IllegalArgumentException.class) 
+    public void testAnyPredicateEx6() {
+<span class="fc" id="L327">        final Collection&lt;Predicate&lt;Object&gt;&gt; coll = new ArrayList&lt;Predicate&lt;Object&gt;&gt;();</span>
+<span class="fc" id="L328">        coll.add(null);</span>
+<span class="fc" id="L329">        coll.add(null);</span>
+<span class="nc" id="L330">        PredicateUtils.anyPredicate(coll);</span>
+<span class="nc" id="L331">    }</span>
+
+    // eitherPredicate
+    //------------------------------------------------------------------
+
+    @Test public void testEitherPredicate() {
+<span class="fc" id="L337">        assertEquals(false, PredicateUtils.eitherPredicate(TruePredicate.truePredicate(), TruePredicate.truePredicate()).evaluate(null));</span>
+<span class="fc" id="L338">        assertEquals(true, PredicateUtils.eitherPredicate(TruePredicate.truePredicate(), FalsePredicate.falsePredicate()).evaluate(null));</span>
+<span class="fc" id="L339">        assertEquals(true, PredicateUtils.eitherPredicate(FalsePredicate.falsePredicate(), TruePredicate.truePredicate()).evaluate(null));</span>
+<span class="fc" id="L340">        assertEquals(false, PredicateUtils.eitherPredicate(FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate()).evaluate(null));</span>
+<span class="fc" id="L341">    }</span>
+
+    @Test(expected=IllegalArgumentException.class) 
+    public void testEitherPredicateEx() {
+<span class="nc" id="L345">        PredicateUtils.eitherPredicate(null, null);</span>
+<span class="nc" id="L346">    }</span>
+
+    // onePredicate
+    //------------------------------------------------------------------
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test public void testOnePredicate() {
+<span class="fc" id="L353">        assertFalse(PredicateUtils.onePredicate((Predicate&lt;Object&gt;[]) new Predicate[] {}), null);</span>
+<span class="fc" id="L354">        assertEquals(false, PredicateUtils.onePredicate(new Predicate[] {</span>
+<span class="fc" id="L355">            TruePredicate.truePredicate(), TruePredicate.truePredicate(), TruePredicate.truePredicate()}).evaluate(null));</span>
+<span class="fc" id="L356">        assertEquals(false, PredicateUtils.onePredicate(new Predicate[] {</span>
+<span class="fc" id="L357">                TruePredicate.truePredicate(), FalsePredicate.falsePredicate(), TruePredicate.truePredicate()}).evaluate(null));</span>
+<span class="fc" id="L358">        assertEquals(true, PredicateUtils.onePredicate(new Predicate[] {</span>
+<span class="fc" id="L359">                TruePredicate.truePredicate(), FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate()}).evaluate(null));</span>
+<span class="fc" id="L360">        assertEquals(true, PredicateUtils.onePredicate(new Predicate[] {</span>
+<span class="fc" id="L361">                FalsePredicate.falsePredicate(), TruePredicate.truePredicate(), FalsePredicate.falsePredicate()}).evaluate(null));</span>
+<span class="fc" id="L362">        assertEquals(true, PredicateUtils.onePredicate(new Predicate[] {</span>
+<span class="fc" id="L363">                FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate(), TruePredicate.truePredicate()}).evaluate(null));</span>
+<span class="fc" id="L364">        assertEquals(false, PredicateUtils.onePredicate(new Predicate[] {</span>
+<span class="fc" id="L365">                FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate()}).evaluate(null));</span>
+<span class="fc" id="L366">        final Collection&lt;Predicate&lt;Object&gt;&gt; coll = new ArrayList&lt;Predicate&lt;Object&gt;&gt;();</span>
+<span class="fc" id="L367">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L368">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L369">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L370">        assertEquals(false, PredicateUtils.onePredicate(coll).evaluate(null));</span>
+<span class="fc" id="L371">        coll.clear();</span>
+<span class="fc" id="L372">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L373">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L374">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L375">        assertEquals(false, PredicateUtils.onePredicate(coll).evaluate(null));</span>
+<span class="fc" id="L376">        coll.clear();</span>
+<span class="fc" id="L377">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L378">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L379">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L380">        assertEquals(true, PredicateUtils.onePredicate(coll).evaluate(null));</span>
+<span class="fc" id="L381">        coll.clear();</span>
+<span class="fc" id="L382">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L383">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L384">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L385">        assertEquals(false, PredicateUtils.onePredicate(coll).evaluate(null));</span>
+<span class="fc" id="L386">        coll.clear();</span>
+<span class="fc" id="L387">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L388">        assertFalse(PredicateUtils.onePredicate(coll), null);</span>
+<span class="fc" id="L389">        coll.clear();</span>
+<span class="fc" id="L390">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L391">        assertTrue(PredicateUtils.onePredicate(coll), null);</span>
+<span class="fc" id="L392">        coll.clear();</span>
+<span class="fc" id="L393">        assertFalse(PredicateUtils.onePredicate(coll), null);</span>
+<span class="fc" id="L394">    }</span>
+
+    @Test(expected=IllegalArgumentException.class) 
+    public void testOnePredicateEx1() {
+<span class="nc" id="L398">        PredicateUtils.onePredicate((Predicate&lt;Object&gt;[]) null);</span>
+<span class="nc" id="L399">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test(expected=IllegalArgumentException.class)
+    public void testOnePredicateEx2() {
+<span class="nc" id="L404">        PredicateUtils.onePredicate(new Predicate[] {null});</span>
+<span class="nc" id="L405">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test(expected=IllegalArgumentException.class)
+    public void testOnePredicateEx3() {
+<span class="nc" id="L410">        PredicateUtils.onePredicate(new Predicate[] {null, null});</span>
+<span class="nc" id="L411">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testOnePredicateEx4() {
+<span class="nc" id="L415">        PredicateUtils.onePredicate((Collection&lt;Predicate&lt;Object&gt;&gt;) null);</span>
+<span class="nc" id="L416">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test public void testOnePredicateEx5() {
+<span class="fc" id="L420">        PredicateUtils.onePredicate(Collections.EMPTY_LIST);</span>
+<span class="fc" id="L421">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testOnePredicateEx6() {
+<span class="fc" id="L425">        final Collection&lt;Predicate&lt;Object&gt;&gt; coll = new ArrayList&lt;Predicate&lt;Object&gt;&gt;();</span>
+<span class="fc" id="L426">        coll.add(null);</span>
+<span class="fc" id="L427">        coll.add(null);</span>
+<span class="nc" id="L428">        PredicateUtils.onePredicate(coll);</span>
+<span class="nc" id="L429">    }</span>
+
+    // neitherPredicate
+    //------------------------------------------------------------------
+
+    @Test public void testNeitherPredicate() {
+<span class="fc" id="L435">        assertEquals(false, PredicateUtils.neitherPredicate(TruePredicate.truePredicate(), TruePredicate.truePredicate()).evaluate(null));</span>
+<span class="fc" id="L436">        assertEquals(false, PredicateUtils.neitherPredicate(TruePredicate.truePredicate(), FalsePredicate.falsePredicate()).evaluate(null));</span>
+<span class="fc" id="L437">        assertEquals(false, PredicateUtils.neitherPredicate(FalsePredicate.falsePredicate(), TruePredicate.truePredicate()).evaluate(null));</span>
+<span class="fc" id="L438">        assertEquals(true, PredicateUtils.neitherPredicate(FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate()).evaluate(null));</span>
+<span class="fc" id="L439">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testNeitherPredicateEx() {
+<span class="nc" id="L443">        PredicateUtils.neitherPredicate(null, null);</span>
+<span class="nc" id="L444">    }</span>
+
+    // nonePredicate
+    //------------------------------------------------------------------
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test public void testNonePredicate() {
+<span class="fc" id="L451">        assertTrue(PredicateUtils.nonePredicate(new Predicate[] {}), null);</span>
+<span class="fc" id="L452">        assertEquals(false, PredicateUtils.nonePredicate(new Predicate[] {</span>
+<span class="fc" id="L453">                TruePredicate.truePredicate(), TruePredicate.truePredicate(), TruePredicate.truePredicate() }).evaluate(null));</span>
+<span class="fc" id="L454">        assertEquals(false, PredicateUtils.nonePredicate(new Predicate[] {</span>
+<span class="fc" id="L455">                TruePredicate.truePredicate(), FalsePredicate.falsePredicate(), TruePredicate.truePredicate() }).evaluate(null));</span>
+<span class="fc" id="L456">        assertEquals(false, PredicateUtils.nonePredicate(new Predicate[] {</span>
+<span class="fc" id="L457">                FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate(), TruePredicate.truePredicate() }).evaluate(null));</span>
+<span class="fc" id="L458">        assertEquals(true, PredicateUtils.nonePredicate(new Predicate[] {</span>
+<span class="fc" id="L459">                FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate(), FalsePredicate.falsePredicate() }).evaluate(null));</span>
+<span class="fc" id="L460">        final Collection&lt;Predicate&lt;Object&gt;&gt; coll = new ArrayList&lt;Predicate&lt;Object&gt;&gt;();</span>
+<span class="fc" id="L461">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L462">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L463">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L464">        assertEquals(false, PredicateUtils.nonePredicate(coll).evaluate(null));</span>
+<span class="fc" id="L465">        coll.clear();</span>
+<span class="fc" id="L466">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L467">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L468">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L469">        assertEquals(false, PredicateUtils.nonePredicate(coll).evaluate(null));</span>
+<span class="fc" id="L470">        coll.clear();</span>
+<span class="fc" id="L471">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L472">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L473">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L474">        assertEquals(false, PredicateUtils.nonePredicate(coll).evaluate(null));</span>
+<span class="fc" id="L475">        coll.clear();</span>
+<span class="fc" id="L476">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L477">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L478">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L479">        assertEquals(true, PredicateUtils.nonePredicate(coll).evaluate(null));</span>
+<span class="fc" id="L480">        coll.clear();</span>
+<span class="fc" id="L481">        coll.add(FalsePredicate.falsePredicate());</span>
+<span class="fc" id="L482">        assertTrue(PredicateUtils.nonePredicate(coll), null);</span>
+<span class="fc" id="L483">        coll.clear();</span>
+<span class="fc" id="L484">        coll.add(TruePredicate.truePredicate());</span>
+<span class="fc" id="L485">        assertFalse(PredicateUtils.nonePredicate(coll), null);</span>
+<span class="fc" id="L486">        coll.clear();</span>
+<span class="fc" id="L487">        assertTrue(PredicateUtils.nonePredicate(coll), null);</span>
+<span class="fc" id="L488">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testNonePredicateEx1() {
+<span class="nc" id="L492">        PredicateUtils.nonePredicate((Predicate&lt;Object&gt;[]) null);</span>
+<span class="nc" id="L493">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test(expected=IllegalArgumentException.class)
+    public void testNonePredicateEx2() {
+<span class="nc" id="L498">        PredicateUtils.nonePredicate(new Predicate[] {null});</span>
+<span class="nc" id="L499">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Test(expected=IllegalArgumentException.class)
+    public void testNonePredicateEx3() {
+<span class="nc" id="L504">        PredicateUtils.nonePredicate(new Predicate[] {null, null});</span>
+<span class="nc" id="L505">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testNonePredicateEx4() {
+<span class="nc" id="L509">        PredicateUtils.nonePredicate((Collection&lt;Predicate&lt;Object&gt;&gt;) null);</span>
+<span class="nc" id="L510">    }</span>
+
+    @Test public void testNonePredicateEx5() {
+<span class="fc" id="L513">        PredicateUtils.nonePredicate(Collections.&lt;Predicate&lt;Object&gt;&gt;emptyList());</span>
+<span class="fc" id="L514">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testNonePredicateEx6() {
+<span class="fc" id="L518">        final Collection&lt;Predicate&lt;Object&gt;&gt; coll = new ArrayList&lt;Predicate&lt;Object&gt;&gt;();</span>
+<span class="fc" id="L519">        coll.add(null);</span>
+<span class="fc" id="L520">        coll.add(null);</span>
+<span class="nc" id="L521">        PredicateUtils.nonePredicate(coll);</span>
+<span class="nc" id="L522">    }</span>
+
+    // instanceofPredicate
+    //------------------------------------------------------------------
+
+    @Test public void testInstanceOfPredicate() {
+<span class="fc" id="L528">        assertNotNull(PredicateUtils.instanceofPredicate(String.class));</span>
+<span class="fc" id="L529">        assertEquals(false, PredicateUtils.instanceofPredicate(String.class).evaluate(null));</span>
+<span class="fc" id="L530">        assertEquals(false, PredicateUtils.instanceofPredicate(String.class).evaluate(cObject));</span>
+<span class="fc" id="L531">        assertEquals(true, PredicateUtils.instanceofPredicate(String.class).evaluate(cString));</span>
+<span class="fc" id="L532">        assertEquals(false, PredicateUtils.instanceofPredicate(String.class).evaluate(cInteger));</span>
+<span class="fc" id="L533">    }</span>
+
+    // uniquePredicate
+    //------------------------------------------------------------------
+
+    @Test public void testUniquePredicate() {
+<span class="fc" id="L539">        final Predicate&lt;Object&gt; p = PredicateUtils.uniquePredicate();</span>
+<span class="fc" id="L540">        assertEquals(true, p.evaluate(new Object()));</span>
+<span class="fc" id="L541">        assertEquals(true, p.evaluate(new Object()));</span>
+<span class="fc" id="L542">        assertEquals(true, p.evaluate(new Object()));</span>
+<span class="fc" id="L543">        assertEquals(true, p.evaluate(cString));</span>
+<span class="fc" id="L544">        assertEquals(false, p.evaluate(cString));</span>
+<span class="fc" id="L545">        assertEquals(false, p.evaluate(cString));</span>
+<span class="fc" id="L546">    }</span>
+
+    // asPredicate(Transformer)
+    //------------------------------------------------------------------
+
+    @Test public void testAsPredicateTransformer() {
+<span class="fc" id="L552">        assertEquals(false, PredicateUtils.asPredicate(TransformerUtils.&lt;Boolean&gt;nopTransformer()).evaluate(false));</span>
+<span class="fc" id="L553">        assertEquals(true, PredicateUtils.asPredicate(TransformerUtils.&lt;Boolean&gt;nopTransformer()).evaluate(true));</span>
+<span class="fc" id="L554">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testAsPredicateTransformerEx1() {
+<span class="nc" id="L558">        PredicateUtils.asPredicate(null);</span>
+<span class="nc" id="L559">    }</span>
+
+    @Test(expected=FunctorException.class)
+    public void testAsPredicateTransformerEx2() {
+<span class="nc" id="L563">        PredicateUtils.asPredicate(TransformerUtils.&lt;Boolean&gt;nopTransformer()).evaluate(null);</span>
+<span class="nc" id="L564">    }</span>
+
+    // invokerPredicate
+    //------------------------------------------------------------------
+
+    @Test public void testInvokerPredicate() {
+<span class="fc" id="L570">        final List&lt;Object&gt; list = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L571">        assertEquals(true, PredicateUtils.invokerPredicate(&quot;isEmpty&quot;).evaluate(list));</span>
+<span class="fc" id="L572">        list.add(new Object());</span>
+<span class="fc" id="L573">        assertEquals(false, PredicateUtils.invokerPredicate(&quot;isEmpty&quot;).evaluate(list));</span>
+<span class="fc" id="L574">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testInvokerPredicateEx1() {
+<span class="nc" id="L578">        PredicateUtils.invokerPredicate(null);</span>
+<span class="nc" id="L579">    }</span>
+
+    @Test(expected=FunctorException.class)
+    public void testInvokerPredicateEx2() {
+<span class="nc" id="L583">        PredicateUtils.invokerPredicate(&quot;isEmpty&quot;).evaluate(null);</span>
+<span class="nc" id="L584">    }</span>
+
+    @Test(expected=FunctorException.class)
+    public void testInvokerPredicateEx3() {
+<span class="nc" id="L588">        PredicateUtils.invokerPredicate(&quot;noSuchMethod&quot;).evaluate(new Object());</span>
+<span class="nc" id="L589">    }</span>
+
+    // invokerPredicate2
+    //------------------------------------------------------------------
+
+    @Test public void testInvokerPredicate2() {
+<span class="fc" id="L595">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L596">        assertEquals(false, PredicateUtils.invokerPredicate(</span>
+<span class="fc" id="L597">            &quot;contains&quot;, new Class[] {Object.class}, new Object[] {cString}).evaluate(list));</span>
+<span class="fc" id="L598">        list.add(cString);</span>
+<span class="fc" id="L599">        assertEquals(true, PredicateUtils.invokerPredicate(</span>
+<span class="fc" id="L600">            &quot;contains&quot;, new Class[] {Object.class}, new Object[] {cString}).evaluate(list));</span>
+<span class="fc" id="L601">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testInvokerPredicate2Ex1() {
+<span class="nc" id="L605">        PredicateUtils.invokerPredicate(null, null, null);</span>
+<span class="nc" id="L606">    }</span>
+
+    @Test(expected=FunctorException.class)
+    public void testInvokerPredicate2Ex2() {
+<span class="nc" id="L610">        PredicateUtils.invokerPredicate(&quot;contains&quot;, new Class[] {Object.class}, new Object[] {cString}).evaluate(null);</span>
+<span class="nc" id="L611">    }</span>
+
+    @Test(expected=FunctorException.class)
+    public void testInvokerPredicate2Ex3() {
+<span class="fc" id="L615">        PredicateUtils.invokerPredicate(</span>
+<span class="pc" id="L616">                &quot;noSuchMethod&quot;, new Class[] {Object.class}, new Object[] {cString}).evaluate(new Object());</span>
+<span class="nc" id="L617">    }</span>
+
+    // nullIsException
+    //------------------------------------------------------------------
+
+    @Test(expected=FunctorException.class)
+    public void testNullIsExceptionPredicate() {
+<span class="fc" id="L624">        assertEquals(true, PredicateUtils.nullIsExceptionPredicate(TruePredicate.truePredicate()).evaluate(new Object()));</span>
+<span class="nc" id="L625">        PredicateUtils.nullIsExceptionPredicate(TruePredicate.truePredicate()).evaluate(null);</span>
+<span class="nc" id="L626">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testNullIsExceptionPredicateEx1() {
+<span class="nc" id="L630">        PredicateUtils.nullIsExceptionPredicate(null);</span>
+<span class="nc" id="L631">    }</span>
+
+    // nullIsTrue
+    //------------------------------------------------------------------
+
+    @Test public void testNullIsTruePredicate() {
+<span class="fc" id="L637">        assertEquals(true, PredicateUtils.nullIsTruePredicate(TruePredicate.truePredicate()).evaluate(null));</span>
+<span class="fc" id="L638">        assertEquals(true, PredicateUtils.nullIsTruePredicate(TruePredicate.truePredicate()).evaluate(new Object()));</span>
+<span class="fc" id="L639">        assertEquals(false, PredicateUtils.nullIsTruePredicate(FalsePredicate.falsePredicate()).evaluate(new Object()));</span>
+<span class="fc" id="L640">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testNullIsTruePredicateEx1() {
+<span class="nc" id="L644">        PredicateUtils.nullIsTruePredicate(null);</span>
+<span class="nc" id="L645">    }</span>
+
+    // nullIsFalse
+    //------------------------------------------------------------------
+
+    @Test public void testNullIsFalsePredicate() {
+<span class="fc" id="L651">        assertEquals(false, PredicateUtils.nullIsFalsePredicate(TruePredicate.truePredicate()).evaluate(null));</span>
+<span class="fc" id="L652">        assertEquals(true, PredicateUtils.nullIsFalsePredicate(TruePredicate.truePredicate()).evaluate(new Object()));</span>
+<span class="fc" id="L653">        assertEquals(false, PredicateUtils.nullIsFalsePredicate(FalsePredicate.falsePredicate()).evaluate(new Object()));</span>
+<span class="fc" id="L654">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testNullIsFalsePredicateEx1() {
+<span class="nc" id="L658">        PredicateUtils.nullIsFalsePredicate(null);</span>
+<span class="nc" id="L659">    }</span>
+
+    // transformed
+    //------------------------------------------------------------------
+
+    @Test public void testTransformedPredicate() {
+<span class="fc" id="L665">        assertEquals(true, PredicateUtils.transformedPredicate(</span>
+<span class="fc" id="L666">                TransformerUtils.nopTransformer(),</span>
+<span class="fc" id="L667">                TruePredicate.truePredicate()).evaluate(new Object()));</span>
+
+<span class="fc" id="L669">        final Map&lt;Object, Object&gt; map = new HashMap&lt;Object, Object&gt;();</span>
+<span class="fc" id="L670">        map.put(Boolean.TRUE, &quot;Hello&quot;);</span>
+<span class="fc" id="L671">        final Transformer&lt;Object, Object&gt; t = TransformerUtils.mapTransformer(map);</span>
+<span class="fc" id="L672">        final Predicate&lt;Object&gt; p = EqualPredicate.&lt;Object&gt;equalPredicate(&quot;Hello&quot;);</span>
+<span class="fc" id="L673">        assertEquals(false, PredicateUtils.transformedPredicate(t, p).evaluate(null));</span>
+<span class="fc" id="L674">        assertEquals(true, PredicateUtils.transformedPredicate(t, p).evaluate(Boolean.TRUE));</span>
+        try {
+<span class="nc" id="L676">            PredicateUtils.transformedPredicate(null, null);</span>
+<span class="nc" id="L677">            fail();</span>
+<span class="pc" id="L678">        } catch (final IllegalArgumentException ex) {}</span>
+<span class="fc" id="L679">    }</span>
+
+    // misc tests
+    //------------------------------------------------------------------
+
+    /**
+     * Test that all Predicate singletones hold singleton pattern in
+     * serialization/deserialization process.
+     */
+    @Test public void testSingletonPatternInSerialization() {
+<span class="fc" id="L689">        final Object[] singletones = new Object[] {</span>
+<span class="fc" id="L690">                ExceptionPredicate.INSTANCE,</span>
+<span class="fc" id="L691">                FalsePredicate.INSTANCE,</span>
+<span class="fc" id="L692">                NotNullPredicate.INSTANCE,</span>
+<span class="fc" id="L693">                NullPredicate.INSTANCE,</span>
+<span class="fc" id="L694">                TruePredicate.INSTANCE</span>
+        };
+
+<span class="fc bfc" id="L697" title="All 2 branches covered.">        for (final Object original : singletones) {</span>
+<span class="fc" id="L698">            TestUtils.assertSameAfterSerialization(</span>
+<span class="fc" id="L699">                    &quot;Singletone patern broken for &quot; + original.getClass(),</span>
+<span class="fc" id="L700">                    original</span>
+            );
+        }
+<span class="fc" id="L703">    }</span>
+
+    @Override
+    protected Predicate&lt;?&gt; generatePredicate() {
+<span class="fc" id="L707">        return truePredicate();  //Just return something to satisfy super class.</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

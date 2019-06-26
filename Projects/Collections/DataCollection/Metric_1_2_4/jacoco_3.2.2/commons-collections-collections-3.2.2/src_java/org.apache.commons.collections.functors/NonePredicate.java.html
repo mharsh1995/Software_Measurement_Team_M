@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>NonePredicate.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.functors</a> &gt; <span class="el_source">NonePredicate.java</span></div><h1>NonePredicate.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.functors;
+
+import java.io.Serializable;
+import java.util.Collection;
+
+import org.apache.commons.collections.Predicate;
+
+/**
+ * Predicate implementation that returns true if none of the
+ * predicates return true.
+ * If the array of predicates is empty, then this predicate returns true.
+ * &lt;p&gt;
+ * NOTE: In versions prior to 3.2 an array size of zero or one
+ * threw an exception.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ *
+ * @author Stephen Colebourne
+ * @author Matt Benson
+ */
+public final class NonePredicate implements Predicate, PredicateDecorator, Serializable {
+
+    /** Serial version UID */
+    private static final long serialVersionUID = 2007613066565892961L;
+    
+    /** The array of predicates to call */
+    private final Predicate[] iPredicates;
+    
+    /**
+     * Factory to create the predicate.
+     * &lt;p&gt;
+     * If the array is size zero, the predicate always returns true.
+     *
+     * @param predicates  the predicates to check, cloned, not null
+     * @return the &lt;code&gt;any&lt;/code&gt; predicate
+     * @throws IllegalArgumentException if the predicates array is null
+     * @throws IllegalArgumentException if any predicate in the array is null
+     */
+    public static Predicate getInstance(Predicate[] predicates) {
+<span class="fc" id="L57">        FunctorUtils.validate(predicates);</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (predicates.length == 0) {</span>
+<span class="fc" id="L59">            return TruePredicate.INSTANCE;</span>
+        }
+<span class="fc" id="L61">        predicates = FunctorUtils.copy(predicates);</span>
+<span class="fc" id="L62">        return new NonePredicate(predicates);</span>
+    }
+
+    /**
+     * Factory to create the predicate.
+     * &lt;p&gt;
+     * If the collection is size zero, the predicate always returns true.
+     *
+     * @param predicates  the predicates to check, cloned, not null
+     * @return the &lt;code&gt;one&lt;/code&gt; predicate
+     * @throws IllegalArgumentException if the predicates array is null
+     * @throws IllegalArgumentException if any predicate in the array is null
+     */
+    public static Predicate getInstance(Collection predicates) {
+<span class="fc" id="L76">        Predicate[] preds = FunctorUtils.validate(predicates);</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (preds.length == 0) {</span>
+<span class="fc" id="L78">            return TruePredicate.INSTANCE;</span>
+        }
+<span class="fc" id="L80">        return new NonePredicate(preds);</span>
+    }
+
+    /**
+     * Constructor that performs no validation.
+     * Use &lt;code&gt;getInstance&lt;/code&gt; if you want that.
+     * 
+     * @param predicates  the predicates to check, not cloned, not null
+     */
+    public NonePredicate(Predicate[] predicates) {
+<span class="fc" id="L90">        super();</span>
+<span class="fc" id="L91">        iPredicates = predicates;</span>
+<span class="fc" id="L92">    }</span>
+
+    /**
+     * Evaluates the predicate returning false if any stored predicate returns false.
+     * 
+     * @param object  the input object
+     * @return true if none of decorated predicates return true
+     */
+    public boolean evaluate(Object object) {
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        for (int i = 0; i &lt; iPredicates.length; i++) {</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">            if (iPredicates[i].evaluate(object)) {</span>
+<span class="fc" id="L103">                return false;</span>
+            }
+        }
+<span class="fc" id="L106">        return true;</span>
+    }
+
+    /**
+     * Gets the predicates, do not modify the array.
+     * 
+     * @return the predicates
+     * @since Commons Collections 3.1
+     */
+    public Predicate[] getPredicates() {
+<span class="nc" id="L116">        return iPredicates;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

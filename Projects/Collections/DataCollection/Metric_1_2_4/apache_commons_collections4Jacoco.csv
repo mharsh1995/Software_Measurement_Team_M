@@ -1,0 +1,851 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.keyvalue,AbstractMapEntryDecorator,11,36,2,2,3,11,3,7,1,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.keyvalue,MultiKey,21,174,2,10,5,32,4,16,2,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.keyvalue,AbstractMapEntry,4,66,1,19,1,12,2,12,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.keyvalue,DefaultMapEntry,7,12,0,0,2,4,1,2,1,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.keyvalue,UnmodifiableMapEntry,14,10,0,0,4,3,2,2,2,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.keyvalue,TiedMapEntry,20,89,12,10,2,20,10,8,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.keyvalue,AbstractKeyValue,16,28,0,0,6,11,2,4,2,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.keyvalue,DefaultKeyValue,114,0,24,0,25,0,21,0,9,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.splitmap,TransformedSplitMap,69,49,6,2,17,13,9,6,5,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.splitmap,AbstractIterableGetMapDecorator,35,48,3,1,9,14,8,10,6,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.collection,UnmodifiableBoundedCollection,55,53,12,2,14,15,9,12,3,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.collection,SynchronizedCollection,15,237,4,8,3,50,4,23,0,21
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.collection,PredicatedCollection.Builder,188,0,18,0,48,0,23,0,14,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.collection,AbstractCollectionDecorator,3,89,0,2,2,24,1,19,1,18
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.collection,IndexedCollection,8,234,2,28,2,65,3,29,1,16
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.collection,CompositeCollection,46,397,1,59,12,100,6,50,5,21
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.collection,UnmodifiableCollection,0,49,0,2,0,14,0,11,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.collection,TransformedCollection,5,98,2,6,1,20,2,9,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.collection,PredicatedCollection,10,84,0,8,2,18,2,9,2,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.comparators,FixedOrderComparator.UnknownObjectBehavior,0,34,0,0,0,2,0,1,0,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.comparators,ReverseComparator,8,46,2,6,3,12,3,6,1,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.comparators,ComparatorChain,70,219,15,27,19,58,18,21,6,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.comparators,NullComparator,13,93,4,20,3,20,5,14,1,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.comparators,FixedOrderComparator,61,317,21,43,6,57,19,26,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.comparators,TransformingComparator,14,101,9,13,0,22,7,9,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.comparators,BooleanComparator,7,79,1,13,1,17,2,15,1,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.comparators,ComparableComparator,0,33,0,6,0,8,0,9,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.properties,SortedProperties,35,0,2,0,8,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.sequence,SequencesComparator,563,0,82,0,80,0,47,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.sequence,ReplacementsFinder,65,0,4,0,17,0,6,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.sequence,EditCommand,9,0,0,0,4,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.sequence,EditScript,72,0,2,0,20,0,8,0,7,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.sequence,DeleteCommand,9,0,0,0,4,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.sequence,InsertCommand,9,0,0,0,4,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.sequence,SequencesComparator.Snake,21,0,0,0,8,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.sequence,KeepCommand,9,0,0,0,4,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie.analyzer,StringKeyAnalyzer,15,174,10,24,4,36,11,14,1,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,UnmodifiableSortedBag,12,65,0,2,3,20,3,13,3,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,UnmodifiableBag,12,67,0,2,3,21,3,13,3,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,AbstractSortedBagDecorator,7,16,0,0,3,5,2,4,2,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,CollectionBag,11,134,3,21,2,42,3,20,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,HashBag,0,28,0,0,0,11,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,AbstractBagDecorator,9,39,0,4,3,8,2,9,2,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,TransformedSortedBag,44,23,4,0,8,6,4,5,2,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,AbstractMapBag.MutableInteger,18,6,4,0,4,3,4,1,2,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,TransformedBag,0,99,1,7,0,18,1,13,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,SynchronizedBag.SynchronizedBagSet,0,8,0,0,0,3,0,1,0,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,TreeBag,7,84,0,6,3,21,1,12,1,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,SynchronizedSortedBag,51,0,0,0,12,0,7,0,7,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,PredicatedBag,0,55,0,4,0,11,0,11,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,SynchronizedBag,5,98,0,2,2,19,1,10,1,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,AbstractMapBag,15,624,8,74,3,163,8,60,0,27
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,AbstractMapBag.BagIterator,4,112,1,13,1,26,1,10,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,PredicatedSortedBag,0,27,0,0,0,7,0,6,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bag,CollectionSortedBag,11,134,3,21,2,42,3,20,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,KeyAnalyzer,21,26,8,6,3,7,8,5,2,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.RangeEntrySet.EntryIterator,0,48,0,10,0,8,0,8,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.PrefixRangeMap,50,265,4,36,8,56,12,23,8,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.EntrySet,2,62,1,9,1,15,1,10,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.EntrySet.EntryIterator,0,11,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.TrieIterator,4,101,1,9,1,25,1,10,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.TrieEntry,38,212,8,18,6,35,8,10,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.PrefixRangeEntrySet.SingletonIterator,26,31,3,3,6,8,3,4,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractBitwiseTrie,17,113,5,15,4,24,5,15,1,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,UnmodifiableTrie,27,121,0,4,6,30,5,24,5,22
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.TrieMapIterator,4,95,1,11,1,24,1,14,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.Values.ValueIterator,0,12,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.RangeMap,131,152,25,25,16,30,18,21,4,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.PrefixRangeEntrySet.EntryIterator,0,89,1,9,0,22,1,8,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.RangeEntryMap,43,134,10,24,7,30,11,16,1,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.RangeEntrySet,7,171,2,28,2,40,2,19,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.PrefixRangeEntrySet,0,81,0,6,0,15,0,6,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.KeySet.KeyIterator,0,12,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.Reference,7,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,PatriciaTrie,7,6,0,0,2,2,1,1,1,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.KeySet,0,41,0,2,0,9,0,7,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie.Values,0,45,0,4,0,13,0,8,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractBitwiseTrie.BasicEntry,23,73,2,10,5,21,4,11,2,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.trie,AbstractPatriciaTrie,571,1298,100,196,130,306,75,124,6,45
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,AbstractLinkedList.LinkedSubList,62,249,5,11,6,57,6,16,1,13
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,NodeCachingLinkedList,10,150,0,12,4,51,2,18,2,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,AbstractLinkedList.LinkedListIterator,0,211,0,14,0,50,0,19,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,AbstractSerializableListDecorator,0,19,0,0,0,8,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,TransformedList.TransformedListIterator,0,27,0,0,0,9,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,SetUniqueList.SetListListIterator,0,55,0,2,0,17,0,7,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,SetUniqueList,34,295,2,26,5,71,3,32,1,20
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,TransformedList,13,134,1,7,2,26,2,18,1,15
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,PredicatedList.PredicatedListIterator,0,25,0,0,0,9,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,CursorableLinkedList.SubCursor,0,70,0,4,0,14,0,8,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,SetUniqueList.SetListIterator,0,29,0,0,0,10,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,FixedSizeList,22,72,0,0,7,18,6,17,6,17
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,TreeList,2,262,2,16,1,53,2,23,0,16
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,FixedSizeList.FixedSizeListIterator,4,7,0,0,2,3,2,1,2,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,GrowthList,10,90,4,6,2,20,4,8,1,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,AbstractListDecorator,3,77,0,4,2,16,1,16,1,14
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,PredicatedList,13,101,0,6,2,21,1,17,1,14
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,CursorableLinkedList,19,218,7,19,8,76,8,25,1,19
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,LazyList,84,0,8,0,21,0,8,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,AbstractLinkedList,28,782,9,91,8,190,10,89,1,48
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,AbstractLinkedList.LinkedSubListIterator,0,69,0,4,0,14,0,8,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,TreeList.TreeListIterator,4,246,1,21,1,56,1,21,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,TreeList.AVLNode,53,1051,14,134,16,246,13,95,1,32
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,CursorableLinkedList.Cursor,11,172,3,23,2,51,3,19,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,AbstractLinkedList.Node,26,22,0,0,11,10,5,4,5,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.list,UnmodifiableList,0,87,0,2,0,22,0,18,0,17
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ComparatorPredicate,105,0,20,0,26,0,16,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ExceptionFactory,14,0,0,0,4,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,UniquePredicate,0,17,0,0,0,5,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,PrototypeFactory,66,0,4,0,13,0,3,0,1,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,NullPredicate,15,0,2,0,4,0,5,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,NullIsFalsePredicate,35,0,4,0,10,0,6,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,OrPredicate,51,0,8,0,9,0,8,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,InstanceofPredicate,26,0,2,0,8,0,5,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,NonePredicate,55,0,8,0,14,0,8,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,TransformerClosure,24,0,2,0,9,0,5,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,OnePredicate,64,0,10,0,17,0,9,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,InvokerTransformer,178,0,28,0,34,0,19,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,WhileClosure,60,0,8,0,18,0,10,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,PredicateTransformer,27,0,2,0,8,0,5,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,TransformedPredicate,50,0,4,0,13,0,7,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ChainedTransformer,82,0,10,0,20,0,11,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,IfTransformer,80,0,12,0,21,0,13,0,7,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,CatchAndRethrowClosure,17,0,0,0,8,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,NullIsExceptionPredicate,38,0,4,0,10,0,6,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,FunctorUtils,184,0,30,0,41,0,25,0,10,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,NOPClosure,10,0,0,0,4,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,InstantiateTransformer,118,0,24,0,27,0,18,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,TransformerPredicate,37,0,4,0,11,0,6,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,TruePredicate,0,11,0,0,0,4,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ConstantTransformer,52,22,13,1,13,7,11,4,4,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ExceptionPredicate,14,0,0,0,4,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,AndPredicate,51,0,8,0,9,0,8,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,NotNullPredicate,8,7,2,0,2,2,3,2,2,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ForClosure,45,0,8,0,14,0,9,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,StringValueTransformer,0,12,0,0,0,4,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,NOPTransformer,0,11,0,0,0,4,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,PrototypeFactory.PrototypeCloneFactory,53,0,2,0,16,0,4,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,NullIsTruePredicate,35,0,4,0,10,0,6,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,InstantiateFactory,131,0,22,0,34,0,16,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,IdentityPredicate,26,0,4,0,8,0,6,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,NotPredicate,35,0,4,0,8,0,6,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,AllPredicate,73,0,12,0,18,0,10,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ChainedClosure,95,0,12,0,24,0,12,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,SwitchTransformer,172,0,26,0,39,0,21,0,8,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,PrototypeFactory.PrototypeSerializationFactory,61,0,2,0,21,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,FactoryTransformer,8,17,1,1,2,6,2,3,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,MapTransformer,23,0,2,0,8,0,5,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,SwitchClosure,167,0,24,0,38,0,20,0,8,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,AnyPredicate,71,0,12,0,18,0,10,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ComparatorPredicate.Criterion,54,0,0,0,2,0,1,0,1,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,DefaultEquator,29,0,8,0,5,0,9,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,CloneTransformer,15,0,2,0,5,0,4,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ConstantFactory,3,24,0,2,1,8,1,5,1,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,EqualPredicate,51,0,6,0,16,0,9,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,AbstractQuantifierPredicate,10,0,0,0,4,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,FalsePredicate,11,0,0,0,4,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ClosureTransformer,27,0,2,0,9,0,5,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,IfClosure,70,0,8,0,20,0,12,0,8,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ExceptionTransformer,14,0,0,0,4,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.functors,ExceptionClosure,14,0,0,0,4,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractDualBidiMap.KeySet,0,41,0,2,0,9,0,5,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractDualBidiMap.MapEntry,0,38,0,4,0,9,0,4,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,UnmodifiableOrderedBidiMap,0,82,0,4,0,24,0,15,0,13
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.DataElement,0,37,0,0,0,6,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap,151,1852,29,226,32,433,29,164,1,64
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,UnmodifiableBidiMap,0,79,0,4,0,23,0,14,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.InverseViewMapIterator,4,40,0,4,1,11,1,7,1,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.KeyView,0,37,0,4,0,7,0,6,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,DualLinkedHashBidiMap,12,49,0,0,3,14,1,5,1,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.ViewIterator,60,128,9,11,12,27,7,9,2,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.ViewMapEntryIterator,3,11,0,0,1,4,1,2,1,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractDualBidiMap.BidiMapIterator,14,145,0,14,4,33,1,15,1,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractDualBidiMap.Values,0,41,0,2,0,9,0,5,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,DualTreeBidiMap,36,207,2,10,9,51,5,21,3,17
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractOrderedBidiMapDecorator,4,30,0,0,1,8,1,7,1,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.InverseViewMapEntryIterator,5,21,0,0,1,5,1,3,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractDualBidiMap.EntrySetIterator,0,56,0,2,0,16,0,4,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,UnmodifiableSortedBidiMap,0,104,0,4,0,29,0,17,0,15
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractSortedBidiMapDecorator,28,8,0,0,6,3,6,2,6,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.ValueView,0,37,0,4,0,7,0,6,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,DualHashBidiMap,12,49,0,0,3,14,1,5,1,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractDualBidiMap,0,280,0,18,0,64,0,34,0,25
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.Inverse,80,153,8,10,12,34,8,25,4,20
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,DualTreeBidiMap.BidiOrderedMapIterator,27,134,0,12,6,29,3,14,3,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.Node,8,263,6,17,2,49,6,27,0,21
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractDualBidiMap.ValuesIterator,0,47,0,2,0,15,0,4,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractBidiMapDecorator,8,22,0,0,2,6,2,5,2,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.ViewMapIterator,4,40,0,4,1,11,1,7,1,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.View,0,17,0,0,0,7,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.InverseEntryView,2,72,1,11,1,18,1,9,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractDualBidiMap.KeySetIterator,0,53,0,2,0,16,0,4,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractDualBidiMap.EntrySet,0,62,1,9,0,14,1,7,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,DualTreeBidiMap.ViewMap,38,35,0,2,5,8,5,5,5,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,AbstractDualBidiMap.View,0,119,1,25,0,37,1,19,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.bidimap,TreeBidiMap.EntryView,2,72,1,11,1,18,1,9,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,StaticBucketMap,40,573,11,63,13,121,12,44,3,16
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,UnmodifiableEntrySet.UnmodifiableEntrySetIterator,0,21,0,0,0,5,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractMapDecorator,0,92,0,4,0,27,0,20,0,18
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.ReferenceEntrySetIterator,0,7,0,0,0,3,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,ListOrderedMap.ListOrderedMapEntry,0,22,0,0,0,5,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap,10,396,8,42,1,113,8,47,0,30
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractHashedMap.Values,0,23,0,0,0,8,0,5,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.SoftRef,11,0,0,0,4,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractLinkedMap.LinkEntry,0,7,0,0,0,2,0,1,0,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,ListOrderedMap.ValuesView,0,44,0,0,0,11,0,8,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractHashedMap,41,1066,11,125,15,269,15,105,4,48
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,ListOrderedMap.KeySetView,0,28,0,0,0,8,0,5,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,StaticBucketMap.EntrySet,0,116,0,10,0,24,0,11,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,ReferenceIdentityMap,24,61,0,6,6,16,3,11,3,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractInputCheckedMapDecorator,2,23,0,2,1,7,1,4,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,PredicatedMap,0,128,0,16,0,32,0,17,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,SingletonMap.SingletonValues,4,23,0,0,1,7,1,5,1,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractInputCheckedMapDecorator.EntrySet,0,116,1,9,0,21,1,8,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.WeakRef,0,11,0,0,0,4,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,EntrySetToMapIteratorAdapter,0,57,0,2,0,18,0,10,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,Flat3Map.FlatMapIterator,112,102,11,15,19,30,12,13,3,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,MultiValueMap.Values,4,36,0,2,2,7,1,4,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,LazySortedMap,0,75,0,0,0,16,0,11,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.ReferenceMapIterator,0,48,0,6,0,15,0,8,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractSortedMapDecorator,51,23,4,0,9,8,8,6,6,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,ListOrderedMap.EntrySetView,0,92,0,8,0,26,0,16,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractLinkedMap.LinkMapIterator,0,52,0,6,0,16,0,9,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,Flat3Map.EntryIterator,34,42,3,3,8,9,3,4,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,UnmodifiableEntrySet.UnmodifiableEntry,0,11,0,0,0,4,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.ReferenceBaseIterator,5,168,2,22,1,48,2,17,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,SingletonMap.SingletonMapIterator,26,97,5,9,7,24,6,12,1,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,MultiValueMap.ValuesIterator,0,41,0,2,0,11,0,5,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,ListOrderedMap.ListOrderedIterator,0,34,0,0,0,9,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,MultiKeyMap,149,1431,109,191,7,304,81,108,0,39
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractHashedMap.HashIterator,6,147,2,18,2,36,2,14,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractLinkedMap.KeySetIterator,4,8,0,0,1,3,1,2,1,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,Flat3Map.Values,6,35,1,3,1,11,1,6,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,StaticBucketMap.ValueIterator,0,12,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.ReferenceStrength,8,49,3,1,3,7,3,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.ReferenceValues,0,34,0,2,0,8,0,4,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractSortedMapDecorator.SortedMapIterator,29,0,0,0,8,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,LinkedMap.LinkedMapList,4,88,0,0,1,20,1,18,1,18
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,MultiValueMap.ReflectionFactory,15,31,1,3,2,8,1,4,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractHashedMap.KeySetIterator,0,8,0,0,0,3,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,PredicatedSortedMap,0,72,0,0,0,13,0,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractOrderedMapDecorator,4,29,0,0,1,9,1,7,1,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,Flat3Map.EntrySetIterator,0,7,0,0,0,3,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,UnmodifiableSortedMap,29,67,0,2,4,21,4,14,4,13
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractInputCheckedMapDecorator.EntrySetIterator,0,24,0,0,0,6,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,FixedSizeMap,30,71,4,2,8,20,5,11,3,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractHashedMap.HashMapIterator,0,48,0,6,0,15,0,8,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractLinkedMap,10,331,0,40,4,72,3,40,3,20
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.ReferenceKeySet,0,34,0,2,0,8,0,4,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractLinkedMap.ValuesIterator,4,8,0,0,1,3,1,2,1,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractLinkedMap.LinkIterator,15,158,4,14,4,33,4,14,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.ReferenceEntry,26,200,11,31,5,40,10,22,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractHashedMap.HashEntry,2,107,2,20,1,23,2,16,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,FixedSizeSortedMap,21,94,2,2,6,21,4,15,3,14
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,StaticBucketMap.KeySet,0,77,2,6,0,15,2,8,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,Flat3Map.ValuesIterator,0,8,0,0,0,3,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractHashedMap.KeySet,0,35,0,0,0,11,0,6,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,ListOrderedMap,22,433,4,38,1,99,4,45,0,28
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,CompositeMap,17,458,3,49,5,87,4,44,1,21
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,CaseInsensitiveMap,5,60,0,4,2,19,1,9,1,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,Flat3Map.KeySet,0,53,0,4,0,15,0,8,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,MultiValueMap,13,327,5,39,2,86,6,38,1,21
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.ReferenceKeySetIterator,0,8,0,0,0,3,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,StaticBucketMap.BaseIterator,0,110,0,12,0,24,0,10,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,StaticBucketMap.Values,0,21,0,0,0,5,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,ListOrderedMap.ListOrderedMapIterator,13,133,0,10,4,32,1,15,1,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,DefaultedMap,15,79,3,7,3,21,3,11,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractLinkedMap.EntrySetIterator,3,7,0,0,1,3,1,2,1,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,HashedMap,4,31,0,0,2,13,1,6,1,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,LazyMap,11,70,1,5,2,22,2,8,1,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,UnmodifiableEntrySet,2,137,2,10,1,28,2,16,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,MultiValueMap.new LazyIteratorChain() {...},0,36,0,2,0,6,0,3,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,PassiveExpiringMap,26,251,0,18,8,67,4,32,4,23
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,TransformedMap,1,144,2,10,0,38,2,16,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,StaticBucketMap.EntryIterator,0,11,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,ReferenceMap,24,28,0,0,6,10,3,4,3,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,Flat3Map.KeySetIterator,0,8,0,0,0,3,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,UnmodifiableOrderedMap,0,72,0,2,0,24,0,13,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,StaticBucketMap.KeyIterator,0,12,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,Flat3Map,144,1247,64,226,30,328,61,123,0,23
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.ReferenceEntrySet,0,38,0,2,0,8,0,4,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,StaticBucketMap.Node,2,73,2,18,1,14,2,13,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractReferenceMap.ReferenceValuesIterator,0,8,0,0,0,3,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,LRUMap,203,296,9,31,17,87,13,32,5,20
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractHashedMap.ValuesIterator,0,8,0,0,0,3,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,SingletonMap,114,190,20,15,29,50,21,30,5,28
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractInputCheckedMapDecorator.MapEntry,0,20,0,0,0,6,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,LinkedMap,9,76,0,4,4,21,2,12,2,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,PassiveExpiringMap.ConstantTimeToLiveExpirationPolicy,6,33,1,3,3,10,2,4,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,UnmodifiableMap,21,65,2,2,5,22,2,12,1,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,Flat3Map.EntrySet,2,57,1,5,1,17,1,7,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,TransformedSortedMap,0,94,1,1,0,19,1,10,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractIterableMap,0,9,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractHashedMap.EntrySet,0,64,0,10,0,19,0,11,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,AbstractHashedMap.EntrySetIterator,0,7,0,0,0,3,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.map,Flat3Map.FlatMapEntry,111,112,26,16,19,32,20,12,2,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap.Values,0,40,0,2,0,9,0,5,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap.AsMap.AsMapEntrySet,0,50,0,2,0,11,0,7,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap.KeysMultiSet.MapEntryTransformer,0,12,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractSetValuedMap.WrappedSet,0,37,0,4,0,12,0,5,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractListValuedMap.ValuesListIterator,44,76,0,4,11,18,6,7,6,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractSetValuedMap,0,27,0,0,0,8,0,6,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap.MultiValuedMapIterator,27,39,5,1,7,11,5,5,2,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap.AsMap.AsMapEntrySetIterator,0,24,0,0,0,6,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractListValuedMap.WrappedList,104,70,6,6,25,19,11,9,8,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap.MultiValuedMapEntry,0,12,0,0,0,4,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap.KeysMultiSet,0,56,1,1,0,12,1,7,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,ArrayListValuedHashMap,34,48,2,0,10,16,4,6,3,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap,87,347,15,43,16,81,16,42,4,25
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMapDecorator,26,98,0,4,5,26,5,21,5,19
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractListValuedMap,0,27,0,0,0,8,0,6,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap.EntryValues,0,15,0,0,0,3,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,TransformedMultiValuedMap,10,156,4,16,2,35,4,15,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap.ValuesIterator,0,43,0,2,0,11,0,5,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,HashSetValuedHashMap,25,38,0,0,8,13,3,5,3,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap.WrappedCollection,102,136,23,17,31,33,20,16,6,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMap.AsMap,0,90,0,8,0,24,0,15,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multimap,UnmodifiableMultiValuedMap,24,55,0,2,6,13,6,11,6,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,PeekingIterator,12,125,3,23,4,35,3,18,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,ListIteratorWrapper,41,253,8,32,11,61,8,23,2,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,ArrayListIterator,36,82,0,8,7,19,5,10,5,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,UniqueFilterIterator,0,5,0,0,0,2,0,1,0,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,EntrySetMapIterator,121,0,10,0,31,0,14,0,9,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,NodeListIterator,5,71,3,9,1,15,3,8,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,AbstractOrderedMapIteratorDecorator,49,0,2,0,15,0,11,0,10,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,AbstractListIteratorDecorator,5,49,1,1,1,17,1,11,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,LoopingListIterator,153,0,24,0,43,0,25,0,13,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,IteratorIterable,0,44,1,5,0,12,1,6,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,UnmodifiableIterator,0,38,0,4,0,12,0,7,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,AbstractUntypedIteratorDecorator,5,19,1,1,1,8,1,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,UnmodifiableMapIterator,0,51,0,4,0,15,0,10,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,EmptyOrderedIterator,0,10,0,0,0,4,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,SkippingIterator,0,60,0,8,0,17,0,8,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,AbstractMapIteratorDecorator,41,0,2,0,13,0,9,0,8,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,UnmodifiableListIterator,0,64,0,4,0,18,0,13,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,ArrayIterator,9,122,0,10,3,28,3,13,3,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,TransformIterator,23,28,0,0,11,9,6,5,6,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,ObjectArrayIterator,33,78,4,8,8,21,7,9,3,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,LoopingIterator,56,0,8,0,17,0,10,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,EnumerationIterator,65,0,4,0,21,0,10,0,8,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,AbstractIteratorDecorator,0,8,0,0,0,3,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,SingletonIterator,0,75,0,14,0,22,0,13,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,BoundedIterator,5,117,1,17,1,31,1,14,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,UnmodifiableOrderedMapIterator,0,59,0,4,0,17,0,12,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,IteratorEnumeration,24,0,0,0,10,0,6,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,AbstractEmptyIterator,14,23,0,0,4,8,4,7,4,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,FilterListIterator,259,0,36,0,76,0,39,0,21,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,EmptyOrderedMapIterator,0,10,0,0,0,4,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,LazyIteratorChain,0,99,0,12,0,28,0,11,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,ReverseListIterator,10,100,2,6,2,31,2,13,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,PushbackIterator,10,54,3,7,3,12,3,8,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,EmptyListIterator,4,10,0,0,2,4,2,2,2,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,EmptyIterator,0,14,0,0,0,6,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,ObjectGraphIterator,0,195,0,30,0,56,0,23,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,SingletonListIterator,0,127,2,26,0,32,2,23,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,FilterIterator,17,98,1,13,5,32,4,14,3,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,IteratorIterable.new Iterator() {...},4,14,0,0,2,3,1,3,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,ObjectArrayListIterator,23,95,0,8,7,19,3,12,3,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,CollatingIterator,84,317,10,38,19,86,11,35,4,18
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,AbstractEmptyMapIterator,0,18,0,0,0,5,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,PermutationIterator,5,257,1,33,1,44,1,20,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,IteratorChain,84,154,6,14,13,43,8,16,4,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,EmptyMapIterator,0,10,0,0,0,4,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.iterators,ZippingIterator,5,134,1,13,1,34,1,12,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,PredicatedSortedSet,0,64,0,0,0,13,0,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,CompositeSet,25,488,6,68,7,119,8,56,2,25
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,TransformedSet,0,67,1,7,0,12,1,8,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,ListOrderedSet.OrderedSetIterator,14,28,0,0,3,9,2,3,2,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,AbstractSerializableSetDecorator,0,19,0,0,0,8,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,TransformedSortedSet,44,60,4,0,8,12,4,8,2,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,AbstractSortedSetDecorator,19,20,0,0,5,6,4,5,4,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,UnmodifiableSet,0,49,0,2,0,14,0,11,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,PredicatedSet,0,31,0,4,0,6,0,7,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,ListOrderedSet,12,315,4,36,3,83,4,39,0,23
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,MapBackedSet,5,157,1,9,1,32,1,23,0,19
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,PredicatedNavigableSet,15,74,0,0,3,15,3,11,3,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,AbstractNavigableSetDecorator,39,28,0,0,9,7,8,6,8,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,UnmodifiableSortedSet,0,87,0,2,0,25,0,16,0,15
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,UnmodifiableNavigableSet,0,126,0,2,0,33,0,21,0,20
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,AbstractSetDecorator,3,24,0,4,2,5,1,6,1,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.set,TransformedNavigableSet,55,74,4,0,10,15,6,11,4,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},17,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,FactoryUtils,15,6,0,0,4,2,4,2,4,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,CollectionUtils.EquatorWrapper,34,0,2,0,10,0,5,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,SetUtils.new Predicate() {...},11,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},0,11,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,BagUtils,47,0,0,0,14,0,12,0,12,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},2,3,0,0,1,1,1,1,1,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,ListUtils.CharSequenceAsList,16,0,0,0,5,0,3,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,ClosureUtils,112,0,4,0,28,0,18,0,16,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.UnmodifiableIterable,11,0,0,0,4,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},44,0,2,0,6,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,MapUtils.new AbstractMapDecorator() {...},4,0,0,0,1,0,1,0,1,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,ListUtils.LcsVisitor,19,0,0,0,8,0,5,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,ArrayUtils,60,0,16,0,15,0,12,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},11,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,SetUtils.new SetUtils.SetView() {...},53,0,4,0,5,0,7,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,ArrayStack,23,70,6,10,6,24,6,10,2,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,SetUtils.new SetUtils.SetView() {...},33,0,4,0,3,0,5,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,TrieUtils,3,0,0,0,1,0,1,0,1,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,CollectionUtils.CardinalityHelper,8,43,0,2,1,11,1,6,1,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,CollectionUtils.SetOperationCardinalityHelper,0,48,0,2,0,11,0,5,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,MultiMapUtils,106,0,20,0,30,0,22,0,12,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils,552,32,59,3,117,10,70,5,39,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,ListUtils,337,87,55,19,76,23,51,9,19,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},24,0,2,0,4,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},16,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,SetUtils.new Predicate() {...},15,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,MapUtils,1093,0,188,0,306,0,168,0,74,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,CollectionUtils.new Transformer() {...},13,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,CollectionUtils.new Transformer() {...},13,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,CollectionUtils,1285,179,243,27,305,41,185,18,59,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,SetUtils.new SetUtils.SetView() {...},54,0,8,0,5,0,9,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,EnumerationUtils,53,0,6,0,13,0,6,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,MapUtils.new AbstractSortedMapDecorator() {...},4,0,0,0,1,0,1,0,1,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},16,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,SetUtils.new SetUtils.SetView() {...},33,0,4,0,3,0,5,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,SplitMapUtils,45,0,10,0,11,0,7,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,ComparatorUtils,103,11,17,1,26,3,18,2,9,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,CollectionUtils.new Transformer() {...},13,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},13,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},22,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},16,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IteratorUtils,802,73,133,9,203,23,132,9,62,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,ListUtils.Partition,82,0,4,0,14,0,6,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,FluentIterable,154,36,2,2,33,12,30,6,29,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,QueueUtils,22,0,0,0,6,0,6,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,SplitMapUtils.WrappedGet,109,0,8,0,23,0,20,0,16,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,SplitMapUtils.WrappedPut,85,0,6,0,21,0,18,0,15,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,MultiSetUtils,18,0,0,0,6,0,5,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,FunctorException,16,0,0,0,8,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,TransformerUtils,130,7,4,0,31,3,22,3,20,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,SetUtils,160,53,25,11,40,14,36,7,21,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,PredicateUtils,110,0,0,0,31,0,29,0,29,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},18,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,SetUtils.SetView,27,0,0,0,8,0,5,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4,IterableUtils.new FluentIterable() {...},0,16,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,SynchronizedMultiSet.SynchronizedSet,0,5,0,0,0,2,0,1,0,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,SynchronizedMultiSet,18,115,0,2,4,22,2,11,2,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMultiSet.MultiSetIterator,29,55,4,6,8,13,3,6,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMultiSet.new Transformer() {...},0,9,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,UnmodifiableMultiSet,19,71,0,2,5,22,4,14,4,13
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMultiSetDecorator,29,29,0,4,7,6,6,7,6,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMapMultiSet.MapBasedMultiSetIterator,4,112,1,13,1,26,1,10,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMultiSet.AbstractEntry,45,19,12,0,9,2,8,2,2,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,HashMultiSet,7,23,0,0,3,9,1,3,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMapMultiSet,14,428,5,43,3,102,5,40,0,21
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMultiSet,179,131,27,19,44,33,24,21,9,13
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,PredicatedMultiSet,9,59,0,4,2,12,1,12,1,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMapMultiSet.MultiSetEntry,0,16,0,0,0,5,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMapMultiSet.EntrySetIterator,18,34,2,0,6,10,2,3,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMultiSet.UniqueSet,0,41,0,2,0,10,0,8,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMapMultiSet.UniqueSetIterator,0,53,0,2,0,16,0,4,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMultiSet.EntrySet,61,10,10,0,16,4,8,2,3,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.multiset,AbstractMapMultiSet.MutableInteger,18,6,4,0,4,3,4,1,2,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.queue,AbstractQueueDecorator,20,12,0,0,6,4,5,3,5,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.queue,CircularFifoQueue.new Iterator() {...},0,192,0,18,0,32,0,13,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.queue,TransformedQueue,0,78,1,3,0,16,1,10,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.queue,SynchronizedQueue,5,97,0,2,2,20,1,11,1,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.queue,PredicatedQueue,0,39,0,0,0,10,0,8,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.queue,CircularFifoQueue,32,332,4,44,8,84,7,38,3,18
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/main/java,org.apache.commons.collections4.queue,UnmodifiableQueue,8,68,0,2,2,21,2,14,2,13
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.keyvalue,MultiKeyTest,1100,0,10,0,141,0,18,0,13,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.keyvalue,TiedMapEntryTest,120,0,0,0,28,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.keyvalue,MultiKeyTest.SystemHashCodeSimulatingKey,31,0,4,0,9,0,6,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.keyvalue,DefaultKeyValueTest,360,0,44,0,67,0,31,0,9,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.keyvalue,MultiKeyTest.DerivedMultiKey,13,0,0,0,4,0,3,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.keyvalue,UnmodifiableMapEntryTest,104,0,0,0,28,0,7,0,7,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.keyvalue,DefaultMapEntryTest,81,0,0,0,22,0,5,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.keyvalue,AbstractMapEntryTest,208,0,16,0,43,0,16,0,8,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.splitmap,TransformedSplitMapTest,3,436,2,12,0,73,2,10,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.splitmap,TransformedSplitMapTest.new Transformer() {...},0,9,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.splitmap,TransformedSplitMapTest.new Transformer() {...},0,13,0,2,0,2,0,3,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.splitmap,TransformedSplitMapTest.new Transformer() {...},0,9,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.junit,SetDefaultLocaleTestRule.new Statement() {...},21,0,0,0,6,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.junit,SetDefaultLocaleTestRule,15,0,0,0,5,0,3,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.junit,AbstractAvailableLocalesTest,91,0,8,0,19,0,8,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.junit,ObjectToStringComparator,23,0,8,0,8,0,6,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,IndexedCollectionTest,6,306,0,0,3,53,0,16,0,16
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,PredicatedCollectionTest,19,174,5,5,6,34,5,11,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,CompositeCollectionTest.new CompositeCollection.CollectionMutator() {...},19,23,2,2,5,5,3,3,2,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,CompositeCollectionTest.new CompositeCollection.CollectionMutator() {...},19,23,2,2,5,5,3,3,2,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,PredicatedCollectionBuilderTest.OddPredicate,10,0,2,0,1,0,2,0,1,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,UnmodifiableBoundedCollectionTest,7,65,0,0,3,21,1,10,1,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,TransformedCollectionTest.StringToInteger,0,4,0,0,0,1,0,1,0,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,PredicatedCollectionTest.new Predicate() {...},0,9,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,CompositeCollectionTest,31,912,23,27,3,198,23,33,0,31
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,TransformedCollectionTest,0,236,0,4,0,36,0,13,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,PredicatedCollectionBuilderTest,198,0,0,0,57,0,8,0,8,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,UnmodifiableCollectionTest,5,62,0,0,2,20,0,10,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,CompositeCollectionTest.new CompositeCollection.CollectionMutator() {...},34,23,4,2,8,5,4,3,2,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,SynchronizedCollectionTest,0,27,0,0,0,8,0,5,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,AbstractCollectionTest,558,2103,39,159,140,497,47,106,10,44
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.collection,IndexedCollectionTest.IntegerTransformer,0,3,0,0,0,1,0,1,0,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,FixedOrderComparatorTest,31,386,2,14,12,78,2,18,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,ComparatorChainTest.PseudoRow,52,56,4,4,13,13,5,3,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,ComparatorChainTest,21,236,5,5,6,48,5,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,AbstractNullComparatorTest.TestNullComparator2,0,57,0,0,0,13,0,5,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,ComparableComparatorTest,0,41,0,0,0,11,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,AbstractNullComparatorTest.TestNullComparator1,0,56,0,0,0,13,0,5,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,TransformingComparatorTest,18,73,6,2,0,20,4,5,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,AbstractNullComparatorTest,0,24,0,0,0,6,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,BooleanComparatorTest,46,265,6,8,15,57,6,13,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,ComparatorChainTest.new Comparator() {...},0,20,0,4,0,7,0,4,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,AbstractComparatorTest,13,164,1,1,4,54,1,12,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,ComparatorChainTest.ColumnComparator,1,46,2,6,0,13,2,6,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.comparators,ReverseComparatorTest,0,82,0,0,0,21,0,5,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.properties,SortedPropertiesTest,51,0,4,0,8,0,4,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.sequence,SequencesComparatorTest,637,0,26,0,87,0,21,0,8,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.sequence,SequencesComparatorTest.ExecutionVisitor,64,0,2,0,15,0,7,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,PredicatedBagTest.new Predicate() {...},0,9,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,CollectionBagTest,1,86,7,7,0,20,7,7,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,CollectionSortedBagTest,1,132,7,11,0,29,7,12,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,TreeBagTest,23,96,0,0,9,27,0,8,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,AbstractBagTest,18,1459,7,65,9,364,7,57,0,28
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,AbstractSortedBagTest,0,133,0,10,0,37,0,15,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,AbstractBagTest.TestBagUniqueSet,4,70,0,0,1,20,1,11,1,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,TransformedBagTest,0,218,0,6,0,28,0,9,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,PredicatedSortedBagTest.new Predicate() {...},0,9,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,UnmodifiableSortedBagTest,5,54,0,0,2,19,0,11,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,UnmodifiableBagTest,5,54,0,0,2,19,0,11,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,TreeBagTest.new Comparator() {...},0,10,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,HashBagTest,0,13,0,0,0,5,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,TransformedSortedBagTest,0,192,0,6,0,24,0,9,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,SynchronizedBagTest,0,14,0,0,0,5,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,PredicatedSortedBagTest,29,93,1,1,5,26,2,8,1,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bag,PredicatedBagTest,28,176,2,4,9,37,2,11,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,FixedSizeListTest,0,62,0,0,0,19,0,7,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,AbstractListTest,651,1508,38,98,198,447,29,85,2,44
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,GrowthListTest,30,201,0,0,12,59,0,12,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,AbstractLinkedListTest,49,396,5,9,19,98,5,10,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,SetUniqueListTest,12,1649,1,23,5,358,1,39,0,28
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,SetUniqueListTest.SetUniqueList307,0,8,0,0,0,3,0,1,0,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,UnmodifiableListTest,88,95,0,0,35,38,0,12,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,AbstractListTest.TestListIterator,0,41,0,0,0,11,0,7,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,TransformedListTest,0,371,0,8,0,60,0,12,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,Collections701Test,63,0,0,0,17,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,AbstractListTest.BulkTestSubList,0,115,0,0,0,25,0,12,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,PredicatedListTest,29,196,5,5,9,50,5,10,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,NodeCachingLinkedListTest,197,127,6,2,52,21,5,6,1,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,CursorableLinkedListTest,145,4621,41,47,52,1072,41,60,0,57
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,PredicatedListTest.new Predicate() {...},0,9,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,TreeListTest,205,653,16,18,35,154,9,20,1,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.list,AbstractListTest.new AbstractCollection() {...},8,9,0,0,2,1,2,1,2,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.trie,PatriciaTrieTest,97,1525,1,7,15,288,1,15,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.trie,UnmodifiableTrieTest,5,50,0,0,2,19,0,11,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.trie,PatriciaTrie2Test,0,15,0,0,0,6,0,5,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,ComparatorPredicateTest,186,0,0,0,32,0,7,0,7,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,CatchAndRethrowClosureTest.new CatchAndRethrowClosure() {...},7,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,NullPredicateTest,21,0,0,0,8,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,AbstractClosureTest,9,0,0,0,4,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,AbstractCompositePredicateTest,119,0,2,0,28,0,10,0,9,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,AllPredicateTest,227,0,0,0,34,0,9,0,9,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,EqualPredicateTest,45,0,0,0,13,0,6,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,AbstractPredicateTest,32,0,0,0,12,0,5,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,CatchAndRethrowClosureTest.new CatchAndRethrowClosure() {...},7,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,AbstractMockPredicateTest,64,0,4,0,16,0,7,0,5,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,CatchAndRethrowClosureTest,61,0,0,0,29,0,6,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,ComparatorPredicateTest.TestComparator,10,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,EqualPredicateTest.EqualsTestObject,9,0,0,0,4,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,CatchAndRethrowClosureTest.new CatchAndRethrowClosure() {...},4,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.functors,AbstractAnyAllOnePredicateTest,61,0,0,0,14,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,TreeBidiMapTest,0,30,0,0,0,10,0,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,AbstractBidiMapTest.TestBidiMapEntrySet,72,95,2,2,17,26,1,3,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,UnmodifiableOrderedBidiMapTest,5,61,0,0,2,21,0,13,0,13
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,AbstractBidiMapTest,100,786,14,28,25,195,13,36,0,28
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,AbstractOrderedBidiMapTest.TestBidiOrderedMapIterator,0,49,0,0,0,15,0,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,DualLinkedHashBidiMapTest,0,20,0,0,0,6,0,5,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,DualTreeBidiMap2Test,0,238,2,4,0,62,2,12,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,AbstractOrderedBidiMapDecoratorTest,0,18,0,0,0,7,0,6,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,AbstractBidiMapTest.TestInverseBidiMap,0,55,0,0,0,15,0,12,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,DualHashBidiMapTest,0,18,0,0,0,5,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,AbstractOrderedBidiMapTest,45,198,4,10,14,62,5,10,1,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,AbstractSortedBidiMapTest,0,2100,0,18,0,453,0,29,0,20
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,UnmodifiableSortedBidiMapTest,7,61,0,0,3,21,1,13,1,13
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,AbstractBidiMapTest.TestBidiMapIterator,0,49,0,0,0,15,0,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,AbstractOrderedBidiMapDecoratorTest.TestOrderedBidiMap,0,34,0,2,0,9,0,4,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,DualTreeBidiMap2Test.IntegerComparator,4,0,0,0,1,0,1,0,1,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,UnmodifiableBidiMapTest,5,57,0,0,2,19,0,11,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.bidimap,DualTreeBidiMapTest,0,20,0,0,0,6,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,SingletonMapTest,0,130,0,0,0,33,0,15,0,15
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,UnmodifiableMapTest,5,47,0,0,2,17,0,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,PredicatedSortedMapTest,55,216,5,5,19,55,6,10,1,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,TransformedSortedMapTest,18,368,0,4,5,68,1,10,1,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,FixedSizeMapTest,0,25,0,0,0,9,0,6,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,MultiValueMapTest,7,1280,0,10,3,293,0,41,0,36
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractSortedMapTest.TestTailMap,23,110,0,4,3,20,1,6,1,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,MultiKeyMapTest,44,2386,12,44,8,275,10,48,0,24
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,PredicatedMapTest,36,152,4,4,12,37,4,8,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,Flat3MapTest.TestFlatMapIterator,0,49,0,0,0,15,0,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.new Thread() {...},3,105,2,8,2,22,2,5,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,UnmodifiableSortedMapTest,5,45,0,0,2,17,0,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LazySortedMapTest,63,104,1,1,16,28,2,8,1,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.new Thread() {...},3,109,2,8,2,24,2,5,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractOrderedMapTest.InnerTestOrderedMapIterator,0,49,0,0,0,15,0,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest,80,2367,14,54,27,429,14,43,0,23
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractIterableMapTest,30,140,0,12,12,50,0,13,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.MockLRUMapSubclass,0,17,0,0,0,6,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,ListOrderedMap2Test,63,200,0,12,12,62,0,17,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractMapTest,259,3086,87,215,64,684,82,148,2,77
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,StaticBucketMapTest,0,153,0,6,0,29,0,11,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractMapTest.TestMapEntrySet,3,422,2,18,2,99,2,26,0,18
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.MockLRUMapSubclassBlocksRemove,0,7,0,0,0,3,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.MockLRUMapSubclassFirstBlocksRemove,0,14,0,2,0,5,0,3,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractSortedMapTest.TestSubMap,23,129,0,4,3,23,1,6,1,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,CompositeMapTest.new CompositeMap.MapMutator() {...},8,12,0,0,2,3,2,2,2,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.SingleHashCode,10,8,0,0,1,4,1,2,1,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,ListOrderedMapTest.TestKeyListView,4,29,0,0,1,10,1,8,1,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,TransformedMapTest,0,375,0,4,0,64,0,8,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,CompositeMapTest.new CompositeMap.MapMutator() {...},8,12,0,0,2,3,2,2,2,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LinkedMapTest,64,483,2,14,13,117,2,21,0,15
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,CaseInsensitiveMapTest,5,373,3,5,0,65,2,12,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,UnmodifiableOrderedMapTest,5,47,0,0,2,17,0,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,Flat3MapTest,0,1949,0,0,0,494,0,50,0,50
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractIterableMapTest.InnerTestMapIterator,0,53,0,0,0,16,0,10,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,FixedSizeSortedMapTest,2,28,0,0,1,10,1,7,1,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractSortedMapTest,0,72,0,2,0,21,0,13,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.new Thread() {...},3,115,2,8,2,24,2,5,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,ReferenceMapTest,42,276,4,10,14,69,5,15,1,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractMapTest.TestMapValues,8,73,0,0,3,22,3,12,3,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.new Thread() {...},3,107,2,8,2,23,2,5,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,PredicatedMapTest.new Predicate() {...},0,6,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,PassiveExpiringMapTest,27,493,0,0,11,113,0,20,0,20
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.new ThreadGroup() {...},12,10,0,0,3,1,1,1,1,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.new ThreadGroup() {...},12,10,0,0,3,1,1,1,1,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractSortedMapTest.TestHeadMap,23,90,0,4,3,19,1,6,1,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,HashedMapTest,0,79,0,0,0,21,0,7,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,DefaultedMapTest,0,261,0,0,0,60,0,7,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,PredicatedSortedMapTest.new Predicate() {...},0,6,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,DefaultedMapTest.new Transformer() {...},0,13,0,2,0,4,0,3,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,IdentityMap,32,28,2,2,13,6,8,5,6,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.new ThreadGroup() {...},12,10,0,0,3,1,1,1,1,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LazyMapTest.new Transformer() {...},10,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,IdentityMap.IdentityEntry,2,40,2,6,1,11,2,5,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractOrderedMapTest,39,229,1,15,11,69,1,17,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,ListOrderedMapTest,106,987,0,28,20,245,0,35,0,21
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,ReferenceMapTest.new ReferenceMap() {...},0,23,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,ReferenceMapTest.AccessibleEntry,0,25,1,1,0,7,1,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,ListOrderedMapTest.TestValueListView,4,29,0,0,1,10,1,8,1,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LazyMapTest,107,18,0,0,21,6,2,5,2,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,ListOrderedMap2Test.TestListView,4,29,0,0,1,10,1,8,1,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractSortedMapTest.TestViewMap,0,83,0,0,0,27,0,16,0,16
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,PassiveExpiringMapTest.TestExpirationPolicy,2,11,1,3,1,4,1,2,0,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LinkedMapTest.TestListView,4,29,0,0,1,10,1,8,1,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,CompositeMapTest.new CompositeMap.MapMutator() {...},8,13,0,0,2,3,2,2,2,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,AbstractMapTest.TestMapKeySet,4,71,0,0,1,21,1,11,1,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,EmptyMapMutator,1,16,0,0,1,4,1,3,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,ReferenceIdentityMapTest,40,356,2,4,13,86,3,14,1,13
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,CompositeMapTest,6,288,0,0,3,72,0,14,0,14
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.map,LRUMapTest.new ThreadGroup() {...},12,10,0,0,3,1,1,1,1,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMapTest.TestMultiValuedMapKeys,4,59,0,0,1,17,1,9,1,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multimap,TransformedMultiValuedMapTest,0,385,0,4,0,58,0,9,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multimap,HashSetValuedHashMapTest,0,209,0,2,0,56,0,9,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMapTest,21,1623,3,63,10,402,5,82,2,52
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMapTest.TestMultiValuedMapAsMap,4,185,0,10,1,29,1,16,1,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multimap,ArrayListValuedHashMapTest,0,295,0,2,0,78,0,10,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMapTest.TestMultiValuedMapEntries,8,66,0,0,3,17,3,9,3,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multimap,UnmodifiableMultiValuedMapTest,124,129,0,0,69,64,0,16,0,16
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMapTest.TestMultiValuedMapKeySet,4,32,0,0,1,9,1,7,1,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multimap,AbstractMultiValuedMapTest.TestMultiValuedMapValues,8,61,0,0,3,17,3,9,3,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,BoundedIteratorTest,93,515,0,0,42,137,0,17,0,17
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ObjectGraphIteratorTest.Forest,0,33,0,0,0,6,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ListIteratorWrapper2Test,19,394,1,9,10,84,1,11,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,IteratorChainTest,23,367,5,13,9,80,5,13,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ArrayIterator2Test,77,180,1,7,20,38,2,11,1,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,UnmodifiableOrderedMapIteratorTest,6,88,1,1,2,25,1,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ReverseListIteratorTest,18,285,0,4,9,68,0,9,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,CollatingIteratorTest,9,819,5,31,2,171,5,26,0,13
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,SingletonListIteratorTest,12,216,4,4,4,59,4,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,IteratorEnumerationTest,55,0,0,0,14,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,FilterIteratorTest.new Predicate() {...},0,8,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,LoopingIteratorTest,383,0,2,0,91,0,10,0,9,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,SingletonIteratorTest,6,121,2,2,2,39,2,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ObjectGraphIteratorTest,71,806,0,12,45,189,0,25,0,19
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ObjectGraphIteratorTest.Branch,0,33,0,0,0,6,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,LazyIteratorChainTest,23,342,5,13,9,74,5,13,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,NodeListIteratorTest.new NodeList() {...},0,17,0,0,0,3,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,UnmodifiableMapIteratorTest,6,86,1,1,2,24,1,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,AbstractListIteratorTest,82,225,5,21,28,75,5,19,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,PushbackIteratorTest,0,180,0,2,0,42,0,11,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,UniqueFilterIteratorTest,5,155,1,3,2,29,1,6,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ArrayListIterator2Test,18,16,0,0,3,4,3,3,3,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ArrayListIteratorTest,15,134,1,7,6,31,1,10,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ObjectArrayIteratorTest,31,104,1,3,8,23,4,9,3,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ObjectGraphIteratorTest.Leaf,7,3,0,0,3,1,2,1,2,1
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,FilterListIteratorTest.new Predicate() {...},15,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ZippingIteratorTest,5,550,5,29,0,107,5,23,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ObjectArrayListIteratorTest,15,136,1,7,6,30,1,9,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,UnmodifiableListIteratorTest,6,72,1,1,2,19,1,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,IteratorIterableTest,8,89,2,4,2,26,2,7,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,LazyIteratorChainTest.new LazyIteratorChain() {...},0,25,0,4,0,6,0,5,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,LoopingListIteratorTest,816,0,0,0,204,0,13,0,13,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ObjectGraphIteratorTest.LeafFinder,4,29,1,7,1,9,1,5,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,AbstractMapIteratorTest,67,375,3,23,27,119,4,20,1,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ListIteratorWrapperTest,24,448,1,9,13,96,1,11,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,NodeListIteratorTest.new NodeList() {...},4,8,0,0,1,2,1,2,1,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ObjectArrayListIterator2Test,5,38,0,0,1,7,1,5,1,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,PermutationIteratorTest,5,354,0,14,3,92,0,19,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,NodeListIteratorTest,9,137,0,2,3,33,0,9,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,LazyIteratorChainTest.new LazyIteratorChain() {...},0,24,0,3,0,5,0,4,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,LazyIteratorChainTest.new Predicate() {...},0,15,0,2,0,2,0,3,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ObjectGraphIteratorTest.Tree,0,33,0,0,0,6,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,BoundedIteratorTest.new AbstractIteratorDecorator() {...},0,11,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,FilterListIteratorTest.new Predicate() {...},8,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,FilterIteratorTest,11,333,3,13,3,65,3,20,0,15
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,FilterListIteratorTest.new Predicate() {...},8,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,ArrayIteratorTest,13,94,1,3,5,22,1,8,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,FilterListIteratorTest.new Predicate() {...},15,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,AbstractIteratorTest,27,77,1,7,14,35,1,11,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,FilterListIteratorTest.new Predicate() {...},15,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,FilterListIteratorTest,1137,0,44,0,239,0,45,0,23,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,FilterIteratorTest.new Predicate() {...},0,34,0,4,0,5,0,4,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,UnmodifiableIteratorTest,6,68,1,1,2,17,1,7,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,SingletonIterator2Test,19,87,1,1,7,27,2,7,1,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,PeekingIteratorTest,9,181,0,2,6,51,0,12,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,IteratorChainTest.new Predicate() {...},0,15,0,2,0,2,0,3,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,LazyIteratorChainTest.new LazyIteratorChain() {...},0,8,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,AbstractOrderedMapIteratorTest,8,216,3,15,5,61,3,10,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,FilterListIteratorTest.new Predicate() {...},15,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,FilterIteratorTest.new Predicate() {...},0,8,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,SkippingIteratorTest.new AbstractIteratorDecorator() {...},0,11,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.iterators,SkippingIteratorTest,68,389,0,0,33,104,0,14,0,14
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,ListOrderedSetTest,34,572,0,18,15,132,0,21,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,UnmodifiableNavigableSetTest,50,156,1,1,20,42,1,12,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,AbstractNavigableSetTest.TestNavigableSetSubSet,13,268,5,9,2,58,6,20,1,17
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,AbstractNavigableSetTest,4,181,0,6,1,41,1,13,1,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,UnmodifiableSortedSetTest,50,113,1,1,20,37,1,12,0,12
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,AbstractSetTest,2,151,2,4,0,41,2,11,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,ListOrderedSetTest.B,4,11,3,1,0,3,2,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,MapBackedSet2Test,0,123,0,14,0,27,0,13,0,6
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,PredicatedNavigableSetTest.new Predicate() {...},0,18,1,3,0,2,1,3,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,AbstractSortedSetTest,4,166,0,10,1,42,1,16,1,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,PredicatedSortedSetTest,21,143,7,7,6,36,7,10,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,TransformedSortedSetTest,0,191,0,4,0,26,0,9,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,PredicatedSetTest,20,153,6,6,6,34,6,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,ListOrderedSet2Test,0,370,0,14,0,84,0,15,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,TransformedSetTest,0,230,0,4,0,33,0,10,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,UnmodifiableSetTest,5,49,0,0,2,17,0,9,0,9
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,MapBackedSetTest,0,11,0,0,0,4,0,3,0,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,PredicatedSortedSetTest.new Predicate() {...},0,18,1,3,0,2,1,3,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,CompositeSetTest,41,350,0,0,12,80,0,13,0,13
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,ListOrderedSetTest.A,10,5,4,0,1,2,3,2,1,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,PredicatedSetTest.new Predicate() {...},0,9,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,TransformedNavigableSetTest,0,191,0,4,0,26,0,9,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,AbstractSortedSetTest.TestSortedSetSubSet,6,216,1,5,2,47,2,17,1,14
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,EmptySetMutator,4,16,0,0,1,5,1,3,1,3
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,CompositeSetTest.new CompositeSet.SetMutator() {...},8,7,0,0,2,2,2,2,2,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.set,PredicatedNavigableSetTest,21,143,7,7,6,36,7,10,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,AbstractArrayListTest,31,18,0,0,9,7,1,2,1,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IteratorUtilsTest.new NodeList() {...},18,0,0,0,3,0,3,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Predicate() {...},12,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,FactoryUtilsTest.Mock3,16,0,0,0,5,0,3,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MultiSetUtilsTest.new Predicate() {...},14,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest.new Closure() {...},22,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},14,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,TrieUtilsTest,25,0,0,0,9,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},14,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},15,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Predicate() {...},11,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,FluentIterableTest.new Predicate() {...},12,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},13,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,ClosureUtilsTest.MockTransformer,14,0,0,0,4,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,BulkTestSuiteMaker,74,310,10,30,24,73,10,21,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,FactoryUtilsTest,310,0,8,0,93,0,21,0,17,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest.new Predicate() {...},14,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SetUtilsTest,885,0,12,0,176,0,20,0,14,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,FluentIterableTest.new Closure() {...},16,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},15,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MultiMapUtilsTest,389,0,16,0,73,0,19,0,11,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},17,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,ListUtilsTest.new Factory() {...},16,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},14,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Transformer() {...},15,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Equator() {...},21,0,2,0,3,0,4,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,FluentIterableTest.new Transformer() {...},13,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MultiSetUtilsTest,156,0,0,0,43,0,6,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Transformer() {...},15,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest.new Transformer() {...},11,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Transformer() {...},9,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,EnumerationUtilsTest,214,0,4,0,53,0,6,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest,5764,0,174,0,1225,0,196,0,109,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,ClosureUtilsTest,978,0,2,0,236,0,15,0,14,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,ListUtilsTest.new Predicate() {...},9,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Transformer() {...},10,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SetUtilsTest.new Predicate() {...},9,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MapPerformance.DummyMap,22,0,0,0,12,0,12,0,12,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},14,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IteratorUtilsTest,2509,0,108,0,669,0,90,0,36,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest.new Closure() {...},22,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Predicate() {...},14,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Transformer() {...},10,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,BulkTest,30,28,2,2,5,8,3,4,1,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,FactoryUtilsTest.Mock1,29,0,4,0,11,0,6,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MapUtilsTest.X,21,0,0,0,5,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,ComparatorUtilsTest,296,0,30,0,54,0,22,0,7,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest,368,0,8,0,78,0,13,0,9,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},15,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Transformer() {...},10,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest.new Predicate() {...},14,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MapUtilsTest,3383,0,10,0,679,0,61,0,56,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,TestUtils,52,0,0,0,17,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest.new Equator() {...},41,0,8,0,5,0,7,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MapPerformance,110,0,2,0,31,0,5,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,AbstractTreeMapTest,45,0,0,0,15,0,4,0,4,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MultiSetUtilsTest.new Predicate() {...},10,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,QueueUtilsTest,131,0,0,0,48,0,6,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MockTestCase,80,0,4,0,18,0,8,0,6,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MapUtilsTest.new Transformer() {...},10,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,FactoryUtilsTest.Mock2,22,0,4,0,8,0,5,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MapUtilsTest.new Predicate() {...},9,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Transformer() {...},10,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,TransformerUtilsTest,1187,0,2,0,268,0,21,0,20,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,TransformerUtilsTest.new Predicate() {...},14,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest.new Equator() {...},21,0,2,0,3,0,4,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest.new Transformer() {...},9,0,0,0,2,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest.new Equator() {...},21,0,2,0,3,0,4,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,ArrayStackTest,13,137,1,1,6,42,1,7,0,7
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest.new Predicate() {...},11,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,AbstractObjectTest,2,362,2,28,1,95,3,36,1,23
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,ClosureUtilsTest.MockClosure,17,0,0,0,6,0,3,0,3,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},18,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,FluentIterableTest.new Predicate() {...},14,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Predicate() {...},14,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MapUtilsTest.new Transformer() {...},15,0,2,0,4,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,BagUtilsTest,211,0,0,0,77,0,9,0,9,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,PredicateUtilsTest,1953,0,2,0,375,0,67,0,66,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Transformer() {...},10,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},15,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,AbstractLinkedListTest,214,0,8,0,84,0,15,0,11,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,ListUtilsTest.new Predicate() {...},11,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,CollectionUtilsTest.new Predicate() {...},15,0,2,0,2,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,FluentIterableTest,1771,0,2,0,294,0,30,0,29,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest.new Transformer() {...},10,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,IterableUtilsTest,1432,0,10,0,321,0,28,0,23,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,MapUtilsTest.new ListResourceBundle() {...},49,0,2,0,12,0,3,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,SplitMapUtilsTest.new Runnable() {...},14,0,0,0,3,0,2,0,2,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4,ListUtilsTest,1212,0,20,0,243,0,35,0,25,0
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multiset,SynchronizedMultiSetTest,0,14,0,0,0,5,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multiset,AbstractMultiSetTest.TestMultiSetUniqueSet,4,72,0,0,1,20,1,11,1,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multiset,PredicatedMultiSetTest,27,173,1,3,9,37,1,11,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multiset,AbstractMultiSetTest,18,1499,5,69,9,376,5,61,0,29
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multiset,UnmodifiableMultiSetTest,5,54,0,0,2,19,0,11,0,11
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multiset,HashMultiSetTest,0,13,0,0,0,5,0,4,0,4
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.multiset,PredicatedMultiSetTest.new Predicate() {...},0,9,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.queue,CircularFifoQueueTest,31,787,0,8,15,204,0,29,0,25
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.queue,PredicatedQueueTest,0,107,0,0,0,27,0,10,0,10
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.queue,SynchronizedQueueTest,0,31,0,0,0,10,0,5,0,5
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.queue,AbstractQueueTest,33,469,12,38,16,129,13,28,1,15
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.queue,PredicatedQueueTest.new Predicate() {...},0,9,0,0,0,2,0,2,0,2
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.queue,TransformedQueueTest,0,229,0,4,0,33,0,10,0,8
+commons-collections4 (9-Jun-2019 2:07:48 PM)/commons-collections4/src/test/java,org.apache.commons.collections4.queue,UnmodifiableQueueTest,11,71,0,0,4,25,0,13,0,13

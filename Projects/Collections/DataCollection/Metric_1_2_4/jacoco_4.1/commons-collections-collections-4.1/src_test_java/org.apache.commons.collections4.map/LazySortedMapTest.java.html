@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>LazySortedMapTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.map</a> &gt; <span class="el_source">LazySortedMapTest.java</span></div><h1>LazySortedMapTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.map;
+
+import static org.apache.commons.collections4.map.LazySortedMap.*;
+
+import java.util.Comparator;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import org.apache.commons.collections4.Factory;
+import org.apache.commons.collections4.FactoryUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.collections4.TransformerUtils;
+import org.junit.Test;
+
+/**
+ * Extension of {@link LazyMapTest} for exercising the
+ * {@link LazySortedMap} implementation.
+ *
+ * @since 3.0
+ * @version $Id$
+ */
+@SuppressWarnings(&quot;boxing&quot;)
+public class LazySortedMapTest&lt;K, V&gt; extends AbstractSortedMapTest&lt;K, V&gt; {
+
+<span class="fc" id="L42">    private static final Factory&lt;Integer&gt; oneFactory = FactoryUtils.constantFactory(1);</span>
+
+    public LazySortedMapTest(final String testName) {
+<span class="fc" id="L45">        super(testName);</span>
+<span class="fc" id="L46">    }</span>
+
+    @Override
+    public SortedMap&lt;K,V&gt; makeObject() {
+<span class="fc" id="L50">        return lazySortedMap(new TreeMap&lt;K,V&gt;(), FactoryUtils.&lt;V&gt;nullFactory());</span>
+    }
+
+    @Override
+    public boolean isAllowNullKey() {
+<span class="fc" id="L55">        return false;</span>
+    }
+
+    // from LazyMapTest
+    //-----------------------------------------------------------------------
+    @Override
+    public void testMapGet() {
+        //TODO eliminate need for this via superclass - see svn history.
+<span class="fc" id="L63">    }</span>
+
+    @Test
+    public void mapGet() {
+<span class="nc" id="L67">        Map&lt;Integer, Number&gt; map = lazySortedMap(new TreeMap&lt;Integer,Number&gt;(), oneFactory);</span>
+<span class="nc" id="L68">        assertEquals(0, map.size());</span>
+<span class="nc" id="L69">        final Number i1 = map.get(5);</span>
+<span class="nc" id="L70">        assertEquals(1, i1);</span>
+<span class="nc" id="L71">        assertEquals(1, map.size());</span>
+
+<span class="nc" id="L73">        map = lazySortedMap(new TreeMap&lt;Integer,Number&gt;(), FactoryUtils.&lt;Number&gt;nullFactory());</span>
+<span class="nc" id="L74">        final Number o = map.get(5);</span>
+<span class="nc" id="L75">        assertEquals(null,o);</span>
+<span class="nc" id="L76">        assertEquals(1, map.size());</span>
+
+<span class="nc" id="L78">    }</span>
+
+    //-----------------------------------------------------------------------
+    public void testSortOrder() {
+<span class="fc" id="L82">        final SortedMap&lt;String, Number&gt; map = lazySortedMap(new TreeMap&lt;String,Number&gt;(), oneFactory);</span>
+<span class="fc" id="L83">        map.put(&quot;A&quot;,  5);</span>
+<span class="fc" id="L84">        map.get(&quot;B&quot;); // Entry with value &quot;One&quot; created</span>
+<span class="fc" id="L85">        map.put(&quot;C&quot;, 8);</span>
+<span class="fc" id="L86">        assertEquals(&quot;First key should be A&quot;, &quot;A&quot;, map.firstKey());</span>
+<span class="fc" id="L87">        assertEquals(&quot;Last key should be C&quot;, &quot;C&quot;, map.lastKey());</span>
+<span class="fc" id="L88">        assertEquals(&quot;First key in tail map should be B&quot;,</span>
+<span class="fc" id="L89">            &quot;B&quot;, map.tailMap(&quot;B&quot;).firstKey());</span>
+<span class="fc" id="L90">        assertEquals(&quot;Last key in head map should be B&quot;,</span>
+<span class="fc" id="L91">            &quot;B&quot;, map.headMap(&quot;C&quot;).lastKey());</span>
+<span class="fc" id="L92">        assertEquals(&quot;Last key in submap should be B&quot;,</span>
+<span class="fc" id="L93">            &quot;B&quot;, map.subMap(&quot;A&quot;,&quot;C&quot;).lastKey());</span>
+
+<span class="fc" id="L95">        final Comparator&lt;?&gt; c = map.comparator();</span>
+<span class="fc" id="L96">        assertTrue(&quot;natural order, so comparator should be null&quot;,</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">            c == null);</span>
+<span class="fc" id="L98">    }</span>
+
+    public void testTransformerDecorate() {
+<span class="fc" id="L101">        final Transformer&lt;Object, Integer&gt; transformer = TransformerUtils.asTransformer(oneFactory);</span>
+<span class="fc" id="L102">        SortedMap&lt;Integer, Number&gt; map = lazySortedMap(new TreeMap&lt;Integer, Number&gt;(), transformer);</span>
+<span class="fc" id="L103">        assertTrue(map instanceof LazySortedMap);</span>
+         try {
+<span class="nc" id="L105">            map = lazySortedMap(new TreeMap&lt;Integer, Number&gt;(), (Transformer&lt;Integer, Number&gt;) null);</span>
+<span class="nc" id="L106">            fail(&quot;Expecting NullPointerException for null transformer&quot;);</span>
+<span class="pc" id="L107">        } catch (final NullPointerException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L111">            map = lazySortedMap((SortedMap&lt;Integer,Number&gt;) null, transformer);</span>
+<span class="nc" id="L112">            fail(&quot;Expecting NullPointerException for null map&quot;);</span>
+<span class="pc" id="L113">        } catch (final NullPointerException e) {</span>
+            // expected
+        }
+<span class="fc" id="L116">    }</span>
+
+    @Override
+    public String getCompatibilityVersion() {
+<span class="fc" id="L120">        return &quot;4&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;src/test/resources/data/test/LazySortedMap.emptyCollection.version4.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;src/test/resources/data/test/LazySortedMap.fullCollection.version4.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

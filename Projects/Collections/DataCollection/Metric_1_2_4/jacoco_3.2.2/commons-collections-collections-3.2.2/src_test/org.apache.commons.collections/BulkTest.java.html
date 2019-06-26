@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BulkTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">BulkTest.java</span></div><h1>BulkTest.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+/**
+ * A {@link TestCase} that can define both simple and bulk test methods.
+ * &lt;p&gt;
+ * A &lt;I&gt;simple test method&lt;/I&gt; is the type of test traditionally 
+ * supplied by by {@link TestCase}.  To define a simple test, create a public 
+ * no-argument method whose name starts with &quot;test&quot;.  You can specify the
+ * the name of simple test in the constructor of &lt;code&gt;BulkTest&lt;/code&gt;;
+ * a subsequent call to {@link TestCase#run} will run that simple test.
+ * &lt;p&gt;
+ * A &lt;I&gt;bulk test method&lt;/I&gt;, on the other hand, returns a new instance
+ * of &lt;code&gt;BulkTest&lt;/code&gt;, which can itself define new simple and bulk
+ * test methods.  By using the {@link #makeSuite} method, you can 
+ * automatically create a hierarchal suite of tests and child bulk tests.
+ * &lt;p&gt;
+ * For instance, consider the following two classes:
+ *
+ * &lt;Pre&gt;
+ *  public class TestSet extends BulkTest {
+ *
+ *      private Set set;
+ *
+ *      public TestSet(Set set) {
+ *          this.set = set;
+ *      }
+ *
+ *      public void testContains() {
+ *          boolean r = set.contains(set.iterator().next()));
+ *          assertTrue(&quot;Set should contain first element, r);
+ *      }
+ *
+ *      public void testClear() {
+ *          set.clear();
+ *          assertTrue(&quot;Set should be empty after clear&quot;, set.isEmpty());
+ *      }
+ *  }
+ *
+ *
+ *  public class TestHashMap extends BulkTest {
+ *
+ *      private Map makeFullMap() {
+ *          HashMap result = new HashMap();
+ *          result.put(&quot;1&quot;, &quot;One&quot;);
+ *          result.put(&quot;2&quot;, &quot;Two&quot;);
+ *          return result;
+ *      }
+ *
+ *      public void testClear() {
+ *          Map map = makeFullMap();
+ *          map.clear();
+ *          assertTrue(&quot;Map empty after clear&quot;, map.isEmpty());
+ *      }
+ *
+ *      public BulkTest bulkTestKeySet() {
+ *          return new TestSet(makeFullMap().keySet());
+ *      }
+ *
+ *      public BulkTest bulkTestEntrySet() {
+ *          return new TestSet(makeFullMap().entrySet());
+ *      }
+ *  }
+ *  &lt;/Pre&gt;
+ *
+ *  In the above examples, &lt;code&gt;TestSet&lt;/code&gt; defines two
+ *  simple test methods and no bulk test methods; &lt;code&gt;TestHashMap&lt;/code&gt;
+ *  defines one simple test method and two bulk test methods.  When
+ *  &lt;code&gt;makeSuite(TestHashMap.class).run&lt;/code&gt; is executed, 
+ *  &lt;I&gt;five&lt;/I&gt; simple test methods will be run, in this order:&lt;P&gt;
+ *
+ *  &lt;Ol&gt;
+ *  &lt;Li&gt;TestHashMap.testClear()
+ *  &lt;Li&gt;TestHashMap.bulkTestKeySet().testContains();
+ *  &lt;Li&gt;TestHashMap.bulkTestKeySet().testClear();
+ *  &lt;Li&gt;TestHashMap.bulkTestEntrySet().testContains();
+ *  &lt;Li&gt;TestHashMap.bulkTestEntrySet().testClear();
+ *  &lt;/Ol&gt;
+ *
+ *  In the graphical junit test runners, the tests would be displayed in
+ *  the following tree:&lt;P&gt;
+ *
+ *  &lt;UL&gt;
+ *  &lt;LI&gt;TestHashMap&lt;/LI&gt;
+ *      &lt;UL&gt;
+ *      &lt;LI&gt;testClear
+ *      &lt;LI&gt;bulkTestKeySet
+ *          &lt;UL&gt;
+ *          &lt;LI&gt;testContains
+ *          &lt;LI&gt;testClear
+ *          &lt;/UL&gt;
+ *      &lt;LI&gt;bulkTestEntrySet
+ *          &lt;UL&gt;
+ *          &lt;LI&gt;testContains
+ *          &lt;LI&gt;testClear
+ *          &lt;/UL&gt;
+ *      &lt;/UL&gt;
+ *  &lt;/UL&gt;
+ *
+ *  A subclass can override a superclass's bulk test by
+ *  returning &lt;code&gt;null&lt;/code&gt; from the bulk test method.  If you only
+ *  want to override specific simple tests within a bulk test, use the
+ *  {@link #ignoredTests} method.&lt;P&gt;
+ *
+ *  Note that if you want to use the bulk test methods, you &lt;I&gt;must&lt;/I&gt;
+ *  define your &lt;code&gt;suite()&lt;/code&gt; method to use {@link #makeSuite}.
+ *  The ordinary {@link TestSuite} constructor doesn't know how to 
+ *  interpret bulk test methods.
+ *
+ *  @author Paul Jack
+ *  @version $Id$
+ */
+public class BulkTest extends TestCase implements Cloneable {
+
+
+    // Note:  BulkTest is Cloneable to make it easier to construct 
+    // BulkTest instances for simple test methods that are defined in 
+    // anonymous inner classes.  Basically we don't have to worry about
+    // finding weird constructors.  (And even if we found them, technically
+    // it'd be illegal for anyone but the outer class to invoke them).  
+    // Given one BulkTest instance, we can just clone it and reset the 
+    // method name for every simple test it defines.  
+
+
+    /**
+     *  The full name of this bulk test instance.  This is the full name
+     *  that is compared to {@link #ignoredTests} to see if this
+     *  test should be ignored.  It's also displayed in the text runner
+     *  to ease debugging.
+     */
+    String verboseName;
+
+
+    /**
+     *  Constructs a new &lt;code&gt;BulkTest&lt;/code&gt; instance that will run the
+     *  specified simple test.
+     *
+     *  @param name  the name of the simple test method to run
+     */
+    public BulkTest(String name) {
+<span class="fc" id="L167">        super(name);</span>
+<span class="fc" id="L168">        this.verboseName = getClass().getName();</span>
+<span class="fc" id="L169">    }</span>
+
+
+    /**
+     *  Creates a clone of this &lt;code&gt;BulkTest&lt;/code&gt;.&lt;P&gt;
+     *
+     *  @return  a clone of this &lt;code&gt;BulkTest&lt;/code&gt;
+     */
+    public Object clone() {
+        try {
+<span class="fc" id="L179">            return super.clone();</span>
+<span class="nc" id="L180">        } catch (CloneNotSupportedException e) {</span>
+<span class="nc" id="L181">            throw new Error(); // should never happen</span>
+        }
+    }
+
+
+    /**
+     *  Returns an array of test names to ignore.&lt;P&gt;
+     *
+     *  If a test that's defined by this &lt;code&gt;BulkTest&lt;/code&gt; or
+     *  by one of its bulk test methods has a name that's in the returned
+     *  array, then that simple test will not be executed.&lt;P&gt;
+     *
+     *  A test's name is formed by taking the class name of the
+     *  root &lt;code&gt;BulkTest&lt;/code&gt;, eliminating the package name, then
+     *  appending the names of any bulk test methods that were invoked
+     *  to get to the simple test, and then appending the simple test
+     *  method name.  The method names are delimited by periods:
+     *
+     *  &lt;pre&gt;
+     *  TestHashMap.bulkTestEntrySet.testClear
+     *  &lt;/pre&gt;
+     *
+     *  is the name of one of the simple tests defined in the sample classes
+     *  described above.  If the sample &lt;code&gt;TestHashMap&lt;/code&gt; class
+     *  included this method:
+     *
+     *  &lt;pre&gt;
+     *  public String[] ignoredTests() {
+     *      return new String[] { &quot;TestHashMap.bulkTestEntrySet.testClear&quot; };
+     *  }
+     *  &lt;/pre&gt;
+     *
+     *  then the entry set's clear method wouldn't be tested, but the key
+     *  set's clear method would.
+     *
+     *  @return an array of the names of tests to ignore, or null if
+     *   no tests should be ignored
+     */
+    public String[] ignoredTests() {
+<span class="fc" id="L220">        return null;</span>
+    }
+
+
+    /**
+     *  Returns the display name of this &lt;code&gt;BulkTest&lt;/code&gt;.
+     *
+     *  @return the display name of this &lt;code&gt;BulkTest&lt;/code&gt;
+     */
+    public String toString() {
+<span class="nc" id="L230">        return getName() + &quot;(&quot; + verboseName + &quot;) &quot;;</span>
+    }
+
+
+    /**
+     *  Returns a {@link TestSuite} for testing all of the simple tests
+     *  &lt;I&gt;and&lt;/I&gt; all the bulk tests defined by the given class.&lt;P&gt;
+     *
+     *  The class is examined for simple and bulk test methods; any child
+     *  bulk tests are also examined recursively; and the results are stored
+     *  in a hierarchal {@link TestSuite}.&lt;P&gt;
+     *
+     *  The given class must be a subclass of &lt;code&gt;BulkTest&lt;/code&gt; and must
+     *  not be abstract.&lt;P&gt;
+     *
+     *  @param c  the class to examine for simple and bulk tests
+     *  @return  a {@link TestSuite} containing all the simple and bulk tests
+     *    defined by that class
+     */
+    public static TestSuite makeSuite(Class c) {
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">        if (Modifier.isAbstract(c.getModifiers())) {</span>
+<span class="nc" id="L251">            throw new IllegalArgumentException(&quot;Class must not be abstract.&quot;);</span>
+        }
+<span class="pc bpc" id="L253" title="1 of 4 branches missed.">        if (!BulkTest.class.isAssignableFrom(c)) {</span>
+<span class="nc" id="L254">            throw new IllegalArgumentException(&quot;Class must extend BulkTest.&quot;);</span>
+        }
+<span class="fc" id="L256">        return new BulkTestSuiteMaker(c).make();</span>
+    }
+
+}
+
+
+// It was easier to use a separate class to do all the reflection stuff
+// for making the TestSuite instances.  Having permanent state around makes
+// it easier to handle the recursion.
+class BulkTestSuiteMaker {
+
+    /** The class that defines simple and bulk tests methods. */
+    private Class startingClass;
+
+    /** List of ignored simple test names. */
+    private List ignored;
+   
+    /** The TestSuite we're currently populating.  Can change over time. */
+    private TestSuite result;
+
+    /** 
+     *  The prefix for simple test methods.  Used to check if a test is in 
+     *  the ignored list.
+     */ 
+    private String prefix;
+
+    /** 
+     *  Constructor.
+     *
+     *  @param startingClass  the starting class
+     */     
+<span class="fc" id="L287">    public BulkTestSuiteMaker(Class startingClass) {</span>
+<span class="fc" id="L288">        this.startingClass = startingClass;</span>
+<span class="fc" id="L289">    }</span>
+
+    /**
+     *  Makes a hierarchal TestSuite based on the starting class.
+     *
+     *  @return  the hierarchal TestSuite for startingClass
+     */
+    public TestSuite make() {
+<span class="fc" id="L297">         this.result = new TestSuite();</span>
+<span class="fc" id="L298">         this.prefix = getBaseName(startingClass);</span>
+<span class="fc" id="L299">         result.setName(prefix);</span>
+
+<span class="fc" id="L301">         BulkTest bulk = makeFirstTestCase(startingClass);</span>
+<span class="fc" id="L302">         ignored = new ArrayList();</span>
+<span class="fc" id="L303">         String[] s = bulk.ignoredTests();</span>
+<span class="fc bfc" id="L304" title="All 2 branches covered.">         if (s != null) {</span>
+<span class="fc" id="L305">             ignored.addAll(Arrays.asList(s));</span>
+         }
+<span class="fc" id="L307">         make(bulk);</span>
+<span class="fc" id="L308">         return result;</span>
+    }
+
+    /**
+     *  Appends all the simple tests and bulk tests defined by the given
+     *  instance's class to the current TestSuite.
+     *
+     *  @param bulk  An instance of the class that defines simple and bulk
+     *    tests for us to append
+     */
+    void make(BulkTest bulk) {
+<span class="fc" id="L319">        Class c = bulk.getClass();</span>
+<span class="fc" id="L320">        Method[] all = c.getMethods();</span>
+<span class="fc bfc" id="L321" title="All 2 branches covered.">        for (int i = 0; i &lt; all.length; i++) {</span>
+<span class="fc bfc" id="L322" title="All 2 branches covered.">            if (isTest(all[i])) addTest(bulk, all[i]);</span>
+<span class="fc bfc" id="L323" title="All 2 branches covered.">            if (isBulk(all[i])) addBulk(bulk, all[i]);</span>
+        }
+<span class="fc" id="L325">    }</span>
+
+    /**
+     *  Adds the simple test defined by the given method to the TestSuite.
+     *
+     *  @param bulk  The instance of the class that defined the method
+     *   (I know it's weird.  But the point is, we can clone the instance
+     *   and not have to worry about constructors.)
+     *  @param m  The simple test method
+     */
+    void addTest(BulkTest bulk, Method m) {
+<span class="fc" id="L336">        BulkTest bulk2 = (BulkTest)bulk.clone();</span>
+<span class="fc" id="L337">        bulk2.setName(m.getName());</span>
+<span class="fc" id="L338">        bulk2.verboseName = prefix + &quot;.&quot; + m.getName();</span>
+<span class="fc bfc" id="L339" title="All 2 branches covered.">        if (ignored.contains(bulk2.verboseName)) return;</span>
+<span class="fc" id="L340">        result.addTest(bulk2);</span>
+<span class="fc" id="L341">    }</span>
+
+    /**
+     *  Adds a whole new suite of tests that are defined by the result of
+     *  the given bulk test method.  In other words, the given bulk test
+     *  method is invoked, and the resulting BulkTest instance is examined
+     *  for yet more simple and bulk tests.
+     *
+     *  @param bulk  The instance of the class that defined the method
+     *  @param m  The bulk test method
+     */
+    void addBulk(BulkTest bulk, Method m) {
+<span class="fc" id="L353">        String verboseName = prefix + &quot;.&quot; + m.getName();</span>
+<span class="fc bfc" id="L354" title="All 2 branches covered.">        if (ignored.contains(verboseName)) return;</span>
+        
+        BulkTest bulk2;
+        try {
+<span class="fc" id="L358">            bulk2 = (BulkTest)m.invoke(bulk, (Object[]) null);</span>
+<span class="fc bfc" id="L359" title="All 2 branches covered.">            if (bulk2 == null) return;</span>
+<span class="nc" id="L360">        } catch (InvocationTargetException ex) {</span>
+<span class="nc" id="L361">            ex.getTargetException().printStackTrace();</span>
+<span class="nc" id="L362">            throw new Error(); // FIXME;</span>
+<span class="nc" id="L363">        } catch (IllegalAccessException ex) {</span>
+<span class="nc" id="L364">            ex.printStackTrace();</span>
+<span class="nc" id="L365">            throw new Error(); // FIXME;</span>
+        }
+
+        // Save current state on the stack.
+<span class="fc" id="L369">        String oldPrefix = prefix;</span>
+<span class="fc" id="L370">        TestSuite oldResult = result;</span>
+
+<span class="fc" id="L372">        prefix = prefix + &quot;.&quot; + m.getName();</span>
+<span class="fc" id="L373">        result = new TestSuite();</span>
+<span class="fc" id="L374">        result.setName(m.getName());</span>
+
+<span class="fc" id="L376">        make(bulk2);</span>
+
+<span class="fc" id="L378">        oldResult.addTest(result);</span>
+
+        // Restore the old state
+<span class="fc" id="L381">        prefix = oldPrefix;</span>
+<span class="fc" id="L382">        result = oldResult;</span>
+<span class="fc" id="L383">    }</span>
+
+    /**
+     *  Returns the base name of the given class.
+     *
+     *  @param c  the class
+     *  @return the name of that class, minus any package names
+     */
+    private static String getBaseName(Class c) {
+<span class="fc" id="L392">        String name = c.getName();</span>
+<span class="fc" id="L393">        int p = name.lastIndexOf('.');</span>
+<span class="pc bpc" id="L394" title="1 of 2 branches missed.">        if (p &gt; 0) {</span>
+<span class="fc" id="L395">            name = name.substring(p + 1);</span>
+        }
+<span class="fc" id="L397">        return name;</span>
+    }
+
+
+    // These three methods are used to create a valid BulkTest instance
+    // from a class.
+
+    private static Constructor getTestCaseConstructor(Class c) {
+        try {
+<span class="pc bfc" id="L406" title="All 2 branches covered.">            return c.getConstructor(new Class[] { String.class });</span>
+<span class="nc" id="L407">        } catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L408">            throw new IllegalArgumentException(c + &quot; must provide &quot; +</span>
+<span class="nc" id="L409">             &quot;a (String) constructor&quot;);</span>
+        }
+    }
+
+    private static BulkTest makeTestCase(Class c, Method m) {
+<span class="fc" id="L414">        Constructor con = getTestCaseConstructor(c);</span>
+        try {
+<span class="fc" id="L416">            return (BulkTest)con.newInstance(new Object[] {m.getName()});</span>
+<span class="nc" id="L417">        } catch (InvocationTargetException e) {</span>
+<span class="nc" id="L418">            e.printStackTrace();</span>
+<span class="nc" id="L419">            throw new RuntimeException(); // FIXME;</span>
+<span class="nc" id="L420">        } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L421">            throw new Error(); // should never occur</span>
+<span class="nc" id="L422">        } catch (InstantiationException e) {</span>
+<span class="nc" id="L423">            throw new RuntimeException(); // FIXME;</span>
+        }
+    }
+
+    private static BulkTest makeFirstTestCase(Class c) {
+<span class="fc" id="L428">        Method[] all = c.getMethods();</span>
+<span class="pc bpc" id="L429" title="1 of 2 branches missed.">        for (int i = 0; i &lt; all.length; i++) {</span>
+<span class="fc bfc" id="L430" title="All 2 branches covered.">            if (isTest(all[i])) return makeTestCase(c, all[i]);</span>
+        }
+<span class="nc" id="L432">        throw new IllegalArgumentException(c.getName() + &quot; must provide &quot; </span>
+<span class="nc" id="L433">          + &quot; at least one test method.&quot;);</span>
+    }
+
+    /**
+     *  Returns true if the given method is a simple test method.
+     */
+    private static boolean isTest(Method m) {
+<span class="fc bfc" id="L440" title="All 2 branches covered.">        if (!m.getName().startsWith(&quot;test&quot;)) return false;</span>
+<span class="pc bpc" id="L441" title="1 of 2 branches missed.">        if (m.getReturnType() != Void.TYPE) return false;</span>
+<span class="pc bpc" id="L442" title="1 of 2 branches missed.">        if (m.getParameterTypes().length != 0) return false;</span>
+<span class="fc" id="L443">        int mods = m.getModifiers();</span>
+<span class="pc bpc" id="L444" title="1 of 2 branches missed.">        if (Modifier.isStatic(mods)) return false;</span>
+<span class="pc bpc" id="L445" title="1 of 2 branches missed.">        if (Modifier.isAbstract(mods)) return false;</span>
+<span class="fc" id="L446">        return true;</span>
+    }
+
+    /**
+     *  Returns true if the given method is a bulk test method.
+     */
+    private static boolean isBulk(Method m) {
+<span class="fc bfc" id="L453" title="All 2 branches covered.">        if (!m.getName().startsWith(&quot;bulkTest&quot;)) return false;</span>
+<span class="pc bpc" id="L454" title="1 of 4 branches missed.">        if (m.getReturnType() != BulkTest.class) return false;</span>
+<span class="pc bpc" id="L455" title="1 of 2 branches missed.">        if (m.getParameterTypes().length != 0) return false;</span>
+<span class="fc" id="L456">        int mods = m.getModifiers();</span>
+<span class="pc bpc" id="L457" title="1 of 2 branches missed.">        if (Modifier.isStatic(mods)) return false;</span>
+<span class="pc bpc" id="L458" title="1 of 2 branches missed.">        if (Modifier.isAbstract(mods)) return false;</span>
+<span class="fc" id="L459">        return true;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

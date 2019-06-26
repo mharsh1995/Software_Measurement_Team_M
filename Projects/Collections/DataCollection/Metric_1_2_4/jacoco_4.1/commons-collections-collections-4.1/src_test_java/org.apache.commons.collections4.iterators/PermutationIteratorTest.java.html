@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>PermutationIteratorTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.1</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.iterators</a> &gt; <span class="el_source">PermutationIteratorTest.java</span></div><h1>PermutationIteratorTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.iterators;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+/**
+ * Test class for PermutationIterator.
+ *
+ * @version $Id$
+ * @since 4.0
+ */
+public class PermutationIteratorTest extends AbstractIteratorTest&lt;List&lt;Character&gt;&gt; {
+
+    @SuppressWarnings(&quot;boxing&quot;) // OK in test code
+<span class="fc" id="L36">    protected Character[] testArray = { 'A', 'B', 'C' };</span>
+    protected List&lt;Character&gt; testList;
+
+    public PermutationIteratorTest(final String testName) {
+<span class="fc" id="L40">        super(testName);</span>
+<span class="fc" id="L41">    }</span>
+
+    @Override
+    public void setUp() {
+<span class="fc" id="L45">        testList = new ArrayList&lt;Character&gt;();</span>
+<span class="fc" id="L46">        testList.addAll(Arrays.asList(testArray));</span>
+<span class="fc" id="L47">    }</span>
+
+    //-----------------------------------------------------------------------
+
+    @Override
+    public boolean supportsRemove() {
+<span class="fc" id="L53">        return false;</span>
+    }
+
+    @Override
+    public boolean supportsEmptyIterator() {
+<span class="fc" id="L58">        return false;</span>
+    }
+
+    @Override
+    public PermutationIterator&lt;Character&gt; makeEmptyIterator() {
+<span class="fc" id="L63">        return new PermutationIterator&lt;Character&gt;(new ArrayList&lt;Character&gt;());</span>
+    }
+
+    @Override
+    public PermutationIterator&lt;Character&gt; makeObject() {
+<span class="fc" id="L68">        return new PermutationIterator&lt;Character&gt;(testList);</span>
+    }
+
+    //-----------------------------------------------------------------------
+
+    @SuppressWarnings(&quot;boxing&quot;) // OK in test code
+    public void testPermutationResultSize() {
+<span class="fc" id="L75">        int factorial = 1;</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        for (int i = 0; i &lt; 8; i++, factorial*=i) {</span>
+<span class="fc" id="L77">            List&lt;Integer&gt; list = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">            for (int j = 0; j &lt; i; j++) {</span>
+<span class="fc" id="L79">                list.add(j);</span>
+            }
+<span class="fc" id="L81">            Iterator&lt;List&lt;Integer&gt;&gt; it = new PermutationIterator&lt;Integer&gt;(list);</span>
+<span class="fc" id="L82">            int count = 0;</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            while (it.hasNext()) {</span>
+<span class="fc" id="L84">                it.next();</span>
+<span class="fc" id="L85">                count++;</span>
+            }
+<span class="fc" id="L87">            assertEquals(factorial, count);</span>
+        }
+<span class="fc" id="L89">    }</span>
+
+    /**
+     * test checking that all the permutations are returned
+     */
+    @SuppressWarnings(&quot;boxing&quot;) // OK in test code
+    public void testPermutationExhaustivity() {
+<span class="fc" id="L96">        List&lt;Character&gt; perm1 = new ArrayList&lt;Character&gt;();</span>
+<span class="fc" id="L97">        List&lt;Character&gt; perm2 = new ArrayList&lt;Character&gt;();</span>
+<span class="fc" id="L98">        List&lt;Character&gt; perm3 = new ArrayList&lt;Character&gt;();</span>
+<span class="fc" id="L99">        List&lt;Character&gt; perm4 = new ArrayList&lt;Character&gt;();</span>
+<span class="fc" id="L100">        List&lt;Character&gt; perm5 = new ArrayList&lt;Character&gt;();</span>
+<span class="fc" id="L101">        List&lt;Character&gt; perm6 = new ArrayList&lt;Character&gt;();</span>
+
+<span class="fc" id="L103">        perm1.add('A');</span>
+<span class="fc" id="L104">        perm2.add('A');</span>
+<span class="fc" id="L105">        perm3.add('B');</span>
+<span class="fc" id="L106">        perm4.add('B');</span>
+<span class="fc" id="L107">        perm5.add('C');</span>
+<span class="fc" id="L108">        perm6.add('C');</span>
+
+<span class="fc" id="L110">        perm1.add('B');</span>
+<span class="fc" id="L111">        perm2.add('C');</span>
+<span class="fc" id="L112">        perm3.add('A');</span>
+<span class="fc" id="L113">        perm4.add('C');</span>
+<span class="fc" id="L114">        perm5.add('A');</span>
+<span class="fc" id="L115">        perm6.add('B');</span>
+
+<span class="fc" id="L117">        perm1.add('C');</span>
+<span class="fc" id="L118">        perm2.add('B');</span>
+<span class="fc" id="L119">        perm3.add('C');</span>
+<span class="fc" id="L120">        perm4.add('A');</span>
+<span class="fc" id="L121">        perm5.add('B');</span>
+<span class="fc" id="L122">        perm6.add('A');</span>
+
+<span class="fc" id="L124">        List&lt;List&lt;Character&gt;&gt; results = new ArrayList&lt;List&lt;Character&gt;&gt;();</span>
+
+<span class="fc" id="L126">        PermutationIterator&lt;Character&gt; it = makeObject();</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L128">            List&lt;Character&gt; next = it.next();</span>
+<span class="fc" id="L129">            results.add(next);</span>
+        }
+        //3! permutation for 3 elements
+<span class="fc" id="L132">        assertEquals(6, results.size());</span>
+<span class="fc" id="L133">        assertTrue(results.contains(perm1));</span>
+<span class="fc" id="L134">        assertTrue(results.contains(perm2));</span>
+<span class="fc" id="L135">        assertTrue(results.contains(perm3));</span>
+<span class="fc" id="L136">        assertTrue(results.contains(perm4));</span>
+<span class="fc" id="L137">        assertTrue(results.contains(perm5));</span>
+<span class="fc" id="L138">        assertTrue(results.contains(perm6));</span>
+<span class="fc" id="L139">    }</span>
+
+    /**
+     * test checking that all the permutations are returned only once.
+     */
+    public void testPermutationUnicity() {
+<span class="fc" id="L145">        List&lt;List&lt;Character&gt;&gt; resultsList = new ArrayList&lt;List&lt;Character&gt;&gt;();</span>
+<span class="fc" id="L146">        Set&lt;List&lt;Character&gt;&gt; resultsSet = new HashSet&lt;List&lt;Character&gt;&gt;();</span>
+
+<span class="fc" id="L148">        PermutationIterator&lt;Character&gt; it = makeObject();</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L150">            List&lt;Character&gt; permutation = it.next();</span>
+<span class="fc" id="L151">            resultsList.add(permutation);</span>
+<span class="fc" id="L152">            resultsSet.add(permutation);</span>
+        }
+        //3! permutation for 3 elements
+<span class="fc" id="L155">        assertEquals(6, resultsList.size());</span>
+<span class="fc" id="L156">        assertEquals(6, resultsSet.size());</span>
+<span class="fc" id="L157">    }</span>
+
+    public void testPermutationException() {
+<span class="fc" id="L160">        List&lt;List&lt;Character&gt;&gt; resultsList = new ArrayList&lt;List&lt;Character&gt;&gt;();</span>
+
+<span class="fc" id="L162">        PermutationIterator&lt;Character&gt; it = makeObject();</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L164">            List&lt;Character&gt; permutation = it.next();</span>
+<span class="fc" id="L165">            resultsList.add(permutation);</span>
+        }
+        //asking for another permutation should throw an exception
+        try {
+<span class="nc" id="L169">            it.next();</span>
+<span class="nc" id="L170">            fail();</span>
+<span class="pc" id="L171">        } catch (NoSuchElementException e) {</span>
+            // expected
+        }
+<span class="fc" id="L174">    }</span>
+
+    public void testPermutatorHasMore() {
+<span class="fc" id="L177">        PermutationIterator&lt;Character&gt; it = makeObject();</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        for (int i = 0; i &lt; 6; i++) {</span>
+<span class="fc" id="L179">            assertTrue(it.hasNext());</span>
+<span class="fc" id="L180">            it.next();</span>
+        }
+<span class="fc" id="L182">        assertFalse(it.hasNext());</span>
+<span class="fc" id="L183">    }</span>
+
+    public void testEmptyCollection() {
+<span class="fc" id="L186">        PermutationIterator&lt;Character&gt; it = makeEmptyIterator();</span>
+        // there is one permutation for an empty set: 0! = 1
+<span class="fc" id="L188">        assertTrue(it.hasNext());</span>
+
+<span class="fc" id="L190">        List&lt;Character&gt; nextPermutation = it.next();</span>
+<span class="fc" id="L191">        assertEquals(0, nextPermutation.size());</span>
+
+<span class="fc" id="L193">        assertFalse(it.hasNext());</span>
+<span class="fc" id="L194">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.1 (25-Jun-2019 5:26:10 PM)</div></body></html>

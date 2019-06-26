@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ConstantTransformer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.functors</a> &gt; <span class="el_source">ConstantTransformer.java</span></div><h1>ConstantTransformer.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.functors;
+
+import java.io.Serializable;
+
+import org.apache.commons.collections.Transformer;
+
+/**
+ * Transformer implementation that returns the same constant each time.
+ * &lt;p&gt;
+ * No check is made that the object is immutable. In general, only immutable
+ * objects should use the constant factory. Mutable objects should
+ * use the prototype factory.
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ *
+ * @author Stephen Colebourne
+ */
+public class ConstantTransformer implements Transformer, Serializable {
+
+    /** Serial version UID */
+    private static final long serialVersionUID = 6374440726369055124L;
+    
+    /** Returns null each time */
+<span class="fc" id="L41">    public static final Transformer NULL_INSTANCE = new ConstantTransformer(null);</span>
+
+    /** The closures to call in turn */
+    private final Object iConstant;
+
+    /**
+     * Transformer method that performs validation.
+     *
+     * @param constantToReturn  the constant object to return each time in the factory
+     * @return the &lt;code&gt;constant&lt;/code&gt; factory.
+     */
+    public static Transformer getInstance(Object constantToReturn) {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (constantToReturn == null) {</span>
+<span class="fc" id="L54">            return NULL_INSTANCE;</span>
+        }
+<span class="fc" id="L56">        return new ConstantTransformer(constantToReturn);</span>
+    }
+    
+    /**
+     * Constructor that performs no validation.
+     * Use &lt;code&gt;getInstance&lt;/code&gt; if you want that.
+     * 
+     * @param constantToReturn  the constant to return each time
+     */
+    public ConstantTransformer(Object constantToReturn) {
+<span class="fc" id="L66">        super();</span>
+<span class="fc" id="L67">        iConstant = constantToReturn;</span>
+<span class="fc" id="L68">    }</span>
+
+    /**
+     * Transforms the input by ignoring it and returning the stored constant instead.
+     * 
+     * @param input  the input object which is ignored
+     * @return the stored constant
+     */
+    public Object transform(Object input) {
+<span class="fc" id="L77">        return iConstant;</span>
+    }
+
+    /**
+     * Gets the constant.
+     * 
+     * @return the constant
+     * @since Commons Collections 3.1
+     */
+    public Object getConstant() {
+<span class="nc" id="L87">        return iConstant;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

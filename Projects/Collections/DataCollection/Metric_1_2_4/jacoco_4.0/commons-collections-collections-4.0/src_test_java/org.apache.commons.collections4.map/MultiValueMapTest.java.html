@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MultiValueMapTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4.map</a> &gt; <span class="el_source">MultiValueMapTest.java</span></div><h1>MultiValueMapTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4.map;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+
+import org.apache.commons.collections4.AbstractObjectTest;
+import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.MultiMap;
+
+/**
+ * TestMultiValueMap.
+ *
+ * @since 3.2
+ * @version $Id$
+ */
+public class MultiValueMapTest&lt;K, V&gt; extends AbstractObjectTest {
+
+    public MultiValueMapTest(final String testName) {
+<span class="fc" id="L41">        super(testName);</span>
+<span class="fc" id="L42">    }</span>
+
+    public void testNoMappingReturnsNull() {
+<span class="fc" id="L45">        final MultiValueMap&lt;K, V&gt; map = createTestMap();</span>
+<span class="fc" id="L46">        assertNull(map.get(&quot;whatever&quot;));</span>
+<span class="fc" id="L47">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testValueCollectionType() {
+<span class="fc" id="L51">        final MultiValueMap&lt;K, V&gt; map = createTestMap(LinkedList.class);</span>
+<span class="fc" id="L52">        assertTrue(map.get(&quot;one&quot;) instanceof LinkedList);</span>
+<span class="fc" id="L53">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMultipleValues() {
+<span class="fc" id="L57">        final MultiValueMap&lt;K, V&gt; map = createTestMap(HashSet.class);</span>
+<span class="fc" id="L58">        final HashSet&lt;V&gt; expected = new HashSet&lt;V&gt;();</span>
+<span class="fc" id="L59">        expected.add((V) &quot;uno&quot;);</span>
+<span class="fc" id="L60">        expected.add((V) &quot;un&quot;);</span>
+<span class="fc" id="L61">        assertEquals(expected, map.get(&quot;one&quot;));</span>
+<span class="fc" id="L62">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testContainsValue() {
+<span class="fc" id="L66">        final MultiValueMap&lt;K, V&gt; map = createTestMap(HashSet.class);</span>
+<span class="fc" id="L67">        assertTrue(map.containsValue(&quot;uno&quot;));</span>
+<span class="fc" id="L68">        assertTrue(map.containsValue(&quot;un&quot;));</span>
+<span class="fc" id="L69">        assertTrue(map.containsValue(&quot;dos&quot;));</span>
+<span class="fc" id="L70">        assertTrue(map.containsValue(&quot;deux&quot;));</span>
+<span class="fc" id="L71">        assertTrue(map.containsValue(&quot;tres&quot;));</span>
+<span class="fc" id="L72">        assertTrue(map.containsValue(&quot;trois&quot;));</span>
+<span class="fc" id="L73">        assertFalse(map.containsValue(&quot;quatro&quot;));</span>
+<span class="fc" id="L74">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testKeyContainsValue() {
+<span class="fc" id="L78">        final MultiValueMap&lt;K, V&gt; map = createTestMap(HashSet.class);</span>
+<span class="fc" id="L79">        assertTrue(map.containsValue(&quot;one&quot;, &quot;uno&quot;));</span>
+<span class="fc" id="L80">        assertTrue(map.containsValue(&quot;one&quot;, &quot;un&quot;));</span>
+<span class="fc" id="L81">        assertTrue(map.containsValue(&quot;two&quot;, &quot;dos&quot;));</span>
+<span class="fc" id="L82">        assertTrue(map.containsValue(&quot;two&quot;, &quot;deux&quot;));</span>
+<span class="fc" id="L83">        assertTrue(map.containsValue(&quot;three&quot;, &quot;tres&quot;));</span>
+<span class="fc" id="L84">        assertTrue(map.containsValue(&quot;three&quot;, &quot;trois&quot;));</span>
+<span class="fc" id="L85">        assertFalse(map.containsValue(&quot;four&quot;, &quot;quatro&quot;));</span>
+<span class="fc" id="L86">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testValues() {
+<span class="fc" id="L90">        final MultiValueMap&lt;K, V&gt; map = createTestMap(HashSet.class);</span>
+<span class="fc" id="L91">        final HashSet&lt;V&gt; expected = new HashSet&lt;V&gt;();</span>
+<span class="fc" id="L92">        expected.add((V) &quot;uno&quot;);</span>
+<span class="fc" id="L93">        expected.add((V) &quot;dos&quot;);</span>
+<span class="fc" id="L94">        expected.add((V) &quot;tres&quot;);</span>
+<span class="fc" id="L95">        expected.add((V) &quot;un&quot;);</span>
+<span class="fc" id="L96">        expected.add((V) &quot;deux&quot;);</span>
+<span class="fc" id="L97">        expected.add((V) &quot;trois&quot;);</span>
+<span class="fc" id="L98">        final Collection&lt;Object&gt; c = map.values();</span>
+<span class="fc" id="L99">        assertEquals(6, c.size());</span>
+<span class="fc" id="L100">        assertEquals(expected, new HashSet&lt;Object&gt;(c));</span>
+<span class="fc" id="L101">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private MultiValueMap&lt;K, V&gt; createTestMap() {
+<span class="fc" id="L105">        return createTestMap(ArrayList.class);</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private &lt;C extends Collection&lt;V&gt;&gt; MultiValueMap&lt;K, V&gt; createTestMap(final Class&lt;C&gt; collectionClass) {
+<span class="fc" id="L110">        final MultiValueMap&lt;K, V&gt; map = MultiValueMap.multiValueMap(new HashMap&lt;K, C&gt;(), collectionClass);</span>
+<span class="fc" id="L111">        map.put((K) &quot;one&quot;, (V) &quot;uno&quot;);</span>
+<span class="fc" id="L112">        map.put((K) &quot;one&quot;, (V) &quot;un&quot;);</span>
+<span class="fc" id="L113">        map.put((K) &quot;two&quot;, (V) &quot;dos&quot;);</span>
+<span class="fc" id="L114">        map.put((K) &quot;two&quot;, (V) &quot;deux&quot;);</span>
+<span class="fc" id="L115">        map.put((K) &quot;three&quot;, (V) &quot;tres&quot;);</span>
+<span class="fc" id="L116">        map.put((K) &quot;three&quot;, (V) &quot;trois&quot;);</span>
+<span class="fc" id="L117">        return map;</span>
+    }
+
+    public void testKeyedIterator() {
+<span class="fc" id="L121">        final MultiValueMap&lt;K, V&gt; map = createTestMap();</span>
+<span class="fc" id="L122">        final ArrayList&lt;Object&gt; actual = new ArrayList&lt;Object&gt;(IteratorUtils.toList(map.iterator(&quot;one&quot;)));</span>
+<span class="fc" id="L123">        final ArrayList&lt;Object&gt; expected = new ArrayList&lt;Object&gt;(Arrays.asList(&quot;uno&quot;, &quot;un&quot;));</span>
+<span class="fc" id="L124">        assertEquals(expected, actual);</span>
+<span class="fc" id="L125">    }</span>
+
+    public void testRemoveAllViaIterator() {
+<span class="fc" id="L128">        final MultiValueMap&lt;K, V&gt; map = createTestMap();</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        for (final Iterator&lt;?&gt; i = map.values().iterator(); i.hasNext();) {</span>
+<span class="fc" id="L130">            i.next();</span>
+<span class="fc" id="L131">            i.remove();</span>
+        }
+<span class="fc" id="L133">        assertNull(map.get(&quot;one&quot;));</span>
+<span class="fc" id="L134">        assertTrue(map.isEmpty());</span>
+<span class="fc" id="L135">    }</span>
+
+    public void testRemoveAllViaKeyedIterator() {
+<span class="fc" id="L138">        final MultiValueMap&lt;K, V&gt; map = createTestMap();</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        for (final Iterator&lt;?&gt; i = map.iterator(&quot;one&quot;); i.hasNext();) {</span>
+<span class="fc" id="L140">            i.next();</span>
+<span class="fc" id="L141">            i.remove();</span>
+        }
+<span class="fc" id="L143">        assertNull(map.get(&quot;one&quot;));</span>
+<span class="fc" id="L144">        assertEquals(4, map.totalSize());</span>
+<span class="fc" id="L145">    }</span>
+
+    public void testIterator() {
+<span class="fc" id="L148">        final MultiValueMap&lt;K, V&gt; map = createTestMap();</span>
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L150">        Collection&lt;V&gt; values = new ArrayList&lt;V&gt;((Collection&lt;V&gt;) map.values());</span>
+<span class="fc" id="L151">        Iterator&lt;Map.Entry&lt;K, V&gt;&gt; iterator = map.iterator();</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="fc" id="L153">            Map.Entry&lt;K, V&gt; entry = iterator.next();</span>
+<span class="fc" id="L154">            assertTrue(map.containsValue(entry.getKey(), entry.getValue()));</span>
+<span class="fc" id="L155">            assertTrue(values.contains(entry.getValue()));</span>
+<span class="fc" id="L156">            assertTrue(values.remove(entry.getValue()));</span>
+        }
+<span class="fc" id="L158">        assertTrue(values.isEmpty());</span>
+<span class="fc" id="L159">    }</span>
+
+    public void testRemoveAllViaEntryIterator() {
+<span class="fc" id="L162">        final MultiValueMap&lt;K, V&gt; map = createTestMap();</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        for (final Iterator&lt;?&gt; i = map.iterator(); i.hasNext();) {</span>
+<span class="fc" id="L164">            i.next();</span>
+<span class="fc" id="L165">            i.remove();</span>
+        }
+<span class="fc" id="L167">        assertNull(map.get(&quot;one&quot;));</span>
+<span class="fc" id="L168">        assertEquals(0, map.totalSize());</span>
+<span class="fc" id="L169">    }</span>
+
+    public void testTotalSizeA() {
+<span class="fc" id="L172">        assertEquals(6, createTestMap().totalSize());</span>
+<span class="fc" id="L173">    }</span>
+
+    //-----------------------------------------------------------------------
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testMapEquals() {
+<span class="fc" id="L178">        final MultiValueMap&lt;K, V&gt; one = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L179">        final Integer value = Integer.valueOf(1);</span>
+<span class="fc" id="L180">        one.put((K) &quot;One&quot;, value);</span>
+<span class="fc" id="L181">        one.removeMapping(&quot;One&quot;, value);</span>
+
+<span class="fc" id="L183">        final MultiValueMap&lt;K, V&gt; two = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L184">        assertEquals(two, one);</span>
+<span class="fc" id="L185">    }</span>
+
+    //-----------------------------------------------------------------------
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testGetCollection() {
+<span class="fc" id="L190">        final MultiValueMap&lt;K, V&gt; map = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L191">        map.put((K) &quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L192">        assertSame(map.get(&quot;A&quot;), map.getCollection(&quot;A&quot;));</span>
+<span class="fc" id="L193">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testTotalSize() {
+<span class="fc" id="L197">        final MultiValueMap&lt;K, V&gt; map = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L198">        assertEquals(0, map.totalSize());</span>
+<span class="fc" id="L199">        map.put((K) &quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L200">        assertEquals(1, map.totalSize());</span>
+<span class="fc" id="L201">        map.put((K) &quot;B&quot;, &quot;BA&quot;);</span>
+<span class="fc" id="L202">        assertEquals(2, map.totalSize());</span>
+<span class="fc" id="L203">        map.put((K) &quot;B&quot;, &quot;BB&quot;);</span>
+<span class="fc" id="L204">        assertEquals(3, map.totalSize());</span>
+<span class="fc" id="L205">        map.put((K) &quot;B&quot;, &quot;BC&quot;);</span>
+<span class="fc" id="L206">        assertEquals(4, map.totalSize());</span>
+<span class="fc" id="L207">        map.remove(&quot;A&quot;);</span>
+<span class="fc" id="L208">        assertEquals(3, map.totalSize());</span>
+<span class="fc" id="L209">        map.removeMapping(&quot;B&quot;, &quot;BC&quot;);</span>
+<span class="fc" id="L210">        assertEquals(2, map.totalSize());</span>
+<span class="fc" id="L211">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testSize() {
+<span class="fc" id="L215">        final MultiValueMap&lt;K, V&gt; map = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L216">        assertEquals(0, map.size());</span>
+<span class="fc" id="L217">        map.put((K) &quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L218">        assertEquals(1, map.size());</span>
+<span class="fc" id="L219">        map.put((K) &quot;B&quot;, &quot;BA&quot;);</span>
+<span class="fc" id="L220">        assertEquals(2, map.size());</span>
+<span class="fc" id="L221">        map.put((K) &quot;B&quot;, &quot;BB&quot;);</span>
+<span class="fc" id="L222">        assertEquals(2, map.size());</span>
+<span class="fc" id="L223">        map.put((K) &quot;B&quot;, &quot;BC&quot;);</span>
+<span class="fc" id="L224">        assertEquals(2, map.size());</span>
+<span class="fc" id="L225">        map.remove(&quot;A&quot;);</span>
+<span class="fc" id="L226">        assertEquals(1, map.size());</span>
+<span class="fc" id="L227">        map.removeMapping(&quot;B&quot;, &quot;BC&quot;);</span>
+<span class="fc" id="L228">        assertEquals(1, map.size());</span>
+<span class="fc" id="L229">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testSize_Key() {
+<span class="fc" id="L233">        final MultiValueMap&lt;K, V&gt; map = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L234">        assertEquals(0, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L235">        assertEquals(0, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L236">        map.put((K) &quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L237">        assertEquals(1, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L238">        assertEquals(0, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L239">        map.put((K) &quot;B&quot;, &quot;BA&quot;);</span>
+<span class="fc" id="L240">        assertEquals(1, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L241">        assertEquals(1, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L242">        map.put((K) &quot;B&quot;, &quot;BB&quot;);</span>
+<span class="fc" id="L243">        assertEquals(1, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L244">        assertEquals(2, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L245">        map.put((K) &quot;B&quot;, &quot;BC&quot;);</span>
+<span class="fc" id="L246">        assertEquals(1, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L247">        assertEquals(3, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L248">        map.remove(&quot;A&quot;);</span>
+<span class="fc" id="L249">        assertEquals(0, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L250">        assertEquals(3, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L251">        map.removeMapping(&quot;B&quot;, &quot;BC&quot;);</span>
+<span class="fc" id="L252">        assertEquals(0, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L253">        assertEquals(2, map.size(&quot;B&quot;));</span>
+<span class="fc" id="L254">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testIterator_Key() {
+<span class="fc" id="L258">        final MultiValueMap&lt;K, V&gt; map = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L259">        assertEquals(false, map.iterator(&quot;A&quot;).hasNext());</span>
+<span class="fc" id="L260">        map.put((K) &quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L261">        final Iterator&lt;?&gt; it = map.iterator(&quot;A&quot;);</span>
+<span class="fc" id="L262">        assertEquals(true, it.hasNext());</span>
+<span class="fc" id="L263">        it.next();</span>
+<span class="fc" id="L264">        assertEquals(false, it.hasNext());</span>
+<span class="fc" id="L265">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testContainsValue_Key() {
+<span class="fc" id="L269">        final MultiValueMap&lt;K, V&gt; map = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L270">        assertEquals(false, map.containsValue(&quot;A&quot;, &quot;AA&quot;));</span>
+<span class="fc" id="L271">        assertEquals(false, map.containsValue(&quot;B&quot;, &quot;BB&quot;));</span>
+<span class="fc" id="L272">        map.put((K) &quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L273">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;AA&quot;));</span>
+<span class="fc" id="L274">        assertEquals(false, map.containsValue(&quot;A&quot;, &quot;AB&quot;));</span>
+<span class="fc" id="L275">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testPutWithList() {
+        @SuppressWarnings(&quot;rawtypes&quot;)
+<span class="fc" id="L280">        final MultiValueMap&lt;K, V&gt; test = MultiValueMap.multiValueMap(new HashMap&lt;K, Collection&gt;(), ArrayList.class);</span>
+<span class="fc" id="L281">        assertEquals(&quot;a&quot;, test.put((K) &quot;A&quot;, &quot;a&quot;));</span>
+<span class="fc" id="L282">        assertEquals(&quot;b&quot;, test.put((K) &quot;A&quot;, &quot;b&quot;));</span>
+<span class="fc" id="L283">        assertEquals(1, test.size());</span>
+<span class="fc" id="L284">        assertEquals(2, test.size(&quot;A&quot;));</span>
+<span class="fc" id="L285">        assertEquals(2, test.totalSize());</span>
+<span class="fc" id="L286">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testPutWithSet() {
+        @SuppressWarnings(&quot;rawtypes&quot;)
+<span class="fc" id="L291">        final MultiValueMap&lt;K, V&gt; test = MultiValueMap.multiValueMap(new HashMap&lt;K, HashSet&gt;(), HashSet.class);</span>
+<span class="fc" id="L292">        assertEquals(&quot;a&quot;, test.put((K) &quot;A&quot;, &quot;a&quot;));</span>
+<span class="fc" id="L293">        assertEquals(&quot;b&quot;, test.put((K) &quot;A&quot;, &quot;b&quot;));</span>
+<span class="fc" id="L294">        assertEquals(null, test.put((K) &quot;A&quot;, &quot;a&quot;));</span>
+<span class="fc" id="L295">        assertEquals(1, test.size());</span>
+<span class="fc" id="L296">        assertEquals(2, test.size(&quot;A&quot;));</span>
+<span class="fc" id="L297">        assertEquals(2, test.totalSize());</span>
+<span class="fc" id="L298">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testPutAll_Map1() {
+<span class="fc" id="L302">        final MultiMap&lt;K, V&gt; original = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L303">        original.put((K) &quot;key&quot;, &quot;object1&quot;);</span>
+<span class="fc" id="L304">        original.put((K) &quot;key&quot;, &quot;object2&quot;);</span>
+
+<span class="fc" id="L306">        final MultiValueMap&lt;K, V&gt; test = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L307">        test.put((K) &quot;keyA&quot;, &quot;objectA&quot;);</span>
+<span class="fc" id="L308">        test.put((K) &quot;key&quot;, &quot;object0&quot;);</span>
+<span class="fc" id="L309">        test.putAll(original);</span>
+
+<span class="fc" id="L311">        assertEquals(2, test.size());</span>
+<span class="fc" id="L312">        assertEquals(4, test.totalSize());</span>
+<span class="fc" id="L313">        assertEquals(1, test.getCollection(&quot;keyA&quot;).size());</span>
+<span class="fc" id="L314">        assertEquals(3, test.getCollection(&quot;key&quot;).size());</span>
+<span class="fc" id="L315">        assertEquals(true, test.containsValue(&quot;objectA&quot;));</span>
+<span class="fc" id="L316">        assertEquals(true, test.containsValue(&quot;object0&quot;));</span>
+<span class="fc" id="L317">        assertEquals(true, test.containsValue(&quot;object1&quot;));</span>
+<span class="fc" id="L318">        assertEquals(true, test.containsValue(&quot;object2&quot;));</span>
+<span class="fc" id="L319">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testPutAll_Map2() {
+<span class="fc" id="L323">        final Map&lt;K, V&gt; original = new HashMap&lt;K, V&gt;();</span>
+<span class="fc" id="L324">        original.put((K) &quot;keyX&quot;, (V) &quot;object1&quot;);</span>
+<span class="fc" id="L325">        original.put((K) &quot;keyY&quot;, (V) &quot;object2&quot;);</span>
+
+<span class="fc" id="L327">        final MultiValueMap&lt;K, V&gt; test = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L328">        test.put((K) &quot;keyA&quot;, &quot;objectA&quot;);</span>
+<span class="fc" id="L329">        test.put((K) &quot;keyX&quot;, &quot;object0&quot;);</span>
+<span class="fc" id="L330">        test.putAll(original);</span>
+
+<span class="fc" id="L332">        assertEquals(3, test.size());</span>
+<span class="fc" id="L333">        assertEquals(4, test.totalSize());</span>
+<span class="fc" id="L334">        assertEquals(1, test.getCollection(&quot;keyA&quot;).size());</span>
+<span class="fc" id="L335">        assertEquals(2, test.getCollection(&quot;keyX&quot;).size());</span>
+<span class="fc" id="L336">        assertEquals(1, test.getCollection(&quot;keyY&quot;).size());</span>
+<span class="fc" id="L337">        assertEquals(true, test.containsValue(&quot;objectA&quot;));</span>
+<span class="fc" id="L338">        assertEquals(true, test.containsValue(&quot;object0&quot;));</span>
+<span class="fc" id="L339">        assertEquals(true, test.containsValue(&quot;object1&quot;));</span>
+<span class="fc" id="L340">        assertEquals(true, test.containsValue(&quot;object2&quot;));</span>
+<span class="fc" id="L341">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testPutAll_KeyCollection() {
+<span class="fc" id="L345">        final MultiValueMap&lt;K, V&gt; map = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L346">        Collection&lt;V&gt; coll = (Collection&lt;V&gt;) Arrays.asList(&quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;);</span>
+
+<span class="fc" id="L348">        assertEquals(true, map.putAll((K) &quot;A&quot;, coll));</span>
+<span class="fc" id="L349">        assertEquals(3, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L350">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;X&quot;));</span>
+<span class="fc" id="L351">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Y&quot;));</span>
+<span class="fc" id="L352">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Z&quot;));</span>
+
+<span class="fc" id="L354">        assertEquals(false, map.putAll((K) &quot;A&quot;, null));</span>
+<span class="fc" id="L355">        assertEquals(3, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L356">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;X&quot;));</span>
+<span class="fc" id="L357">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Y&quot;));</span>
+<span class="fc" id="L358">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Z&quot;));</span>
+
+<span class="fc" id="L360">        assertEquals(false, map.putAll((K) &quot;A&quot;, new ArrayList&lt;V&gt;()));</span>
+<span class="fc" id="L361">        assertEquals(3, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L362">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;X&quot;));</span>
+<span class="fc" id="L363">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Y&quot;));</span>
+<span class="fc" id="L364">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Z&quot;));</span>
+
+<span class="fc" id="L366">        coll = (Collection&lt;V&gt;) Arrays.asList(&quot;M&quot;);</span>
+<span class="fc" id="L367">        assertEquals(true, map.putAll((K) &quot;A&quot;, coll));</span>
+<span class="fc" id="L368">        assertEquals(4, map.size(&quot;A&quot;));</span>
+<span class="fc" id="L369">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;X&quot;));</span>
+<span class="fc" id="L370">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Y&quot;));</span>
+<span class="fc" id="L371">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;Z&quot;));</span>
+<span class="fc" id="L372">        assertEquals(true, map.containsValue(&quot;A&quot;, &quot;M&quot;));</span>
+<span class="fc" id="L373">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void testRemove_KeyItem() {
+<span class="fc" id="L377">        final MultiValueMap&lt;K, V&gt; map = new MultiValueMap&lt;K, V&gt;();</span>
+<span class="fc" id="L378">        map.put((K) &quot;A&quot;, &quot;AA&quot;);</span>
+<span class="fc" id="L379">        map.put((K) &quot;A&quot;, &quot;AB&quot;);</span>
+<span class="fc" id="L380">        map.put((K) &quot;A&quot;, &quot;AC&quot;);</span>
+<span class="fc" id="L381">        assertEquals(false, map.removeMapping(&quot;C&quot;, &quot;CA&quot;));</span>
+<span class="fc" id="L382">        assertEquals(false, map.removeMapping(&quot;A&quot;, &quot;AD&quot;));</span>
+<span class="fc" id="L383">        assertEquals(true, map.removeMapping(&quot;A&quot;, &quot;AC&quot;));</span>
+<span class="fc" id="L384">        assertEquals(true, map.removeMapping(&quot;A&quot;, &quot;AB&quot;));</span>
+<span class="fc" id="L385">        assertEquals(true, map.removeMapping(&quot;A&quot;, &quot;AA&quot;));</span>
+<span class="fc" id="L386">        assertEquals(new MultiValueMap&lt;K, V&gt;(), map);</span>
+<span class="fc" id="L387">    }</span>
+
+    //-----------------------------------------------------------------------
+    // Manual serialization testing as this class cannot easily 
+    // extend the AbstractTestMap
+    //-----------------------------------------------------------------------
+
+    @Override
+    public String getCompatibilityVersion() {
+<span class="fc" id="L396">        return &quot;4&quot;;</span>
+    }
+
+    @Override
+    public Object makeObject() {
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L402">        final Map&lt;String, String&gt; m = makeEmptyMap();</span>
+<span class="fc" id="L403">        m.put(&quot;a&quot;, &quot;1&quot;);</span>
+<span class="fc" id="L404">        m.put(&quot;a&quot;, &quot;1b&quot;);</span>
+<span class="fc" id="L405">        m.put(&quot;b&quot;, &quot;2&quot;);</span>
+<span class="fc" id="L406">        m.put(&quot;c&quot;, &quot;3&quot;);</span>
+<span class="fc" id="L407">        m.put(&quot;c&quot;, &quot;3b&quot;);</span>
+<span class="fc" id="L408">        m.put(&quot;d&quot;, &quot;4&quot;);</span>
+<span class="fc" id="L409">        return m;</span>
+    }
+
+    @SuppressWarnings(&quot;rawtypes&quot;)
+    private Map makeEmptyMap() {
+<span class="fc" id="L414">        return new MultiValueMap();</span>
+    }
+
+    public void testEmptyMapCompatibility() throws Exception {
+<span class="fc" id="L418">        final Map&lt;?,?&gt; map = makeEmptyMap();</span>
+<span class="fc" id="L419">        final Map&lt;?,?&gt; map2 = (Map&lt;?,?&gt;) readExternalFormFromDisk(getCanonicalEmptyCollectionName(map));</span>
+<span class="fc" id="L420">        assertEquals(&quot;Map is empty&quot;, 0, map2.size());</span>
+<span class="fc" id="L421">    }</span>
+    public void testFullMapCompatibility() throws Exception {
+<span class="fc" id="L423">        final Map&lt;?,?&gt; map = (Map&lt;?,?&gt;) makeObject();</span>
+<span class="fc" id="L424">        final Map&lt;?,?&gt; map2 = (Map&lt;?,?&gt;) readExternalFormFromDisk(getCanonicalFullCollectionName(map));</span>
+<span class="fc" id="L425">        assertEquals(&quot;Map is the right size&quot;, map.size(), map2.size());</span>
+<span class="fc bfc" id="L426" title="All 2 branches covered.">        for (final Object key : map.keySet()) {</span>
+<span class="fc" id="L427">            assertEquals( &quot;Map had inequal elements&quot;, map.get(key), map2.get(key) );</span>
+<span class="fc" id="L428">            map2.remove(key);</span>
+        }
+<span class="fc" id="L430">        assertEquals(&quot;Map had extra values&quot;, 0, map2.size());</span>
+<span class="fc" id="L431">    }</span>
+
+//    public void testCreate() throws Exception {
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) makeEmptyMap(),
+//            &quot;src/test/resources/data/test/MultiValueMap.emptyCollection.version4.obj&quot;);
+//
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) makeObject(),
+//            &quot;src/test/resources/data/test/MultiValueMap.fullCollection.version4.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

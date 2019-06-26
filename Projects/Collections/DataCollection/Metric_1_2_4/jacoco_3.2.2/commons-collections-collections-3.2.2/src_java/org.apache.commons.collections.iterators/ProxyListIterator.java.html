@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ProxyListIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">ProxyListIterator.java</span></div><h1>ProxyListIterator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.ListIterator;
+
+/**
+ * A proxy {@link ListIterator ListIterator} which delegates its
+ * methods to a proxy instance.
+ *
+ * @deprecated Use AbstractListIteratorDecorator. Will be removed in v4.0
+ * @since Commons Collections 2.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Rodney Waldhoff
+ */
+public class ProxyListIterator implements ListIterator {
+
+    /** Holds value of property &quot;iterator&quot;. */
+    private ListIterator iterator;
+
+    // Constructors
+    //-------------------------------------------------------------------------
+
+    /**
+     * Constructs a new &lt;code&gt;ProxyListIterator&lt;/code&gt; that will not 
+     * function until {@link #setListIterator(ListIterator) setListIterator}
+     * is invoked.
+     */
+    public ProxyListIterator() {
+<span class="nc" id="L45">        super();</span>
+<span class="nc" id="L46">    }</span>
+
+    /**
+     * Constructs a new &lt;code&gt;ProxyListIterator&lt;/code&gt; that will use the
+     * given list iterator.
+     *
+     * @param iterator  the list iterator to use
+     */
+    public ProxyListIterator(ListIterator iterator) {
+<span class="nc" id="L55">        super();</span>
+<span class="nc" id="L56">        this.iterator = iterator;</span>
+<span class="nc" id="L57">    }</span>
+
+    // ListIterator interface
+    //-------------------------------------------------------------------------
+
+    /**
+     *  Invokes the underlying {@link ListIterator#add(Object)} method.
+     *
+     *  @throws NullPointerException  if the underlying iterator is null
+     */
+    public void add(Object o) {
+<span class="nc" id="L68">        getListIterator().add(o);</span>
+<span class="nc" id="L69">    }</span>
+
+    /**
+     *  Invokes the underlying {@link ListIterator#hasNext()} method.
+     *
+     *  @throws NullPointerException  if the underlying iterator is null
+     */
+    public boolean hasNext() {
+<span class="nc" id="L77">        return getListIterator().hasNext();</span>
+    }
+
+    /**
+     *  Invokes the underlying {@link ListIterator#hasPrevious()} method.
+     *
+     *  @throws NullPointerException  if the underlying iterator is null
+     */
+    public boolean hasPrevious() {
+<span class="nc" id="L86">        return getListIterator().hasPrevious();</span>
+    }
+
+    /**
+     *  Invokes the underlying {@link ListIterator#next()} method.
+     *
+     *  @throws NullPointerException  if the underlying iterator is null
+     */
+    public Object next() {
+<span class="nc" id="L95">        return getListIterator().next();</span>
+    }
+
+    /**
+     *  Invokes the underlying {@link ListIterator#nextIndex()} method.
+     *
+     *  @throws NullPointerException  if the underlying iterator is null
+     */
+    public int nextIndex() {
+<span class="nc" id="L104">        return getListIterator().nextIndex();</span>
+    }
+
+    /**
+     *  Invokes the underlying {@link ListIterator#previous()} method.
+     *
+     *  @throws NullPointerException  if the underlying iterator is null
+     */
+    public Object previous() {
+<span class="nc" id="L113">        return getListIterator().previous();</span>
+    }
+
+    /**
+     *  Invokes the underlying {@link ListIterator#previousIndex()} method.
+     *
+     *  @throws NullPointerException  if the underlying iterator is null
+     */
+    public int previousIndex() {
+<span class="nc" id="L122">        return getListIterator().previousIndex();</span>
+    }
+
+    /**
+     *  Invokes the underlying {@link ListIterator#remove()} method.
+     *
+     *  @throws NullPointerException  if the underlying iterator is null
+     */
+    public void remove() {
+<span class="nc" id="L131">        getListIterator().remove();</span>
+<span class="nc" id="L132">    }</span>
+
+    /**
+     *  Invokes the underlying {@link ListIterator#set(Object)} method.
+     *
+     *  @throws NullPointerException  if the underlying iterator is null
+     */
+    public void set(Object o) {
+<span class="nc" id="L140">        getListIterator().set(o);</span>
+<span class="nc" id="L141">    }</span>
+
+    // Properties
+    //-------------------------------------------------------------------------
+
+    /** 
+     * Getter for property iterator.
+     * @return Value of property iterator.
+     */
+    public ListIterator getListIterator() {
+<span class="nc" id="L151">        return iterator;</span>
+    }
+
+    /**
+     * Setter for property iterator.
+     * @param iterator New value of property iterator.
+     */
+    public void setListIterator(ListIterator iterator) {
+<span class="nc" id="L159">        this.iterator = iterator;</span>
+<span class="nc" id="L160">    }</span>
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

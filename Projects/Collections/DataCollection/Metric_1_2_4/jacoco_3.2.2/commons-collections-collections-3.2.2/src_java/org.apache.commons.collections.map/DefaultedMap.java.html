@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DefaultedMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">DefaultedMap.java</span></div><h1>DefaultedMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.collections.Factory;
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections.functors.ConstantTransformer;
+import org.apache.commons.collections.functors.FactoryTransformer;
+
+/**
+ * Decorates another &lt;code&gt;Map&lt;/code&gt; returning a default value if the map
+ * does not contain the requested key.
+ * &lt;p&gt;
+ * When the {@link #get(Object)} method is called with a key that does not
+ * exist in the map, this map will return the default value specified in
+ * the constructor/factory. Only the get method is altered, so the
+ * {@link Map#containsKey(Object)} can be used to determine if a key really
+ * is in the map or not.
+ * &lt;p&gt;
+ * The defaulted value is not added to the map.
+ * Compare this behaviour with {@link LazyMap}, which does add the value
+ * to the map (via a Transformer).
+ * &lt;p&gt;
+ * For instance:
+ * &lt;pre&gt;
+ * Map map = new DefaultedMap(&quot;NULL&quot;);
+ * Object obj = map.get(&quot;Surname&quot;);
+ * // obj == &quot;NULL&quot;
+ * &lt;/pre&gt;
+ * After the above code is executed the map is still empty.
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that DefaultedMap is not synchronized and is not thread-safe.&lt;/strong&gt;
+ * If you wish to use this map from multiple threads concurrently, you must use
+ * appropriate synchronization. The simplest approach is to wrap this map
+ * using {@link java.util.Collections#synchronizedMap(Map)}. This class may throw 
+ * exceptions when accessed by concurrent threads without synchronization.
+ *
+ * @since Commons Collections 3.2
+ * @version $Revision: 1.7 $ $Date$
+ * 
+ * @author Stephen Colebourne
+ * @author Rafael U.C. Afonso
+ * @see LazyMap
+ */
+public class DefaultedMap
+        extends AbstractMapDecorator
+        implements Map, Serializable {
+
+    /** Serialization version */
+    private static final long serialVersionUID = 19698628745827L;
+
+    /** The transformer to use if the map does not contain a key */
+    protected final Object value;
+
+    //-----------------------------------------------------------------------
+    /**
+     * Factory method to create a defaulting map.
+     * &lt;p&gt;
+     * The value specified is returned when a missing key is found.
+     * 
+     * @param map  the map to decorate, must not be null
+     * @param defaultValue  the default value to return when the key is not found
+     * @throws IllegalArgumentException if map is null
+     */
+    public static Map decorate(Map map, Object defaultValue) {
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (defaultValue instanceof Transformer) {</span>
+<span class="nc" id="L88">            defaultValue = ConstantTransformer.getInstance(defaultValue);</span>
+        }
+<span class="fc" id="L90">        return new DefaultedMap(map, defaultValue);</span>
+    }
+
+    /**
+     * Factory method to create a defaulting map.
+     * &lt;p&gt;
+     * The factory specified is called when a missing key is found.
+     * The result will be returned as the result of the map get(key) method.
+     * 
+     * @param map  the map to decorate, must not be null
+     * @param factory  the factory to use, must not be null
+     * @throws IllegalArgumentException if map or factory is null
+     */
+    public static Map decorate(Map map, Factory factory) {
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (factory == null) {</span>
+<span class="nc" id="L105">            throw new IllegalArgumentException(&quot;Factory must not be null&quot;);</span>
+        }
+<span class="fc" id="L107">        return new DefaultedMap(map, FactoryTransformer.getInstance(factory));</span>
+    }
+
+    /**
+     * Factory method to create a defaulting map.
+     * &lt;p&gt;
+     * The transformer specified is called when a missing key is found.
+     * The key is passed to the transformer as the input, and the result
+     * will be returned as the result of the map get(key) method.
+     * 
+     * @param map  the map to decorate, must not be null
+     * @param factory  the factory to use, must not be null
+     * @throws IllegalArgumentException if map or factory is null
+     */
+    public static Map decorate(Map map, Transformer factory) {
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        if (factory == null) {</span>
+<span class="nc" id="L123">           throw new IllegalArgumentException(&quot;Transformer must not be null&quot;);</span>
+       }
+<span class="fc" id="L125">       return new DefaultedMap(map, factory);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Constructs a new empty &lt;code&gt;DefaultedMap&lt;/code&gt; that decorates
+     * a &lt;code&gt;HashMap&lt;/code&gt;.
+     * &lt;p&gt;
+     * The object passed in will be returned by the map whenever an
+     * unknown key is requested.
+     * 
+     * @param defaultValue  the default value to return when the key is not found
+     */
+    public DefaultedMap(Object defaultValue) {
+<span class="fc" id="L139">        super(new HashMap());</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">        if (defaultValue instanceof Transformer) {</span>
+<span class="nc" id="L141">            defaultValue = ConstantTransformer.getInstance(defaultValue);</span>
+        }
+<span class="fc" id="L143">        this.value = defaultValue;</span>
+<span class="fc" id="L144">    }</span>
+
+    /**
+     * Constructor that wraps (not copies).
+     * 
+     * @param map  the map to decorate, must not be null
+     * @param value  the value to use
+     * @throws IllegalArgumentException if map or transformer is null
+     */
+    protected DefaultedMap(Map map, Object value) {
+<span class="fc" id="L154">        super(map);</span>
+<span class="fc" id="L155">        this.value = value;</span>
+<span class="fc" id="L156">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Write the map out using a custom routine.
+     * 
+     * @param out  the output stream
+     * @throws IOException
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+<span class="fc" id="L166">        out.defaultWriteObject();</span>
+<span class="fc" id="L167">        out.writeObject(map);</span>
+<span class="fc" id="L168">    }</span>
+
+    /**
+     * Read the map in using a custom routine.
+     * 
+     * @param in  the input stream
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L178">        in.defaultReadObject();</span>
+<span class="fc" id="L179">        map = (Map) in.readObject();</span>
+<span class="fc" id="L180">    }</span>
+
+    //-----------------------------------------------------------------------
+    public Object get(Object key) {
+        // create value for key if key is not currently in the map
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        if (map.containsKey(key) == false) {</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">            if (value instanceof Transformer) {</span>
+<span class="fc" id="L187">                return ((Transformer) value).transform(key);</span>
+            }
+<span class="fc" id="L189">            return value;</span>
+        }
+<span class="fc" id="L191">        return map.get(key);</span>
+    }
+
+    // no need to wrap keySet, entrySet or values as they are views of
+    // existing map entries - you can't do a map-style get on them.
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

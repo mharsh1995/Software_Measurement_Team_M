@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestCompositeCollection.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.collection</a> &gt; <span class="el_source">TestCompositeCollection.java</span></div><h1>TestCompositeCollection.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.collection;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+/**
+ * Extension of {@link AbstractTestCollection} for exercising the 
+ * {@link CompositeCollection} implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Brian McCallister
+ * @author Phil Steitz
+ */
+public class TestCompositeCollection extends AbstractTestCollection {
+    
+    public TestCompositeCollection(String name) {
+<span class="fc" id="L40">        super(name);</span>
+<span class="fc" id="L41">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L44" title="All 2 branches covered.">        return new TestSuite(TestCompositeCollection.class);</span>
+    }
+
+    public static void main(String args[]) {
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        String[] testCaseName = { TestCompositeCollection.class.getName()};</span>
+<span class="nc" id="L49">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L50">    }</span>
+ 
+ //-----------------------------------------------------------------------------
+    /**
+     * Run stock collection tests without Mutator, so turn off add, remove
+     */
+    public boolean isAddSupported() {
+<span class="fc" id="L57">        return false;</span>
+    }
+    
+    public boolean isRemoveSupported() {
+<span class="fc" id="L61">        return false;</span>
+    }
+    
+    /**
+     * Empty collection is empty composite
+     */
+    public Collection makeCollection() {
+<span class="fc" id="L68">        return new CompositeCollection();</span>
+    }
+    
+    public Collection makeConfirmedCollection() {
+<span class="fc" id="L72">        return new HashSet();</span>
+    }
+    
+    public Object[] getFullElements() {
+<span class="fc" id="L76">        return new Object[] {&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;};</span>
+    }
+    
+    /**
+     * Full collection consists of 4 collections, each with one element
+     */
+    public Collection makeFullCollection() {
+<span class="fc" id="L83">        CompositeCollection compositeCollection = new CompositeCollection();</span>
+<span class="fc" id="L84">        Object[] elements = getFullElements();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        for (int i = 0; i &lt; elements.length; i++) {</span>
+<span class="fc" id="L86">            Collection summand = new HashSet();</span>
+<span class="fc" id="L87">            summand.add(elements[i]);</span>
+<span class="fc" id="L88">            compositeCollection.addComposited(summand);</span>
+        }
+<span class="fc" id="L90">        return compositeCollection;</span>
+    }
+    
+    /**
+     * Full collection should look like a collection with 4 elements
+     */
+    public Collection makeConfirmedFullCollection() {
+<span class="fc" id="L97">        Collection collection = new HashSet();</span>
+<span class="fc" id="L98">        collection.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L99">        return collection;</span>
+    }
+    
+    /**
+     * Override testUnsupportedRemove, since the default impl expects removeAll,
+     * retainAll and iterator().remove to throw
+     */
+    public void testUnsupportedRemove() {    
+<span class="fc" id="L107">        resetFull();</span>
+        try {
+<span class="nc" id="L109">            collection.remove(null);</span>
+<span class="nc" id="L110">            fail(&quot;remove should raise UnsupportedOperationException&quot;);</span>
+<span class="pc" id="L111">        } catch (UnsupportedOperationException e) {</span>
+            // expected
+        }
+<span class="fc" id="L114">        verify();</span>
+<span class="fc" id="L115">    }</span>
+    
+    //--------------------------------------------------------------------------
+    
+    protected CompositeCollection c;
+    protected Collection one;
+    protected Collection two;
+    
+    protected void setUpTest() {
+<span class="fc" id="L124">        c = new CompositeCollection();</span>
+<span class="fc" id="L125">        one = new HashSet();</span>
+<span class="fc" id="L126">        two = new HashSet();</span>
+<span class="fc" id="L127">    }</span>
+    
+    protected void setUpMutatorTest() {
+<span class="fc" id="L130">        setUpTest();</span>
+<span class="fc" id="L131">        c.setMutator(new CompositeCollection.CollectionMutator() {</span>
+            public boolean add(CompositeCollection composite, 
+            Collection[] collections, Object obj) {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                for (int i = 0; i &lt; collections.length; i++) {</span>
+<span class="nc" id="L135">                    collections[i].add(obj);</span>
+                }
+<span class="nc" id="L137">                return true;</span>
+            }
+            
+            public boolean addAll(CompositeCollection composite, 
+            Collection[] collections, Collection coll) {
+<span class="nc bnc" id="L142" title="All 2 branches missed.">                for (int i = 0; i &lt; collections.length; i++) {</span>
+<span class="nc" id="L143">                    collections[i].addAll(coll);</span>
+                }
+<span class="nc" id="L145">                return true;</span>
+            }
+            
+            public boolean remove(CompositeCollection composite, 
+            Collection[] collections, Object obj) {
+<span class="fc bfc" id="L150" title="All 2 branches covered.">                for (int i = 0; i &lt; collections.length; i++) {</span>
+<span class="fc" id="L151">                    collections[i].remove(obj);</span>
+                }
+<span class="fc" id="L153">                return true;</span>
+            }
+        });
+<span class="fc" id="L156">    }</span>
+            
+    public void testSize() {
+<span class="fc" id="L159">        setUpTest();</span>
+<span class="fc" id="L160">        HashSet set = new HashSet();</span>
+<span class="fc" id="L161">        set.add(&quot;a&quot;);</span>
+<span class="fc" id="L162">        set.add(&quot;b&quot;);</span>
+<span class="fc" id="L163">        c.addComposited(set);</span>
+<span class="fc" id="L164">        assertEquals(set.size(), c.size());</span>
+<span class="fc" id="L165">    }</span>
+    
+    public void testMultipleCollectionsSize() {
+<span class="fc" id="L168">        setUpTest();</span>
+<span class="fc" id="L169">        HashSet set = new HashSet();</span>
+<span class="fc" id="L170">        set.add(&quot;a&quot;);</span>
+<span class="fc" id="L171">        set.add(&quot;b&quot;);</span>
+<span class="fc" id="L172">        c.addComposited(set);</span>
+<span class="fc" id="L173">        HashSet other = new HashSet();</span>
+<span class="fc" id="L174">        other.add(&quot;c&quot;);</span>
+<span class="fc" id="L175">        c.addComposited(other);</span>
+<span class="fc" id="L176">        assertEquals(set.size() + other.size(), c.size());</span>
+<span class="fc" id="L177">    }</span>
+    
+    public void testIsEmpty() {
+<span class="fc" id="L180">        setUpTest();</span>
+<span class="fc" id="L181">        assertTrue(c.isEmpty());</span>
+<span class="fc" id="L182">        HashSet empty = new HashSet();</span>
+<span class="fc" id="L183">        c.addComposited(empty);</span>
+<span class="fc" id="L184">        assertTrue(c.isEmpty());</span>
+<span class="fc" id="L185">        empty.add(&quot;a&quot;);</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">        assertTrue(!c.isEmpty());</span>
+<span class="fc" id="L187">    }</span>
+    
+    
+    public void testIterator() {
+<span class="fc" id="L191">        setUpTest();</span>
+<span class="fc" id="L192">        one.add(&quot;1&quot;);</span>
+<span class="fc" id="L193">        two.add(&quot;2&quot;);</span>
+<span class="fc" id="L194">        c.addComposited(one);</span>
+<span class="fc" id="L195">        c.addComposited(two);</span>
+<span class="fc" id="L196">        Iterator i = c.iterator();</span>
+<span class="fc" id="L197">        Object next = i.next();</span>
+<span class="fc" id="L198">        assertTrue(c.contains(next));</span>
+<span class="fc" id="L199">        assertTrue(one.contains(next));</span>
+<span class="fc" id="L200">        next = i.next();</span>
+<span class="fc" id="L201">        i.remove();</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        assertTrue(!c.contains(next));</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">        assertTrue(!two.contains(next));</span>
+<span class="fc" id="L204">    }</span>
+    
+    public void testClear() {
+<span class="fc" id="L207">        setUpTest();</span>
+<span class="fc" id="L208">        one.add(&quot;1&quot;);</span>
+<span class="fc" id="L209">        two.add(&quot;2&quot;);</span>
+<span class="fc" id="L210">        c.addComposited(one, two);</span>
+<span class="fc" id="L211">        c.clear();</span>
+<span class="fc" id="L212">        assertTrue(one.isEmpty());</span>
+<span class="fc" id="L213">        assertTrue(two.isEmpty());</span>
+<span class="fc" id="L214">        assertTrue(c.isEmpty());</span>
+<span class="fc" id="L215">    }</span>
+    
+    public void testContainsAll() {
+<span class="fc" id="L218">        setUpTest();</span>
+<span class="fc" id="L219">        one.add(&quot;1&quot;);</span>
+<span class="fc" id="L220">        two.add(&quot;1&quot;);</span>
+<span class="fc" id="L221">        c.addComposited(one);</span>
+<span class="fc" id="L222">        assertTrue(c.containsAll(two));</span>
+<span class="fc" id="L223">    }</span>
+    
+    public void testRetainAll() {
+<span class="fc" id="L226">        setUpTest();</span>
+<span class="fc" id="L227">        one.add(&quot;1&quot;);</span>
+<span class="fc" id="L228">        one.add(&quot;2&quot;);</span>
+<span class="fc" id="L229">        two.add(&quot;1&quot;);</span>
+<span class="fc" id="L230">        c.addComposited(one);</span>
+<span class="fc" id="L231">        c.retainAll(two);</span>
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">        assertTrue(!c.contains(&quot;2&quot;));</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">        assertTrue(!one.contains(&quot;2&quot;));</span>
+<span class="fc" id="L234">        assertTrue(c.contains(&quot;1&quot;));</span>
+<span class="fc" id="L235">        assertTrue(one.contains(&quot;1&quot;));</span>
+<span class="fc" id="L236">    }</span>
+    
+    public void testAddAllMutator() {
+<span class="fc" id="L239">        setUpTest();</span>
+<span class="fc" id="L240">        c.setMutator(new CompositeCollection.CollectionMutator() {</span>
+            public boolean add(CompositeCollection composite, 
+            Collection[] collections, Object obj) {
+<span class="nc bnc" id="L243" title="All 2 branches missed.">                for (int i = 0; i &lt; collections.length; i++) {</span>
+<span class="nc" id="L244">                    collections[i].add(obj);</span>
+                }
+<span class="nc" id="L246">                return true;</span>
+            }
+            
+            public boolean addAll(CompositeCollection composite, 
+            Collection[] collections, Collection coll) {
+<span class="fc bfc" id="L251" title="All 2 branches covered.">                for (int i = 0; i &lt; collections.length; i++) {</span>
+<span class="fc" id="L252">                    collections[i].addAll(coll);</span>
+                }
+<span class="fc" id="L254">                return true;</span>
+            }
+            
+            public boolean remove(CompositeCollection composite, 
+            Collection[] collections, Object obj) {
+<span class="nc" id="L259">                return false;</span>
+            }
+        });
+        
+<span class="fc" id="L263">        c.addComposited(one);</span>
+<span class="fc" id="L264">        two.add(&quot;foo&quot;);</span>
+<span class="fc" id="L265">        c.addAll(two);</span>
+<span class="fc" id="L266">        assertTrue(c.contains(&quot;foo&quot;));</span>
+<span class="fc" id="L267">        assertTrue(one.contains(&quot;foo&quot;));</span>
+<span class="fc" id="L268">    }</span>
+    
+    public void testAddMutator() {
+<span class="fc" id="L271">        setUpTest();</span>
+<span class="fc" id="L272">        c.setMutator(new CompositeCollection.CollectionMutator() {</span>
+            public boolean add(CompositeCollection composite, 
+            Collection[] collections, Object obj) {
+<span class="fc bfc" id="L275" title="All 2 branches covered.">                for (int i = 0; i &lt; collections.length; i++) {</span>
+<span class="fc" id="L276">                    collections[i].add(obj);</span>
+                }
+<span class="fc" id="L278">                return true;</span>
+            }
+            
+            public boolean addAll(CompositeCollection composite, 
+            Collection[] collections, Collection coll) {
+<span class="nc bnc" id="L283" title="All 2 branches missed.">                for (int i = 0; i &lt; collections.length; i++) {</span>
+<span class="nc" id="L284">                    collections[i].addAll(coll);</span>
+                }
+<span class="nc" id="L286">                return true;</span>
+            }
+            
+            public boolean remove(CompositeCollection composite, 
+            Collection[] collections, Object obj) {
+<span class="nc" id="L291">                return false;</span>
+            }
+        });
+        
+<span class="fc" id="L295">        c.addComposited(one);</span>
+<span class="fc" id="L296">        c.add(&quot;foo&quot;);</span>
+<span class="fc" id="L297">        assertTrue(c.contains(&quot;foo&quot;));</span>
+<span class="fc" id="L298">        assertTrue(one.contains(&quot;foo&quot;));</span>
+<span class="fc" id="L299">    }</span>
+    
+    public void testToCollection() {
+<span class="fc" id="L302">        setUpTest();</span>
+<span class="fc" id="L303">        one.add(&quot;1&quot;);</span>
+<span class="fc" id="L304">        two.add(&quot;2&quot;);</span>
+<span class="fc" id="L305">        c.addComposited(one, two);</span>
+<span class="fc" id="L306">        Collection foo = c.toCollection();</span>
+<span class="fc" id="L307">        assertTrue(foo.containsAll(c));</span>
+<span class="fc" id="L308">        assertEquals(c.size(), foo.size());</span>
+<span class="fc" id="L309">        one.add(&quot;3&quot;);</span>
+<span class="pc bpc" id="L310" title="1 of 2 branches missed.">        assertTrue(!foo.containsAll(c));</span>
+<span class="fc" id="L311">    }</span>
+    
+    public void testAddAllToCollection() {
+<span class="fc" id="L314">        setUpTest();</span>
+<span class="fc" id="L315">        one.add(&quot;1&quot;);</span>
+<span class="fc" id="L316">        two.add(&quot;2&quot;);</span>
+<span class="fc" id="L317">        c.addComposited(one, two);</span>
+<span class="fc" id="L318">        Collection toCollection = new HashSet();</span>
+<span class="fc" id="L319">        toCollection.addAll(c);</span>
+<span class="fc" id="L320">        assertTrue(toCollection.containsAll(c));</span>
+<span class="fc" id="L321">        assertEquals(c.size(), toCollection.size());</span>
+<span class="fc" id="L322">    }   </span>
+    
+    public void testRemove() {
+<span class="fc" id="L325">        setUpMutatorTest();</span>
+<span class="fc" id="L326">        one.add(&quot;1&quot;);</span>
+<span class="fc" id="L327">        two.add(&quot;2&quot;);</span>
+<span class="fc" id="L328">        two.add(&quot;1&quot;);</span>
+<span class="fc" id="L329">        c.addComposited(one, two);</span>
+<span class="fc" id="L330">        c.remove(&quot;1&quot;);</span>
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">        assertTrue(!c.contains(&quot;1&quot;));</span>
+<span class="pc bpc" id="L332" title="1 of 2 branches missed.">        assertTrue(!one.contains(&quot;1&quot;));</span>
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">        assertTrue(!two.contains(&quot;1&quot;));</span>
+<span class="fc" id="L334">    }</span>
+    
+    public void testRemoveAll() {
+<span class="fc" id="L337">        setUpMutatorTest();</span>
+<span class="fc" id="L338">        one.add(&quot;1&quot;);</span>
+<span class="fc" id="L339">        two.add(&quot;2&quot;);</span>
+<span class="fc" id="L340">        two.add(&quot;1&quot;);</span>
+<span class="fc" id="L341">        c.addComposited(one, two);</span>
+<span class="fc" id="L342">        c.removeAll(one);</span>
+<span class="pc bpc" id="L343" title="1 of 2 branches missed.">        assertTrue(!c.contains(&quot;1&quot;));</span>
+<span class="pc bpc" id="L344" title="1 of 2 branches missed.">        assertTrue(!one.contains(&quot;1&quot;));</span>
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">        assertTrue(!two.contains(&quot;1&quot;));</span>
+<span class="fc" id="L346">    }</span>
+    
+    public void testRemoveComposited() {
+<span class="fc" id="L349">        setUpMutatorTest();</span>
+<span class="fc" id="L350">        one.add(&quot;1&quot;);</span>
+<span class="fc" id="L351">        two.add(&quot;2&quot;);</span>
+<span class="fc" id="L352">        two.add(&quot;1&quot;);</span>
+<span class="fc" id="L353">        c.addComposited(one, two);    </span>
+<span class="fc" id="L354">        c.removeComposited(one);</span>
+<span class="fc" id="L355">        assertTrue(c.contains(&quot;1&quot;));</span>
+<span class="fc" id="L356">        assertEquals(c.size(), 2);</span>
+<span class="fc" id="L357">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

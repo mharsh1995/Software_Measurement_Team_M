@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>LocalTestNode.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">LocalTestNode.java</span></div><h1>LocalTestNode.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+/**
+ * Class LocalTestNode, a helper class for TestDoubleOrderedMap
+ * 
+ * @version $Revision$ $Date$
+ *
+ * @author Marc Johnson (marcj at users dot sourceforge dot net)
+ */
+class LocalTestNode implements Comparable {
+
+    private Comparable key;
+    private Comparable value;
+
+    /**
+     * construct a LocalTestNode
+     *
+     * @param key value used to create the key and value
+     */
+<span class="fc" id="L36">    LocalTestNode(final int key) {</span>
+<span class="fc" id="L37">        this.key   = new Integer(key);</span>
+<span class="fc" id="L38">        this.value = String.valueOf(key);</span>
+<span class="fc" id="L39">    }</span>
+
+    /**
+     * @param key the unique key associated with the current node.
+     */
+    void setKey(Comparable key) {
+<span class="nc" id="L45">        this.key = key;</span>
+<span class="nc" id="L46">    }</span>
+
+    /**
+     * @return the unique key associated with the current node
+     */
+    Comparable getKey() {
+<span class="fc" id="L52">        return key;</span>
+    }
+
+    /**
+     * @param value the unique value associated with the current node.
+     */
+    void setValue(Comparable value) {
+<span class="nc" id="L59">        this.value = value;</span>
+<span class="nc" id="L60">    }</span>
+
+    /**
+     * @return the unique value associated with the current node
+     */
+    Comparable getValue() {
+<span class="fc" id="L66">        return value;</span>
+    }
+
+    /**
+     * Method compareTo
+     *
+     * @param o
+     *
+     * @return
+     */
+    public int compareTo(Object o) {
+
+<span class="fc" id="L78">        LocalTestNode other = (LocalTestNode) o;</span>
+<span class="fc" id="L79">        int           rval  = getKey().compareTo(other.getKey());</span>
+
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        if (rval == 0) {</span>
+<span class="fc" id="L82">            rval = getValue().compareTo(other.getValue());</span>
+        }
+
+<span class="fc" id="L85">        return rval;</span>
+    }
+
+    /**
+     * Method equals
+     *
+     * @param o
+     *
+     * @return true if equal
+     */
+    public boolean equals(Object o) {
+
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (o == null) {</span>
+<span class="nc" id="L98">            return false;</span>
+        }
+
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (!(o.getClass().equals(this.getClass()))) {</span>
+<span class="nc" id="L102">            return false;</span>
+        }
+
+<span class="fc" id="L105">        LocalTestNode node = (LocalTestNode) o;</span>
+
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        return (getKey().equals(node.getKey())</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">                &amp;&amp; getValue().equals(node.getValue()));</span>
+    }
+
+    /**
+     * @return hash code
+     */
+    public int hashCode() {
+<span class="fc" id="L115">        return getKey().hashCode() ^ getValue().hashCode();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

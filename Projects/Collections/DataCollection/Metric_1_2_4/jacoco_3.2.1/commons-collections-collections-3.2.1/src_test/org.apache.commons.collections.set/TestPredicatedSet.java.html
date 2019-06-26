@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestPredicatedSet.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.set</a> &gt; <span class="el_source">TestPredicatedSet.java</span></div><h1>TestPredicatedSet.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.set;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
+
+/**
+ * Extension of {@link TestSet} for exercising the 
+ * {@link PredicatedSet} implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Phil Steitz
+ */
+public class TestPredicatedSet extends AbstractTestSet{
+    
+    public TestPredicatedSet(String testName) {
+<span class="fc" id="L40">        super(testName);</span>
+<span class="fc" id="L41">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L44" title="All 2 branches covered.">        return new TestSuite(TestPredicatedSet.class);</span>
+    }
+    
+    public static void main(String args[]) {
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        String[] testCaseName = { TestPredicatedSet.class.getName()};</span>
+<span class="nc" id="L49">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L50">    }</span>
+    
+ //-------------------------------------------------------------------
+    
+<span class="fc" id="L54">    protected Predicate truePredicate = PredicateUtils.truePredicate();</span>
+    
+    protected Set decorateSet(Set set, Predicate predicate) {
+<span class="fc" id="L57">        return PredicatedSet.decorate(set, predicate);</span>
+    }
+    
+    public Set makeEmptySet() {
+<span class="fc" id="L61">        return decorateSet(new HashSet(), truePredicate);</span>
+    }
+    
+    public Object[] getFullElements() {
+<span class="fc" id="L65">        return new Object[] {&quot;1&quot;, &quot;3&quot;, &quot;5&quot;, &quot;7&quot;, &quot;2&quot;, &quot;4&quot;, &quot;6&quot;};</span>
+    }
+    
+//--------------------------------------------------------------------   
+    
+<span class="fc" id="L70">    protected Predicate testPredicate =  </span>
+<span class="fc" id="L71">        new Predicate() {</span>
+            public boolean evaluate(Object o) {
+<span class="fc" id="L73">                return o instanceof String;</span>
+            }
+        };      
+    
+    protected Set makeTestSet() {
+<span class="fc" id="L78">        return decorateSet(new HashSet(), testPredicate);</span>
+    }
+    
+    public void testGetSet() {
+<span class="fc" id="L82">         Set set = makeTestSet();</span>
+<span class="fc" id="L83">        assertTrue(&quot;returned set should not be null&quot;,</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">            ((PredicatedSet) set).getSet() != null);</span>
+<span class="fc" id="L85">    }</span>
+    
+    public void testIllegalAdd() {
+<span class="fc" id="L88">        Set set = makeTestSet();</span>
+<span class="fc" id="L89">        Integer i = new Integer(3);</span>
+        try {
+<span class="nc" id="L91">            set.add(i);</span>
+<span class="nc" id="L92">            fail(&quot;Integer should fail string predicate.&quot;);</span>
+<span class="pc" id="L93">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+<span class="fc" id="L96">        assertTrue(&quot;Collection shouldn't contain illegal element&quot;, </span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">         !set.contains(i));   </span>
+<span class="fc" id="L98">    }</span>
+
+    public void testIllegalAddAll() {
+<span class="fc" id="L101">        Set set = makeTestSet();</span>
+<span class="fc" id="L102">        Set elements = new HashSet();</span>
+<span class="fc" id="L103">        elements.add(&quot;one&quot;);</span>
+<span class="fc" id="L104">        elements.add(&quot;two&quot;);</span>
+<span class="fc" id="L105">        elements.add(new Integer(3));</span>
+<span class="fc" id="L106">        elements.add(&quot;four&quot;);</span>
+        try {
+<span class="nc" id="L108">            set.addAll(elements);</span>
+<span class="nc" id="L109">            fail(&quot;Integer should fail string predicate.&quot;);</span>
+<span class="pc" id="L110">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+<span class="fc" id="L113">        assertTrue(&quot;Set shouldn't contain illegal element&quot;, </span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">         !set.contains(&quot;one&quot;));   </span>
+<span class="fc" id="L115">        assertTrue(&quot;Set shouldn't contain illegal element&quot;, </span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">         !set.contains(&quot;two&quot;));   </span>
+<span class="fc" id="L117">        assertTrue(&quot;Set shouldn't contain illegal element&quot;, </span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">         !set.contains(new Integer(3)));   </span>
+<span class="fc" id="L119">        assertTrue(&quot;Set shouldn't contain illegal element&quot;, </span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">         !set.contains(&quot;four&quot;));   </span>
+<span class="fc" id="L121">    }</span>
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L124">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/PredicatedSet.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk((java.io.Serializable) collection, &quot;D:/dev/collections/data/test/PredicatedSet.fullCollection.version3.1.obj&quot;);
+//    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

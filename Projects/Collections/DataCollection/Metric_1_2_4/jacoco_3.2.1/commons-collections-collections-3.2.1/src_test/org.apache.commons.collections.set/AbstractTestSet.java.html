@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractTestSet.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.set</a> &gt; <span class="el_source">AbstractTestSet.java</span></div><h1>AbstractTestSet.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.set;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import org.apache.commons.collections.collection.AbstractTestCollection;
+
+/**
+ * Abstract test class for {@link Set} methods and contracts.
+ * &lt;p&gt;
+ * Since {@link Set} doesn't stipulate much new behavior that isn't already
+ * found in {@link Collection}, this class basically just adds tests for
+ * {@link Set#equals} and {@link Set#hashCode()} along with an updated
+ * {@link #verify()} that ensures elements do not appear more than once in the
+ * set.
+ * &lt;p&gt;
+ * To use, subclass and override the {@link #makeEmptySet()}
+ * method.  You may have to override other protected methods if your
+ * set is not modifiable, or if your set restricts what kinds of
+ * elements may be added; see {@link AbstractTestCollection} for more details.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Paul Jack
+ */
+public abstract class AbstractTestSet extends AbstractTestCollection {
+
+    /**
+     * JUnit constructor.
+     *
+     * @param name  name for test
+     */
+    public AbstractTestSet(String name) {
+<span class="fc" id="L54">        super(name);</span>
+<span class="fc" id="L55">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Provides additional verifications for sets.
+     */
+    public void verify() {
+<span class="fc" id="L62">        super.verify();</span>
+        
+<span class="fc" id="L64">        assertEquals(&quot;Sets should be equal&quot;, confirmed, collection);</span>
+<span class="fc" id="L65">        assertEquals(&quot;Sets should have equal hashCodes&quot;, </span>
+<span class="fc" id="L66">                     confirmed.hashCode(), collection.hashCode());</span>
+<span class="fc" id="L67">        Collection set = makeConfirmedCollection();</span>
+<span class="fc" id="L68">        Iterator iterator = collection.iterator();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="fc" id="L70">            assertTrue(&quot;Set.iterator should only return unique elements&quot;, </span>
+<span class="fc" id="L71">                       set.add(iterator.next()));</span>
+        }
+<span class="fc" id="L73">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Set equals method is defined.
+     */
+    public boolean isEqualsCheckable() {
+<span class="fc" id="L80">        return true;</span>
+    }
+
+    /**
+     * Returns an empty Set for use in modification testing.
+     *
+     * @return a confirmed empty collection
+     */
+    public Collection makeConfirmedCollection() {
+<span class="fc" id="L89">        return new HashSet();</span>
+    }
+
+    /**
+     * Returns a full Set for use in modification testing.
+     *
+     * @return a confirmed full collection
+     */
+    public Collection makeConfirmedFullCollection() {
+<span class="fc" id="L98">        Collection set = makeConfirmedCollection();</span>
+<span class="fc" id="L99">        set.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L100">        return set;</span>
+    }
+
+    /**
+     * Makes an empty set.  The returned set should have no elements.
+     *
+     * @return an empty set
+     */
+    public abstract Set makeEmptySet();
+
+    /**
+     * Makes a full set by first creating an empty set and then adding
+     * all the elements returned by {@link #getFullElements()}.
+     *
+     * Override if your set does not support the add operation.
+     *
+     * @return a full set
+     */
+    public Set makeFullSet() {
+<span class="fc" id="L119">        Set set = makeEmptySet();</span>
+<span class="fc" id="L120">        set.addAll(Arrays.asList(getFullElements()));</span>
+<span class="fc" id="L121">        return set;</span>
+    }
+
+    /**
+     * Makes an empty collection by invoking {@link #makeEmptySet()}.  
+     *
+     * @return an empty collection
+     */
+    public final Collection makeCollection() {
+<span class="fc" id="L130">        return makeEmptySet();</span>
+    }
+
+    /**
+     * Makes a full collection by invoking {@link #makeFullSet()}.
+     *
+     * @return a full collection
+     */
+    public final Collection makeFullCollection() {
+<span class="fc" id="L139">        return makeFullSet();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Return the {@link AbstractTestCollection#collection} fixture, but cast as a Set.  
+     */
+    public Set getSet() {
+<span class="fc" id="L147">        return (Set)collection;</span>
+    }
+
+    /**
+     * Return the {@link AbstractTestCollection#confirmed} fixture, but cast as a Set.
+     */
+    public Set getConfirmedSet() {
+<span class="fc" id="L154">        return (Set)confirmed;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Tests {@link Set#equals(Object)}.
+     */
+    public void testSetEquals() {
+<span class="fc" id="L162">        resetEmpty();</span>
+<span class="fc" id="L163">        assertEquals(&quot;Empty sets should be equal&quot;, </span>
+<span class="fc" id="L164">                     getSet(), getConfirmedSet());</span>
+<span class="fc" id="L165">        verify();</span>
+
+<span class="fc" id="L167">        Collection set2 = makeConfirmedCollection();</span>
+<span class="fc" id="L168">        set2.add(&quot;foo&quot;);</span>
+<span class="fc" id="L169">        assertTrue(&quot;Empty set shouldn't equal nonempty set&quot;, </span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">                   !getSet().equals(set2));</span>
+
+<span class="fc" id="L172">        resetFull();</span>
+<span class="fc" id="L173">        assertEquals(&quot;Full sets should be equal&quot;, getSet(), getConfirmedSet());</span>
+<span class="fc" id="L174">        verify();</span>
+
+<span class="fc" id="L176">        set2.clear();</span>
+<span class="fc" id="L177">        set2.addAll(Arrays.asList(getOtherElements()));</span>
+<span class="fc" id="L178">        assertTrue(&quot;Sets with different contents shouldn't be equal&quot;, </span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">                   !getSet().equals(set2));</span>
+<span class="fc" id="L180">    }</span>
+
+    /**
+     * Tests {@link Set#hashCode()}.
+     */
+    public void testSetHashCode() {
+<span class="fc" id="L186">        resetEmpty();</span>
+<span class="fc" id="L187">        assertEquals(&quot;Empty sets have equal hashCodes&quot;, </span>
+<span class="fc" id="L188">                     getSet().hashCode(), getConfirmedSet().hashCode());</span>
+
+<span class="fc" id="L190">        resetFull();</span>
+<span class="fc" id="L191">        assertEquals(&quot;Equal sets have equal hashCodes&quot;, </span>
+<span class="fc" id="L192">                     getSet().hashCode(), getConfirmedSet().hashCode());</span>
+<span class="fc" id="L193">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

@@ -1,0 +1,1735 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CollectionUtilsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-4.0</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections4</a> &gt; <span class="el_source">CollectionUtilsTest.java</span></div><h1>CollectionUtilsTest.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.collections4;
+
+import static org.apache.commons.collections4.functors.EqualPredicate.equalPredicate;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+
+import java.util.*;
+
+import org.apache.commons.collections4.queue.CircularFifoQueue;
+import org.apache.commons.collections4.bag.HashBag;
+import org.apache.commons.collections4.collection.PredicatedCollection;
+import org.apache.commons.collections4.collection.SynchronizedCollection;
+import org.apache.commons.collections4.collection.TransformedCollection;
+import org.apache.commons.collections4.collection.UnmodifiableCollection;
+import org.apache.commons.collections4.functors.DefaultEquator;
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+ * Tests for CollectionUtils.
+ *
+ * @version $Id$
+ */
+@SuppressWarnings(&quot;boxing&quot;)
+<span class="fc" id="L45">public class CollectionUtilsTest extends MockTestCase {</span>
+
+    /**
+     * Collection of {@link Integer}s
+     */
+<span class="fc" id="L50">    private List&lt;Integer&gt; collectionA = null;</span>
+
+    /**
+     * Collection of {@link Long}s
+     */
+<span class="fc" id="L55">    private List&lt;Long&gt; collectionB = null;</span>
+
+    /**
+     * Collection of {@link Integer}s that are equivalent to the Longs in
+     * collectionB.
+     */
+<span class="fc" id="L61">    private Collection&lt;Integer&gt; collectionC = null;</span>
+
+    /**
+     * Sorted Collection of {@link Integer}s
+     */
+<span class="fc" id="L66">    private Collection&lt;Integer&gt; collectionD = null;</span>
+
+    /**
+     * Sorted Collection of {@link Integer}s
+     */
+<span class="fc" id="L71">    private Collection&lt;Integer&gt; collectionE = null;</span>
+
+    /**
+     * Collection of {@link Integer}s, bound as {@link Number}s
+     */
+<span class="fc" id="L76">    private Collection&lt;Number&gt; collectionA2 = null;</span>
+
+    /**
+     * Collection of {@link Long}s, bound as {@link Number}s
+     */
+<span class="fc" id="L81">    private Collection&lt;Number&gt; collectionB2 = null;</span>
+
+    /**
+     * Collection of {@link Integer}s (cast as {@link Number}s) that are
+     * equivalent to the Longs in collectionB.
+     */
+<span class="fc" id="L87">    private Collection&lt;Number&gt; collectionC2 = null;</span>
+
+<span class="fc" id="L89">    private Iterable&lt;Integer&gt; iterableA = null;</span>
+
+<span class="fc" id="L91">    private Iterable&lt;Long&gt; iterableB = null;</span>
+
+<span class="fc" id="L93">    private Iterable&lt;Integer&gt; iterableC = null;</span>
+
+<span class="fc" id="L95">    private Iterable&lt;Number&gt; iterableA2 = null;</span>
+
+<span class="fc" id="L97">    private Iterable&lt;Number&gt; iterableB2 = null;</span>
+
+<span class="fc" id="L99">    private Collection&lt;Integer&gt; emptyCollection = new ArrayList&lt;Integer&gt;(1);</span>
+
+    @Before
+    public void setUp() {
+<span class="fc" id="L103">        collectionA = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L104">        collectionA.add(1);</span>
+<span class="fc" id="L105">        collectionA.add(2);</span>
+<span class="fc" id="L106">        collectionA.add(2);</span>
+<span class="fc" id="L107">        collectionA.add(3);</span>
+<span class="fc" id="L108">        collectionA.add(3);</span>
+<span class="fc" id="L109">        collectionA.add(3);</span>
+<span class="fc" id="L110">        collectionA.add(4);</span>
+<span class="fc" id="L111">        collectionA.add(4);</span>
+<span class="fc" id="L112">        collectionA.add(4);</span>
+<span class="fc" id="L113">        collectionA.add(4);</span>
+<span class="fc" id="L114">        collectionB = new LinkedList&lt;Long&gt;();</span>
+<span class="fc" id="L115">        collectionB.add(5L);</span>
+<span class="fc" id="L116">        collectionB.add(4L);</span>
+<span class="fc" id="L117">        collectionB.add(4L);</span>
+<span class="fc" id="L118">        collectionB.add(3L);</span>
+<span class="fc" id="L119">        collectionB.add(3L);</span>
+<span class="fc" id="L120">        collectionB.add(3L);</span>
+<span class="fc" id="L121">        collectionB.add(2L);</span>
+<span class="fc" id="L122">        collectionB.add(2L);</span>
+<span class="fc" id="L123">        collectionB.add(2L);</span>
+<span class="fc" id="L124">        collectionB.add(2L);</span>
+
+<span class="fc" id="L126">        collectionC = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        for (final Long l : collectionB) {</span>
+<span class="fc" id="L128">            collectionC.add(l.intValue());</span>
+        }
+
+<span class="fc" id="L131">        iterableA = collectionA;</span>
+<span class="fc" id="L132">        iterableB = collectionB;</span>
+<span class="fc" id="L133">        iterableC = collectionC;</span>
+<span class="fc" id="L134">        collectionA2 = new ArrayList&lt;Number&gt;(collectionA);</span>
+<span class="fc" id="L135">        collectionB2 = new LinkedList&lt;Number&gt;(collectionB);</span>
+<span class="fc" id="L136">        collectionC2 = new LinkedList&lt;Number&gt;(collectionC);</span>
+<span class="fc" id="L137">        iterableA2 = collectionA2;</span>
+<span class="fc" id="L138">        iterableB2 = collectionB2;</span>
+
+<span class="fc" id="L140">        collectionD = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L141">        collectionD.add(1);</span>
+<span class="fc" id="L142">        collectionD.add(3);</span>
+<span class="fc" id="L143">        collectionD.add(3);</span>
+<span class="fc" id="L144">        collectionD.add(3);</span>
+<span class="fc" id="L145">        collectionD.add(5);</span>
+<span class="fc" id="L146">        collectionD.add(7);</span>
+<span class="fc" id="L147">        collectionD.add(7);</span>
+<span class="fc" id="L148">        collectionD.add(10);</span>
+
+<span class="fc" id="L150">        collectionE = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L151">        collectionE.add(2);</span>
+<span class="fc" id="L152">        collectionE.add(4);</span>
+<span class="fc" id="L153">        collectionE.add(4);</span>
+<span class="fc" id="L154">        collectionE.add(5);</span>
+<span class="fc" id="L155">        collectionE.add(6);</span>
+<span class="fc" id="L156">        collectionE.add(6);</span>
+<span class="fc" id="L157">        collectionE.add(9);</span>
+<span class="fc" id="L158">    }</span>
+
+    @Test
+    public void getCardinalityMap() {
+<span class="fc" id="L162">        final Map&lt;Number, Integer&gt; freqA = CollectionUtils.&lt;Number&gt;getCardinalityMap(iterableA);</span>
+<span class="fc" id="L163">        assertEquals(1, (int) freqA.get(1));</span>
+<span class="fc" id="L164">        assertEquals(2, (int) freqA.get(2));</span>
+<span class="fc" id="L165">        assertEquals(3, (int) freqA.get(3));</span>
+<span class="fc" id="L166">        assertEquals(4, (int) freqA.get(4));</span>
+<span class="fc" id="L167">        assertNull(freqA.get(5));</span>
+
+<span class="fc" id="L169">        final Map&lt;Long, Integer&gt; freqB = CollectionUtils.getCardinalityMap(iterableB);</span>
+<span class="fc" id="L170">        assertNull(freqB.get(1L));</span>
+<span class="fc" id="L171">        assertEquals(4, (int) freqB.get(2L));</span>
+<span class="fc" id="L172">        assertEquals(3, (int) freqB.get(3L));</span>
+<span class="fc" id="L173">        assertEquals(2, (int) freqB.get(4L));</span>
+<span class="fc" id="L174">        assertEquals(1, (int) freqB.get(5L));</span>
+<span class="fc" id="L175">    }</span>
+
+    @Test
+    public void cardinality() {
+<span class="fc" id="L179">        assertEquals(1, CollectionUtils.cardinality(1, iterableA));</span>
+<span class="fc" id="L180">        assertEquals(2, CollectionUtils.cardinality(2, iterableA));</span>
+<span class="fc" id="L181">        assertEquals(3, CollectionUtils.cardinality(3, iterableA));</span>
+<span class="fc" id="L182">        assertEquals(4, CollectionUtils.cardinality(4, iterableA));</span>
+<span class="fc" id="L183">        assertEquals(0, CollectionUtils.cardinality(5, iterableA));</span>
+
+<span class="fc" id="L185">        assertEquals(0, CollectionUtils.cardinality(1L, iterableB));</span>
+<span class="fc" id="L186">        assertEquals(4, CollectionUtils.cardinality(2L, iterableB));</span>
+<span class="fc" id="L187">        assertEquals(3, CollectionUtils.cardinality(3L, iterableB));</span>
+<span class="fc" id="L188">        assertEquals(2, CollectionUtils.cardinality(4L, iterableB));</span>
+<span class="fc" id="L189">        assertEquals(1, CollectionUtils.cardinality(5L, iterableB));</span>
+
+        // Ensure that generic bounds accept valid parameters, but return
+        // expected results
+        // e.g. no longs in the &quot;int&quot; Iterable&lt;Number&gt;, and vice versa.
+<span class="fc" id="L194">        assertEquals(0, CollectionUtils.cardinality(2L, iterableA2));</span>
+<span class="fc" id="L195">        assertEquals(0, CollectionUtils.cardinality(2, iterableB2));</span>
+
+<span class="fc" id="L197">        final Set&lt;String&gt; set = new HashSet&lt;String&gt;();</span>
+<span class="fc" id="L198">        set.add(&quot;A&quot;);</span>
+<span class="fc" id="L199">        set.add(&quot;C&quot;);</span>
+<span class="fc" id="L200">        set.add(&quot;E&quot;);</span>
+<span class="fc" id="L201">        set.add(&quot;E&quot;);</span>
+<span class="fc" id="L202">        assertEquals(1, CollectionUtils.cardinality(&quot;A&quot;, set));</span>
+<span class="fc" id="L203">        assertEquals(0, CollectionUtils.cardinality(&quot;B&quot;, set));</span>
+<span class="fc" id="L204">        assertEquals(1, CollectionUtils.cardinality(&quot;C&quot;, set));</span>
+<span class="fc" id="L205">        assertEquals(0, CollectionUtils.cardinality(&quot;D&quot;, set));</span>
+<span class="fc" id="L206">        assertEquals(1, CollectionUtils.cardinality(&quot;E&quot;, set));</span>
+
+<span class="fc" id="L208">        final Bag&lt;String&gt; bag = new HashBag&lt;String&gt;();</span>
+<span class="fc" id="L209">        bag.add(&quot;A&quot;, 3);</span>
+<span class="fc" id="L210">        bag.add(&quot;C&quot;);</span>
+<span class="fc" id="L211">        bag.add(&quot;E&quot;);</span>
+<span class="fc" id="L212">        bag.add(&quot;E&quot;);</span>
+<span class="fc" id="L213">        assertEquals(3, CollectionUtils.cardinality(&quot;A&quot;, bag));</span>
+<span class="fc" id="L214">        assertEquals(0, CollectionUtils.cardinality(&quot;B&quot;, bag));</span>
+<span class="fc" id="L215">        assertEquals(1, CollectionUtils.cardinality(&quot;C&quot;, bag));</span>
+<span class="fc" id="L216">        assertEquals(0, CollectionUtils.cardinality(&quot;D&quot;, bag));</span>
+<span class="fc" id="L217">        assertEquals(2, CollectionUtils.cardinality(&quot;E&quot;, bag));</span>
+<span class="fc" id="L218">    }</span>
+
+    @Test
+    public void cardinalityOfNull() {
+<span class="fc" id="L222">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L223">        assertEquals(0, CollectionUtils.cardinality(null, list));</span>
+        {
+<span class="fc" id="L225">            final Map&lt;String, Integer&gt; freq = CollectionUtils.getCardinalityMap(list);</span>
+<span class="fc" id="L226">            assertNull(freq.get(null));</span>
+        }
+<span class="fc" id="L228">        list.add(&quot;A&quot;);</span>
+<span class="fc" id="L229">        assertEquals(0, CollectionUtils.cardinality(null, list));</span>
+        {
+<span class="fc" id="L231">            final Map&lt;String, Integer&gt; freq = CollectionUtils.getCardinalityMap(list);</span>
+<span class="fc" id="L232">            assertNull(freq.get(null));</span>
+        }
+<span class="fc" id="L234">        list.add(null);</span>
+<span class="fc" id="L235">        assertEquals(1, CollectionUtils.cardinality(null, list));</span>
+        {
+<span class="fc" id="L237">            final Map&lt;String, Integer&gt; freq = CollectionUtils.getCardinalityMap(list);</span>
+<span class="fc" id="L238">            assertEquals(Integer.valueOf(1), freq.get(null));</span>
+        }
+<span class="fc" id="L240">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L241">        assertEquals(1, CollectionUtils.cardinality(null, list));</span>
+        {
+<span class="fc" id="L243">            final Map&lt;String, Integer&gt; freq = CollectionUtils.getCardinalityMap(list);</span>
+<span class="fc" id="L244">            assertEquals(Integer.valueOf(1), freq.get(null));</span>
+        }
+<span class="fc" id="L246">        list.add(null);</span>
+<span class="fc" id="L247">        assertEquals(2, CollectionUtils.cardinality(null, list));</span>
+        {
+<span class="fc" id="L249">            final Map&lt;String, Integer&gt; freq = CollectionUtils.getCardinalityMap(list);</span>
+<span class="fc" id="L250">            assertEquals(Integer.valueOf(2), freq.get(null));</span>
+        }
+<span class="fc" id="L252">        list.add(&quot;B&quot;);</span>
+<span class="fc" id="L253">        assertEquals(2, CollectionUtils.cardinality(null, list));</span>
+        {
+<span class="fc" id="L255">            final Map&lt;String, Integer&gt; freq = CollectionUtils.getCardinalityMap(list);</span>
+<span class="fc" id="L256">            assertEquals(Integer.valueOf(2), freq.get(null));</span>
+        }
+<span class="fc" id="L258">        list.add(null);</span>
+<span class="fc" id="L259">        assertEquals(3, CollectionUtils.cardinality(null, list));</span>
+        {
+<span class="fc" id="L261">            final Map&lt;String, Integer&gt; freq = CollectionUtils.getCardinalityMap(list);</span>
+<span class="fc" id="L262">            assertEquals(Integer.valueOf(3), freq.get(null));</span>
+        }
+<span class="fc" id="L264">    }</span>
+
+    @Test
+    public void containsAll() {
+<span class="fc" id="L268">        final Collection&lt;String&gt; empty = new ArrayList&lt;String&gt;(0);</span>
+<span class="fc" id="L269">        final Collection&lt;String&gt; one = new ArrayList&lt;String&gt;(1);</span>
+<span class="fc" id="L270">        one.add(&quot;1&quot;);</span>
+<span class="fc" id="L271">        final Collection&lt;String&gt; two = new ArrayList&lt;String&gt;(1);</span>
+<span class="fc" id="L272">        two.add(&quot;2&quot;);</span>
+<span class="fc" id="L273">        final Collection&lt;String&gt; three = new ArrayList&lt;String&gt;(1);</span>
+<span class="fc" id="L274">        three.add(&quot;3&quot;);</span>
+<span class="fc" id="L275">        final Collection&lt;String&gt; odds = new ArrayList&lt;String&gt;(2);</span>
+<span class="fc" id="L276">        odds.add(&quot;1&quot;);</span>
+<span class="fc" id="L277">        odds.add(&quot;3&quot;);</span>
+<span class="fc" id="L278">        final Collection&lt;String&gt; multiples = new ArrayList&lt;String&gt;(3);</span>
+<span class="fc" id="L279">        multiples.add(&quot;1&quot;);</span>
+<span class="fc" id="L280">        multiples.add(&quot;3&quot;);</span>
+<span class="fc" id="L281">        multiples.add(&quot;1&quot;);</span>
+
+<span class="pc bpc" id="L283" title="1 of 2 branches missed.">        assertTrue(&quot;containsAll({1},{1,3}) should return false.&quot;, !CollectionUtils.containsAll(one, odds));</span>
+<span class="fc" id="L284">        assertTrue(&quot;containsAll({1,3},{1}) should return true.&quot;, CollectionUtils.containsAll(odds, one));</span>
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">        assertTrue(&quot;containsAll({3},{1,3}) should return false.&quot;, !CollectionUtils.containsAll(three, odds));</span>
+<span class="fc" id="L286">        assertTrue(&quot;containsAll({1,3},{3}) should return true.&quot;, CollectionUtils.containsAll(odds, three));</span>
+<span class="fc" id="L287">        assertTrue(&quot;containsAll({2},{2}) should return true.&quot;, CollectionUtils.containsAll(two, two));</span>
+<span class="fc" id="L288">        assertTrue(&quot;containsAll({1,3},{1,3}) should return true.&quot;, CollectionUtils.containsAll(odds, odds));</span>
+
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">        assertTrue(&quot;containsAll({2},{1,3}) should return false.&quot;, !CollectionUtils.containsAll(two, odds));</span>
+<span class="pc bpc" id="L291" title="1 of 2 branches missed.">        assertTrue(&quot;containsAll({1,3},{2}) should return false.&quot;, !CollectionUtils.containsAll(odds, two));</span>
+<span class="pc bpc" id="L292" title="1 of 2 branches missed.">        assertTrue(&quot;containsAll({1},{3}) should return false.&quot;, !CollectionUtils.containsAll(one, three));</span>
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">        assertTrue(&quot;containsAll({3},{1}) should return false.&quot;, !CollectionUtils.containsAll(three, one));</span>
+<span class="fc" id="L294">        assertTrue(&quot;containsAll({1,3},{}) should return true.&quot;, CollectionUtils.containsAll(odds, empty));</span>
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">        assertTrue(&quot;containsAll({},{1,3}) should return false.&quot;, !CollectionUtils.containsAll(empty, odds));</span>
+<span class="fc" id="L296">        assertTrue(&quot;containsAll({},{}) should return true.&quot;, CollectionUtils.containsAll(empty, empty));</span>
+
+<span class="fc" id="L298">        assertTrue(&quot;containsAll({1,3},{1,3,1}) should return true.&quot;, CollectionUtils.containsAll(odds, multiples));</span>
+<span class="fc" id="L299">        assertTrue(&quot;containsAll({1,3,1},{1,3,1}) should return true.&quot;, CollectionUtils.containsAll(odds, odds));</span>
+<span class="fc" id="L300">    }</span>
+
+    @Test
+    public void containsAny() {
+<span class="fc" id="L304">        final Collection&lt;String&gt; empty = new ArrayList&lt;String&gt;(0);</span>
+<span class="fc" id="L305">        final Collection&lt;String&gt; one = new ArrayList&lt;String&gt;(1);</span>
+<span class="fc" id="L306">        one.add(&quot;1&quot;);</span>
+<span class="fc" id="L307">        final Collection&lt;String&gt; two = new ArrayList&lt;String&gt;(1);</span>
+<span class="fc" id="L308">        two.add(&quot;2&quot;);</span>
+<span class="fc" id="L309">        final Collection&lt;String&gt; three = new ArrayList&lt;String&gt;(1);</span>
+<span class="fc" id="L310">        three.add(&quot;3&quot;);</span>
+<span class="fc" id="L311">        final Collection&lt;String&gt; odds = new ArrayList&lt;String&gt;(2);</span>
+<span class="fc" id="L312">        odds.add(&quot;1&quot;);</span>
+<span class="fc" id="L313">        odds.add(&quot;3&quot;);</span>
+
+<span class="fc" id="L315">        assertTrue(&quot;containsAny({1},{1,3}) should return true.&quot;, CollectionUtils.containsAny(one, odds));</span>
+<span class="fc" id="L316">        assertTrue(&quot;containsAny({1,3},{1}) should return true.&quot;, CollectionUtils.containsAny(odds, one));</span>
+<span class="fc" id="L317">        assertTrue(&quot;containsAny({3},{1,3}) should return true.&quot;, CollectionUtils.containsAny(three, odds));</span>
+<span class="fc" id="L318">        assertTrue(&quot;containsAny({1,3},{3}) should return true.&quot;, CollectionUtils.containsAny(odds, three));</span>
+<span class="fc" id="L319">        assertTrue(&quot;containsAny({2},{2}) should return true.&quot;, CollectionUtils.containsAny(two, two));</span>
+<span class="fc" id="L320">        assertTrue(&quot;containsAny({1,3},{1,3}) should return true.&quot;, CollectionUtils.containsAny(odds, odds));</span>
+
+<span class="pc bpc" id="L322" title="1 of 2 branches missed.">        assertTrue(&quot;containsAny({2},{1,3}) should return false.&quot;, !CollectionUtils.containsAny(two, odds));</span>
+<span class="pc bpc" id="L323" title="1 of 2 branches missed.">        assertTrue(&quot;containsAny({1,3},{2}) should return false.&quot;, !CollectionUtils.containsAny(odds, two));</span>
+<span class="pc bpc" id="L324" title="1 of 2 branches missed.">        assertTrue(&quot;containsAny({1},{3}) should return false.&quot;, !CollectionUtils.containsAny(one, three));</span>
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">        assertTrue(&quot;containsAny({3},{1}) should return false.&quot;, !CollectionUtils.containsAny(three, one));</span>
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">        assertTrue(&quot;containsAny({1,3},{}) should return false.&quot;, !CollectionUtils.containsAny(odds, empty));</span>
+<span class="pc bpc" id="L327" title="1 of 2 branches missed.">        assertTrue(&quot;containsAny({},{1,3}) should return false.&quot;, !CollectionUtils.containsAny(empty, odds));</span>
+<span class="pc bpc" id="L328" title="1 of 2 branches missed.">        assertTrue(&quot;containsAny({},{}) should return false.&quot;, !CollectionUtils.containsAny(empty, empty));</span>
+<span class="fc" id="L329">    }</span>
+
+    @Test
+    public void union() {
+<span class="fc" id="L333">        final Collection&lt;Integer&gt; col = CollectionUtils.union(iterableA, iterableC);</span>
+<span class="fc" id="L334">        final Map&lt;Integer, Integer&gt; freq = CollectionUtils.getCardinalityMap(col);</span>
+<span class="fc" id="L335">        assertEquals(Integer.valueOf(1), freq.get(1));</span>
+<span class="fc" id="L336">        assertEquals(Integer.valueOf(4), freq.get(2));</span>
+<span class="fc" id="L337">        assertEquals(Integer.valueOf(3), freq.get(3));</span>
+<span class="fc" id="L338">        assertEquals(Integer.valueOf(4), freq.get(4));</span>
+<span class="fc" id="L339">        assertEquals(Integer.valueOf(1), freq.get(5));</span>
+
+<span class="fc" id="L341">        final Collection&lt;Number&gt; col2 = CollectionUtils.union(collectionC2, iterableA);</span>
+<span class="fc" id="L342">        final Map&lt;Number, Integer&gt; freq2 = CollectionUtils.getCardinalityMap(col2);</span>
+<span class="fc" id="L343">        assertEquals(Integer.valueOf(1), freq2.get(1));</span>
+<span class="fc" id="L344">        assertEquals(Integer.valueOf(4), freq2.get(2));</span>
+<span class="fc" id="L345">        assertEquals(Integer.valueOf(3), freq2.get(3));</span>
+<span class="fc" id="L346">        assertEquals(Integer.valueOf(4), freq2.get(4));</span>
+<span class="fc" id="L347">        assertEquals(Integer.valueOf(1), freq2.get(5));</span>
+<span class="fc" id="L348">    }</span>
+
+    @Test
+    public void intersection() {
+<span class="fc" id="L352">        final Collection&lt;Integer&gt; col = CollectionUtils.intersection(iterableA, iterableC);</span>
+<span class="fc" id="L353">        final Map&lt;Integer, Integer&gt; freq = CollectionUtils.getCardinalityMap(col);</span>
+<span class="fc" id="L354">        assertNull(freq.get(1));</span>
+<span class="fc" id="L355">        assertEquals(Integer.valueOf(2), freq.get(2));</span>
+<span class="fc" id="L356">        assertEquals(Integer.valueOf(3), freq.get(3));</span>
+<span class="fc" id="L357">        assertEquals(Integer.valueOf(2), freq.get(4));</span>
+<span class="fc" id="L358">        assertNull(freq.get(5));</span>
+
+<span class="fc" id="L360">        final Collection&lt;Number&gt; col2 = CollectionUtils.intersection(collectionC2, collectionA);</span>
+<span class="fc" id="L361">        final Map&lt;Number, Integer&gt; freq2 = CollectionUtils.getCardinalityMap(col2);</span>
+<span class="fc" id="L362">        assertNull(freq2.get(1));</span>
+<span class="fc" id="L363">        assertEquals(Integer.valueOf(2), freq2.get(2));</span>
+<span class="fc" id="L364">        assertEquals(Integer.valueOf(3), freq2.get(3));</span>
+<span class="fc" id="L365">        assertEquals(Integer.valueOf(2), freq2.get(4));</span>
+<span class="fc" id="L366">        assertNull(freq2.get(5));</span>
+<span class="fc" id="L367">    }</span>
+
+    @Test
+    public void disjunction() {
+<span class="fc" id="L371">        final Collection&lt;Integer&gt; col = CollectionUtils.disjunction(iterableA, iterableC);</span>
+<span class="fc" id="L372">        final Map&lt;Integer, Integer&gt; freq = CollectionUtils.getCardinalityMap(col);</span>
+<span class="fc" id="L373">        assertEquals(Integer.valueOf(1), freq.get(1));</span>
+<span class="fc" id="L374">        assertEquals(Integer.valueOf(2), freq.get(2));</span>
+<span class="fc" id="L375">        assertNull(freq.get(3));</span>
+<span class="fc" id="L376">        assertEquals(Integer.valueOf(2), freq.get(4));</span>
+<span class="fc" id="L377">        assertEquals(Integer.valueOf(1), freq.get(5));</span>
+
+<span class="fc" id="L379">        final Collection&lt;Number&gt; col2 = CollectionUtils.disjunction(collectionC2, collectionA);</span>
+<span class="fc" id="L380">        final Map&lt;Number, Integer&gt; freq2 = CollectionUtils.getCardinalityMap(col2);</span>
+<span class="fc" id="L381">        assertEquals(Integer.valueOf(1), freq2.get(1));</span>
+<span class="fc" id="L382">        assertEquals(Integer.valueOf(2), freq2.get(2));</span>
+<span class="fc" id="L383">        assertNull(freq2.get(3));</span>
+<span class="fc" id="L384">        assertEquals(Integer.valueOf(2), freq2.get(4));</span>
+<span class="fc" id="L385">        assertEquals(Integer.valueOf(1), freq2.get(5));</span>
+<span class="fc" id="L386">    }</span>
+
+    @Test
+    public void testDisjunctionAsUnionMinusIntersection() {
+<span class="fc" id="L390">        final Collection&lt;Number&gt; dis = CollectionUtils.&lt;Number&gt;disjunction(collectionA, collectionC);</span>
+<span class="fc" id="L391">        final Collection&lt;Number&gt; un = CollectionUtils.&lt;Number&gt;union(collectionA, collectionC);</span>
+<span class="fc" id="L392">        final Collection&lt;Number&gt; inter = CollectionUtils.&lt;Number&gt;intersection(collectionA, collectionC);</span>
+<span class="fc" id="L393">        assertTrue(CollectionUtils.isEqualCollection(dis, CollectionUtils.subtract(un, inter)));</span>
+<span class="fc" id="L394">    }</span>
+
+    @Test
+    public void testDisjunctionAsSymmetricDifference() {
+<span class="fc" id="L398">        final Collection&lt;Number&gt; dis = CollectionUtils.&lt;Number&gt;disjunction(collectionA, collectionC);</span>
+<span class="fc" id="L399">        final Collection&lt;Number&gt; amb = CollectionUtils.&lt;Number&gt;subtract(collectionA, collectionC);</span>
+<span class="fc" id="L400">        final Collection&lt;Number&gt; bma = CollectionUtils.&lt;Number&gt;subtract(collectionC, collectionA);</span>
+<span class="fc" id="L401">        assertTrue(CollectionUtils.isEqualCollection(dis, CollectionUtils.union(amb, bma)));</span>
+<span class="fc" id="L402">    }</span>
+
+    @Test
+    public void testSubtract() {
+<span class="fc" id="L406">        final Collection&lt;Integer&gt; col = CollectionUtils.subtract(iterableA, iterableC);</span>
+<span class="fc" id="L407">        final Map&lt;Integer, Integer&gt; freq = CollectionUtils.getCardinalityMap(col);</span>
+<span class="fc" id="L408">        assertEquals(Integer.valueOf(1), freq.get(1));</span>
+<span class="fc" id="L409">        assertNull(freq.get(2));</span>
+<span class="fc" id="L410">        assertNull(freq.get(3));</span>
+<span class="fc" id="L411">        assertEquals(Integer.valueOf(2), freq.get(4));</span>
+<span class="fc" id="L412">        assertNull(freq.get(5));</span>
+
+<span class="fc" id="L414">        final Collection&lt;Number&gt; col2 = CollectionUtils.subtract(collectionC2, collectionA);</span>
+<span class="fc" id="L415">        final Map&lt;Number, Integer&gt; freq2 = CollectionUtils.getCardinalityMap(col2);</span>
+<span class="fc" id="L416">        assertEquals(Integer.valueOf(1), freq2.get(5));</span>
+<span class="fc" id="L417">        assertNull(freq2.get(4));</span>
+<span class="fc" id="L418">        assertNull(freq2.get(3));</span>
+<span class="fc" id="L419">        assertEquals(Integer.valueOf(2), freq2.get(2));</span>
+<span class="fc" id="L420">        assertNull(freq2.get(1));</span>
+<span class="fc" id="L421">    }</span>
+
+    @Test
+    public void testSubtractWithPredicate() {
+        // greater than 3
+<span class="fc" id="L426">        final Predicate&lt;Number&gt; predicate = new Predicate&lt;Number&gt;() {</span>
+            public boolean evaluate(final Number n) {
+<span class="fc bfc" id="L428" title="All 2 branches covered.">                return n.longValue() &gt; 3L;</span>
+            }
+        };
+
+<span class="fc" id="L432">        final Collection&lt;Number&gt; col = CollectionUtils.subtract(iterableA, collectionC, predicate);</span>
+<span class="fc" id="L433">        final Map&lt;Number, Integer&gt; freq2 = CollectionUtils.getCardinalityMap(col);</span>
+<span class="fc" id="L434">        assertEquals(Integer.valueOf(1), freq2.get(1));</span>
+<span class="fc" id="L435">        assertEquals(Integer.valueOf(2), freq2.get(2));</span>
+<span class="fc" id="L436">        assertEquals(Integer.valueOf(3), freq2.get(3));</span>
+<span class="fc" id="L437">        assertEquals(Integer.valueOf(2), freq2.get(4));</span>
+<span class="fc" id="L438">        assertNull(freq2.get(5));</span>
+<span class="fc" id="L439">    }</span>
+
+    @Test
+    public void testIsSubCollectionOfSelf() {
+<span class="fc" id="L443">        assertTrue(CollectionUtils.isSubCollection(collectionA, collectionA));</span>
+<span class="fc" id="L444">        assertTrue(CollectionUtils.isSubCollection(collectionB, collectionB));</span>
+<span class="fc" id="L445">    }</span>
+
+    @Test
+    public void testIsSubCollection() {
+<span class="pc bpc" id="L449" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionA, collectionC));</span>
+<span class="pc bpc" id="L450" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionC, collectionA));</span>
+<span class="fc" id="L451">    }</span>
+
+    @Test
+    public void testIsSubCollection2() {
+<span class="fc" id="L455">        final Collection&lt;Integer&gt; c = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L456">        assertTrue(CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="pc bpc" id="L457" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L458">        c.add(1);</span>
+<span class="fc" id="L459">        assertTrue(CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="pc bpc" id="L460" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L461">        c.add(2);</span>
+<span class="fc" id="L462">        assertTrue(CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="pc bpc" id="L463" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L464">        c.add(2);</span>
+<span class="fc" id="L465">        assertTrue(CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="pc bpc" id="L466" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L467">        c.add(3);</span>
+<span class="fc" id="L468">        assertTrue(CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="pc bpc" id="L469" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L470">        c.add(3);</span>
+<span class="fc" id="L471">        assertTrue(CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="pc bpc" id="L472" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L473">        c.add(3);</span>
+<span class="fc" id="L474">        assertTrue(CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="pc bpc" id="L475" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L476">        c.add(4);</span>
+<span class="fc" id="L477">        assertTrue(CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="pc bpc" id="L478" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L479">        c.add(4);</span>
+<span class="fc" id="L480">        assertTrue(CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="pc bpc" id="L481" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L482">        c.add(4);</span>
+<span class="fc" id="L483">        assertTrue(CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="pc bpc" id="L484" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L485">        c.add(4);</span>
+<span class="fc" id="L486">        assertTrue(CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="fc" id="L487">        assertTrue(CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L488">        c.add(5);</span>
+<span class="pc bpc" id="L489" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isSubCollection(c, collectionA));</span>
+<span class="fc" id="L490">        assertTrue(CollectionUtils.isSubCollection(collectionA, c));</span>
+<span class="fc" id="L491">    }</span>
+
+    @Test
+    public void testIsEqualCollectionToSelf() {
+<span class="fc" id="L495">        assertTrue(CollectionUtils.isEqualCollection(collectionA, collectionA));</span>
+<span class="fc" id="L496">        assertTrue(CollectionUtils.isEqualCollection(collectionB, collectionB));</span>
+<span class="fc" id="L497">    }</span>
+
+    @Test
+    public void testIsEqualCollection() {
+<span class="pc bpc" id="L501" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isEqualCollection(collectionA, collectionC));</span>
+<span class="pc bpc" id="L502" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isEqualCollection(collectionC, collectionA));</span>
+<span class="fc" id="L503">    }</span>
+
+    @Test
+    public void testIsEqualCollectionReturnsFalse() {
+<span class="fc" id="L507">        final List&lt;Integer&gt; b = new ArrayList&lt;Integer&gt;(collectionA);</span>
+        // remove an extra '2', and add a 5.  This will increase the size of the cardinality
+<span class="fc" id="L509">        b.remove(1);</span>
+<span class="fc" id="L510">        b.add(5);</span>
+<span class="fc" id="L511">        assertFalse(CollectionUtils.isEqualCollection(collectionA, b));</span>
+<span class="fc" id="L512">        assertFalse(CollectionUtils.isEqualCollection(b, collectionA));</span>
+<span class="fc" id="L513">    }</span>
+
+    @Test
+    public void testIsEqualCollection2() {
+<span class="fc" id="L517">        final Collection&lt;String&gt; a = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L518">        final Collection&lt;String&gt; b = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L519">        assertTrue(CollectionUtils.isEqualCollection(a, b));</span>
+<span class="fc" id="L520">        assertTrue(CollectionUtils.isEqualCollection(b, a));</span>
+<span class="fc" id="L521">        a.add(&quot;1&quot;);</span>
+<span class="pc bpc" id="L522" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isEqualCollection(a, b));</span>
+<span class="pc bpc" id="L523" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isEqualCollection(b, a));</span>
+<span class="fc" id="L524">        b.add(&quot;1&quot;);</span>
+<span class="fc" id="L525">        assertTrue(CollectionUtils.isEqualCollection(a, b));</span>
+<span class="fc" id="L526">        assertTrue(CollectionUtils.isEqualCollection(b, a));</span>
+<span class="fc" id="L527">        a.add(&quot;2&quot;);</span>
+<span class="pc bpc" id="L528" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isEqualCollection(a, b));</span>
+<span class="pc bpc" id="L529" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isEqualCollection(b, a));</span>
+<span class="fc" id="L530">        b.add(&quot;2&quot;);</span>
+<span class="fc" id="L531">        assertTrue(CollectionUtils.isEqualCollection(a, b));</span>
+<span class="fc" id="L532">        assertTrue(CollectionUtils.isEqualCollection(b, a));</span>
+<span class="fc" id="L533">        a.add(&quot;1&quot;);</span>
+<span class="pc bpc" id="L534" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isEqualCollection(a, b));</span>
+<span class="pc bpc" id="L535" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isEqualCollection(b, a));</span>
+<span class="fc" id="L536">        b.add(&quot;1&quot;);</span>
+<span class="fc" id="L537">        assertTrue(CollectionUtils.isEqualCollection(a, b));</span>
+<span class="fc" id="L538">        assertTrue(CollectionUtils.isEqualCollection(b, a));</span>
+<span class="fc" id="L539">    }</span>
+
+    @Test
+    public void testIsEqualCollectionEquator() {
+<span class="fc" id="L543">        final Collection&lt;Integer&gt; collB = CollectionUtils.collect(collectionB, TRANSFORM_TO_INTEGER);</span>
+
+        // odd / even equator
+<span class="fc" id="L546">        final Equator&lt;Integer&gt; e = new Equator&lt;Integer&gt;() {</span>
+            public boolean equate(final Integer o1, final Integer o2) {
+<span class="pc bpc" id="L548" title="1 of 6 branches missed.">                if (o1.intValue() % 2 == 0 ^ o2.intValue() % 2 == 0) {</span>
+<span class="nc" id="L549">                    return false;</span>
+                } else {
+<span class="fc" id="L551">                    return true;</span>
+                }
+            }
+
+            public int hash(final Integer o) {
+<span class="fc bfc" id="L556" title="All 2 branches covered.">                return o.intValue() % 2 == 0 ? Integer.valueOf(0).hashCode() : Integer.valueOf(1).hashCode();</span>
+            }
+        };
+
+<span class="fc" id="L560">        assertTrue(CollectionUtils.isEqualCollection(collectionA, collectionA, e));</span>
+<span class="fc" id="L561">        assertTrue(CollectionUtils.isEqualCollection(collectionA, collB, e));</span>
+<span class="fc" id="L562">        assertTrue(CollectionUtils.isEqualCollection(collB, collectionA, e));</span>
+
+<span class="fc" id="L564">        final Equator&lt;Number&gt; defaultEquator = DefaultEquator.defaultEquator();</span>
+<span class="fc" id="L565">        assertFalse(CollectionUtils.isEqualCollection(collectionA, collectionB, defaultEquator));</span>
+<span class="fc" id="L566">        assertFalse(CollectionUtils.isEqualCollection(collectionA, collB, defaultEquator));</span>
+<span class="fc" id="L567">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testIsEqualCollectionNullEquator() {
+<span class="nc" id="L571">        CollectionUtils.isEqualCollection(collectionA, collectionA, null);</span>
+<span class="nc" id="L572">    }</span>
+
+    @Test
+    public void testIsProperSubCollection() {
+<span class="fc" id="L576">        final Collection&lt;String&gt; a = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L577">        final Collection&lt;String&gt; b = new ArrayList&lt;String&gt;();</span>
+<span class="pc bpc" id="L578" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isProperSubCollection(a, b));</span>
+<span class="fc" id="L579">        b.add(&quot;1&quot;);</span>
+<span class="fc" id="L580">        assertTrue(CollectionUtils.isProperSubCollection(a, b));</span>
+<span class="pc bpc" id="L581" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isProperSubCollection(b, a));</span>
+<span class="pc bpc" id="L582" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isProperSubCollection(b, b));</span>
+<span class="pc bpc" id="L583" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isProperSubCollection(a, a));</span>
+<span class="fc" id="L584">        a.add(&quot;1&quot;);</span>
+<span class="fc" id="L585">        a.add(&quot;2&quot;);</span>
+<span class="fc" id="L586">        b.add(&quot;2&quot;);</span>
+<span class="pc bpc" id="L587" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isProperSubCollection(b, a));</span>
+<span class="pc bpc" id="L588" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isProperSubCollection(a, b));</span>
+<span class="fc" id="L589">        a.add(&quot;1&quot;);</span>
+<span class="fc" id="L590">        assertTrue(CollectionUtils.isProperSubCollection(b, a));</span>
+<span class="fc" id="L591">        assertTrue(CollectionUtils.isProperSubCollection(CollectionUtils.intersection(collectionA, collectionC), collectionA));</span>
+<span class="fc" id="L592">        assertTrue(CollectionUtils.isProperSubCollection(CollectionUtils.subtract(a, b), a));</span>
+<span class="pc bpc" id="L593" title="1 of 2 branches missed.">        assertTrue(!CollectionUtils.isProperSubCollection(a, CollectionUtils.subtract(a, b)));</span>
+<span class="fc" id="L594">    }</span>
+
+    @Test
+    public void find() {
+<span class="fc" id="L598">        Predicate&lt;Number&gt; testPredicate = equalPredicate((Number) 4);</span>
+<span class="fc" id="L599">        Integer test = CollectionUtils.find(collectionA, testPredicate);</span>
+<span class="fc" id="L600">        assertTrue(test.equals(4));</span>
+<span class="fc" id="L601">        testPredicate = equalPredicate((Number) 45);</span>
+<span class="fc" id="L602">        test = CollectionUtils.find(collectionA, testPredicate);</span>
+<span class="pc bpc" id="L603" title="1 of 2 branches missed.">        assertTrue(test == null);</span>
+<span class="fc" id="L604">        assertNull(CollectionUtils.find(null,testPredicate));</span>
+<span class="fc" id="L605">        assertNull(CollectionUtils.find(collectionA, null));</span>
+<span class="fc" id="L606">    }</span>
+
+    @SuppressWarnings({ &quot;unchecked&quot;, &quot;rawtypes&quot; })
+    @Test
+    public void forAllDoCollection() {
+<span class="fc" id="L611">        final Closure&lt;List&lt;? extends Number&gt;&gt; testClosure = ClosureUtils.invokerClosure(&quot;clear&quot;);</span>
+<span class="fc" id="L612">        final Collection&lt;List&lt;? extends Number&gt;&gt; col = new ArrayList&lt;List&lt;? extends Number&gt;&gt;();</span>
+<span class="fc" id="L613">        col.add(collectionA);</span>
+<span class="fc" id="L614">        col.add(collectionB);</span>
+<span class="fc" id="L615">        Closure&lt;List&lt;? extends Number&gt;&gt; resultClosure = CollectionUtils.forAllDo(col, testClosure);</span>
+<span class="fc" id="L616">        assertSame(testClosure, resultClosure);</span>
+<span class="pc bpc" id="L617" title="2 of 4 branches missed.">        assertTrue(collectionA.isEmpty() &amp;&amp; collectionB.isEmpty());</span>
+        // fix for various java 1.6 versions: keep the cast
+<span class="fc" id="L619">        resultClosure = CollectionUtils.forAllDo(col, (Closure&lt;List&lt;? extends Number&gt;&gt;) null);</span>
+<span class="fc" id="L620">        assertNull(resultClosure);</span>
+<span class="pc bpc" id="L621" title="2 of 4 branches missed.">        assertTrue(collectionA.isEmpty() &amp;&amp; collectionB.isEmpty());</span>
+<span class="fc" id="L622">        resultClosure = CollectionUtils.forAllDo((Collection) null, testClosure);</span>
+<span class="fc" id="L623">        col.add(null);</span>
+        // null should be OK
+<span class="fc" id="L625">        CollectionUtils.forAllDo(col, testClosure);</span>
+<span class="fc" id="L626">    }</span>
+
+    @SuppressWarnings({ &quot;unchecked&quot;, &quot;rawtypes&quot; })
+    @Test
+    public void forAllDoIterator() {
+<span class="fc" id="L631">        final Closure&lt;List&lt;? extends Number&gt;&gt; testClosure = ClosureUtils.invokerClosure(&quot;clear&quot;);</span>
+<span class="fc" id="L632">        final Collection&lt;List&lt;? extends Number&gt;&gt; col = new ArrayList&lt;List&lt;? extends Number&gt;&gt;();</span>
+<span class="fc" id="L633">        col.add(collectionA);</span>
+<span class="fc" id="L634">        col.add(collectionB);</span>
+<span class="fc" id="L635">        Closure&lt;List&lt;? extends Number&gt;&gt; resultClosure = CollectionUtils.forAllDo(col.iterator(), testClosure);</span>
+<span class="fc" id="L636">        assertSame(testClosure, resultClosure);</span>
+<span class="pc bpc" id="L637" title="2 of 4 branches missed.">        assertTrue(collectionA.isEmpty() &amp;&amp; collectionB.isEmpty());</span>
+        // fix for various java 1.6 versions: keep the cast
+<span class="fc" id="L639">        resultClosure = CollectionUtils.forAllDo(col.iterator(), (Closure&lt;List&lt;? extends Number&gt;&gt;) null);</span>
+<span class="fc" id="L640">        assertNull(resultClosure);</span>
+<span class="pc bpc" id="L641" title="2 of 4 branches missed.">        assertTrue(collectionA.isEmpty() &amp;&amp; collectionB.isEmpty());</span>
+<span class="fc" id="L642">        resultClosure = CollectionUtils.forAllDo((Iterator) null, testClosure);</span>
+<span class="fc" id="L643">        col.add(null);</span>
+        // null should be OK
+<span class="fc" id="L645">        CollectionUtils.forAllDo(col.iterator(), testClosure);</span>
+<span class="fc" id="L646">    }</span>
+
+    @Test(expected = FunctorException.class)
+    public void forAllDoFailure() {
+<span class="fc" id="L650">        final Closure&lt;String&gt; testClosure = ClosureUtils.invokerClosure(&quot;clear&quot;);</span>
+<span class="fc" id="L651">        final Collection&lt;String&gt; col = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L652">        col.add(&quot;x&quot;);</span>
+<span class="nc" id="L653">        CollectionUtils.forAllDo(col, testClosure);</span>
+<span class="nc" id="L654">    }</span>
+
+    @Test
+    public void forAllButLastDoCollection() {
+<span class="fc" id="L658">        final Closure&lt;List&lt;? extends Number&gt;&gt; testClosure = ClosureUtils.invokerClosure(&quot;clear&quot;);</span>
+<span class="fc" id="L659">        final Collection&lt;List&lt;? extends Number&gt;&gt; col = new ArrayList&lt;List&lt;? extends Number&gt;&gt;();</span>
+<span class="fc" id="L660">        col.add(collectionA);</span>
+<span class="fc" id="L661">        col.add(collectionB);</span>
+<span class="fc" id="L662">        List&lt;? extends Number&gt; lastElement = CollectionUtils.forAllButLastDo(col, testClosure);</span>
+<span class="fc" id="L663">        assertSame(lastElement, collectionB);</span>
+<span class="pc bpc" id="L664" title="2 of 4 branches missed.">        assertTrue(collectionA.isEmpty() &amp;&amp; !collectionB.isEmpty());</span>
+
+<span class="fc" id="L666">        col.clear();</span>
+<span class="fc" id="L667">        col.add(collectionB);</span>
+<span class="fc" id="L668">        lastElement = CollectionUtils.forAllButLastDo(col, testClosure);</span>
+<span class="fc" id="L669">        assertSame(lastElement, collectionB);</span>
+<span class="pc bpc" id="L670" title="1 of 2 branches missed.">        assertTrue(!collectionB.isEmpty() );</span>
+
+<span class="fc" id="L672">        col.clear();</span>
+<span class="fc" id="L673">        lastElement = CollectionUtils.forAllButLastDo(col, testClosure);</span>
+<span class="fc" id="L674">        assertNull(lastElement);</span>
+
+<span class="fc" id="L676">        Collection&lt;String&gt; strings = Arrays.asList(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;);</span>
+<span class="fc" id="L677">        final StringBuffer result = new StringBuffer();</span>
+<span class="fc" id="L678">        result.append(CollectionUtils.forAllButLastDo(strings, new Closure&lt;String&gt;() {</span>
+            public void execute(String input) {
+<span class="fc" id="L680">                result.append(input+&quot;;&quot;);</span>
+<span class="fc" id="L681">            }</span>
+        }));
+<span class="fc" id="L683">        assertEquals(&quot;a;b;c&quot;, result.toString());</span>
+
+<span class="fc" id="L685">        Collection&lt;String&gt; oneString = Arrays.asList(&quot;a&quot;);</span>
+<span class="fc" id="L686">        final StringBuffer resultOne = new StringBuffer();</span>
+<span class="fc" id="L687">        resultOne.append(CollectionUtils.forAllButLastDo(oneString, new Closure&lt;String&gt;() {</span>
+            public void execute(String input) {
+<span class="nc" id="L689">                resultOne.append(input+&quot;;&quot;);</span>
+<span class="nc" id="L690">            }</span>
+        }));
+<span class="fc" id="L692">        assertEquals(&quot;a&quot;, resultOne.toString());</span>
+<span class="fc" id="L693">        assertNull(CollectionUtils.forAllButLastDo(strings, (Closure&lt;String&gt;) null)); // do not remove cast</span>
+<span class="fc" id="L694">        assertNull(CollectionUtils.forAllButLastDo((Collection&lt;String&gt;) null, (Closure&lt;String&gt;) null)); // do not remove cast</span>
+<span class="fc" id="L695">    }</span>
+
+    @Test
+    public void forAllButLastDoIterator() {
+<span class="fc" id="L699">        final Closure&lt;List&lt;? extends Number&gt;&gt; testClosure = ClosureUtils.invokerClosure(&quot;clear&quot;);</span>
+<span class="fc" id="L700">        final Collection&lt;List&lt;? extends Number&gt;&gt; col = new ArrayList&lt;List&lt;? extends Number&gt;&gt;();</span>
+<span class="fc" id="L701">        col.add(collectionA);</span>
+<span class="fc" id="L702">        col.add(collectionB);</span>
+<span class="fc" id="L703">        List&lt;? extends Number&gt; lastElement = CollectionUtils.forAllButLastDo(col.iterator(), testClosure);</span>
+<span class="fc" id="L704">        assertSame(lastElement, collectionB);</span>
+<span class="pc bpc" id="L705" title="2 of 4 branches missed.">        assertTrue(collectionA.isEmpty() &amp;&amp; !collectionB.isEmpty());</span>
+
+<span class="fc" id="L707">        assertNull(CollectionUtils.forAllButLastDo(col.iterator(), (Closure&lt;List&lt;? extends Number&gt;&gt;) null));</span>
+<span class="fc" id="L708">        assertNull(CollectionUtils.forAllButLastDo((Iterator&lt;String&gt;) null, (Closure&lt;String&gt;) null)); // do not remove cast</span>
+<span class="fc" id="L709">    }</span>
+
+    @Test
+    public void getFromMap() {
+        // Unordered map, entries exist
+<span class="fc" id="L714">        final Map&lt;String, String&gt; expected = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L715">        expected.put(&quot;zeroKey&quot;, &quot;zero&quot;);</span>
+<span class="fc" id="L716">        expected.put(&quot;oneKey&quot;, &quot;one&quot;);</span>
+
+<span class="fc" id="L718">        final Map&lt;String, String&gt; found = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L719">        Map.Entry&lt;String, String&gt; entry = CollectionUtils.get(expected, 0);</span>
+<span class="fc" id="L720">        found.put(entry.getKey(), entry.getValue());</span>
+<span class="fc" id="L721">        entry = CollectionUtils.get(expected, 1);</span>
+<span class="fc" id="L722">        found.put(entry.getKey(), entry.getValue());</span>
+<span class="fc" id="L723">        assertEquals(expected, found);</span>
+
+        // Map index out of range
+        try {
+<span class="nc" id="L727">            CollectionUtils.get(expected, 2);</span>
+<span class="nc" id="L728">            fail(&quot;Expecting IndexOutOfBoundsException.&quot;);</span>
+<span class="pc" id="L729">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L733">            CollectionUtils.get(expected, -2);</span>
+<span class="nc" id="L734">            fail(&quot;Expecting IndexOutOfBoundsException.&quot;);</span>
+<span class="pc" id="L735">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+
+        // Sorted map, entries exist, should respect order
+<span class="fc" id="L740">        final SortedMap&lt;String, String&gt; map = new TreeMap&lt;String, String&gt;();</span>
+<span class="fc" id="L741">        map.put(&quot;zeroKey&quot;, &quot;zero&quot;);</span>
+<span class="fc" id="L742">        map.put(&quot;oneKey&quot;, &quot;one&quot;);</span>
+<span class="fc" id="L743">        Map.Entry&lt;String, String&gt; test = CollectionUtils.get(map, 1);</span>
+<span class="fc" id="L744">        assertEquals(&quot;zeroKey&quot;, test.getKey());</span>
+<span class="fc" id="L745">        assertEquals(&quot;zero&quot;, test.getValue());</span>
+<span class="fc" id="L746">        test = CollectionUtils.get(map, 0);</span>
+<span class="fc" id="L747">        assertEquals(&quot;oneKey&quot;, test.getKey());</span>
+<span class="fc" id="L748">        assertEquals(&quot;one&quot;, test.getValue());</span>
+<span class="fc" id="L749">    }</span>
+
+    /**
+     * Tests that {@link List}s are handled correctly - e.g. using
+     * {@link List#get(int)}.
+     */
+    @Test(expected=IndexOutOfBoundsException.class)
+    public void getFromList() throws Exception {
+        // List, entry exists
+<span class="fc" id="L758">        final List&lt;String&gt; list = createMock(List.class);</span>
+<span class="fc" id="L759">        expect(list.get(0)).andReturn(&quot;zero&quot;);</span>
+<span class="fc" id="L760">        expect(list.get(1)).andReturn(&quot;one&quot;);</span>
+<span class="fc" id="L761">        replay();</span>
+<span class="fc" id="L762">        final String string = CollectionUtils.get(list, 0);</span>
+<span class="fc" id="L763">        assertEquals(&quot;zero&quot;, string);</span>
+<span class="fc" id="L764">        assertEquals(&quot;one&quot;, CollectionUtils.get(list, 1));</span>
+        // list, non-existent entry -- IndexOutOfBoundsException
+<span class="nc" id="L766">        CollectionUtils.get(new ArrayList&lt;Object&gt;(), 2);</span>
+<span class="nc" id="L767">    }</span>
+
+    @Test
+    public void getFromIterator() throws Exception {
+        // Iterator, entry exists
+<span class="fc" id="L772">        Iterator&lt;Integer&gt; iterator = iterableA.iterator();</span>
+<span class="fc" id="L773">        assertEquals(1, (int) CollectionUtils.get(iterator, 0));</span>
+<span class="fc" id="L774">        iterator = iterableA.iterator();</span>
+<span class="fc" id="L775">        assertEquals(2, (int) CollectionUtils.get(iterator, 1));</span>
+
+        // Iterator, non-existent entry
+        try {
+<span class="nc" id="L779">            CollectionUtils.get(iterator, 10);</span>
+<span class="nc" id="L780">            fail(&quot;Expecting IndexOutOfBoundsException.&quot;);</span>
+<span class="pc" id="L781">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="pc bpc" id="L784" title="1 of 2 branches missed.">        assertTrue(!iterator.hasNext());</span>
+<span class="fc" id="L785">    }</span>
+
+    @Test
+    public void getFromEnumeration() throws Exception {
+        // Enumeration, entry exists
+<span class="fc" id="L790">        final Vector&lt;String&gt; vector = new Vector&lt;String&gt;();</span>
+<span class="fc" id="L791">        vector.addElement(&quot;zero&quot;);</span>
+<span class="fc" id="L792">        vector.addElement(&quot;one&quot;);</span>
+<span class="fc" id="L793">        Enumeration&lt;String&gt; en = vector.elements();</span>
+<span class="fc" id="L794">        assertEquals(&quot;zero&quot;, CollectionUtils.get(en, 0));</span>
+<span class="fc" id="L795">        en = vector.elements();</span>
+<span class="fc" id="L796">        assertEquals(&quot;one&quot;, CollectionUtils.get(en, 1));</span>
+
+        // Enumerator, non-existent entry
+        try {
+<span class="nc" id="L800">            CollectionUtils.get(en, 3);</span>
+<span class="nc" id="L801">            fail(&quot;Expecting IndexOutOfBoundsException.&quot;);</span>
+<span class="pc" id="L802">        } catch (final IndexOutOfBoundsException e) {</span>
+            // expected
+        }
+<span class="pc bpc" id="L805" title="1 of 2 branches missed.">        assertTrue(!en.hasMoreElements());</span>
+<span class="fc" id="L806">    }</span>
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getFromIterable() throws Exception {
+        // Collection, entry exists
+<span class="fc" id="L811">        final Bag&lt;String&gt; bag = new HashBag&lt;String&gt;();</span>
+<span class="fc" id="L812">        bag.add(&quot;element&quot;, 1);</span>
+<span class="fc" id="L813">        assertEquals(&quot;element&quot;, CollectionUtils.get(bag, 0));</span>
+
+        // Collection, non-existent entry
+<span class="nc" id="L816">        CollectionUtils.get(bag, 1);</span>
+<span class="nc" id="L817">    }</span>
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getFromObjectArray() throws Exception {
+        // Object array, entry exists
+<span class="fc" id="L822">        final Object[] objArray = new Object[2];</span>
+<span class="fc" id="L823">        objArray[0] = &quot;zero&quot;;</span>
+<span class="fc" id="L824">        objArray[1] = &quot;one&quot;;</span>
+<span class="fc" id="L825">        assertEquals(&quot;zero&quot;, CollectionUtils.get(objArray, 0));</span>
+<span class="fc" id="L826">        assertEquals(&quot;one&quot;, CollectionUtils.get(objArray, 1));</span>
+
+        // Object array, non-existent entry --
+        // ArrayIndexOutOfBoundsException
+<span class="nc" id="L830">        CollectionUtils.get(objArray, 2);</span>
+<span class="nc" id="L831">    }</span>
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getFromPrimativeArray() throws Exception {
+        // Primitive array, entry exists
+<span class="fc" id="L836">        final int[] array = new int[2];</span>
+<span class="fc" id="L837">        array[0] = 10;</span>
+<span class="fc" id="L838">        array[1] = 20;</span>
+<span class="fc" id="L839">        assertEquals(10, CollectionUtils.get(array, 0));</span>
+<span class="fc" id="L840">        assertEquals(20, CollectionUtils.get(array, 1));</span>
+
+        // Object array, non-existent entry --
+        // ArrayIndexOutOfBoundsException
+<span class="nc" id="L844">        CollectionUtils.get(array, 2);</span>
+<span class="nc" id="L845">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void getFromObject() throws Exception {
+        // Invalid object
+<span class="fc" id="L850">        final Object obj = new Object();</span>
+<span class="nc" id="L851">        CollectionUtils.get(obj, 0);</span>
+<span class="nc" id="L852">    }</span>
+
+    // -----------------------------------------------------------------------
+    @Test
+    public void testSize_List() {
+<span class="fc" id="L857">        List&lt;String&gt; list = null;</span>
+<span class="fc" id="L858">        assertEquals(0, CollectionUtils.size(list));</span>
+<span class="fc" id="L859">        list = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L860">        assertEquals(0, CollectionUtils.size(list));</span>
+<span class="fc" id="L861">        list.add(&quot;a&quot;);</span>
+<span class="fc" id="L862">        assertEquals(1, CollectionUtils.size(list));</span>
+<span class="fc" id="L863">        list.add(&quot;b&quot;);</span>
+<span class="fc" id="L864">        assertEquals(2, CollectionUtils.size(list));</span>
+<span class="fc" id="L865">    }</span>
+
+    @Test
+    public void testSize_Map() {
+<span class="fc" id="L869">        final Map&lt;String, String&gt; map = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L870">        assertEquals(0, CollectionUtils.size(map));</span>
+<span class="fc" id="L871">        map.put(&quot;1&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L872">        assertEquals(1, CollectionUtils.size(map));</span>
+<span class="fc" id="L873">        map.put(&quot;2&quot;, &quot;b&quot;);</span>
+<span class="fc" id="L874">        assertEquals(2, CollectionUtils.size(map));</span>
+<span class="fc" id="L875">    }</span>
+
+    @Test
+    public void testSize_Array() {
+<span class="fc" id="L879">        final Object[] objectArray = new Object[0];</span>
+<span class="fc" id="L880">        assertEquals(0, CollectionUtils.size(objectArray));</span>
+
+<span class="fc" id="L882">        final String[] stringArray = new String[3];</span>
+<span class="fc" id="L883">        assertEquals(3, CollectionUtils.size(stringArray));</span>
+<span class="fc" id="L884">        stringArray[0] = &quot;a&quot;;</span>
+<span class="fc" id="L885">        stringArray[1] = &quot;b&quot;;</span>
+<span class="fc" id="L886">        stringArray[2] = &quot;c&quot;;</span>
+<span class="fc" id="L887">        assertEquals(3, CollectionUtils.size(stringArray));</span>
+<span class="fc" id="L888">    }</span>
+
+    @Test
+    public void testSize_PrimitiveArray() {
+<span class="fc" id="L892">        final int[] intArray = new int[0];</span>
+<span class="fc" id="L893">        assertEquals(0, CollectionUtils.size(intArray));</span>
+
+<span class="fc" id="L895">        final double[] doubleArray = new double[3];</span>
+<span class="fc" id="L896">        assertEquals(3, CollectionUtils.size(doubleArray));</span>
+<span class="fc" id="L897">        doubleArray[0] = 0.0d;</span>
+<span class="fc" id="L898">        doubleArray[1] = 1.0d;</span>
+<span class="fc" id="L899">        doubleArray[2] = 2.5d;</span>
+<span class="fc" id="L900">        assertEquals(3, CollectionUtils.size(doubleArray));</span>
+<span class="fc" id="L901">    }</span>
+
+    @Test
+    public void testSize_Enumeration() {
+<span class="fc" id="L905">        final Vector&lt;String&gt; list = new Vector&lt;String&gt;();</span>
+<span class="fc" id="L906">        assertEquals(0, CollectionUtils.size(list.elements()));</span>
+<span class="fc" id="L907">        list.add(&quot;a&quot;);</span>
+<span class="fc" id="L908">        assertEquals(1, CollectionUtils.size(list.elements()));</span>
+<span class="fc" id="L909">        list.add(&quot;b&quot;);</span>
+<span class="fc" id="L910">        assertEquals(2, CollectionUtils.size(list.elements()));</span>
+<span class="fc" id="L911">    }</span>
+
+    @Test
+    public void testSize_Iterator() {
+<span class="fc" id="L915">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L916">        assertEquals(0, CollectionUtils.size(list.iterator()));</span>
+<span class="fc" id="L917">        list.add(&quot;a&quot;);</span>
+<span class="fc" id="L918">        assertEquals(1, CollectionUtils.size(list.iterator()));</span>
+<span class="fc" id="L919">        list.add(&quot;b&quot;);</span>
+<span class="fc" id="L920">        assertEquals(2, CollectionUtils.size(list.iterator()));</span>
+<span class="fc" id="L921">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testSize_Other() {
+<span class="nc" id="L925">        CollectionUtils.size(&quot;not a list&quot;);</span>
+<span class="nc" id="L926">    }</span>
+
+    // -----------------------------------------------------------------------
+    @Test
+    public void testSizeIsEmpty_Null() {
+<span class="fc" id="L931">        assertEquals(true, CollectionUtils.sizeIsEmpty(null));</span>
+<span class="fc" id="L932">    }</span>
+
+    @Test
+    public void testSizeIsEmpty_List() {
+<span class="fc" id="L936">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L937">        assertEquals(true, CollectionUtils.sizeIsEmpty(list));</span>
+<span class="fc" id="L938">        list.add(&quot;a&quot;);</span>
+<span class="fc" id="L939">        assertEquals(false, CollectionUtils.sizeIsEmpty(list));</span>
+<span class="fc" id="L940">    }</span>
+
+    @Test
+    public void testSizeIsEmpty_Map() {
+<span class="fc" id="L944">        final Map&lt;String, String&gt; map = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L945">        assertEquals(true, CollectionUtils.sizeIsEmpty(map));</span>
+<span class="fc" id="L946">        map.put(&quot;1&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L947">        assertEquals(false, CollectionUtils.sizeIsEmpty(map));</span>
+<span class="fc" id="L948">    }</span>
+
+    @Test
+    public void testSizeIsEmpty_Array() {
+<span class="fc" id="L952">        final Object[] objectArray = new Object[0];</span>
+<span class="fc" id="L953">        assertEquals(true, CollectionUtils.sizeIsEmpty(objectArray));</span>
+
+<span class="fc" id="L955">        final String[] stringArray = new String[3];</span>
+<span class="fc" id="L956">        assertEquals(false, CollectionUtils.sizeIsEmpty(stringArray));</span>
+<span class="fc" id="L957">        stringArray[0] = &quot;a&quot;;</span>
+<span class="fc" id="L958">        stringArray[1] = &quot;b&quot;;</span>
+<span class="fc" id="L959">        stringArray[2] = &quot;c&quot;;</span>
+<span class="fc" id="L960">        assertEquals(false, CollectionUtils.sizeIsEmpty(stringArray));</span>
+<span class="fc" id="L961">    }</span>
+
+    @Test
+    public void testSizeIsEmpty_PrimitiveArray() {
+<span class="fc" id="L965">        final int[] intArray = new int[0];</span>
+<span class="fc" id="L966">        assertEquals(true, CollectionUtils.sizeIsEmpty(intArray));</span>
+
+<span class="fc" id="L968">        final double[] doubleArray = new double[3];</span>
+<span class="fc" id="L969">        assertEquals(false, CollectionUtils.sizeIsEmpty(doubleArray));</span>
+<span class="fc" id="L970">        doubleArray[0] = 0.0d;</span>
+<span class="fc" id="L971">        doubleArray[1] = 1.0d;</span>
+<span class="fc" id="L972">        doubleArray[2] = 2.5d;</span>
+<span class="fc" id="L973">        assertEquals(false, CollectionUtils.sizeIsEmpty(doubleArray));</span>
+<span class="fc" id="L974">    }</span>
+
+    @Test
+    public void testSizeIsEmpty_Enumeration() {
+<span class="fc" id="L978">        final Vector&lt;String&gt; list = new Vector&lt;String&gt;();</span>
+<span class="fc" id="L979">        assertEquals(true, CollectionUtils.sizeIsEmpty(list.elements()));</span>
+<span class="fc" id="L980">        list.add(&quot;a&quot;);</span>
+<span class="fc" id="L981">        assertEquals(false, CollectionUtils.sizeIsEmpty(list.elements()));</span>
+<span class="fc" id="L982">        final Enumeration&lt;String&gt; en = list.elements();</span>
+<span class="fc" id="L983">        en.nextElement();</span>
+<span class="fc" id="L984">        assertEquals(true, CollectionUtils.sizeIsEmpty(en));</span>
+<span class="fc" id="L985">    }</span>
+
+    @Test
+    public void testSizeIsEmpty_Iterator() {
+<span class="fc" id="L989">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L990">        assertEquals(true, CollectionUtils.sizeIsEmpty(list.iterator()));</span>
+<span class="fc" id="L991">        list.add(&quot;a&quot;);</span>
+<span class="fc" id="L992">        assertEquals(false, CollectionUtils.sizeIsEmpty(list.iterator()));</span>
+<span class="fc" id="L993">        final Iterator&lt;String&gt; it = list.iterator();</span>
+<span class="fc" id="L994">        it.next();</span>
+<span class="fc" id="L995">        assertEquals(true, CollectionUtils.sizeIsEmpty(it));</span>
+<span class="fc" id="L996">    }</span>
+
+    @Test
+    public void testSizeIsEmpty_Other() {
+        try {
+<span class="nc" id="L1001">            CollectionUtils.sizeIsEmpty(&quot;not a list&quot;);</span>
+<span class="nc" id="L1002">            fail(&quot;Expecting IllegalArgumentException&quot;);</span>
+<span class="pc" id="L1003">        } catch (final IllegalArgumentException ex) {</span>
+        }
+<span class="fc" id="L1005">    }</span>
+
+    // -----------------------------------------------------------------------
+    @Test
+    public void testIsEmptyWithEmptyCollection() {
+<span class="fc" id="L1010">        final Collection&lt;Object&gt; coll = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L1011">        assertEquals(true, CollectionUtils.isEmpty(coll));</span>
+<span class="fc" id="L1012">    }</span>
+
+    @Test
+    public void testIsEmptyWithNonEmptyCollection() {
+<span class="fc" id="L1016">        final Collection&lt;String&gt; coll = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L1017">        coll.add(&quot;item&quot;);</span>
+<span class="fc" id="L1018">        assertEquals(false, CollectionUtils.isEmpty(coll));</span>
+<span class="fc" id="L1019">    }</span>
+
+    @Test
+    public void testIsEmptyWithNull() {
+<span class="fc" id="L1023">        final Collection&lt;?&gt; coll = null;</span>
+<span class="fc" id="L1024">        assertEquals(true, CollectionUtils.isEmpty(coll));</span>
+<span class="fc" id="L1025">    }</span>
+
+    @Test
+    public void testIsNotEmptyWithEmptyCollection() {
+<span class="fc" id="L1029">        final Collection&lt;Object&gt; coll = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L1030">        assertEquals(false, CollectionUtils.isNotEmpty(coll));</span>
+<span class="fc" id="L1031">    }</span>
+
+    @Test
+    public void testIsNotEmptyWithNonEmptyCollection() {
+<span class="fc" id="L1035">        final Collection&lt;String&gt; coll = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L1036">        coll.add(&quot;item&quot;);</span>
+<span class="fc" id="L1037">        assertEquals(true, CollectionUtils.isNotEmpty(coll));</span>
+<span class="fc" id="L1038">    }</span>
+
+    @Test
+    public void testIsNotEmptyWithNull() {
+<span class="fc" id="L1042">        final Collection&lt;?&gt; coll = null;</span>
+<span class="fc" id="L1043">        assertEquals(false, CollectionUtils.isNotEmpty(coll));</span>
+<span class="fc" id="L1044">    }</span>
+
+    // -----------------------------------------------------------------------
+<span class="fc" id="L1047">    private static Predicate&lt;Number&gt; EQUALS_TWO = new Predicate&lt;Number&gt;() {</span>
+        public boolean evaluate(final Number input) {
+<span class="fc bfc" id="L1049" title="All 2 branches covered.">            return input.intValue() == 2;</span>
+        }
+<span class="fc" id="L1051">    };</span>
+
+//Up to here
+    @Test
+    public void filter() {
+<span class="fc" id="L1056">        final List&lt;Integer&gt; ints = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L1057">        ints.add(1);</span>
+<span class="fc" id="L1058">        ints.add(2);</span>
+<span class="fc" id="L1059">        ints.add(3);</span>
+<span class="fc" id="L1060">        ints.add(3);</span>
+<span class="fc" id="L1061">        final Iterable&lt;Integer&gt; iterable = ints;</span>
+<span class="fc" id="L1062">        assertTrue(CollectionUtils.filter(iterable, EQUALS_TWO));</span>
+<span class="fc" id="L1063">        assertEquals(1, ints.size());</span>
+<span class="fc" id="L1064">        assertEquals(2, (int) ints.get(0));</span>
+<span class="fc" id="L1065">    }</span>
+
+    @Test
+    public void filterNullParameters() throws Exception {
+<span class="fc" id="L1069">        final List&lt;Long&gt; longs = Collections.nCopies(4, 10L);</span>
+<span class="fc" id="L1070">        assertFalse(CollectionUtils.filter(longs, null));</span>
+<span class="fc" id="L1071">        assertEquals(4, longs.size());</span>
+<span class="fc" id="L1072">        assertFalse(CollectionUtils.filter(null, EQUALS_TWO));</span>
+<span class="fc" id="L1073">        assertEquals(4, longs.size());</span>
+<span class="fc" id="L1074">        assertFalse(CollectionUtils.filter(null, null));</span>
+<span class="fc" id="L1075">        assertEquals(4, longs.size());</span>
+<span class="fc" id="L1076">    }</span>
+
+    @Test
+    public void filterInverse() {
+<span class="fc" id="L1080">        final List&lt;Integer&gt; ints = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L1081">        ints.add(1);</span>
+<span class="fc" id="L1082">        ints.add(2);</span>
+<span class="fc" id="L1083">        ints.add(3);</span>
+<span class="fc" id="L1084">        ints.add(3);</span>
+<span class="fc" id="L1085">        final Iterable&lt;Integer&gt; iterable = ints;</span>
+<span class="fc" id="L1086">        assertTrue(CollectionUtils.filterInverse(iterable, EQUALS_TWO));</span>
+<span class="fc" id="L1087">        assertEquals(3, ints.size());</span>
+<span class="fc" id="L1088">        assertEquals(1, (int) ints.get(0));</span>
+<span class="fc" id="L1089">        assertEquals(3, (int) ints.get(1));</span>
+<span class="fc" id="L1090">        assertEquals(3, (int) ints.get(2));</span>
+<span class="fc" id="L1091">    }</span>
+
+    @Test
+    public void filterInverseNullParameters() throws Exception {
+<span class="fc" id="L1095">        final List&lt;Long&gt; longs = Collections.nCopies(4, 10L);</span>
+<span class="fc" id="L1096">        assertFalse(CollectionUtils.filterInverse(longs, null));</span>
+<span class="fc" id="L1097">        assertEquals(4, longs.size());</span>
+<span class="fc" id="L1098">        assertFalse(CollectionUtils.filterInverse(null, EQUALS_TWO));</span>
+<span class="fc" id="L1099">        assertEquals(4, longs.size());</span>
+<span class="fc" id="L1100">        assertFalse(CollectionUtils.filterInverse(null, null));</span>
+<span class="fc" id="L1101">        assertEquals(4, longs.size());</span>
+<span class="fc" id="L1102">    }</span>
+
+    @Test
+    public void countMatches() {
+<span class="fc" id="L1106">        assertEquals(4, CollectionUtils.countMatches(iterableB, EQUALS_TWO));</span>
+<span class="fc" id="L1107">        assertEquals(0, CollectionUtils.countMatches(iterableA, null));</span>
+<span class="fc" id="L1108">        assertEquals(0, CollectionUtils.countMatches(null, EQUALS_TWO));</span>
+<span class="fc" id="L1109">        assertEquals(0, CollectionUtils.countMatches(null, null));</span>
+<span class="fc" id="L1110">    }</span>
+
+    @Test
+    public void exists() {
+<span class="fc" id="L1114">        final List&lt;Integer&gt; list = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L1115">        assertFalse(CollectionUtils.exists(null, null));</span>
+<span class="fc" id="L1116">        assertFalse(CollectionUtils.exists(list, null));</span>
+<span class="fc" id="L1117">        assertFalse(CollectionUtils.exists(null, EQUALS_TWO));</span>
+<span class="fc" id="L1118">        assertFalse(CollectionUtils.exists(list, EQUALS_TWO));</span>
+<span class="fc" id="L1119">        list.add(1);</span>
+<span class="fc" id="L1120">        list.add(3);</span>
+<span class="fc" id="L1121">        list.add(4);</span>
+<span class="fc" id="L1122">        assertFalse(CollectionUtils.exists(list, EQUALS_TWO));</span>
+
+<span class="fc" id="L1124">        list.add(2);</span>
+<span class="fc" id="L1125">        assertEquals(true, CollectionUtils.exists(list, EQUALS_TWO));</span>
+<span class="fc" id="L1126">    }</span>
+
+    @Test
+    public void select() {
+<span class="fc" id="L1130">        final List&lt;Integer&gt; list = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L1131">        list.add(1);</span>
+<span class="fc" id="L1132">        list.add(2);</span>
+<span class="fc" id="L1133">        list.add(3);</span>
+<span class="fc" id="L1134">        list.add(4);</span>
+        // Ensure that the collection is the input type or a super type
+<span class="fc" id="L1136">        final Collection&lt;Integer&gt; output1 = CollectionUtils.select(list, EQUALS_TWO);</span>
+<span class="fc" id="L1137">        final Collection&lt;Number&gt; output2 = CollectionUtils.&lt;Number&gt;select(list, EQUALS_TWO);</span>
+<span class="fc" id="L1138">        final HashSet&lt;Number&gt; output3 = CollectionUtils.select(list, EQUALS_TWO, new HashSet&lt;Number&gt;());</span>
+<span class="fc" id="L1139">        assertTrue(CollectionUtils.isEqualCollection(output1, output3));</span>
+<span class="fc" id="L1140">        assertEquals(4, list.size());</span>
+<span class="fc" id="L1141">        assertEquals(1, output1.size());</span>
+<span class="fc" id="L1142">        assertEquals(2, output2.iterator().next());</span>
+<span class="fc" id="L1143">    }</span>
+
+    @Test
+    public void selectRejected() {
+<span class="fc" id="L1147">        final List&lt;Long&gt; list = new ArrayList&lt;Long&gt;();</span>
+<span class="fc" id="L1148">        list.add(1L);</span>
+<span class="fc" id="L1149">        list.add(2L);</span>
+<span class="fc" id="L1150">        list.add(3L);</span>
+<span class="fc" id="L1151">        list.add(4L);</span>
+<span class="fc" id="L1152">        final Collection&lt;Long&gt; output1 = CollectionUtils.selectRejected(list, EQUALS_TWO);</span>
+<span class="fc" id="L1153">        final Collection&lt;? extends Number&gt; output2 = CollectionUtils.selectRejected(list, EQUALS_TWO);</span>
+<span class="fc" id="L1154">        final HashSet&lt;Number&gt; output3 = CollectionUtils.selectRejected(list, EQUALS_TWO, new HashSet&lt;Number&gt;());</span>
+<span class="fc" id="L1155">        assertTrue(CollectionUtils.isEqualCollection(output1, output2));</span>
+<span class="fc" id="L1156">        assertTrue(CollectionUtils.isEqualCollection(output1, output3));</span>
+<span class="fc" id="L1157">        assertEquals(4, list.size());</span>
+<span class="fc" id="L1158">        assertEquals(3, output1.size());</span>
+<span class="fc" id="L1159">        assertTrue(output1.contains(1L));</span>
+<span class="fc" id="L1160">        assertTrue(output1.contains(3L));</span>
+<span class="fc" id="L1161">        assertTrue(output1.contains(4L));</span>
+<span class="fc" id="L1162">    }</span>
+
+    @Test
+    public void collect() {
+<span class="fc" id="L1166">        final Transformer&lt;Number, Long&gt; transformer = TransformerUtils.constantTransformer(2L);</span>
+<span class="fc" id="L1167">        Collection&lt;Number&gt; collection = CollectionUtils.&lt;Integer, Number&gt;collect(iterableA, transformer);</span>
+<span class="pc bpc" id="L1168" title="1 of 2 branches missed.">        assertTrue(collection.size() == collectionA.size());</span>
+<span class="fc" id="L1169">        assertCollectResult(collection);</span>
+
+        ArrayList&lt;Number&gt; list;
+<span class="fc" id="L1172">        list = CollectionUtils.collect(collectionA, transformer, new ArrayList&lt;Number&gt;());</span>
+<span class="pc bpc" id="L1173" title="1 of 2 branches missed.">        assertTrue(list.size() == collectionA.size());</span>
+<span class="fc" id="L1174">        assertCollectResult(list);</span>
+
+<span class="fc" id="L1176">        Iterator&lt;Integer&gt; iterator = null;</span>
+<span class="fc" id="L1177">        list = CollectionUtils.collect(iterator, transformer, new ArrayList&lt;Number&gt;());</span>
+
+<span class="fc" id="L1179">        iterator = iterableA.iterator();</span>
+<span class="fc" id="L1180">        list = CollectionUtils.collect(iterator, transformer, list);</span>
+<span class="pc bpc" id="L1181" title="1 of 2 branches missed.">        assertTrue(collection.size() == collectionA.size());</span>
+<span class="fc" id="L1182">        assertCollectResult(collection);</span>
+
+<span class="fc" id="L1184">        iterator = collectionA.iterator();</span>
+<span class="fc" id="L1185">        collection = CollectionUtils.&lt;Integer, Number&gt;collect(iterator, transformer);</span>
+<span class="pc bpc" id="L1186" title="1 of 2 branches missed.">        assertTrue(collection.size() == collectionA.size());</span>
+<span class="pc bpc" id="L1187" title="2 of 4 branches missed.">        assertTrue(collection.contains(2L) &amp;&amp; !collection.contains(1));</span>
+<span class="fc" id="L1188">        collection = CollectionUtils.collect((Iterator&lt;Integer&gt;) null, (Transformer&lt;Integer, Number&gt;) null);</span>
+<span class="pc bpc" id="L1189" title="1 of 2 branches missed.">        assertTrue(collection.size() == 0);</span>
+
+<span class="fc" id="L1191">        final int size = collectionA.size();</span>
+<span class="fc" id="L1192">        collectionB = CollectionUtils.collect((Collection&lt;Integer&gt;) null, transformer, collectionB);</span>
+<span class="pc bpc" id="L1193" title="2 of 4 branches missed.">        assertTrue(collectionA.size() == size &amp;&amp; collectionA.contains(1));</span>
+<span class="fc" id="L1194">        CollectionUtils.collect(collectionB, null, collectionA);</span>
+<span class="pc bpc" id="L1195" title="2 of 4 branches missed.">        assertTrue(collectionA.size() == size &amp;&amp; collectionA.contains(1));</span>
+
+<span class="fc" id="L1197">    }</span>
+
+    private void assertCollectResult(final Collection&lt;Number&gt; collection) {
+<span class="pc bpc" id="L1200" title="2 of 4 branches missed.">        assertTrue(collectionA.contains(1) &amp;&amp; !collectionA.contains(2L));</span>
+<span class="pc bpc" id="L1201" title="2 of 4 branches missed.">        assertTrue(collection.contains(2L) &amp;&amp; !collection.contains(1));</span>
+<span class="fc" id="L1202">    }</span>
+
+<span class="fc" id="L1204">    Transformer&lt;Object, Integer&gt; TRANSFORM_TO_INTEGER = new Transformer&lt;Object, Integer&gt;() {</span>
+        public Integer transform(final Object input) {
+<span class="fc" id="L1206">            return Integer.valueOf(((Long)input).intValue());</span>
+        }
+    };
+
+    @Test
+    public void transform1() {
+<span class="fc" id="L1212">        List&lt;Number&gt; list = new ArrayList&lt;Number&gt;();</span>
+<span class="fc" id="L1213">        list.add(1L);</span>
+<span class="fc" id="L1214">        list.add(2L);</span>
+<span class="fc" id="L1215">        list.add(3L);</span>
+<span class="fc" id="L1216">        CollectionUtils.transform(list, TRANSFORM_TO_INTEGER);</span>
+<span class="fc" id="L1217">        assertEquals(3, list.size());</span>
+<span class="fc" id="L1218">        assertEquals(1, list.get(0));</span>
+<span class="fc" id="L1219">        assertEquals(2, list.get(1));</span>
+<span class="fc" id="L1220">        assertEquals(3, list.get(2));</span>
+
+<span class="fc" id="L1222">        list = new ArrayList&lt;Number&gt;();</span>
+<span class="fc" id="L1223">        list.add(1L);</span>
+<span class="fc" id="L1224">        list.add(2L);</span>
+<span class="fc" id="L1225">        list.add(3L);</span>
+<span class="fc" id="L1226">        CollectionUtils.transform(null, TRANSFORM_TO_INTEGER);</span>
+<span class="fc" id="L1227">        assertEquals(3, list.size());</span>
+<span class="fc" id="L1228">        CollectionUtils.transform(list, null);</span>
+<span class="fc" id="L1229">        assertEquals(3, list.size());</span>
+<span class="fc" id="L1230">        CollectionUtils.transform(null, null);</span>
+<span class="fc" id="L1231">        assertEquals(3, list.size());</span>
+<span class="fc" id="L1232">    }</span>
+
+    @Test
+    public void transform2() {
+<span class="fc" id="L1236">        final Set&lt;Number&gt; set = new HashSet&lt;Number&gt;();</span>
+<span class="fc" id="L1237">        set.add(1L);</span>
+<span class="fc" id="L1238">        set.add(2L);</span>
+<span class="fc" id="L1239">        set.add(3L);</span>
+<span class="fc" id="L1240">        CollectionUtils.transform(set, new Transformer&lt;Object, Integer&gt;() {</span>
+            public Integer transform(final Object input) {
+<span class="fc" id="L1242">                return 4;</span>
+            }
+        });
+<span class="fc" id="L1245">        assertEquals(1, set.size());</span>
+<span class="fc" id="L1246">        assertEquals(4, set.iterator().next());</span>
+<span class="fc" id="L1247">    }</span>
+
+    // -----------------------------------------------------------------------
+    @Test
+    public void addIgnoreNull() {
+<span class="fc" id="L1252">        final Set&lt;String&gt; set = new HashSet&lt;String&gt;();</span>
+<span class="fc" id="L1253">        set.add(&quot;1&quot;);</span>
+<span class="fc" id="L1254">        set.add(&quot;2&quot;);</span>
+<span class="fc" id="L1255">        set.add(&quot;3&quot;);</span>
+<span class="fc" id="L1256">        assertFalse(CollectionUtils.addIgnoreNull(set, null));</span>
+<span class="fc" id="L1257">        assertEquals(3, set.size());</span>
+<span class="fc" id="L1258">        assertFalse(CollectionUtils.addIgnoreNull(set, &quot;1&quot;));</span>
+<span class="fc" id="L1259">        assertEquals(3, set.size());</span>
+<span class="fc" id="L1260">        assertEquals(true, CollectionUtils.addIgnoreNull(set, &quot;4&quot;));</span>
+<span class="fc" id="L1261">        assertEquals(4, set.size());</span>
+<span class="fc" id="L1262">        assertEquals(true, set.contains(&quot;4&quot;));</span>
+<span class="fc" id="L1263">    }</span>
+
+    // -----------------------------------------------------------------------
+    @Test
+    public void predicatedCollection() {
+<span class="fc" id="L1268">        final Predicate&lt;Object&gt; predicate = PredicateUtils.instanceofPredicate(Integer.class);</span>
+<span class="fc" id="L1269">        Collection&lt;Number&gt; collection = CollectionUtils.predicatedCollection(new ArrayList&lt;Number&gt;(), predicate);</span>
+<span class="fc" id="L1270">        assertTrue(&quot;returned object should be a PredicatedCollection&quot;, collection instanceof PredicatedCollection);</span>
+        try {
+<span class="nc" id="L1272">            CollectionUtils.predicatedCollection(new ArrayList&lt;Number&gt;(), null);</span>
+<span class="nc" id="L1273">            fail(&quot;Expecting IllegalArgumentException for null predicate.&quot;);</span>
+<span class="pc" id="L1274">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L1278">            CollectionUtils.predicatedCollection(null, predicate);</span>
+<span class="nc" id="L1279">            fail(&quot;Expecting IllegalArgumentException for null collection.&quot;);</span>
+<span class="pc" id="L1280">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L1283">    }</span>
+
+    @Test
+    public void isFull() {
+<span class="fc" id="L1287">        final Set&lt;String&gt; set = new HashSet&lt;String&gt;();</span>
+<span class="fc" id="L1288">        set.add(&quot;1&quot;);</span>
+<span class="fc" id="L1289">        set.add(&quot;2&quot;);</span>
+<span class="fc" id="L1290">        set.add(&quot;3&quot;);</span>
+        try {
+<span class="nc" id="L1292">            CollectionUtils.isFull(null);</span>
+<span class="nc" id="L1293">            fail();</span>
+<span class="pc" id="L1294">        } catch (final NullPointerException ex) {</span>
+        }
+<span class="fc" id="L1296">        assertFalse(CollectionUtils.isFull(set));</span>
+
+<span class="fc" id="L1298">        final CircularFifoQueue&lt;String&gt; buf = new CircularFifoQueue&lt;String&gt;(set);</span>
+<span class="fc" id="L1299">        assertEquals(false, CollectionUtils.isFull(buf));</span>
+<span class="fc" id="L1300">        buf.remove(&quot;2&quot;);</span>
+<span class="fc" id="L1301">        assertFalse(CollectionUtils.isFull(buf));</span>
+<span class="fc" id="L1302">        buf.add(&quot;2&quot;);</span>
+<span class="fc" id="L1303">        assertEquals(false, CollectionUtils.isFull(buf));</span>
+<span class="fc" id="L1304">    }</span>
+
+    @Test
+    public void isEmpty() {
+<span class="fc" id="L1308">        assertFalse(CollectionUtils.isNotEmpty(null));</span>
+<span class="fc" id="L1309">        assertTrue(CollectionUtils.isNotEmpty(collectionA));</span>
+<span class="fc" id="L1310">    }</span>
+
+    @Test
+    public void maxSize() {
+<span class="fc" id="L1314">        final Set&lt;String&gt; set = new HashSet&lt;String&gt;();</span>
+<span class="fc" id="L1315">        set.add(&quot;1&quot;);</span>
+<span class="fc" id="L1316">        set.add(&quot;2&quot;);</span>
+<span class="fc" id="L1317">        set.add(&quot;3&quot;);</span>
+        try {
+<span class="nc" id="L1319">            CollectionUtils.maxSize(null);</span>
+<span class="nc" id="L1320">            fail();</span>
+<span class="pc" id="L1321">        } catch (final NullPointerException ex) {</span>
+        }
+<span class="fc" id="L1323">        assertEquals(-1, CollectionUtils.maxSize(set));</span>
+
+<span class="fc" id="L1325">        final Queue&lt;String&gt; buf = new CircularFifoQueue&lt;String&gt;(set);</span>
+<span class="fc" id="L1326">        assertEquals(3, CollectionUtils.maxSize(buf));</span>
+<span class="fc" id="L1327">        buf.remove(&quot;2&quot;);</span>
+<span class="fc" id="L1328">        assertEquals(3, CollectionUtils.maxSize(buf));</span>
+<span class="fc" id="L1329">        buf.add(&quot;2&quot;);</span>
+<span class="fc" id="L1330">        assertEquals(3, CollectionUtils.maxSize(buf));</span>
+<span class="fc" id="L1331">    }</span>
+
+    @Test
+    public void intersectionUsesMethodEquals() {
+        // Let elta and eltb be objects...
+<span class="fc" id="L1336">        final Integer elta = new Integer(17); // Cannot use valueOf here</span>
+<span class="fc" id="L1337">        final Integer eltb = new Integer(17);</span>
+
+        // ...which are equal...
+<span class="fc" id="L1340">        assertEquals(elta, eltb);</span>
+<span class="fc" id="L1341">        assertEquals(eltb, elta);</span>
+
+        // ...but not the same (==).
+<span class="pc bpc" id="L1344" title="1 of 2 branches missed.">        assertTrue(elta != eltb);</span>
+
+        // Let cola and colb be collections...
+<span class="fc" id="L1347">        final Collection&lt;Number&gt; cola = new ArrayList&lt;Number&gt;();</span>
+<span class="fc" id="L1348">        final Collection&lt;Integer&gt; colb = new ArrayList&lt;Integer&gt;();</span>
+
+        // ...which contain elta and eltb,
+        // respectively.
+<span class="fc" id="L1352">        cola.add(elta);</span>
+<span class="fc" id="L1353">        colb.add(eltb);</span>
+
+        // Then the intersection of the two
+        // should contain one element.
+<span class="fc" id="L1357">        final Collection&lt;Number&gt; intersection = CollectionUtils.intersection(cola, colb);</span>
+<span class="fc" id="L1358">        assertEquals(1, intersection.size());</span>
+
+        // In practice, this element will be the same (==) as elta
+        // or eltb, although this isn't strictly part of the
+        // contract.
+<span class="fc" id="L1363">        final Object eltc = intersection.iterator().next();</span>
+<span class="pc bpc" id="L1364" title="6 of 8 branches missed.">        assertTrue(eltc == elta &amp;&amp; eltc != eltb || eltc != elta &amp;&amp; eltc == eltb);</span>
+
+        // In any event, this element remains equal,
+        // to both elta and eltb.
+<span class="fc" id="L1368">        assertEquals(elta, eltc);</span>
+<span class="fc" id="L1369">        assertEquals(eltc, elta);</span>
+<span class="fc" id="L1370">        assertEquals(eltb, eltc);</span>
+<span class="fc" id="L1371">        assertEquals(eltc, eltb);</span>
+<span class="fc" id="L1372">    }</span>
+
+    // -----------------------------------------------------------------------
+    //Up to here
+    @Test
+    public void testRetainAll() {
+<span class="fc" id="L1378">        final List&lt;String&gt; base = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L1379">        base.add(&quot;A&quot;);</span>
+<span class="fc" id="L1380">        base.add(&quot;B&quot;);</span>
+<span class="fc" id="L1381">        base.add(&quot;C&quot;);</span>
+<span class="fc" id="L1382">        final List&lt;Object&gt; sub = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L1383">        sub.add(&quot;A&quot;);</span>
+<span class="fc" id="L1384">        sub.add(&quot;C&quot;);</span>
+<span class="fc" id="L1385">        sub.add(&quot;X&quot;);</span>
+
+<span class="fc" id="L1387">        final Collection&lt;String&gt; result = CollectionUtils.retainAll(base, sub);</span>
+<span class="fc" id="L1388">        assertEquals(2, result.size());</span>
+<span class="fc" id="L1389">        assertEquals(true, result.contains(&quot;A&quot;));</span>
+<span class="fc" id="L1390">        assertFalse(result.contains(&quot;B&quot;));</span>
+<span class="fc" id="L1391">        assertEquals(true, result.contains(&quot;C&quot;));</span>
+<span class="fc" id="L1392">        assertEquals(3, base.size());</span>
+<span class="fc" id="L1393">        assertEquals(true, base.contains(&quot;A&quot;));</span>
+<span class="fc" id="L1394">        assertEquals(true, base.contains(&quot;B&quot;));</span>
+<span class="fc" id="L1395">        assertEquals(true, base.contains(&quot;C&quot;));</span>
+<span class="fc" id="L1396">        assertEquals(3, sub.size());</span>
+<span class="fc" id="L1397">        assertEquals(true, sub.contains(&quot;A&quot;));</span>
+<span class="fc" id="L1398">        assertEquals(true, sub.contains(&quot;C&quot;));</span>
+<span class="fc" id="L1399">        assertEquals(true, sub.contains(&quot;X&quot;));</span>
+
+        try {
+<span class="nc" id="L1402">            CollectionUtils.retainAll(null, null);</span>
+<span class="nc" id="L1403">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L1404">        } catch (final NullPointerException npe) {</span>
+        } // this is what we want
+<span class="fc" id="L1406">    }</span>
+
+    @Test
+    public void testRemoveAll() {
+<span class="fc" id="L1410">        final List&lt;String&gt; base = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L1411">        base.add(&quot;A&quot;);</span>
+<span class="fc" id="L1412">        base.add(&quot;B&quot;);</span>
+<span class="fc" id="L1413">        base.add(&quot;C&quot;);</span>
+<span class="fc" id="L1414">        final List&lt;String&gt; sub = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L1415">        sub.add(&quot;A&quot;);</span>
+<span class="fc" id="L1416">        sub.add(&quot;C&quot;);</span>
+<span class="fc" id="L1417">        sub.add(&quot;X&quot;);</span>
+
+<span class="fc" id="L1419">        final Collection&lt;String&gt; result = CollectionUtils.removeAll(base, sub);</span>
+<span class="fc" id="L1420">        assertEquals(1, result.size());</span>
+<span class="fc" id="L1421">        assertFalse(result.contains(&quot;A&quot;));</span>
+<span class="fc" id="L1422">        assertEquals(true, result.contains(&quot;B&quot;));</span>
+<span class="fc" id="L1423">        assertFalse(result.contains(&quot;C&quot;));</span>
+<span class="fc" id="L1424">        assertEquals(3, base.size());</span>
+<span class="fc" id="L1425">        assertEquals(true, base.contains(&quot;A&quot;));</span>
+<span class="fc" id="L1426">        assertEquals(true, base.contains(&quot;B&quot;));</span>
+<span class="fc" id="L1427">        assertEquals(true, base.contains(&quot;C&quot;));</span>
+<span class="fc" id="L1428">        assertEquals(3, sub.size());</span>
+<span class="fc" id="L1429">        assertEquals(true, sub.contains(&quot;A&quot;));</span>
+<span class="fc" id="L1430">        assertEquals(true, sub.contains(&quot;C&quot;));</span>
+<span class="fc" id="L1431">        assertEquals(true, sub.contains(&quot;X&quot;));</span>
+
+        try {
+<span class="nc" id="L1434">            CollectionUtils.removeAll(null, null);</span>
+<span class="nc" id="L1435">            fail(&quot;expecting NullPointerException&quot;);</span>
+<span class="pc" id="L1436">        } catch (final NullPointerException npe) {</span>
+        } // this is what we want
+<span class="fc" id="L1438">    }</span>
+
+    // -----------------------------------------------------------------------
+    @Test
+    public void testTransformedCollection() {
+<span class="fc" id="L1443">        final Transformer&lt;Object, Object&gt; transformer = TransformerUtils.nopTransformer();</span>
+<span class="fc" id="L1444">        Collection&lt;Object&gt; collection = CollectionUtils.transformingCollection(new ArrayList&lt;Object&gt;(), transformer);</span>
+<span class="fc" id="L1445">        assertTrue(&quot;returned object should be a TransformedCollection&quot;, collection instanceof TransformedCollection);</span>
+        try {
+<span class="nc" id="L1447">            CollectionUtils.transformingCollection(new ArrayList&lt;Object&gt;(), null);</span>
+<span class="nc" id="L1448">            fail(&quot;Expecting IllegalArgumentException for null transformer.&quot;);</span>
+<span class="pc" id="L1449">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+        try {
+<span class="nc" id="L1453">            CollectionUtils.transformingCollection(null, transformer);</span>
+<span class="nc" id="L1454">            fail(&quot;Expecting IllegalArgumentException for null collection.&quot;);</span>
+<span class="pc" id="L1455">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L1458">    }</span>
+
+    @Test
+    public void testTransformedCollection_2() {
+<span class="fc" id="L1462">        final List&lt;Object&gt; list = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L1463">        list.add(&quot;1&quot;);</span>
+<span class="fc" id="L1464">        list.add(&quot;2&quot;);</span>
+<span class="fc" id="L1465">        list.add(&quot;3&quot;);</span>
+<span class="fc" id="L1466">        final Collection&lt;Object&gt; result = CollectionUtils.transformingCollection(list, TRANSFORM_TO_INTEGER);</span>
+<span class="fc" id="L1467">        assertEquals(true, result.contains(&quot;1&quot;)); // untransformed</span>
+<span class="fc" id="L1468">        assertEquals(true, result.contains(&quot;2&quot;)); // untransformed</span>
+<span class="fc" id="L1469">        assertEquals(true, result.contains(&quot;3&quot;)); // untransformed</span>
+<span class="fc" id="L1470">    }</span>
+
+    @Test
+    public void testSynchronizedCollection() {
+<span class="fc" id="L1474">        Collection&lt;Object&gt; col = CollectionUtils.synchronizedCollection(new ArrayList&lt;Object&gt;());</span>
+<span class="fc" id="L1475">        assertTrue(&quot;Returned object should be a SynchronizedCollection.&quot;, col instanceof SynchronizedCollection);</span>
+        try {
+<span class="nc" id="L1477">            CollectionUtils.synchronizedCollection(null);</span>
+<span class="nc" id="L1478">            fail(&quot;Expecting IllegalArgumentException for null collection.&quot;);</span>
+<span class="pc" id="L1479">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L1482">    }</span>
+
+    @Test
+    public void testUnmodifiableCollection() {
+<span class="fc" id="L1486">        Collection&lt;Object&gt; col = CollectionUtils.unmodifiableCollection(new ArrayList&lt;Object&gt;());</span>
+<span class="fc" id="L1487">        assertTrue(&quot;Returned object should be a UnmodifiableCollection.&quot;, col instanceof UnmodifiableCollection);</span>
+        try {
+<span class="nc" id="L1489">            CollectionUtils.unmodifiableCollection(null);</span>
+<span class="nc" id="L1490">            fail(&quot;Expecting IllegalArgumentException for null collection.&quot;);</span>
+<span class="pc" id="L1491">        } catch (final IllegalArgumentException ex) {</span>
+            // expected
+        }
+<span class="fc" id="L1494">    }</span>
+
+    @Test
+    public void emptyCollection() throws Exception {
+<span class="fc" id="L1498">        final Collection&lt;Number&gt; coll = CollectionUtils.emptyCollection();</span>
+<span class="fc" id="L1499">        assertEquals(CollectionUtils.EMPTY_COLLECTION, coll);</span>
+<span class="fc" id="L1500">    }</span>
+
+    @Test
+    public void emptyIfNull() {
+<span class="fc" id="L1504">        assertTrue(CollectionUtils.emptyIfNull(null).isEmpty());</span>
+<span class="fc" id="L1505">        final Collection&lt;Object&gt; collection = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L1506">        assertSame(collection, CollectionUtils.emptyIfNull(collection));</span>
+<span class="fc" id="L1507">    }</span>
+
+    /**
+     * This test ensures that {@link Iterable}s are supported by {@link CollectionUtils}.
+     * Specifically, it uses mocks to ensure that if the passed in
+     * {@link Iterable} is a {@link Collection} then
+     * {@link Collection#addAll(Collection)} is called instead of iterating.
+     */
+    @Test
+    public void addAllForIterable() {
+<span class="fc" id="L1517">        final Collection&lt;Integer&gt; inputCollection = createMock(Collection.class);</span>
+<span class="fc" id="L1518">        final Iterable&lt;Integer&gt; inputIterable = inputCollection;</span>
+<span class="fc" id="L1519">        final Iterable&lt;Long&gt; iterable = createMock(Iterable.class);</span>
+<span class="fc" id="L1520">        final Iterator&lt;Long&gt; iterator = createMock(Iterator.class);</span>
+<span class="fc" id="L1521">        final Collection&lt;Number&gt; c = createMock(Collection.class);</span>
+
+<span class="fc" id="L1523">        expect(iterable.iterator()).andReturn(iterator);</span>
+<span class="fc" id="L1524">        next(iterator, 1L);</span>
+<span class="fc" id="L1525">        next(iterator, 2L);</span>
+<span class="fc" id="L1526">        next(iterator, 3L);</span>
+<span class="fc" id="L1527">        expect(iterator.hasNext()).andReturn(false);</span>
+<span class="fc" id="L1528">        expect(c.add(1L)).andReturn(true);</span>
+<span class="fc" id="L1529">        expect(c.add(2L)).andReturn(true);</span>
+<span class="fc" id="L1530">        expect(c.add(3L)).andReturn(true);</span>
+        // Check that the collection is added using
+        // Collection.addAll(Collection)
+<span class="fc" id="L1533">        expect(c.addAll(inputCollection)).andReturn(true);</span>
+
+        // Ensure the method returns false if nothing is added
+<span class="fc" id="L1536">        expect(iterable.iterator()).andReturn(iterator);</span>
+<span class="fc" id="L1537">        next(iterator, 1L);</span>
+<span class="fc" id="L1538">        expect(iterator.hasNext()).andReturn(false);</span>
+<span class="fc" id="L1539">        expect(c.add(1L)).andReturn(false);</span>
+<span class="fc" id="L1540">        expect(c.addAll(inputCollection)).andReturn(false);</span>
+
+<span class="fc" id="L1542">        replay();</span>
+<span class="fc" id="L1543">        assertTrue(CollectionUtils.addAll(c, iterable));</span>
+<span class="fc" id="L1544">        assertTrue(CollectionUtils.addAll(c, inputIterable));</span>
+
+<span class="fc" id="L1546">        assertFalse(CollectionUtils.addAll(c, iterable));</span>
+<span class="fc" id="L1547">        assertFalse(CollectionUtils.addAll(c, inputIterable));</span>
+<span class="fc" id="L1548">        verify();</span>
+<span class="fc" id="L1549">    }</span>
+
+    @Test
+    public void addAllForEnumeration() {
+<span class="fc" id="L1553">        final Hashtable&lt;Integer, Integer&gt; h = new Hashtable&lt;Integer, Integer&gt;();</span>
+<span class="fc" id="L1554">        h.put(5, 5);</span>
+<span class="fc" id="L1555">        final Enumeration&lt;? extends Integer&gt; enumeration = h.keys();</span>
+<span class="fc" id="L1556">        CollectionUtils.addAll(collectionA, enumeration);</span>
+<span class="fc" id="L1557">        assertTrue(collectionA.contains(5));</span>
+<span class="fc" id="L1558">    }</span>
+
+    @Test
+    public void addAllForElements() {
+<span class="fc" id="L1562">        CollectionUtils.addAll(collectionA, new Integer[]{5});</span>
+<span class="fc" id="L1563">        assertTrue(collectionA.contains(5));</span>
+<span class="fc" id="L1564">    }</span>
+
+    @Test(expected=IndexOutOfBoundsException.class)
+    public void getNegative() {
+<span class="nc" id="L1568">        CollectionUtils.get((Object)collectionA, -3);</span>
+<span class="nc" id="L1569">    }</span>
+
+    @Test(expected=IndexOutOfBoundsException.class)
+    public void getPositiveOutOfBounds() {
+<span class="nc" id="L1573">        CollectionUtils.get((Object)collectionA.iterator(), 30);</span>
+<span class="nc" id="L1574">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void get1() {
+<span class="nc" id="L1578">        CollectionUtils.get((Object)null, 0);</span>
+<span class="nc" id="L1579">    }</span>
+
+    @Test
+    public void get() {
+<span class="fc" id="L1583">        assertEquals(2, CollectionUtils.get((Object)collectionA, 2));</span>
+<span class="fc" id="L1584">        assertEquals(2, CollectionUtils.get((Object)collectionA.iterator(), 2));</span>
+<span class="fc" id="L1585">        final Map&lt;Integer, Integer&gt; map = CollectionUtils.getCardinalityMap(collectionA);</span>
+<span class="fc" id="L1586">        assertEquals(map.entrySet().iterator().next(), CollectionUtils.get(</span>
+<span class="fc" id="L1587">                (Object)map, 0));</span>
+<span class="fc" id="L1588">    }</span>
+
+    @Test
+    public void reverse() {
+<span class="fc" id="L1592">        CollectionUtils.reverseArray(new Object[] {});</span>
+<span class="fc" id="L1593">        final Integer[] a = collectionA.toArray(new Integer[collectionA.size()]);</span>
+<span class="fc" id="L1594">        CollectionUtils.reverseArray(a);</span>
+        // assume our implementation is correct if it returns the same order as the Java function
+<span class="fc" id="L1596">        Collections.reverse(collectionA);</span>
+<span class="fc" id="L1597">        assertEquals(collectionA, Arrays.asList(a));</span>
+<span class="fc" id="L1598">    }</span>
+
+    @Test
+    public void extractSingleton() {
+<span class="fc" id="L1602">        ArrayList&lt;String&gt; coll = null;</span>
+        try {
+<span class="nc" id="L1604">            CollectionUtils.extractSingleton(coll);</span>
+<span class="nc" id="L1605">            fail(&quot;expected IllegalArgumentException from extractSingleton(null)&quot;);</span>
+<span class="pc" id="L1606">        } catch (final IllegalArgumentException e) {</span>
+        }
+<span class="fc" id="L1608">        coll = new ArrayList&lt;String&gt;();</span>
+        try {
+<span class="nc" id="L1610">            CollectionUtils.extractSingleton(coll);</span>
+<span class="nc" id="L1611">            fail(&quot;expected IllegalArgumentException from extractSingleton(empty)&quot;);</span>
+<span class="pc" id="L1612">        } catch (final IllegalArgumentException e) {</span>
+        }
+<span class="fc" id="L1614">        coll.add(&quot;foo&quot;);</span>
+<span class="fc" id="L1615">        assertEquals(&quot;foo&quot;, CollectionUtils.extractSingleton(coll));</span>
+<span class="fc" id="L1616">        coll.add(&quot;bar&quot;);</span>
+        try {
+<span class="nc" id="L1618">            CollectionUtils.extractSingleton(coll);</span>
+<span class="nc" id="L1619">            fail(&quot;expected IllegalArgumentException from extractSingleton(size == 2)&quot;);</span>
+<span class="pc" id="L1620">        } catch (final IllegalArgumentException e) {</span>
+        }
+<span class="fc" id="L1622">    }</span>
+
+    /**
+     * Records the next object returned for a mock iterator
+     */
+    private &lt;T&gt; void next(final Iterator&lt;T&gt; iterator, final T t) {
+<span class="fc" id="L1628">        expect(iterator.hasNext()).andReturn(true);</span>
+<span class="fc" id="L1629">        expect(iterator.next()).andReturn(t);</span>
+<span class="fc" id="L1630">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void collateException1() {
+<span class="nc" id="L1634">        CollectionUtils.collate(collectionA, null);</span>
+<span class="nc" id="L1635">    }</span>
+
+    @Test(expected=IllegalArgumentException.class)
+    public void collateException2() {
+<span class="nc" id="L1639">        CollectionUtils.collate(collectionA, collectionC, null);</span>
+<span class="nc" id="L1640">    }</span>
+
+    @Test
+    public void testCollate() {
+<span class="fc" id="L1644">        List&lt;Integer&gt; result = CollectionUtils.collate(emptyCollection, emptyCollection);</span>
+<span class="fc" id="L1645">        assertEquals(&quot;Merge empty with empty&quot;, 0, result.size());</span>
+
+<span class="fc" id="L1647">        result = CollectionUtils.collate(collectionA, emptyCollection);</span>
+<span class="fc" id="L1648">        assertEquals(&quot;Merge empty with non-empty&quot;, collectionA, result);</span>
+
+<span class="fc" id="L1650">        List&lt;Integer&gt; result1 = CollectionUtils.collate(collectionD, collectionE);</span>
+<span class="fc" id="L1651">        List&lt;Integer&gt; result2 = CollectionUtils.collate(collectionE, collectionD);</span>
+<span class="fc" id="L1652">        assertEquals(&quot;Merge two lists 1&quot;, result1, result2);</span>
+
+<span class="fc" id="L1654">        List&lt;Integer&gt; combinedList = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L1655">        combinedList.addAll(collectionD);</span>
+<span class="fc" id="L1656">        combinedList.addAll(collectionE);</span>
+<span class="fc" id="L1657">        Collections.sort(combinedList);</span>
+
+<span class="fc" id="L1659">        assertEquals(&quot;Merge two lists 2&quot;, combinedList, result2);</span>
+
+<span class="fc" id="L1661">        final Comparator&lt;Integer&gt; reverseComparator =</span>
+<span class="fc" id="L1662">                ComparatorUtils.reversedComparator(ComparatorUtils.&lt;Integer&gt;naturalComparator());</span>
+
+<span class="fc" id="L1664">        result = CollectionUtils.collate(emptyCollection, emptyCollection, reverseComparator);</span>
+<span class="fc" id="L1665">        assertEquals(&quot;Comparator Merge empty with empty&quot;, 0, result.size());</span>
+
+<span class="fc" id="L1667">        Collections.reverse((List&lt;Integer&gt;) collectionD);</span>
+<span class="fc" id="L1668">        Collections.reverse((List&lt;Integer&gt;) collectionE);</span>
+<span class="fc" id="L1669">        Collections.reverse(combinedList);</span>
+
+<span class="fc" id="L1671">        result1 = CollectionUtils.collate(collectionD, collectionE, reverseComparator);</span>
+<span class="fc" id="L1672">        result2 = CollectionUtils.collate(collectionE, collectionD, reverseComparator);</span>
+<span class="fc" id="L1673">        assertEquals(&quot;Comparator Merge two lists 1&quot;, result1, result2);</span>
+<span class="fc" id="L1674">        assertEquals(&quot;Comparator Merge two lists 2&quot;, combinedList, result2);</span>
+<span class="fc" id="L1675">    }</span>
+
+    @Test
+    public void testCollateIgnoreDuplicates() {
+<span class="fc" id="L1679">        List&lt;Integer&gt; result1 = CollectionUtils.collate(collectionD, collectionE, false);</span>
+<span class="fc" id="L1680">        List&lt;Integer&gt; result2 = CollectionUtils.collate(collectionE, collectionD, false);</span>
+<span class="fc" id="L1681">        assertEquals(&quot;Merge two lists 1 - ignore duplicates&quot;, result1, result2);</span>
+
+<span class="fc" id="L1683">        Set&lt;Integer&gt; combinedSet = new HashSet&lt;Integer&gt;();</span>
+<span class="fc" id="L1684">        combinedSet.addAll(collectionD);</span>
+<span class="fc" id="L1685">        combinedSet.addAll(collectionE);</span>
+<span class="fc" id="L1686">        List&lt;Integer&gt; combinedList = new ArrayList&lt;Integer&gt;(combinedSet);</span>
+<span class="fc" id="L1687">        Collections.sort(combinedList);</span>
+
+<span class="fc" id="L1689">        assertEquals(&quot;Merge two lists 2 - ignore duplicates&quot;, combinedList, result2);</span>
+<span class="fc" id="L1690">    }</span>
+
+    @Test(expected=NullPointerException.class)
+    public void testPermutationsWithNullCollection() {
+<span class="nc" id="L1694">        CollectionUtils.permutations(null);</span>
+<span class="nc" id="L1695">    }</span>
+
+    @Test
+    public void testPermutations() {
+<span class="fc" id="L1699">        List&lt;Integer&gt; sample = collectionA.subList(0, 5);</span>
+<span class="fc" id="L1700">        Collection&lt;List&lt;Integer&gt;&gt; permutations = CollectionUtils.permutations(sample);</span>
+
+        // result size = n!
+<span class="fc" id="L1703">        int collSize = sample.size();</span>
+<span class="fc" id="L1704">        int factorial = 1;</span>
+<span class="fc bfc" id="L1705" title="All 2 branches covered.">        for (int i = 1; i &lt;= collSize; i++) {</span>
+<span class="fc" id="L1706">            factorial *= i;</span>
+        }
+<span class="fc" id="L1708">        assertEquals(factorial, permutations.size());</span>
+<span class="fc" id="L1709">    }</span>
+
+    @Test
+    public void testMatchesAll() {
+<span class="fc" id="L1713">        assertFalse(CollectionUtils.matchesAll(null, null));</span>
+<span class="fc" id="L1714">        assertFalse(CollectionUtils.matchesAll(collectionA, null));</span>
+
+<span class="fc" id="L1716">        Predicate&lt;Integer&gt; lessThanFive = new Predicate&lt;Integer&gt;() {</span>
+            public boolean evaluate(Integer object) {
+<span class="pc bpc" id="L1718" title="1 of 2 branches missed.">                return object &lt; 5;</span>
+            }
+        };
+<span class="fc" id="L1721">        assertTrue(CollectionUtils.matchesAll(collectionA, lessThanFive));</span>
+        
+<span class="fc" id="L1723">        Predicate&lt;Integer&gt; lessThanFour = new Predicate&lt;Integer&gt;() {</span>
+            public boolean evaluate(Integer object) {
+<span class="fc bfc" id="L1725" title="All 2 branches covered.">                return object &lt; 4;</span>
+            }
+        };
+<span class="fc" id="L1728">        assertFalse(CollectionUtils.matchesAll(collectionA, lessThanFour));</span>
+        
+<span class="fc" id="L1730">        assertTrue(CollectionUtils.matchesAll(null, lessThanFour));</span>
+<span class="fc" id="L1731">        assertTrue(CollectionUtils.matchesAll(emptyCollection, lessThanFour));</span>
+<span class="fc" id="L1732">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-4.0 (25-Jun-2019 5:27:32 PM)</div></body></html>

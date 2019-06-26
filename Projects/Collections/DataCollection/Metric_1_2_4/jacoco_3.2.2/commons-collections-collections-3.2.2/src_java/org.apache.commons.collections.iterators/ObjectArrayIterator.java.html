@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ObjectArrayIterator.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.iterators</a> &gt; <span class="el_source">ObjectArrayIterator.java</span></div><h1>ObjectArrayIterator.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.iterators;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import org.apache.commons.collections.ResettableIterator;
+
+/** 
+ * An {@link Iterator} over an array of objects.
+ * &lt;p&gt;
+ * This iterator does not support {@link #remove}, as the object array cannot be
+ * structurally modified.
+ * &lt;p&gt;
+ * The iterator implements a {@link #reset} method, allowing the reset of the iterator
+ * back to the start if required.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author James Strachan
+ * @author Mauricio S. Moura
+ * @author Michael A. Smith
+ * @author Neil O'Toole
+ * @author Stephen Colebourne
+ * @author Phil Steitz
+ */
+public class ObjectArrayIterator
+        implements Iterator, ResettableIterator {
+
+    /** The array */
+<span class="fc" id="L47">    protected Object[] array = null;</span>
+    /** The start index to loop from */
+<span class="fc" id="L49">    protected int startIndex = 0;</span>
+    /** The end index to loop to */
+<span class="fc" id="L51">    protected int endIndex = 0;</span>
+    /** The current iterator index */
+<span class="fc" id="L53">    protected int index = 0;</span>
+
+    /**
+     * Constructor for use with &lt;code&gt;setArray&lt;/code&gt;.
+     * &lt;p&gt;
+     * Using this constructor, the iterator is equivalent to an empty iterator
+     * until {@link #setArray} is  called to establish the array to iterate over.
+     */
+    public ObjectArrayIterator() {
+<span class="fc" id="L62">        super();</span>
+<span class="fc" id="L63">    }</span>
+
+    /**
+     * Constructs an ObjectArrayIterator that will iterate over the values in the
+     * specified array.
+     *
+     * @param array the array to iterate over
+     * @throws NullPointerException if &lt;code&gt;array&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;
+     */
+    public ObjectArrayIterator(Object[] array) {
+<span class="fc" id="L73">        this(array, 0, array.length);</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * Constructs an ObjectArrayIterator that will iterate over the values in the
+     * specified array from a specific start index.
+     *
+     * @param array  the array to iterate over
+     * @param start  the index to start iterating at
+     * @throws NullPointerException if &lt;code&gt;array&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;
+     * @throws IndexOutOfBoundsException if the start index is out of bounds
+     */
+    public ObjectArrayIterator(Object array[], int start) {
+<span class="fc" id="L86">        this(array, start, array.length);</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * Construct an ObjectArrayIterator that will iterate over a range of values 
+     * in the specified array.
+     *
+     * @param array  the array to iterate over
+     * @param start  the index to start iterating at
+     * @param end  the index (exclusive) to finish iterating at
+     * @throws IndexOutOfBoundsException if the start or end index is out of bounds
+     * @throws IllegalArgumentException if end index is before the start
+     * @throws NullPointerException if &lt;code&gt;array&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;
+     */
+    public ObjectArrayIterator(Object array[], int start, int end) {
+<span class="fc" id="L101">        super();</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (start &lt; 0) {</span>
+<span class="fc" id="L103">            throw new ArrayIndexOutOfBoundsException(&quot;Start index must not be less than zero&quot;);</span>
+        }
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        if (end &gt; array.length) {</span>
+<span class="fc" id="L106">            throw new ArrayIndexOutOfBoundsException(&quot;End index must not be greater than the array length&quot;);</span>
+        }
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        if (start &gt; array.length) {</span>
+<span class="fc" id="L109">            throw new ArrayIndexOutOfBoundsException(&quot;Start index must not be greater than the array length&quot;);</span>
+        }
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (end &lt; start) {</span>
+<span class="fc" id="L112">            throw new IllegalArgumentException(&quot;End index must not be less than start index&quot;);</span>
+        }
+<span class="fc" id="L114">        this.array = array;</span>
+<span class="fc" id="L115">        this.startIndex = start;</span>
+<span class="fc" id="L116">        this.endIndex = end;</span>
+<span class="fc" id="L117">        this.index = start;</span>
+<span class="fc" id="L118">    }</span>
+
+    // Iterator interface
+    //-------------------------------------------------------------------------
+
+    /**
+     * Returns true if there are more elements to return from the array.
+     *
+     * @return true if there is a next element to return
+     */
+    public boolean hasNext() {
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        return (this.index &lt; this.endIndex);</span>
+    }
+
+    /**
+     * Returns the next element in the array.
+     *
+     * @return the next element in the array
+     * @throws NoSuchElementException if all the elements in the array
+     *    have already been returned
+     */
+    public Object next() {
+<span class="fc bfc" id="L140" title="All 2 branches covered.">        if (hasNext() == false) {</span>
+<span class="fc" id="L141">            throw new NoSuchElementException();</span>
+        }
+<span class="fc" id="L143">        return this.array[this.index++];</span>
+    }
+
+    /**
+     * Throws {@link UnsupportedOperationException}.
+     *
+     * @throws UnsupportedOperationException always
+     */
+    public void remove() {
+<span class="fc" id="L152">        throw new UnsupportedOperationException(&quot;remove() method is not supported for an ObjectArrayIterator&quot;);</span>
+    }
+
+    // Properties
+    //-------------------------------------------------------------------------
+
+    /**
+     * Gets the array that this iterator is iterating over. 
+     *
+     * @return the array this iterator iterates over, or &lt;code&gt;null&lt;/code&gt; if
+     * the no-arg constructor was used and {@link #setArray} has never
+     * been called with a valid array.
+     */
+    public Object[] getArray() {
+<span class="nc" id="L166">        return this.array;</span>
+    }
+
+    /**
+     * Sets the array that the ArrayIterator should iterate over.
+     * &lt;p&gt;
+     * This method may only be called once, otherwise an IllegalStateException
+     * will occur.
+     * &lt;p&gt;
+     * The {@link #reset} method can be used to reset the iterator if required.
+     *
+     * @param array  the array that the iterator should iterate over
+     * @throws IllegalStateException if the &lt;code&gt;array&lt;/code&gt; was set in the constructor
+     * @throws NullPointerException if &lt;code&gt;array&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;
+     */
+    public void setArray(Object[] array) {
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        if (this.array != null) {</span>
+<span class="fc" id="L183">            throw new IllegalStateException(&quot;The array to iterate over has already been set&quot;);</span>
+        }
+<span class="fc" id="L185">        this.array = array;</span>
+<span class="fc" id="L186">        this.startIndex = 0;</span>
+<span class="fc" id="L187">        this.endIndex = array.length;</span>
+<span class="fc" id="L188">        this.index = 0;</span>
+<span class="fc" id="L189">    }</span>
+
+    /**
+     * Gets the start index to loop from.
+     * 
+     * @return the start index
+     */
+    public int getStartIndex() {
+<span class="nc" id="L197">        return this.startIndex;</span>
+    }
+
+    /**
+     * Gets the end index to loop to.
+     * 
+     * @return the end index
+     */
+    public int getEndIndex() {
+<span class="nc" id="L206">        return this.endIndex;</span>
+    }
+
+    /**
+     * Resets the iterator back to the start index.
+     */
+    public void reset() {
+<span class="fc" id="L213">        this.index = this.startIndex;</span>
+<span class="fc" id="L214">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

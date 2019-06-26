@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestPredicatedMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections.map</a> &gt; <span class="el_source">TestPredicatedMap.java</span></div><h1>TestPredicatedMap.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">/*</span>
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections.map;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
+
+/**
+ * Extension of {@link TestMap} for exercising the 
+ * {@link PredicatedMap} implementation.
+ *
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Phil Steitz
+ */
+public class TestPredicatedMap extends AbstractTestMap{
+    
+<span class="fc" id="L40">    protected static final Predicate truePredicate = PredicateUtils.truePredicate();</span>
+<span class="fc" id="L41">    protected static final Predicate testPredicate = new Predicate() {</span>
+        public boolean evaluate(Object o) {
+<span class="fc" id="L43">            return (o instanceof String);</span>
+        }
+<span class="fc" id="L45">    };</span>
+    
+    
+    public TestPredicatedMap(String testName) {
+<span class="fc" id="L49">        super(testName);</span>
+<span class="fc" id="L50">    }</span>
+    
+    public static Test suite() {
+<span class="pc bfc" id="L53" title="All 2 branches covered.">        return new TestSuite(TestPredicatedMap.class);</span>
+    }
+    
+    public static void main(String args[]) {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        String[] testCaseName = { TestPredicatedMap.class.getName()};</span>
+<span class="nc" id="L58">        junit.textui.TestRunner.main(testCaseName);</span>
+<span class="nc" id="L59">    }</span>
+
+    //-----------------------------------------------------------------------
+    protected Map decorateMap(Map map, Predicate keyPredicate, 
+        Predicate valuePredicate) {
+<span class="fc" id="L64">        return PredicatedMap.decorate(map, keyPredicate, valuePredicate);</span>
+    }
+    
+    public Map makeEmptyMap() {
+<span class="fc" id="L68">        return decorateMap(new HashMap(), truePredicate, truePredicate);</span>
+    }
+    
+    public Map makeTestMap() {
+<span class="fc" id="L72">        return decorateMap(new HashMap(), testPredicate, testPredicate);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    public void testEntrySet() {
+<span class="fc" id="L77">        Map map = makeTestMap();</span>
+<span class="fc" id="L78">        assertTrue(&quot;returned entryset should not be null&quot;,</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">            map.entrySet() != null);</span>
+<span class="fc" id="L80">        map = decorateMap(new HashMap(), null, null);</span>
+<span class="fc" id="L81">        map.put(&quot;oneKey&quot;, &quot;oneValue&quot;);</span>
+<span class="fc" id="L82">        assertTrue(&quot;returned entryset should contain one entry&quot;,</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">            map.entrySet().size() == 1); </span>
+<span class="fc" id="L84">        map = decorateMap(map, null, null);</span>
+<span class="fc" id="L85">    }</span>
+    
+    public void testPut() {
+<span class="fc" id="L88">        Map map = makeTestMap();</span>
+        try {
+<span class="nc" id="L90">            map.put(&quot;Hi&quot;, new Integer(3));</span>
+<span class="nc" id="L91">            fail(&quot;Illegal value should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L92">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+
+        try {
+<span class="nc" id="L97">            map.put(new Integer(3), &quot;Hi&quot;);</span>
+<span class="nc" id="L98">            fail(&quot;Illegal key should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L99">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        assertTrue(!map.containsKey(new Integer(3)));</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        assertTrue(!map.containsValue(new Integer(3)));</span>
+
+<span class="fc" id="L106">        Map map2 = new HashMap();</span>
+<span class="fc" id="L107">        map2.put(&quot;A&quot;, &quot;a&quot;);</span>
+<span class="fc" id="L108">        map2.put(&quot;B&quot;, &quot;b&quot;);</span>
+<span class="fc" id="L109">        map2.put(&quot;C&quot;, &quot;c&quot;);</span>
+<span class="fc" id="L110">        map2.put(&quot;c&quot;, new Integer(3));</span>
+
+        try {
+<span class="nc" id="L113">            map.putAll(map2);</span>
+<span class="nc" id="L114">            fail(&quot;Illegal value should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L115">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+
+<span class="fc" id="L119">        map.put(&quot;E&quot;, &quot;e&quot;);</span>
+<span class="fc" id="L120">        Iterator iterator = map.entrySet().iterator();</span>
+        try {
+<span class="fc" id="L122">            Map.Entry entry = (Map.Entry)iterator.next();</span>
+<span class="nc" id="L123">            entry.setValue(new Integer(3));</span>
+<span class="nc" id="L124">            fail(&quot;Illegal value should raise IllegalArgument&quot;);</span>
+<span class="pc" id="L125">        } catch (IllegalArgumentException e) {</span>
+            // expected
+        }
+        
+<span class="fc" id="L129">        map.put(&quot;F&quot;, &quot;f&quot;);</span>
+<span class="fc" id="L130">        iterator = map.entrySet().iterator();</span>
+<span class="fc" id="L131">        Map.Entry entry = (Map.Entry)iterator.next();</span>
+<span class="fc" id="L132">        entry.setValue(&quot;x&quot;);</span>
+        
+<span class="fc" id="L134">    }</span>
+
+    public String getCompatibilityVersion() {
+<span class="fc" id="L137">        return &quot;3.1&quot;;</span>
+    }
+
+//    public void testCreate() throws Exception {
+//        resetEmpty();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/PredicatedMap.emptyCollection.version3.1.obj&quot;);
+//        resetFull();
+//        writeExternalFormToDisk(
+//            (java.io.Serializable) map,
+//            &quot;D:/dev/collections/data/test/PredicatedMap.fullCollection.version3.1.obj&quot;);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

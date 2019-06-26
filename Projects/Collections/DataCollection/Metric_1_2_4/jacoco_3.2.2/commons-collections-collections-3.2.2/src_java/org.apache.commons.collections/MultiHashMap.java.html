@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MultiHashMap.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.2</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">MultiHashMap.java</span></div><h1>MultiHashMap.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.AbstractCollection;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.apache.commons.collections.iterators.EmptyIterator;
+
+/** 
+ * &lt;code&gt;MultiHashMap&lt;/code&gt; is the default implementation of the 
+ * {@link org.apache.commons.collections.MultiMap MultiMap} interface.
+ * &lt;p&gt;
+ * A &lt;code&gt;MultiMap&lt;/code&gt; is a Map with slightly different semantics.
+ * Putting a value into the map will add the value to a Collection at that key.
+ * Getting a value will return a Collection, holding all the values put to that key.
+ * &lt;p&gt;
+ * This implementation uses an &lt;code&gt;ArrayList&lt;/code&gt; as the collection.
+ * The internal storage list is made available without cloning via the
+ * &lt;code&gt;get(Object)&lt;/code&gt; and &lt;code&gt;entrySet()&lt;/code&gt; methods.
+ * The implementation returns &lt;code&gt;null&lt;/code&gt; when there are no values mapped to a key.
+ * &lt;p&gt;
+ * For example:
+ * &lt;pre&gt;
+ * MultiMap mhm = new MultiHashMap();
+ * mhm.put(key, &quot;A&quot;);
+ * mhm.put(key, &quot;B&quot;);
+ * mhm.put(key, &quot;C&quot;);
+ * List list = (List) mhm.get(key);&lt;/pre&gt;
+ * &lt;p&gt;
+ * &lt;code&gt;list&lt;/code&gt; will be a list containing &quot;A&quot;, &quot;B&quot;, &quot;C&quot;.
+ *
+ * @deprecated Class now available as MultiValueMap in map subpackage.
+ * This version is due to be removed in collections v4.0.
+ *
+ * @since Commons Collections 2.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Christopher Berry
+ * @author James Strachan
+ * @author Steve Downey
+ * @author Stephen Colebourne
+ * @author Julien Buret
+ * @author Serhiy Yevtushenko
+ * @author Robert Ribnitz
+ */
+public class MultiHashMap extends HashMap implements MultiMap {
+    
+    // backed values collection
+<span class="pc" id="L72">    private transient Collection values = null;</span>
+    
+    // compatibility with commons-collection releases 2.0/2.1
+    private static final long serialVersionUID = 1943563828307035349L;
+
+    /**
+     * Constructor.
+     */
+    public MultiHashMap() {
+<span class="fc" id="L81">        super();</span>
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * Constructor.
+     * 
+     * @param initialCapacity  the initial map capacity
+     */
+    public MultiHashMap(int initialCapacity) {
+<span class="nc" id="L90">        super(initialCapacity);</span>
+<span class="nc" id="L91">    }</span>
+
+    /**
+     * Constructor.
+     * 
+     * @param initialCapacity  the initial map capacity
+     * @param loadFactor  the amount 0.0-1.0 at which to resize the map
+     */
+    public MultiHashMap(int initialCapacity, float loadFactor) {
+<span class="nc" id="L100">        super(initialCapacity, loadFactor);</span>
+<span class="nc" id="L101">    }</span>
+
+    /**
+     * Constructor that copies the input map creating an independent copy.
+     * &lt;p&gt;
+     * This method performs different behaviour depending on whether the map
+     * specified is a MultiMap or not. If a MultiMap is specified, each internal
+     * collection is also cloned. If the specified map only implements Map, then
+     * the values are not cloned.
+     * &lt;p&gt;
+     * NOTE: From Commons Collections 3.1 this method correctly copies a MultiMap
+     * to form a truly independent new map.
+     * NOTE: From Commons Collections 3.2 this method delegates to the newly
+     * added putAll(Map) override method.
+     * 
+     * @param mapToCopy  a Map to copy
+     */
+    public MultiHashMap(Map mapToCopy) {
+        // be careful of JDK 1.3 vs 1.4 differences
+<span class="fc" id="L120">        super((int) (mapToCopy.size() * 1.4f));</span>
+<span class="fc" id="L121">        putAll(mapToCopy);</span>
+<span class="fc" id="L122">    }</span>
+
+    /**
+     * Read the object during deserialization.
+     */
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+        // This method is needed because the 1.2/1.3 Java deserialisation called
+        // put and thus messed up that method
+        
+        // default read object
+<span class="fc" id="L132">        s.defaultReadObject();</span>
+
+        // problem only with jvm &lt;1.4
+<span class="fc" id="L135">        String version = &quot;1.2&quot;;</span>
+        try {
+<span class="fc" id="L137">            version = System.getProperty(&quot;java.version&quot;);</span>
+<span class="pc" id="L138">        } catch (SecurityException ex) {</span>
+            // ignore and treat as 1.2/1.3
+        }
+
+<span class="pc bpc" id="L142" title="2 of 4 branches missed.">        if (version.startsWith(&quot;1.2&quot;) || version.startsWith(&quot;1.3&quot;)) {</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            for (Iterator iterator = entrySet().iterator(); iterator.hasNext();) {</span>
+<span class="nc" id="L144">                Map.Entry entry = (Map.Entry) iterator.next();</span>
+                // put has created a extra collection level, remove it
+<span class="nc" id="L146">                super.put(entry.getKey(), ((Collection) entry.getValue()).iterator().next());</span>
+            }
+        }
+<span class="fc" id="L149">    }</span>
+
+    //-----------------------------------------------------------------------
+    /**
+     * Gets the total size of the map by counting all the values.
+     * 
+     * @return the total size of the map counting all values
+     * @since Commons Collections 3.1
+     */
+    public int totalSize() {
+<span class="fc" id="L159">        int total = 0;</span>
+<span class="fc" id="L160">        Collection values = super.values();</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        for (Iterator it = values.iterator(); it.hasNext();) {</span>
+<span class="fc" id="L162">            Collection coll = (Collection) it.next();</span>
+<span class="fc" id="L163">            total += coll.size();</span>
+        }
+<span class="fc" id="L165">        return total;</span>
+    }
+
+    /**
+     * Gets the collection mapped to the specified key.
+     * This method is a convenience method to typecast the result of &lt;code&gt;get(key)&lt;/code&gt;.
+     * 
+     * @param key  the key to retrieve
+     * @return the collection mapped to the key, null if no mapping
+     * @since Commons Collections 3.1
+     */
+    public Collection getCollection(Object key) {
+<span class="fc" id="L177">        return (Collection) get(key);</span>
+    }
+
+    /**
+     * Gets the size of the collection mapped to the specified key.
+     * 
+     * @param key  the key to get size for
+     * @return the size of the collection at the key, zero if key not in map
+     * @since Commons Collections 3.1
+     */
+    public int size(Object key) {
+<span class="fc" id="L188">        Collection coll = getCollection(key);</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">        if (coll == null) {</span>
+<span class="fc" id="L190">            return 0;</span>
+        }
+<span class="fc" id="L192">        return coll.size();</span>
+    }
+
+    /**
+     * Gets an iterator for the collection mapped to the specified key.
+     * 
+     * @param key  the key to get an iterator for
+     * @return the iterator of the collection at the key, empty iterator if key not in map
+     * @since Commons Collections 3.1
+     */
+    public Iterator iterator(Object key) {
+<span class="fc" id="L203">        Collection coll = getCollection(key);</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">        if (coll == null) {</span>
+<span class="fc" id="L205">            return EmptyIterator.INSTANCE;</span>
+        }
+<span class="fc" id="L207">        return coll.iterator();</span>
+    }
+
+    /**
+     * Adds the value to the collection associated with the specified key.
+     * &lt;p&gt;
+     * Unlike a normal &lt;code&gt;Map&lt;/code&gt; the previous value is not replaced.
+     * Instead the new value is added to the collection stored against the key.
+     *
+     * @param key  the key to store against
+     * @param value  the value to add to the collection at the key
+     * @return the value added if the map changed and null if the map did not change
+     */    
+    public Object put(Object key, Object value) {
+        // NOTE:: put is called during deserialization in JDK &lt; 1.4 !!!!!!
+        //        so we must have a readObject()
+<span class="fc" id="L223">        Collection coll = getCollection(key);</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">        if (coll == null) {</span>
+<span class="fc" id="L225">            coll = createCollection(null);</span>
+<span class="fc" id="L226">            super.put(key, coll);</span>
+        }
+<span class="fc" id="L228">        boolean results = coll.add(value);</span>
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">        return (results ? value : null);</span>
+    }
+
+    /**
+     * Override superclass to ensure that MultiMap instances are
+     * correctly handled.
+     * &lt;p&gt;
+     * NOTE: Prior to version 3.2, putAll(map) did not work properly
+     * when passed a MultiMap.
+     * 
+     * @param map  the map to copy (either a normal or multi map)
+     */
+    public void putAll(Map map) {
+<span class="fc bfc" id="L242" title="All 2 branches covered.">        if (map instanceof MultiMap) {</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">            for (Iterator it = map.entrySet().iterator(); it.hasNext();) {</span>
+<span class="fc" id="L244">                Map.Entry entry = (Map.Entry) it.next();</span>
+<span class="fc" id="L245">                Collection coll = (Collection) entry.getValue();</span>
+<span class="fc" id="L246">                putAll(entry.getKey(), coll);</span>
+            }
+<span class="fc" id="L248">        } else {</span>
+<span class="fc bfc" id="L249" title="All 2 branches covered.">            for (Iterator it = map.entrySet().iterator(); it.hasNext();) {</span>
+<span class="fc" id="L250">                Map.Entry entry = (Map.Entry) it.next();</span>
+<span class="fc" id="L251">                put(entry.getKey(), entry.getValue());</span>
+            }
+        }
+<span class="fc" id="L254">    }</span>
+
+    /**
+     * Adds a collection of values to the collection associated with the specified key.
+     *
+     * @param key  the key to store against
+     * @param values  the values to add to the collection at the key, null ignored
+     * @return true if this map changed
+     * @since Commons Collections 3.1
+     */    
+    public boolean putAll(Object key, Collection values) {
+<span class="fc bfc" id="L265" title="All 4 branches covered.">        if (values == null || values.size() == 0) {</span>
+<span class="fc" id="L266">            return false;</span>
+        }
+<span class="fc" id="L268">        Collection coll = getCollection(key);</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">        if (coll == null) {</span>
+<span class="fc" id="L270">            coll = createCollection(values);</span>
+<span class="pc bpc" id="L271" title="1 of 2 branches missed.">            if (coll.size() == 0) {</span>
+<span class="nc" id="L272">                return false;</span>
+            }
+<span class="fc" id="L274">            super.put(key, coll);</span>
+<span class="fc" id="L275">            return true;</span>
+        } else {
+<span class="fc" id="L277">            return coll.addAll(values);</span>
+        }
+    }
+
+    /**
+     * Checks whether the map contains the value specified.
+     * &lt;p&gt;
+     * This checks all collections against all keys for the value, and thus could be slow.
+     * 
+     * @param value  the value to search for
+     * @return true if the map contains the value
+     */
+    public boolean containsValue(Object value) {
+<span class="fc" id="L290">        Set pairs = super.entrySet();</span>
+
+<span class="pc bpc" id="L292" title="1 of 2 branches missed.">        if (pairs == null) {</span>
+<span class="nc" id="L293">            return false;</span>
+        }
+<span class="fc" id="L295">        Iterator pairsIterator = pairs.iterator();</span>
+<span class="fc bfc" id="L296" title="All 2 branches covered.">        while (pairsIterator.hasNext()) {</span>
+<span class="fc" id="L297">            Map.Entry keyValuePair = (Map.Entry) pairsIterator.next();</span>
+<span class="fc" id="L298">            Collection coll = (Collection) keyValuePair.getValue();</span>
+<span class="fc bfc" id="L299" title="All 2 branches covered.">            if (coll.contains(value)) {</span>
+<span class="fc" id="L300">                return true;</span>
+            }
+        }
+<span class="fc" id="L303">        return false;</span>
+    }
+
+    /**
+     * Checks whether the collection at the specified key contains the value.
+     * 
+     * @param value  the value to search for
+     * @return true if the map contains the value
+     * @since Commons Collections 3.1
+     */
+    public boolean containsValue(Object key, Object value) {
+<span class="fc" id="L314">        Collection coll = getCollection(key);</span>
+<span class="fc bfc" id="L315" title="All 2 branches covered.">        if (coll == null) {</span>
+<span class="fc" id="L316">            return false;</span>
+        }
+<span class="fc" id="L318">        return coll.contains(value);</span>
+    }
+
+    /**
+     * Removes a specific value from map.
+     * &lt;p&gt;
+     * The item is removed from the collection mapped to the specified key.
+     * Other values attached to that key are unaffected.
+     * &lt;p&gt;
+     * If the last value for a key is removed, &lt;code&gt;null&lt;/code&gt; will be returned
+     * from a subsequant &lt;code&gt;get(key)&lt;/code&gt;.
+     * 
+     * @param key  the key to remove from
+     * @param item  the value to remove
+     * @return the value removed (which was passed in), null if nothing removed
+     */
+<span class="fc" id="L334">    public Object remove(Object key, Object item) {</span>
+        Collection valuesForKey = getCollection(key);
+        if (valuesForKey == null) {
+            return null;
+        }
+        boolean removed = valuesForKey.remove(item);
+        if (removed == false) {
+            return null;
+        }
+        // remove the list if it is now empty
+        // (saves space, and allows equals to work)
+        if (valuesForKey.isEmpty()){
+            remove(key);
+        }
+        return item;
+    }
+
+    /**
+     * Clear the map.
+     * &lt;p&gt;
+     * This clears each collection in the map, and so may be slow.
+     */
+    public void clear() {
+        // For gc, clear each list in the map
+<span class="fc" id="L358">        Set pairs = super.entrySet();</span>
+<span class="fc" id="L359">        Iterator pairsIterator = pairs.iterator();</span>
+<span class="fc bfc" id="L360" title="All 2 branches covered.">        while (pairsIterator.hasNext()) {</span>
+<span class="fc" id="L361">            Map.Entry keyValuePair = (Map.Entry) pairsIterator.next();</span>
+<span class="fc" id="L362">            Collection coll = (Collection) keyValuePair.getValue();</span>
+<span class="fc" id="L363">            coll.clear();</span>
+        }
+<span class="fc" id="L365">        super.clear();</span>
+<span class="fc" id="L366">    }</span>
+
+    /**
+     * Gets a collection containing all the values in the map.
+     * &lt;p&gt;
+     * This returns a collection containing the combination of values from all keys.
+     *
+     * @return a collection view of the values contained in this map
+     */
+    public Collection values() {
+<span class="fc" id="L376">        Collection vs = values;</span>
+<span class="fc bfc" id="L377" title="All 2 branches covered.">        return (vs != null ? vs : (values = new Values()));</span>
+    }
+
+    /**
+     * Gets the values iterator from the superclass, as used by inner class.
+     *
+     * @return iterator
+     */
+    Iterator superValuesIterator() {
+<span class="fc" id="L386">        return super.values().iterator();</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Inner class to view the elements.
+     */
+<span class="fc" id="L393">    private class Values extends AbstractCollection {</span>
+
+        public Iterator iterator() {
+<span class="fc" id="L396">            return new ValueIterator();</span>
+        }
+
+        public int size() {
+<span class="fc" id="L400">            int compt = 0;</span>
+<span class="fc" id="L401">            Iterator it = iterator();</span>
+<span class="fc bfc" id="L402" title="All 2 branches covered.">            while (it.hasNext()) {</span>
+<span class="fc" id="L403">                it.next();</span>
+<span class="fc" id="L404">                compt++;</span>
+            }
+<span class="fc" id="L406">            return compt;</span>
+        }
+
+        public void clear() {
+<span class="fc" id="L410">            MultiHashMap.this.clear();</span>
+<span class="fc" id="L411">        }</span>
+
+    }
+
+    /**
+     * Inner iterator to view the elements.
+     */
+    private class ValueIterator implements Iterator {
+        private Iterator backedIterator;
+        private Iterator tempIterator;
+
+<span class="fc" id="L422">        private ValueIterator() {</span>
+<span class="fc" id="L423">            backedIterator = MultiHashMap.this.superValuesIterator();</span>
+<span class="fc" id="L424">        }</span>
+
+        private boolean searchNextIterator() {
+<span class="fc bfc" id="L427" title="All 4 branches covered.">            while (tempIterator == null || tempIterator.hasNext() == false) {</span>
+<span class="fc bfc" id="L428" title="All 2 branches covered.">                if (backedIterator.hasNext() == false) {</span>
+<span class="fc" id="L429">                    return false;</span>
+                }
+<span class="fc" id="L431">                tempIterator = ((Collection) backedIterator.next()).iterator();</span>
+            }
+<span class="fc" id="L433">            return true;</span>
+        }
+
+        public boolean hasNext() {
+<span class="fc" id="L437">            return searchNextIterator();</span>
+        }
+
+        public Object next() {
+<span class="pc bpc" id="L441" title="1 of 2 branches missed.">            if (searchNextIterator() == false) {</span>
+<span class="nc" id="L442">                throw new NoSuchElementException();</span>
+            }
+<span class="fc" id="L444">            return tempIterator.next();</span>
+        }
+
+        public void remove() {
+<span class="pc bpc" id="L448" title="1 of 2 branches missed.">            if (tempIterator == null) {</span>
+<span class="nc" id="L449">                throw new IllegalStateException();</span>
+            }
+<span class="fc" id="L451">            tempIterator.remove();</span>
+<span class="fc" id="L452">        }</span>
+
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Clones the map creating an independent copy.
+     * &lt;p&gt;
+     * The clone will shallow clone the collections as well as the map.
+     * 
+     * @return the cloned map
+     */
+    public Object clone() {
+<span class="fc" id="L465">        MultiHashMap cloned = (MultiHashMap) super.clone();</span>
+
+        // clone each Collection container
+<span class="fc bfc" id="L468" title="All 2 branches covered.">        for (Iterator it = cloned.entrySet().iterator(); it.hasNext();) {</span>
+<span class="fc" id="L469">            Map.Entry entry = (Map.Entry) it.next();</span>
+<span class="fc" id="L470">            Collection coll = (Collection) entry.getValue();</span>
+<span class="fc" id="L471">            Collection newColl = createCollection(coll);</span>
+<span class="fc" id="L472">            entry.setValue(newColl);</span>
+        }
+<span class="fc" id="L474">        return cloned;</span>
+    }
+
+    /** 
+     * Creates a new instance of the map value Collection container.
+     * &lt;p&gt;
+     * This method can be overridden to use your own collection type.
+     *
+     * @param coll  the collection to copy, may be null
+     * @return the new collection
+     */
+    protected Collection createCollection(Collection coll) {
+<span class="fc bfc" id="L486" title="All 2 branches covered.">        if (coll == null) {</span>
+<span class="fc" id="L487">            return new ArrayList();</span>
+        } else {
+<span class="fc" id="L489">            return new ArrayList(coll);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.2 (25-Jun-2019 5:28:55 PM)</div></body></html>

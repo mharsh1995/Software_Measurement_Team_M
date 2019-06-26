@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TestTransformerUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/test</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">TestTransformerUtils.java</span></div><h1>TestTransformerUtils.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
+import org.apache.commons.collections.functors.ConstantTransformer;
+import org.apache.commons.collections.functors.NOPTransformer;
+
+/**
+ * Tests the org.apache.commons.collections.TransformerUtils class.
+ * 
+ * @since Commons Collections 3.0
+ * @version $Revision$ $Date$
+ *
+ * @author Stephen Colebourne
+ * @author James Carman
+ */
+public class TestTransformerUtils extends junit.framework.TestCase {
+
+<span class="fc" id="L45">    private static final Object cObject = new Object();</span>
+<span class="fc" id="L46">    private static final Object cString = &quot;Hello&quot;;</span>
+<span class="fc" id="L47">    private static final Object cInteger = new Integer(6);</span>
+
+    /**
+     * Construct
+     */
+    public TestTransformerUtils(String name) {
+<span class="fc" id="L53">        super(name);</span>
+<span class="fc" id="L54">    }</span>
+
+    /**
+     * Main.
+     * @param args
+     */    
+    public static void main(String[] args) {
+<span class="nc" id="L61">        TestRunner.run(suite());</span>
+<span class="nc" id="L62">    }</span>
+
+    /**
+     * Return class as a test suite.
+     */
+    public static Test suite() {
+<span class="pc bfc" id="L68" title="All 2 branches covered.">        return new TestSuite(TestTransformerUtils.class);</span>
+    }
+
+    /**
+     * Set up instance variables required by this test case.
+     */
+    public void setUp() {
+<span class="fc" id="L75">    }</span>
+
+    /**
+     * Tear down instance variables required by this test case.
+     */
+    public void tearDown() {
+<span class="fc" id="L81">    }</span>
+
+    // exceptionTransformer
+    //------------------------------------------------------------------
+
+    public void testExceptionTransformer() {
+<span class="fc" id="L87">        assertNotNull(TransformerUtils.exceptionTransformer());</span>
+<span class="fc" id="L88">        assertSame(TransformerUtils.exceptionTransformer(), TransformerUtils.exceptionTransformer());</span>
+        try {
+<span class="nc" id="L90">            TransformerUtils.exceptionTransformer().transform(null);</span>
+<span class="pc" id="L91">        } catch (FunctorException ex) {</span>
+            try {
+<span class="nc" id="L93">                TransformerUtils.exceptionTransformer().transform(cString);</span>
+<span class="pc" id="L94">            } catch (FunctorException ex2) {</span>
+<span class="fc" id="L95">                return;</span>
+            }
+        }
+<span class="nc" id="L98">        fail();</span>
+<span class="nc" id="L99">    }</span>
+    
+    // nullTransformer
+    //------------------------------------------------------------------
+
+    public void testNullTransformer() {
+<span class="fc" id="L105">        assertNotNull(TransformerUtils.nullTransformer());</span>
+<span class="fc" id="L106">        assertSame(TransformerUtils.nullTransformer(), TransformerUtils.nullTransformer());</span>
+<span class="fc" id="L107">        assertEquals(null, TransformerUtils.nullTransformer().transform(null));</span>
+<span class="fc" id="L108">        assertEquals(null, TransformerUtils.nullTransformer().transform(cObject));</span>
+<span class="fc" id="L109">        assertEquals(null, TransformerUtils.nullTransformer().transform(cString));</span>
+<span class="fc" id="L110">        assertEquals(null, TransformerUtils.nullTransformer().transform(cInteger));</span>
+<span class="fc" id="L111">    }</span>
+
+    // nopTransformer
+    //------------------------------------------------------------------
+
+    public void testNopTransformer() {
+<span class="fc" id="L117">        assertNotNull(TransformerUtils.nullTransformer());</span>
+<span class="fc" id="L118">        assertSame(TransformerUtils.nullTransformer(), TransformerUtils.nullTransformer());</span>
+<span class="fc" id="L119">        assertEquals(null, TransformerUtils.nopTransformer().transform(null));</span>
+<span class="fc" id="L120">        assertEquals(cObject, TransformerUtils.nopTransformer().transform(cObject));</span>
+<span class="fc" id="L121">        assertEquals(cString, TransformerUtils.nopTransformer().transform(cString));</span>
+<span class="fc" id="L122">        assertEquals(cInteger, TransformerUtils.nopTransformer().transform(cInteger));</span>
+<span class="fc" id="L123">    }</span>
+
+    // constantTransformer
+    //------------------------------------------------------------------
+
+    public void testConstantTransformer() {
+<span class="fc" id="L129">        assertEquals(cObject, TransformerUtils.constantTransformer(cObject).transform(null));</span>
+<span class="fc" id="L130">        assertEquals(cObject, TransformerUtils.constantTransformer(cObject).transform(cObject));</span>
+<span class="fc" id="L131">        assertEquals(cObject, TransformerUtils.constantTransformer(cObject).transform(cString));</span>
+<span class="fc" id="L132">        assertEquals(cObject, TransformerUtils.constantTransformer(cObject).transform(cInteger));</span>
+<span class="fc" id="L133">        assertSame(ConstantTransformer.NULL_INSTANCE, TransformerUtils.constantTransformer(null));</span>
+<span class="fc" id="L134">    }</span>
+
+    // cloneTransformer
+    //------------------------------------------------------------------
+
+    public void testCloneTransformer() {
+<span class="fc" id="L140">        assertEquals(null, TransformerUtils.cloneTransformer().transform(null));</span>
+<span class="fc" id="L141">        assertEquals(cString, TransformerUtils.cloneTransformer().transform(cString));</span>
+<span class="fc" id="L142">        assertEquals(cInteger, TransformerUtils.cloneTransformer().transform(cInteger));</span>
+        try {
+<span class="nc" id="L144">            assertEquals(cObject, TransformerUtils.cloneTransformer().transform(cObject));</span>
+<span class="pc" id="L145">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L146">            return;</span>
+        }
+<span class="nc" id="L148">        fail();</span>
+<span class="nc" id="L149">    }</span>
+
+    // mapTransformer
+    //------------------------------------------------------------------
+
+    public void testMapTransformer() {
+<span class="fc" id="L155">        Map map = new HashMap();</span>
+<span class="fc" id="L156">        map.put(null, new Integer(0));</span>
+<span class="fc" id="L157">        map.put(cObject, new Integer(1));</span>
+<span class="fc" id="L158">        map.put(cString, new Integer(2));</span>
+<span class="fc" id="L159">        assertEquals(new Integer(0), TransformerUtils.mapTransformer(map).transform(null));</span>
+<span class="fc" id="L160">        assertEquals(new Integer(1), TransformerUtils.mapTransformer(map).transform(cObject));</span>
+<span class="fc" id="L161">        assertEquals(new Integer(2), TransformerUtils.mapTransformer(map).transform(cString));</span>
+<span class="fc" id="L162">        assertEquals(null, TransformerUtils.mapTransformer(map).transform(cInteger));</span>
+<span class="fc" id="L163">        assertSame(ConstantTransformer.NULL_INSTANCE, TransformerUtils.mapTransformer(null));</span>
+<span class="fc" id="L164">    }</span>
+
+    // commandTransformer
+    //------------------------------------------------------------------
+
+    public void testExecutorTransformer() {
+<span class="fc" id="L170">        assertEquals(null, TransformerUtils.asTransformer(ClosureUtils.nopClosure()).transform(null));</span>
+<span class="fc" id="L171">        assertEquals(cObject, TransformerUtils.asTransformer(ClosureUtils.nopClosure()).transform(cObject));</span>
+<span class="fc" id="L172">        assertEquals(cString, TransformerUtils.asTransformer(ClosureUtils.nopClosure()).transform(cString));</span>
+<span class="fc" id="L173">        assertEquals(cInteger, TransformerUtils.asTransformer(ClosureUtils.nopClosure()).transform(cInteger));</span>
+        try {
+<span class="nc" id="L175">            TransformerUtils.asTransformer((Closure) null);</span>
+<span class="pc" id="L176">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L177">            return;</span>
+        }
+<span class="nc" id="L179">        fail();</span>
+<span class="nc" id="L180">    }</span>
+
+    // predicateTransformer
+    //------------------------------------------------------------------
+
+    public void testPredicateTransformer() {
+<span class="fc" id="L186">        assertEquals(Boolean.TRUE, TransformerUtils.asTransformer(PredicateUtils.truePredicate()).transform(null));</span>
+<span class="fc" id="L187">        assertEquals(Boolean.TRUE, TransformerUtils.asTransformer(PredicateUtils.truePredicate()).transform(cObject));</span>
+<span class="fc" id="L188">        assertEquals(Boolean.TRUE, TransformerUtils.asTransformer(PredicateUtils.truePredicate()).transform(cString));</span>
+<span class="fc" id="L189">        assertEquals(Boolean.TRUE, TransformerUtils.asTransformer(PredicateUtils.truePredicate()).transform(cInteger));</span>
+        try {
+<span class="nc" id="L191">            TransformerUtils.asTransformer((Predicate) null);</span>
+<span class="pc" id="L192">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L193">            return;</span>
+        }
+<span class="nc" id="L195">        fail();</span>
+<span class="nc" id="L196">    }</span>
+
+    // factoryTransformer
+    //------------------------------------------------------------------
+
+    public void testFactoryTransformer() {
+<span class="fc" id="L202">        assertEquals(null, TransformerUtils.asTransformer(FactoryUtils.nullFactory()).transform(null));</span>
+<span class="fc" id="L203">        assertEquals(null, TransformerUtils.asTransformer(FactoryUtils.nullFactory()).transform(cObject));</span>
+<span class="fc" id="L204">        assertEquals(null, TransformerUtils.asTransformer(FactoryUtils.nullFactory()).transform(cString));</span>
+<span class="fc" id="L205">        assertEquals(null, TransformerUtils.asTransformer(FactoryUtils.nullFactory()).transform(cInteger));</span>
+        try {
+<span class="nc" id="L207">            TransformerUtils.asTransformer((Factory) null);</span>
+<span class="pc" id="L208">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L209">            return;</span>
+        }
+<span class="nc" id="L211">        fail();</span>
+<span class="nc" id="L212">    }</span>
+
+    // chainedTransformer
+    //------------------------------------------------------------------
+
+    public void testChainedTransformer() {
+<span class="fc" id="L218">        Transformer a = TransformerUtils.constantTransformer(&quot;A&quot;);</span>
+<span class="fc" id="L219">        Transformer b = TransformerUtils.constantTransformer(&quot;B&quot;);</span>
+        
+<span class="fc" id="L221">        assertEquals(&quot;A&quot;, TransformerUtils.chainedTransformer(b, a).transform(null));</span>
+<span class="fc" id="L222">        assertEquals(&quot;B&quot;, TransformerUtils.chainedTransformer(a, b).transform(null));</span>
+<span class="fc" id="L223">        assertEquals(&quot;A&quot;, TransformerUtils.chainedTransformer(new Transformer[] {b, a}).transform(null));</span>
+<span class="fc" id="L224">        Collection coll = new ArrayList();</span>
+<span class="fc" id="L225">        coll.add(b);</span>
+<span class="fc" id="L226">        coll.add(a);</span>
+<span class="fc" id="L227">        assertEquals(&quot;A&quot;, TransformerUtils.chainedTransformer(coll).transform(null));</span>
+
+<span class="fc" id="L229">        assertSame(NOPTransformer.INSTANCE, TransformerUtils.chainedTransformer(new Transformer[0]));</span>
+<span class="fc" id="L230">        assertSame(NOPTransformer.INSTANCE, TransformerUtils.chainedTransformer(Collections.EMPTY_LIST));</span>
+        
+        try {
+<span class="nc" id="L233">            TransformerUtils.chainedTransformer(null, null);</span>
+<span class="nc" id="L234">            fail();</span>
+<span class="pc" id="L235">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L237">            TransformerUtils.chainedTransformer((Transformer[]) null);</span>
+<span class="nc" id="L238">            fail();</span>
+<span class="pc" id="L239">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L241">            TransformerUtils.chainedTransformer((Collection) null);</span>
+<span class="nc" id="L242">            fail();</span>
+<span class="pc" id="L243">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L245">            TransformerUtils.chainedTransformer(new Transformer[] {null, null});</span>
+<span class="nc" id="L246">            fail();</span>
+<span class="pc" id="L247">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="fc" id="L249">            coll = new ArrayList();</span>
+<span class="fc" id="L250">            coll.add(null);</span>
+<span class="fc" id="L251">            coll.add(null);</span>
+<span class="nc" id="L252">            TransformerUtils.chainedTransformer(coll);</span>
+<span class="nc" id="L253">            fail();</span>
+<span class="pc" id="L254">        } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L255">    }</span>
+    
+    // switchTransformer
+    //------------------------------------------------------------------
+
+    public void testSwitchTransformer() {
+<span class="fc" id="L261">        Transformer a = TransformerUtils.constantTransformer(&quot;A&quot;);</span>
+<span class="fc" id="L262">        Transformer b = TransformerUtils.constantTransformer(&quot;B&quot;);</span>
+<span class="fc" id="L263">        Transformer c = TransformerUtils.constantTransformer(&quot;C&quot;);</span>
+        
+<span class="fc" id="L265">        assertEquals(&quot;A&quot;, TransformerUtils.switchTransformer(PredicateUtils.truePredicate(), a, b).transform(null));</span>
+<span class="fc" id="L266">        assertEquals(&quot;B&quot;, TransformerUtils.switchTransformer(PredicateUtils.falsePredicate(), a, b).transform(null));</span>
+        
+<span class="fc" id="L268">        assertEquals(null, TransformerUtils.switchTransformer(</span>
+<span class="fc" id="L269">            new Predicate[] {PredicateUtils.equalPredicate(&quot;HELLO&quot;), PredicateUtils.equalPredicate(&quot;THERE&quot;)}, </span>
+<span class="fc" id="L270">            new Transformer[] {a, b}).transform(&quot;WELL&quot;));</span>
+<span class="fc" id="L271">        assertEquals(&quot;A&quot;, TransformerUtils.switchTransformer(</span>
+<span class="fc" id="L272">            new Predicate[] {PredicateUtils.equalPredicate(&quot;HELLO&quot;), PredicateUtils.equalPredicate(&quot;THERE&quot;)}, </span>
+<span class="fc" id="L273">            new Transformer[] {a, b}).transform(&quot;HELLO&quot;));</span>
+<span class="fc" id="L274">        assertEquals(&quot;B&quot;, TransformerUtils.switchTransformer(</span>
+<span class="fc" id="L275">            new Predicate[] {PredicateUtils.equalPredicate(&quot;HELLO&quot;), PredicateUtils.equalPredicate(&quot;THERE&quot;)}, </span>
+<span class="fc" id="L276">            new Transformer[] {a, b}).transform(&quot;THERE&quot;));</span>
+            
+<span class="fc" id="L278">        assertEquals(&quot;C&quot;, TransformerUtils.switchTransformer(</span>
+<span class="fc" id="L279">            new Predicate[] {PredicateUtils.equalPredicate(&quot;HELLO&quot;), PredicateUtils.equalPredicate(&quot;THERE&quot;)}, </span>
+<span class="fc" id="L280">            new Transformer[] {a, b}, c).transform(&quot;WELL&quot;));</span>
+            
+<span class="fc" id="L282">        Map map = new HashMap();</span>
+<span class="fc" id="L283">        map.put(PredicateUtils.equalPredicate(&quot;HELLO&quot;), a);</span>
+<span class="fc" id="L284">        map.put(PredicateUtils.equalPredicate(&quot;THERE&quot;), b);</span>
+<span class="fc" id="L285">        assertEquals(null, TransformerUtils.switchTransformer(map).transform(&quot;WELL&quot;));</span>
+<span class="fc" id="L286">        assertEquals(&quot;A&quot;, TransformerUtils.switchTransformer(map).transform(&quot;HELLO&quot;));</span>
+<span class="fc" id="L287">        assertEquals(&quot;B&quot;, TransformerUtils.switchTransformer(map).transform(&quot;THERE&quot;));</span>
+<span class="fc" id="L288">        map.put(null, c);</span>
+<span class="fc" id="L289">        assertEquals(&quot;C&quot;, TransformerUtils.switchTransformer(map).transform(&quot;WELL&quot;));</span>
+
+<span class="fc" id="L291">        assertSame(ConstantTransformer.NULL_INSTANCE, TransformerUtils.switchTransformer(new Predicate[0], new Transformer[0]));</span>
+<span class="fc" id="L292">        assertSame(ConstantTransformer.NULL_INSTANCE, TransformerUtils.switchTransformer(new HashMap()));</span>
+<span class="fc" id="L293">        map = new HashMap();</span>
+<span class="fc" id="L294">        map.put(null, null);</span>
+<span class="fc" id="L295">        assertSame(ConstantTransformer.NULL_INSTANCE, TransformerUtils.switchTransformer(map));</span>
+            
+        try {
+<span class="nc" id="L298">            TransformerUtils.switchTransformer(null, null);</span>
+<span class="nc" id="L299">            fail();</span>
+<span class="pc" id="L300">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L302">            TransformerUtils.switchTransformer((Predicate[]) null, (Transformer[]) null);</span>
+<span class="nc" id="L303">            fail();</span>
+<span class="pc" id="L304">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L306">            TransformerUtils.switchTransformer((Map) null);</span>
+<span class="nc" id="L307">            fail();</span>
+<span class="pc" id="L308">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L310">            TransformerUtils.switchTransformer(new Predicate[2], new Transformer[2]);</span>
+<span class="nc" id="L311">            fail();</span>
+<span class="pc" id="L312">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L314">            TransformerUtils.switchTransformer(</span>
+<span class="fc" id="L315">                    new Predicate[] {PredicateUtils.truePredicate()},</span>
+<span class="fc" id="L316">                    new Transformer[] {a,b});</span>
+<span class="nc" id="L317">            fail();</span>
+<span class="pc" id="L318">        } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L319">    }</span>
+    
+    // switchMapTransformer
+    //------------------------------------------------------------------
+
+    public void testSwitchMapTransformer() {
+<span class="fc" id="L325">        Transformer a = TransformerUtils.constantTransformer(&quot;A&quot;);</span>
+<span class="fc" id="L326">        Transformer b = TransformerUtils.constantTransformer(&quot;B&quot;);</span>
+<span class="fc" id="L327">        Transformer c = TransformerUtils.constantTransformer(&quot;C&quot;);</span>
+        
+<span class="fc" id="L329">        Map map = new HashMap();</span>
+<span class="fc" id="L330">        map.put(&quot;HELLO&quot;, a);</span>
+<span class="fc" id="L331">        map.put(&quot;THERE&quot;, b);</span>
+<span class="fc" id="L332">        assertEquals(null, TransformerUtils.switchMapTransformer(map).transform(&quot;WELL&quot;));</span>
+<span class="fc" id="L333">        assertEquals(&quot;A&quot;, TransformerUtils.switchMapTransformer(map).transform(&quot;HELLO&quot;));</span>
+<span class="fc" id="L334">        assertEquals(&quot;B&quot;, TransformerUtils.switchMapTransformer(map).transform(&quot;THERE&quot;));</span>
+<span class="fc" id="L335">        map.put(null, c);</span>
+<span class="fc" id="L336">        assertEquals(&quot;C&quot;, TransformerUtils.switchMapTransformer(map).transform(&quot;WELL&quot;));</span>
+
+<span class="fc" id="L338">        assertSame(ConstantTransformer.NULL_INSTANCE, TransformerUtils.switchMapTransformer(new HashMap()));</span>
+<span class="fc" id="L339">        map = new HashMap();</span>
+<span class="fc" id="L340">        map.put(null, null);</span>
+<span class="fc" id="L341">        assertSame(ConstantTransformer.NULL_INSTANCE, TransformerUtils.switchMapTransformer(map));</span>
+        
+        try {
+<span class="nc" id="L344">            TransformerUtils.switchMapTransformer(null);</span>
+<span class="nc" id="L345">            fail();</span>
+<span class="pc" id="L346">        } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L347">    }</span>
+    
+    // invokerTransformer
+    //------------------------------------------------------------------
+
+    public void testInvokerTransformer() {
+<span class="fc" id="L353">        List list = new ArrayList();</span>
+<span class="fc" id="L354">        assertEquals(new Integer(0), TransformerUtils.invokerTransformer(&quot;size&quot;).transform(list));</span>
+<span class="fc" id="L355">        list.add(new Object());</span>
+<span class="fc" id="L356">        assertEquals(new Integer(1), TransformerUtils.invokerTransformer(&quot;size&quot;).transform(list));</span>
+<span class="fc" id="L357">        assertEquals(null, TransformerUtils.invokerTransformer(&quot;size&quot;).transform(null));</span>
+
+        try {
+<span class="nc" id="L360">            TransformerUtils.invokerTransformer(null);</span>
+<span class="nc" id="L361">            fail();</span>
+<span class="pc" id="L362">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L364">            TransformerUtils.invokerTransformer(&quot;noSuchMethod&quot;).transform(new Object());</span>
+<span class="nc" id="L365">            fail();</span>
+<span class="pc" id="L366">        } catch (FunctorException ex) {}</span>
+<span class="fc" id="L367">    }</span>
+    
+    // invokerTransformer2
+    //------------------------------------------------------------------
+
+    public void testInvokerTransformer2() {
+<span class="fc" id="L373">        List list = new ArrayList();</span>
+<span class="fc" id="L374">        assertEquals(Boolean.FALSE, TransformerUtils.invokerTransformer(</span>
+<span class="pc bfc" id="L375" title="All 2 branches covered.">            &quot;contains&quot;, new Class[] {Object.class}, new Object[] {cString}).transform(list));</span>
+<span class="fc" id="L376">        list.add(cString);</span>
+<span class="fc" id="L377">        assertEquals(Boolean.TRUE, TransformerUtils.invokerTransformer(</span>
+<span class="pc bpc" id="L378" title="1 of 2 branches missed.">            &quot;contains&quot;, new Class[] {Object.class}, new Object[] {cString}).transform(list));</span>
+<span class="fc" id="L379">        assertEquals(null, TransformerUtils.invokerTransformer(</span>
+<span class="pc bpc" id="L380" title="1 of 2 branches missed.">            &quot;contains&quot;, new Class[] {Object.class}, new Object[] {cString}).transform(null));</span>
+
+        try {
+<span class="nc" id="L383">            TransformerUtils.invokerTransformer(null, null, null);</span>
+<span class="nc" id="L384">            fail();</span>
+<span class="pc" id="L385">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="fc" id="L387">            TransformerUtils.invokerTransformer(</span>
+<span class="pc bpc" id="L388" title="1 of 2 branches missed.">                &quot;noSuchMethod&quot;, new Class[] {Object.class}, new Object[] {cString}).transform(new Object());</span>
+<span class="nc" id="L389">            fail();</span>
+<span class="pc" id="L390">        } catch (FunctorException ex) {}</span>
+        try {
+<span class="nc" id="L392">            TransformerUtils.invokerTransformer(&quot;badArgs&quot;, null, new Object[] { cString });</span>
+<span class="nc" id="L393">            fail();</span>
+<span class="pc" id="L394">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="pc bpc" id="L396" title="1 of 2 branches missed.">            TransformerUtils.invokerTransformer(&quot;badArgs&quot;, new Class[] {Object.class}, null);</span>
+<span class="nc" id="L397">            fail();</span>
+<span class="pc" id="L398">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L400">            TransformerUtils.invokerTransformer(&quot;badArgs&quot;, new Class[] {}, new Object[] { cString });</span>
+<span class="nc" id="L401">            fail();</span>
+<span class="pc" id="L402">        } catch (IllegalArgumentException ex) {}</span>
+<span class="fc" id="L403">    }</span>
+    
+    // stringValueTransformer
+    //------------------------------------------------------------------
+    
+    public void testStringValueTransformer() {
+<span class="fc" id="L409">        assertNotNull( &quot;StringValueTransformer should NEVER return a null value.&quot;,</span>
+<span class="fc" id="L410">           TransformerUtils.stringValueTransformer().transform(null));</span>
+<span class="fc" id="L411">        assertEquals( &quot;StringValueTransformer should return \&quot;null\&quot; when given a null argument.&quot;, &quot;null&quot;,</span>
+<span class="fc" id="L412">            TransformerUtils.stringValueTransformer().transform(null));</span>
+<span class="fc" id="L413">        assertEquals( &quot;StringValueTransformer should return toString value&quot;, &quot;6&quot;,</span>
+<span class="fc" id="L414">            TransformerUtils.stringValueTransformer().transform(new Integer(6)));</span>
+<span class="fc" id="L415">    }</span>
+    
+    // instantiateFactory
+    //------------------------------------------------------------------
+    
+    public void testInstantiateTransformerNull() {
+        try {
+<span class="nc" id="L422">            Transformer trans = TransformerUtils.instantiateTransformer(null, new Object[] {&quot;str&quot;});</span>
+<span class="nc" id="L423">            fail();</span>
+<span class="pc" id="L424">        } catch (IllegalArgumentException ex) {}</span>
+        try {
+<span class="nc" id="L426">            Transformer trans = TransformerUtils.instantiateTransformer(new Class[] {}, new Object[] {&quot;str&quot;});</span>
+<span class="nc" id="L427">            fail();</span>
+<span class="pc" id="L428">        } catch (IllegalArgumentException ex) {}</span>
+        
+<span class="pc bfc" id="L430" title="All 2 branches covered.">        Transformer trans = TransformerUtils.instantiateTransformer(new Class[] {Long.class}, new Object[] {null});</span>
+        try {
+<span class="pc bfc" id="L432" title="All 2 branches covered.">            trans.transform(String.class);</span>
+<span class="nc" id="L433">            fail();</span>
+<span class="pc" id="L434">        } catch (FunctorException ex) {}</span>
+        
+<span class="fc" id="L436">        trans = TransformerUtils.instantiateTransformer();</span>
+<span class="pc bpc" id="L437" title="1 of 2 branches missed.">        assertEquals(&quot;&quot;, trans.transform(String.class));</span>
+        
+<span class="fc" id="L439">        trans = TransformerUtils.instantiateTransformer(new Class[] {Long.TYPE}, new Object[] {new Long(1000L)});</span>
+<span class="pc bfc" id="L440" title="All 2 branches covered.">        assertEquals(new Date(1000L), trans.transform(Date.class));</span>
+<span class="fc" id="L441">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>

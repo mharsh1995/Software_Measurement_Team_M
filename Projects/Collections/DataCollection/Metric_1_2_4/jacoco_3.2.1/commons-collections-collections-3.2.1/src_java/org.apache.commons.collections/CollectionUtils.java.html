@@ -1,0 +1,1212 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CollectionUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</a> &gt; <a href="../../index.html" class="el_group">commons-collections-collections-3.2.1</a> &gt; <a href="../index.html" class="el_bundle">src/java</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.collections</a> &gt; <span class="el_source">CollectionUtils.java</span></div><h1>CollectionUtils.java</h1><pre class="source lang-java linenums">/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the &quot;License&quot;); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.commons.collections;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.collections.collection.PredicatedCollection;
+import org.apache.commons.collections.collection.SynchronizedCollection;
+import org.apache.commons.collections.collection.TransformedCollection;
+import org.apache.commons.collections.collection.TypedCollection;
+import org.apache.commons.collections.collection.UnmodifiableBoundedCollection;
+import org.apache.commons.collections.collection.UnmodifiableCollection;
+
+/**
+ * Provides utility methods and decorators for {@link Collection} instances.
+ *
+ * @since Commons Collections 1.0
+ * @version $Revision$ $Date$
+ * 
+ * @author Rodney Waldhoff
+ * @author Paul Jack
+ * @author Stephen Colebourne
+ * @author Steve Downey
+ * @author Herve Quiroz
+ * @author Peter KoBek
+ * @author Matthew Hawthorne
+ * @author Janek Bogucki
+ * @author Phil Steitz
+ * @author Steven Melzer
+ * @author Jon Schewe
+ * @author Neil O'Toole
+ * @author Stephen Smith
+ */
+public class CollectionUtils {
+
+    /** Constant to avoid repeated object creation */
+<span class="fc" id="L61">    private static Integer INTEGER_ONE = new Integer(1);</span>
+
+    /**
+     * An empty unmodifiable collection.
+     * The JDK provides empty Set and List implementations which could be used for
+     * this purpose. However they could be cast to Set or List which might be
+     * undesirable. This implementation only implements Collection.
+     */
+<span class="fc" id="L69">    public static final Collection EMPTY_COLLECTION = UnmodifiableCollection.decorate(new ArrayList());</span>
+
+    /**
+     * &lt;code&gt;CollectionUtils&lt;/code&gt; should not normally be instantiated.
+     */
+<span class="nc" id="L74">    public CollectionUtils() {</span>
+<span class="nc" id="L75">    }</span>
+
+    /**
+     * Returns a {@link Collection} containing the union
+     * of the given {@link Collection}s.
+     * &lt;p&gt;
+     * The cardinality of each element in the returned {@link Collection}
+     * will be equal to the maximum of the cardinality of that element
+     * in the two given {@link Collection}s.
+     *
+     * @param a  the first collection, must not be null
+     * @param b  the second collection, must not be null
+     * @return  the union of the two collections
+     * @see Collection#addAll
+     */
+    public static Collection union(final Collection a, final Collection b) {
+<span class="fc" id="L91">        ArrayList list = new ArrayList();</span>
+<span class="fc" id="L92">        Map mapa = getCardinalityMap(a);</span>
+<span class="fc" id="L93">        Map mapb = getCardinalityMap(b);</span>
+<span class="fc" id="L94">        Set elts = new HashSet(a);</span>
+<span class="fc" id="L95">        elts.addAll(b);</span>
+<span class="fc" id="L96">        Iterator it = elts.iterator();</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        while(it.hasNext()) {</span>
+<span class="fc" id="L98">            Object obj = it.next();</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">            for(int i=0,m=Math.max(getFreq(obj,mapa),getFreq(obj,mapb));i&lt;m;i++) {</span>
+<span class="fc" id="L100">                list.add(obj);</span>
+            }
+        }
+<span class="fc" id="L103">        return list;</span>
+    }
+
+    /**
+     * Returns a {@link Collection} containing the intersection
+     * of the given {@link Collection}s.
+     * &lt;p&gt;
+     * The cardinality of each element in the returned {@link Collection}
+     * will be equal to the minimum of the cardinality of that element
+     * in the two given {@link Collection}s.
+     *
+     * @param a  the first collection, must not be null
+     * @param b  the second collection, must not be null
+     * @return the intersection of the two collections
+     * @see Collection#retainAll
+     * @see #containsAny
+     */
+    public static Collection intersection(final Collection a, final Collection b) {
+<span class="fc" id="L121">        ArrayList list = new ArrayList();</span>
+<span class="fc" id="L122">        Map mapa = getCardinalityMap(a);</span>
+<span class="fc" id="L123">        Map mapb = getCardinalityMap(b);</span>
+<span class="fc" id="L124">        Set elts = new HashSet(a);</span>
+<span class="fc" id="L125">        elts.addAll(b);</span>
+<span class="fc" id="L126">        Iterator it = elts.iterator();</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        while(it.hasNext()) {</span>
+<span class="fc" id="L128">            Object obj = it.next();</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">            for(int i=0,m=Math.min(getFreq(obj,mapa),getFreq(obj,mapb));i&lt;m;i++) {</span>
+<span class="fc" id="L130">                list.add(obj);</span>
+            }
+        }
+<span class="fc" id="L133">        return list;</span>
+    }
+
+    /**
+     * Returns a {@link Collection} containing the exclusive disjunction
+     * (symmetric difference) of the given {@link Collection}s.
+     * &lt;p&gt;
+     * The cardinality of each element &lt;i&gt;e&lt;/i&gt; in the returned {@link Collection}
+     * will be equal to
+     * &lt;tt&gt;max(cardinality(&lt;i&gt;e&lt;/i&gt;,&lt;i&gt;a&lt;/i&gt;),cardinality(&lt;i&gt;e&lt;/i&gt;,&lt;i&gt;b&lt;/i&gt;)) - min(cardinality(&lt;i&gt;e&lt;/i&gt;,&lt;i&gt;a&lt;/i&gt;),cardinality(&lt;i&gt;e&lt;/i&gt;,&lt;i&gt;b&lt;/i&gt;))&lt;/tt&gt;.
+     * &lt;p&gt;
+     * This is equivalent to
+     * &lt;tt&gt;{@link #subtract subtract}({@link #union union(a,b)},{@link #intersection intersection(a,b)})&lt;/tt&gt;
+     * or
+     * &lt;tt&gt;{@link #union union}({@link #subtract subtract(a,b)},{@link #subtract subtract(b,a)})&lt;/tt&gt;.
+     *
+     * @param a  the first collection, must not be null
+     * @param b  the second collection, must not be null
+     * @return the symmetric difference of the two collections
+     */
+    public static Collection disjunction(final Collection a, final Collection b) {
+<span class="fc" id="L154">        ArrayList list = new ArrayList();</span>
+<span class="fc" id="L155">        Map mapa = getCardinalityMap(a);</span>
+<span class="fc" id="L156">        Map mapb = getCardinalityMap(b);</span>
+<span class="fc" id="L157">        Set elts = new HashSet(a);</span>
+<span class="fc" id="L158">        elts.addAll(b);</span>
+<span class="fc" id="L159">        Iterator it = elts.iterator();</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        while(it.hasNext()) {</span>
+<span class="fc" id="L161">            Object obj = it.next();</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">            for(int i=0,m=((Math.max(getFreq(obj,mapa),getFreq(obj,mapb)))-(Math.min(getFreq(obj,mapa),getFreq(obj,mapb))));i&lt;m;i++) {</span>
+<span class="fc" id="L163">                list.add(obj);</span>
+            }
+        }
+<span class="fc" id="L166">        return list;</span>
+    }
+
+    /**
+     * Returns a new {@link Collection} containing &lt;tt&gt;&lt;i&gt;a&lt;/i&gt; - &lt;i&gt;b&lt;/i&gt;&lt;/tt&gt;.
+     * The cardinality of each element &lt;i&gt;e&lt;/i&gt; in the returned {@link Collection}
+     * will be the cardinality of &lt;i&gt;e&lt;/i&gt; in &lt;i&gt;a&lt;/i&gt; minus the cardinality
+     * of &lt;i&gt;e&lt;/i&gt; in &lt;i&gt;b&lt;/i&gt;, or zero, whichever is greater.
+     *
+     * @param a  the collection to subtract from, must not be null
+     * @param b  the collection to subtract, must not be null
+     * @return a new collection with the results
+     * @see Collection#removeAll
+     */
+    public static Collection subtract(final Collection a, final Collection b) {
+<span class="fc" id="L181">        ArrayList list = new ArrayList( a );</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        for (Iterator it = b.iterator(); it.hasNext();) {</span>
+<span class="fc" id="L183">            list.remove(it.next());</span>
+        }
+<span class="fc" id="L185">        return list;</span>
+    }
+
+    /**
+     * Returns &lt;code&gt;true&lt;/code&gt; iff at least one element is in both collections.
+     * &lt;p&gt;
+     * In other words, this method returns &lt;code&gt;true&lt;/code&gt; iff the
+     * {@link #intersection} of &lt;i&gt;coll1&lt;/i&gt; and &lt;i&gt;coll2&lt;/i&gt; is not empty.
+     * 
+     * @param coll1  the first collection, must not be null
+     * @param coll2  the first collection, must not be null
+     * @return &lt;code&gt;true&lt;/code&gt; iff the intersection of the collections is non-empty
+     * @since 2.1
+     * @see #intersection
+     */
+    public static boolean containsAny(final Collection coll1, final Collection coll2) {
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        if (coll1.size() &lt; coll2.size()) {</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            for (Iterator it = coll1.iterator(); it.hasNext();) {</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">                if (coll2.contains(it.next())) {</span>
+<span class="fc" id="L204">                    return true;</span>
+                }
+            }
+<span class="fc" id="L207">        } else {</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">            for (Iterator it = coll2.iterator(); it.hasNext();) {</span>
+<span class="fc bfc" id="L209" title="All 2 branches covered.">                if (coll1.contains(it.next())) {</span>
+<span class="fc" id="L210">                    return true;</span>
+                }
+            }
+        }
+<span class="fc" id="L214">        return false;</span>
+    }
+
+    /**
+     * Returns a {@link Map} mapping each unique element in the given
+     * {@link Collection} to an {@link Integer} representing the number
+     * of occurrences of that element in the {@link Collection}.
+     * &lt;p&gt;
+     * Only those elements present in the collection will appear as
+     * keys in the map.
+     * 
+     * @param coll  the collection to get the cardinality map for, must not be null
+     * @return the populated cardinality map
+     */
+    public static Map getCardinalityMap(final Collection coll) {
+<span class="fc" id="L229">        Map count = new HashMap();</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">        for (Iterator it = coll.iterator(); it.hasNext();) {</span>
+<span class="fc" id="L231">            Object obj = it.next();</span>
+<span class="fc" id="L232">            Integer c = (Integer) (count.get(obj));</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">            if (c == null) {</span>
+<span class="fc" id="L234">                count.put(obj,INTEGER_ONE);</span>
+<span class="fc" id="L235">            } else {</span>
+<span class="fc" id="L236">                count.put(obj,new Integer(c.intValue() + 1));</span>
+            }
+        }
+<span class="fc" id="L239">        return count;</span>
+    }
+
+    /**
+     * Returns &lt;tt&gt;true&lt;/tt&gt; iff &lt;i&gt;a&lt;/i&gt; is a sub-collection of &lt;i&gt;b&lt;/i&gt;,
+     * that is, iff the cardinality of &lt;i&gt;e&lt;/i&gt; in &lt;i&gt;a&lt;/i&gt; is less
+     * than or equal to the cardinality of &lt;i&gt;e&lt;/i&gt; in &lt;i&gt;b&lt;/i&gt;,
+     * for each element &lt;i&gt;e&lt;/i&gt; in &lt;i&gt;a&lt;/i&gt;.
+     *
+     * @param a  the first (sub?) collection, must not be null
+     * @param b  the second (super?) collection, must not be null
+     * @return &lt;code&gt;true&lt;/code&gt; iff &lt;i&gt;a&lt;/i&gt; is a sub-collection of &lt;i&gt;b&lt;/i&gt;
+     * @see #isProperSubCollection
+     * @see Collection#containsAll
+     */
+    public static boolean isSubCollection(final Collection a, final Collection b) {
+<span class="fc" id="L255">        Map mapa = getCardinalityMap(a);</span>
+<span class="fc" id="L256">        Map mapb = getCardinalityMap(b);</span>
+<span class="fc" id="L257">        Iterator it = a.iterator();</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L259">            Object obj = it.next();</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">            if (getFreq(obj, mapa) &gt; getFreq(obj, mapb)) {</span>
+<span class="fc" id="L261">                return false;</span>
+            }
+        }
+<span class="fc" id="L264">        return true;</span>
+    }
+
+    /**
+     * Returns &lt;tt&gt;true&lt;/tt&gt; iff &lt;i&gt;a&lt;/i&gt; is a &lt;i&gt;proper&lt;/i&gt; sub-collection of &lt;i&gt;b&lt;/i&gt;,
+     * that is, iff the cardinality of &lt;i&gt;e&lt;/i&gt; in &lt;i&gt;a&lt;/i&gt; is less
+     * than or equal to the cardinality of &lt;i&gt;e&lt;/i&gt; in &lt;i&gt;b&lt;/i&gt;,
+     * for each element &lt;i&gt;e&lt;/i&gt; in &lt;i&gt;a&lt;/i&gt;, and there is at least one
+     * element &lt;i&gt;f&lt;/i&gt; such that the cardinality of &lt;i&gt;f&lt;/i&gt; in &lt;i&gt;b&lt;/i&gt;
+     * is strictly greater than the cardinality of &lt;i&gt;f&lt;/i&gt; in &lt;i&gt;a&lt;/i&gt;.
+     * &lt;p&gt;
+     * The implementation assumes
+     * &lt;ul&gt;
+     *    &lt;li&gt;&lt;code&gt;a.size()&lt;/code&gt; and &lt;code&gt;b.size()&lt;/code&gt; represent the 
+     *    total cardinality of &lt;i&gt;a&lt;/i&gt; and &lt;i&gt;b&lt;/i&gt;, resp. &lt;/li&gt;
+     *    &lt;li&gt;&lt;code&gt;a.size() &lt; Integer.MAXVALUE&lt;/code&gt;&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param a  the first (sub?) collection, must not be null
+     * @param b  the second (super?) collection, must not be null
+     * @return &lt;code&gt;true&lt;/code&gt; iff &lt;i&gt;a&lt;/i&gt; is a &lt;i&gt;proper&lt;/i&gt; sub-collection of &lt;i&gt;b&lt;/i&gt;
+     * @see #isSubCollection
+     * @see Collection#containsAll
+     */
+    public static boolean isProperSubCollection(final Collection a, final Collection b) {
+<span class="pc bpc" id="L289" title="1 of 4 branches missed.">        return (a.size() &lt; b.size()) &amp;&amp; CollectionUtils.isSubCollection(a,b);</span>
+    }
+
+    /**
+     * Returns &lt;tt&gt;true&lt;/tt&gt; iff the given {@link Collection}s contain
+     * exactly the same elements with exactly the same cardinalities.
+     * &lt;p&gt;
+     * That is, iff the cardinality of &lt;i&gt;e&lt;/i&gt; in &lt;i&gt;a&lt;/i&gt; is
+     * equal to the cardinality of &lt;i&gt;e&lt;/i&gt; in &lt;i&gt;b&lt;/i&gt;,
+     * for each element &lt;i&gt;e&lt;/i&gt; in &lt;i&gt;a&lt;/i&gt; or &lt;i&gt;b&lt;/i&gt;.
+     *
+     * @param a  the first collection, must not be null
+     * @param b  the second collection, must not be null
+     * @return &lt;code&gt;true&lt;/code&gt; iff the collections contain the same elements with the same cardinalities.
+     */
+    public static boolean isEqualCollection(final Collection a, final Collection b) {
+<span class="fc bfc" id="L305" title="All 2 branches covered.">        if(a.size() != b.size()) {</span>
+<span class="fc" id="L306">            return false;</span>
+        } else {
+<span class="fc" id="L308">            Map mapa = getCardinalityMap(a);</span>
+<span class="fc" id="L309">            Map mapb = getCardinalityMap(b);</span>
+<span class="pc bpc" id="L310" title="1 of 2 branches missed.">            if(mapa.size() != mapb.size()) {</span>
+<span class="nc" id="L311">                return false;</span>
+            } else {
+<span class="fc" id="L313">                Iterator it = mapa.keySet().iterator();</span>
+<span class="fc bfc" id="L314" title="All 2 branches covered.">                while(it.hasNext()) {</span>
+<span class="fc" id="L315">                    Object obj = it.next();</span>
+<span class="fc bfc" id="L316" title="All 2 branches covered.">                    if(getFreq(obj,mapa) != getFreq(obj,mapb)) {</span>
+<span class="fc" id="L317">                        return false;</span>
+                    }
+                }
+<span class="fc" id="L320">                return true;</span>
+            }
+        }
+    }
+
+    /**
+     * Returns the number of occurrences of &lt;i&gt;obj&lt;/i&gt; in &lt;i&gt;coll&lt;/i&gt;.
+     *
+     * @param obj  the object to find the cardinality of
+     * @param coll  the collection to search
+     * @return the the number of occurrences of obj in coll
+     */
+    public static int cardinality(Object obj, final Collection coll) {
+<span class="fc bfc" id="L333" title="All 2 branches covered.">        if (coll instanceof Set) {</span>
+<span class="fc bfc" id="L334" title="All 2 branches covered.">            return (coll.contains(obj) ? 1 : 0);</span>
+        }
+<span class="fc bfc" id="L336" title="All 2 branches covered.">        if (coll instanceof Bag) {</span>
+<span class="fc" id="L337">            return ((Bag) coll).getCount(obj);</span>
+        }
+<span class="fc" id="L339">        int count = 0;</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">        if (obj == null) {</span>
+<span class="fc bfc" id="L341" title="All 2 branches covered.">            for (Iterator it = coll.iterator();it.hasNext();) {</span>
+<span class="fc bfc" id="L342" title="All 2 branches covered.">                if (it.next() == null) {</span>
+<span class="fc" id="L343">                    count++;</span>
+                }
+            }
+<span class="fc" id="L346">        } else {</span>
+<span class="fc bfc" id="L347" title="All 2 branches covered.">            for (Iterator it = coll.iterator();it.hasNext();) {</span>
+<span class="fc bfc" id="L348" title="All 2 branches covered.">                if (obj.equals(it.next())) {</span>
+<span class="fc" id="L349">                    count++;</span>
+                }
+            }
+        }
+<span class="fc" id="L353">        return count;</span>
+    }
+
+    /** 
+     * Finds the first element in the given collection which matches the given predicate.
+     * &lt;p&gt;
+     * If the input collection or predicate is null, or no element of the collection 
+     * matches the predicate, null is returned.
+     *
+     * @param collection  the collection to search, may be null
+     * @param predicate  the predicate to use, may be null
+     * @return the first element of the collection which matches the predicate or null if none could be found
+     */
+    public static Object find(Collection collection, Predicate predicate) {
+<span class="fc bfc" id="L367" title="All 4 branches covered.">        if (collection != null &amp;&amp; predicate != null) {</span>
+<span class="fc bfc" id="L368" title="All 2 branches covered.">            for (Iterator iter = collection.iterator(); iter.hasNext();) {</span>
+<span class="fc" id="L369">                Object item = iter.next();</span>
+<span class="fc bfc" id="L370" title="All 2 branches covered.">                if (predicate.evaluate(item)) {</span>
+<span class="fc" id="L371">                    return item;</span>
+                }
+            }
+        }
+<span class="fc" id="L375">        return null;</span>
+    }
+    
+    /** 
+     * Executes the given closure on each element in the collection.
+     * &lt;p&gt;
+     * If the input collection or closure is null, there is no change made.
+     * 
+     * @param collection  the collection to get the input from, may be null
+     * @param closure  the closure to perform, may be null
+     */
+    public static void forAllDo(Collection collection, Closure closure) {
+<span class="fc bfc" id="L387" title="All 4 branches covered.">        if (collection != null &amp;&amp; closure != null) {</span>
+<span class="fc bfc" id="L388" title="All 2 branches covered.">            for (Iterator it = collection.iterator(); it.hasNext();) {</span>
+<span class="fc" id="L389">                closure.execute(it.next());</span>
+            }
+        }
+<span class="fc" id="L392">    }</span>
+
+    /** 
+     * Filter the collection by applying a Predicate to each element. If the
+     * predicate returns false, remove the element.
+     * &lt;p&gt;
+     * If the input collection or predicate is null, there is no change made.
+     * 
+     * @param collection  the collection to get the input from, may be null
+     * @param predicate  the predicate to use as a filter, may be null
+     */
+    public static void filter(Collection collection, Predicate predicate) {
+<span class="fc bfc" id="L404" title="All 4 branches covered.">        if (collection != null &amp;&amp; predicate != null) {</span>
+<span class="fc bfc" id="L405" title="All 2 branches covered.">            for (Iterator it = collection.iterator(); it.hasNext();) {</span>
+<span class="fc bfc" id="L406" title="All 2 branches covered.">                if (predicate.evaluate(it.next()) == false) {</span>
+<span class="fc" id="L407">                    it.remove();</span>
+                }
+            }
+        }
+<span class="fc" id="L411">    }</span>
+
+    /** 
+     * Transform the collection by applying a Transformer to each element.
+     * &lt;p&gt;
+     * If the input collection or transformer is null, there is no change made.
+     * &lt;p&gt;
+     * This routine is best for Lists, for which set() is used to do the 
+     * transformations &quot;in place.&quot;  For other Collections, clear() and addAll()
+     * are used to replace elements.  
+     * &lt;p&gt;
+     * If the input collection controls its input, such as a Set, and the
+     * Transformer creates duplicates (or are otherwise invalid), the 
+     * collection may reduce in size due to calling this method.
+     * 
+     * @param collection  the collection to get the input from, may be null
+     * @param transformer  the transformer to perform, may be null
+     */
+    public static void transform(Collection collection, Transformer transformer) {
+<span class="fc bfc" id="L430" title="All 4 branches covered.">        if (collection != null &amp;&amp; transformer != null) {</span>
+<span class="fc bfc" id="L431" title="All 2 branches covered.">            if (collection instanceof List) {</span>
+<span class="fc" id="L432">                List list = (List) collection;</span>
+<span class="fc bfc" id="L433" title="All 2 branches covered.">                for (ListIterator it = list.listIterator(); it.hasNext();) {</span>
+<span class="fc" id="L434">                    it.set(transformer.transform(it.next()));</span>
+                }
+<span class="fc" id="L436">            } else {</span>
+<span class="fc" id="L437">                Collection resultCollection = collect(collection, transformer);</span>
+<span class="fc" id="L438">                collection.clear();</span>
+<span class="fc" id="L439">                collection.addAll(resultCollection);</span>
+            }
+        }
+<span class="fc" id="L442">    }</span>
+
+    /** 
+     * Counts the number of elements in the input collection that match the predicate.
+     * &lt;p&gt;
+     * A &lt;code&gt;null&lt;/code&gt; collection or predicate matches no elements.
+     * 
+     * @param inputCollection  the collection to get the input from, may be null
+     * @param predicate  the predicate to use, may be null
+     * @return the number of matches for the predicate in the collection
+     */
+    public static int countMatches(Collection inputCollection, Predicate predicate) {
+<span class="fc" id="L454">        int count = 0;</span>
+<span class="fc bfc" id="L455" title="All 4 branches covered.">        if (inputCollection != null &amp;&amp; predicate != null) {</span>
+<span class="fc bfc" id="L456" title="All 2 branches covered.">            for (Iterator it = inputCollection.iterator(); it.hasNext();) {</span>
+<span class="fc bfc" id="L457" title="All 2 branches covered.">                if (predicate.evaluate(it.next())) {</span>
+<span class="fc" id="L458">                    count++;</span>
+                }
+            }
+        }
+<span class="fc" id="L462">        return count;</span>
+    }
+
+    /** 
+     * Answers true if a predicate is true for at least one element of a collection.
+     * &lt;p&gt;
+     * A &lt;code&gt;null&lt;/code&gt; collection or predicate returns false.
+     * 
+     * @param collection the collection to get the input from, may be null
+     * @param predicate the predicate to use, may be null
+     * @return true if at least one element of the collection matches the predicate
+     */
+    public static boolean exists(Collection collection, Predicate predicate) {
+<span class="fc bfc" id="L475" title="All 4 branches covered.">        if (collection != null &amp;&amp; predicate != null) {</span>
+<span class="fc bfc" id="L476" title="All 2 branches covered.">            for (Iterator it = collection.iterator(); it.hasNext();) {</span>
+<span class="fc bfc" id="L477" title="All 2 branches covered.">                if (predicate.evaluate(it.next())) {</span>
+<span class="fc" id="L478">                    return true;</span>
+                }
+            }
+        }
+<span class="fc" id="L482">        return false;</span>
+    }
+
+    /** 
+     * Selects all elements from input collection which match the given predicate
+     * into an output collection.
+     * &lt;p&gt;
+     * A &lt;code&gt;null&lt;/code&gt; predicate matches no elements.
+     * 
+     * @param inputCollection  the collection to get the input from, may not be null
+     * @param predicate  the predicate to use, may be null
+     * @return the elements matching the predicate (new list)
+     * @throws NullPointerException if the input collection is null
+     */
+    public static Collection select(Collection inputCollection, Predicate predicate) {
+<span class="fc" id="L497">        ArrayList answer = new ArrayList(inputCollection.size());</span>
+<span class="fc" id="L498">        select(inputCollection, predicate, answer);</span>
+<span class="fc" id="L499">        return answer;</span>
+    }
+
+    /** 
+     * Selects all elements from input collection which match the given predicate
+     * and adds them to outputCollection.
+     * &lt;p&gt;
+     * If the input collection or predicate is null, there is no change to the 
+     * output collection.
+     * 
+     * @param inputCollection  the collection to get the input from, may be null
+     * @param predicate  the predicate to use, may be null
+     * @param outputCollection  the collection to output into, may not be null
+     */
+    public static void select(Collection inputCollection, Predicate predicate, Collection outputCollection) {
+<span class="pc bpc" id="L514" title="2 of 4 branches missed.">        if (inputCollection != null &amp;&amp; predicate != null) {</span>
+<span class="fc bfc" id="L515" title="All 2 branches covered.">            for (Iterator iter = inputCollection.iterator(); iter.hasNext();) {</span>
+<span class="fc" id="L516">                Object item = iter.next();</span>
+<span class="fc bfc" id="L517" title="All 2 branches covered.">                if (predicate.evaluate(item)) {</span>
+<span class="fc" id="L518">                    outputCollection.add(item);</span>
+                }
+            }
+        }
+<span class="fc" id="L522">    }</span>
+    
+    /**
+     * Selects all elements from inputCollection which don't match the given predicate
+     * into an output collection.
+     * &lt;p&gt;
+     * If the input predicate is &lt;code&gt;null&lt;/code&gt;, the result is an empty list.
+     * 
+     * @param inputCollection  the collection to get the input from, may not be null
+     * @param predicate  the predicate to use, may be null
+     * @return the elements &lt;b&gt;not&lt;/b&gt; matching the predicate (new list)
+     * @throws NullPointerException if the input collection is null
+     */
+    public static Collection selectRejected(Collection inputCollection, Predicate predicate) {
+<span class="fc" id="L536">        ArrayList answer = new ArrayList(inputCollection.size());</span>
+<span class="fc" id="L537">        selectRejected(inputCollection, predicate, answer);</span>
+<span class="fc" id="L538">        return answer;</span>
+    }
+    
+    /** 
+     * Selects all elements from inputCollection which don't match the given predicate
+     * and adds them to outputCollection.
+     * &lt;p&gt;
+     * If the input predicate is &lt;code&gt;null&lt;/code&gt;, no elements are added to &lt;code&gt;outputCollection&lt;/code&gt;.
+     * 
+     * @param inputCollection  the collection to get the input from, may be null
+     * @param predicate  the predicate to use, may be null
+     * @param outputCollection  the collection to output into, may not be null
+     */
+    public static void selectRejected(Collection inputCollection, Predicate predicate, Collection outputCollection) {
+<span class="pc bpc" id="L552" title="2 of 4 branches missed.">        if (inputCollection != null &amp;&amp; predicate != null) {</span>
+<span class="fc bfc" id="L553" title="All 2 branches covered.">            for (Iterator iter = inputCollection.iterator(); iter.hasNext();) {</span>
+<span class="fc" id="L554">                Object item = iter.next();</span>
+<span class="fc bfc" id="L555" title="All 2 branches covered.">                if (predicate.evaluate(item) == false) {</span>
+<span class="fc" id="L556">                    outputCollection.add(item);</span>
+                }
+            }
+        }
+<span class="fc" id="L560">    }</span>
+    
+    /** 
+     * Returns a new Collection consisting of the elements of inputCollection transformed
+     * by the given transformer.
+     * &lt;p&gt;
+     * If the input transformer is null, the result is an empty list.
+     * 
+     * @param inputCollection  the collection to get the input from, may not be null
+     * @param transformer  the transformer to use, may be null
+     * @return the transformed result (new list)
+     * @throws NullPointerException if the input collection is null
+     */
+    public static Collection collect(Collection inputCollection, Transformer transformer) {
+<span class="fc" id="L574">        ArrayList answer = new ArrayList(inputCollection.size());</span>
+<span class="fc" id="L575">        collect(inputCollection, transformer, answer);</span>
+<span class="fc" id="L576">        return answer;</span>
+    }
+    
+    /** 
+     * Transforms all elements from the inputIterator with the given transformer 
+     * and adds them to the outputCollection.
+     * &lt;p&gt;
+     * If the input iterator or transformer is null, the result is an empty list.
+     * 
+     * @param inputIterator  the iterator to get the input from, may be null
+     * @param transformer  the transformer to use, may be null
+     * @return the transformed result (new list)
+     */
+    public static Collection collect(Iterator inputIterator, Transformer transformer) {
+<span class="fc" id="L590">        ArrayList answer = new ArrayList();</span>
+<span class="fc" id="L591">        collect(inputIterator, transformer, answer);</span>
+<span class="fc" id="L592">        return answer;</span>
+    }
+    
+    /** 
+     * Transforms all elements from inputCollection with the given transformer 
+     * and adds them to the outputCollection.
+     * &lt;p&gt;
+     * If the input collection or transformer is null, there is no change to the 
+     * output collection.
+     *
+     * @param inputCollection  the collection to get the input from, may be null
+     * @param transformer  the transformer to use, may be null
+     * @param outputCollection  the collection to output into, may not be null
+     * @return the outputCollection with the transformed input added
+     * @throws NullPointerException if the output collection is null
+     */
+    public static Collection collect(Collection inputCollection, final Transformer transformer, final Collection outputCollection) {
+<span class="fc bfc" id="L609" title="All 2 branches covered.">        if (inputCollection != null) {</span>
+<span class="fc" id="L610">            return collect(inputCollection.iterator(), transformer, outputCollection);</span>
+        }
+<span class="fc" id="L612">        return outputCollection;</span>
+    }
+
+    /** 
+     * Transforms all elements from the inputIterator with the given transformer 
+     * and adds them to the outputCollection.
+     * &lt;p&gt;
+     * If the input iterator or transformer is null, there is no change to the 
+     * output collection.
+     *
+     * @param inputIterator  the iterator to get the input from, may be null
+     * @param transformer  the transformer to use, may be null
+     * @param outputCollection  the collection to output into, may not be null
+     * @return the outputCollection with the transformed input added
+     * @throws NullPointerException if the output collection is null
+     */
+    public static Collection collect(Iterator inputIterator, final Transformer transformer, final Collection outputCollection) {
+<span class="fc bfc" id="L629" title="All 4 branches covered.">        if (inputIterator != null &amp;&amp; transformer != null) {</span>
+<span class="fc bfc" id="L630" title="All 2 branches covered.">            while (inputIterator.hasNext()) {</span>
+<span class="fc" id="L631">                Object item = inputIterator.next();</span>
+<span class="fc" id="L632">                Object value = transformer.transform(item);</span>
+<span class="fc" id="L633">                outputCollection.add(value);</span>
+            }
+        }
+<span class="fc" id="L636">        return outputCollection;</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Adds an element to the collection unless the element is null.
+     * 
+     * @param collection  the collection to add to, must not be null
+     * @param object  the object to add, if null it will not be added
+     * @return true if the collection changed
+     * @throws NullPointerException if the collection is null
+     * @since Commons Collections 3.2
+     */
+    public static boolean addIgnoreNull(Collection collection, Object object) {
+<span class="fc bfc" id="L650" title="All 2 branches covered.">        return (object == null ? false : collection.add(object));</span>
+    }
+    
+    /**
+     * Adds all elements in the iteration to the given collection.
+     * 
+     * @param collection  the collection to add to, must not be null
+     * @param iterator  the iterator of elements to add, must not be null
+     * @throws NullPointerException if the collection or iterator is null
+     */
+    public static void addAll(Collection collection, Iterator iterator) {
+<span class="nc bnc" id="L661" title="All 2 branches missed.">        while (iterator.hasNext()) {</span>
+<span class="nc" id="L662">            collection.add(iterator.next());</span>
+        }
+<span class="nc" id="L664">    }</span>
+    
+    /**
+     * Adds all elements in the enumeration to the given collection.
+     * 
+     * @param collection  the collection to add to, must not be null
+     * @param enumeration  the enumeration of elements to add, must not be null
+     * @throws NullPointerException if the collection or enumeration is null
+     */
+    public static void addAll(Collection collection, Enumeration enumeration) {
+<span class="nc bnc" id="L674" title="All 2 branches missed.">        while (enumeration.hasMoreElements()) {</span>
+<span class="nc" id="L675">            collection.add(enumeration.nextElement());</span>
+        }
+<span class="nc" id="L677">    }    </span>
+    
+    /** 
+     * Adds all elements in the array to the given collection.
+     * 
+     * @param collection  the collection to add to, must not be null
+     * @param elements  the array of elements to add, must not be null
+     * @throws NullPointerException if the collection or array is null
+     */
+    public static void addAll(Collection collection, Object[] elements) {
+<span class="nc bnc" id="L687" title="All 2 branches missed.">        for (int i = 0, size = elements.length; i &lt; size; i++) {</span>
+<span class="nc" id="L688">            collection.add(elements[i]);</span>
+        }
+<span class="nc" id="L690">    }    </span>
+    
+    /**
+     * Given an Object, and an index, returns the nth value in the
+     * object.
+     * &lt;ul&gt;
+     * &lt;li&gt;If obj is a Map, returns the nth value from the &lt;b&gt;keySet&lt;/b&gt; iterator, unless 
+     *     the Map contains an Integer key with integer value = idx, in which case the
+     *     corresponding map entry value is returned.  If idx exceeds the number of entries in
+     *     the map, an empty Iterator is returned.
+     * &lt;li&gt;If obj is a List or an array, returns the nth value, throwing IndexOutOfBoundsException,
+     *     ArrayIndexOutOfBoundsException, resp. if the nth value does not exist.
+     * &lt;li&gt;If obj is an iterator, enumeration or Collection, returns the nth value from the iterator,
+     *     returning an empty Iterator (resp. Enumeration) if the nth value does not exist.
+     * &lt;li&gt;Returns the original obj if it is null or not a Collection or Iterator.
+     * &lt;/ul&gt;
+     * 
+     * @param obj  the object to get an index of, may be null
+     * @param idx  the index to get
+     * @throws IndexOutOfBoundsException
+     * @throws ArrayIndexOutOfBoundsException
+     *
+     * @deprecated use {@link #get(Object, int)} instead. Will be removed in v4.0
+     */
+    public static Object index(Object obj, int idx) {
+<span class="fc" id="L715">        return index(obj, new Integer(idx));</span>
+    }
+    
+    /**
+     * Given an Object, and a key (index), returns the value associated with
+     * that key in the Object. The following checks are made:
+     * &lt;ul&gt;
+     * &lt;li&gt;If obj is a Map, use the index as a key to get a value. If no match continue.
+     * &lt;li&gt;Check key is an Integer. If not, return the object passed in.
+     * &lt;li&gt;If obj is a Map, get the nth value from the &lt;b&gt;keySet&lt;/b&gt; iterator.
+     *     If the Map has fewer than n entries, return an empty Iterator.
+     * &lt;li&gt;If obj is a List or an array, get the nth value, throwing IndexOutOfBoundsException,
+     *     ArrayIndexOutOfBoundsException, resp. if the nth value does not exist.
+     * &lt;li&gt;If obj is an iterator, enumeration or Collection, get the nth value from the iterator,
+     *     returning an empty Iterator (resp. Enumeration) if the nth value does not exist.
+     * &lt;li&gt;Return the original obj.
+     * &lt;/ul&gt;
+     * 
+     * @param obj  the object to get an index of
+     * @param index  the index to get
+     * @return the object at the specified index
+     * @throws IndexOutOfBoundsException
+     * @throws ArrayIndexOutOfBoundsException
+     *
+     * @deprecated use {@link #get(Object, int)} instead. Will be removed in v4.0
+     */
+    public static Object index(Object obj, Object index) {
+<span class="fc bfc" id="L742" title="All 2 branches covered.">        if(obj instanceof Map) {</span>
+<span class="fc" id="L743">            Map map = (Map)obj;</span>
+<span class="fc bfc" id="L744" title="All 2 branches covered.">            if(map.containsKey(index)) {</span>
+<span class="fc" id="L745">                return map.get(index);</span>
+            }
+        }
+<span class="fc" id="L748">        int idx = -1;</span>
+<span class="fc bfc" id="L749" title="All 2 branches covered.">        if(index instanceof Integer) {</span>
+<span class="fc" id="L750">            idx = ((Integer)index).intValue();</span>
+        }
+<span class="fc bfc" id="L752" title="All 2 branches covered.">        if(idx &lt; 0) {</span>
+<span class="fc" id="L753">            return obj;</span>
+        } 
+<span class="fc bfc" id="L755" title="All 2 branches covered.">        else if(obj instanceof Map) {</span>
+<span class="fc" id="L756">            Map map = (Map)obj;</span>
+<span class="fc" id="L757">            Iterator iterator = map.keySet().iterator();</span>
+<span class="fc" id="L758">            return index(iterator, idx);</span>
+        } 
+<span class="fc bfc" id="L760" title="All 2 branches covered.">        else if(obj instanceof List) {</span>
+<span class="fc" id="L761">            return ((List)obj).get(idx);</span>
+        } 
+<span class="fc bfc" id="L763" title="All 2 branches covered.">        else if(obj instanceof Object[]) {</span>
+<span class="fc" id="L764">            return ((Object[])obj)[idx];</span>
+        } 
+<span class="fc bfc" id="L766" title="All 2 branches covered.">        else if(obj instanceof Enumeration) {</span>
+<span class="fc" id="L767">            Enumeration it = (Enumeration)obj;</span>
+<span class="fc bfc" id="L768" title="All 2 branches covered.">            while(it.hasMoreElements()) {</span>
+<span class="fc" id="L769">                idx--;</span>
+<span class="fc bfc" id="L770" title="All 2 branches covered.">                if(idx == -1) {</span>
+<span class="fc" id="L771">                    return it.nextElement();</span>
+                } else {
+<span class="fc" id="L773">                    it.nextElement();</span>
+                }
+            }
+<span class="fc" id="L776">        } </span>
+<span class="fc bfc" id="L777" title="All 2 branches covered.">        else if(obj instanceof Iterator) {</span>
+<span class="fc" id="L778">            return index((Iterator)obj, idx);</span>
+        }
+<span class="pc bpc" id="L780" title="1 of 2 branches missed.">        else if(obj instanceof Collection) {</span>
+<span class="fc" id="L781">            Iterator iterator = ((Collection)obj).iterator();</span>
+<span class="fc" id="L782">            return index(iterator, idx);</span>
+        }
+<span class="fc" id="L784">        return obj;</span>
+    }
+
+    private static Object index(Iterator iterator, int idx) {
+<span class="fc bfc" id="L788" title="All 2 branches covered.">        while(iterator.hasNext()) {</span>
+<span class="fc" id="L789">            idx--;</span>
+<span class="fc bfc" id="L790" title="All 2 branches covered.">            if(idx == -1) {</span>
+<span class="fc" id="L791">                return iterator.next();</span>
+            } else {
+<span class="fc" id="L793">                iterator.next();</span>
+            }
+        }
+<span class="fc" id="L796">        return iterator;</span>
+    }
+    
+    /**
+     * Returns the &lt;code&gt;index&lt;/code&gt;-th value in &lt;code&gt;object&lt;/code&gt;, throwing
+     * &lt;code&gt;IndexOutOfBoundsException&lt;/code&gt; if there is no such element or 
+     * &lt;code&gt;IllegalArgumentException&lt;/code&gt; if &lt;code&gt;object&lt;/code&gt; is not an 
+     * instance of one of the supported types.
+     * &lt;p&gt;
+     * The supported types, and associated semantics are:
+     * &lt;ul&gt;
+     * &lt;li&gt; Map -- the value returned is the &lt;code&gt;Map.Entry&lt;/code&gt; in position 
+     *      &lt;code&gt;index&lt;/code&gt; in the map's &lt;code&gt;entrySet&lt;/code&gt; iterator, 
+     *      if there is such an entry.&lt;/li&gt;
+     * &lt;li&gt; List -- this method is equivalent to the list's get method.&lt;/li&gt;
+     * &lt;li&gt; Array -- the &lt;code&gt;index&lt;/code&gt;-th array entry is returned, 
+     *      if there is such an entry; otherwise an &lt;code&gt;IndexOutOfBoundsException&lt;/code&gt;
+     *      is thrown.&lt;/li&gt;
+     * &lt;li&gt; Collection -- the value returned is the &lt;code&gt;index&lt;/code&gt;-th object 
+     *      returned by the collection's default iterator, if there is such an element.&lt;/li&gt;
+     * &lt;li&gt; Iterator or Enumeration -- the value returned is the
+     *      &lt;code&gt;index&lt;/code&gt;-th object in the Iterator/Enumeration, if there
+     *      is such an element.  The Iterator/Enumeration is advanced to 
+     *      &lt;code&gt;index&lt;/code&gt; (or to the end, if &lt;code&gt;index&lt;/code&gt; exceeds the 
+     *      number of entries) as a side effect of this method.&lt;/li&gt;
+     * &lt;/ul&gt;
+     * 
+     * @param object  the object to get a value from
+     * @param index  the index to get
+     * @return the object at the specified index
+     * @throws IndexOutOfBoundsException if the index is invalid
+     * @throws IllegalArgumentException if the object type is invalid
+     */
+    public static Object get(Object object, int index) {
+<span class="fc bfc" id="L830" title="All 2 branches covered.">        if (index &lt; 0) {</span>
+<span class="fc" id="L831">            throw new IndexOutOfBoundsException(&quot;Index cannot be negative: &quot; + index);</span>
+        }
+<span class="fc bfc" id="L833" title="All 2 branches covered.">        if (object instanceof Map) {</span>
+<span class="fc" id="L834">            Map map = (Map) object;</span>
+<span class="fc" id="L835">            Iterator iterator = map.entrySet().iterator();</span>
+<span class="fc" id="L836">            return get(iterator, index);</span>
+<span class="fc bfc" id="L837" title="All 2 branches covered.">        } else if (object instanceof List) {</span>
+<span class="fc" id="L838">            return ((List) object).get(index);</span>
+<span class="fc bfc" id="L839" title="All 2 branches covered.">        } else if (object instanceof Object[]) {</span>
+<span class="fc" id="L840">            return ((Object[]) object)[index];</span>
+<span class="fc bfc" id="L841" title="All 2 branches covered.">        } else if (object instanceof Iterator) {</span>
+<span class="fc" id="L842">            Iterator it = (Iterator) object;</span>
+<span class="fc bfc" id="L843" title="All 2 branches covered.">            while (it.hasNext()) {</span>
+<span class="fc" id="L844">                index--;</span>
+<span class="fc bfc" id="L845" title="All 2 branches covered.">                if (index == -1) {</span>
+<span class="fc" id="L846">                    return it.next();</span>
+                } else {
+<span class="fc" id="L848">                    it.next();</span>
+                }
+            }
+<span class="fc" id="L851">            throw new IndexOutOfBoundsException(&quot;Entry does not exist: &quot; + index);</span>
+<span class="fc bfc" id="L852" title="All 2 branches covered.">        } else if (object instanceof Collection) {</span>
+<span class="fc" id="L853">            Iterator iterator = ((Collection) object).iterator();</span>
+<span class="fc" id="L854">            return get(iterator, index);</span>
+<span class="fc bfc" id="L855" title="All 2 branches covered.">        } else if (object instanceof Enumeration) {</span>
+<span class="fc" id="L856">            Enumeration it = (Enumeration) object;</span>
+<span class="fc bfc" id="L857" title="All 2 branches covered.">            while (it.hasMoreElements()) {</span>
+<span class="fc" id="L858">                index--;</span>
+<span class="fc bfc" id="L859" title="All 2 branches covered.">                if (index == -1) {</span>
+<span class="fc" id="L860">                    return it.nextElement();</span>
+                } else {
+<span class="fc" id="L862">                    it.nextElement();</span>
+                }
+            }
+<span class="fc" id="L865">            throw new IndexOutOfBoundsException(&quot;Entry does not exist: &quot; + index);</span>
+<span class="fc bfc" id="L866" title="All 2 branches covered.">        } else if (object == null) {</span>
+<span class="fc" id="L867">            throw new IllegalArgumentException(&quot;Unsupported object type: null&quot;);</span>
+        } else {
+            try {
+<span class="fc" id="L870">                return Array.get(object, index);</span>
+<span class="fc" id="L871">            } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L872">                throw new IllegalArgumentException(&quot;Unsupported object type: &quot; + object.getClass().getName());</span>
+            }
+        }
+    }
+    
+    /** 
+     * Gets the size of the collection/iterator specified.
+     * &lt;p&gt;
+     * This method can handles objects as follows
+     * &lt;ul&gt;
+     * &lt;li&gt;Collection - the collection size
+     * &lt;li&gt;Map - the map size
+     * &lt;li&gt;Array - the array size
+     * &lt;li&gt;Iterator - the number of elements remaining in the iterator
+     * &lt;li&gt;Enumeration - the number of elements remaining in the enumeration
+     * &lt;/ul&gt;
+     * 
+     * @param object  the object to get the size of
+     * @return the size of the specified collection
+     * @throws IllegalArgumentException thrown if object is not recognised or null
+     * @since Commons Collections 3.1
+     */
+    public static int size(Object object) {
+<span class="fc" id="L895">        int total = 0;</span>
+<span class="fc bfc" id="L896" title="All 2 branches covered.">        if (object instanceof Map) {</span>
+<span class="fc" id="L897">            total = ((Map) object).size();</span>
+<span class="fc bfc" id="L898" title="All 2 branches covered.">        } else if (object instanceof Collection) {</span>
+<span class="fc" id="L899">            total = ((Collection) object).size();</span>
+<span class="fc bfc" id="L900" title="All 2 branches covered.">        } else if (object instanceof Object[]) {</span>
+<span class="fc" id="L901">            total = ((Object[]) object).length;</span>
+<span class="fc bfc" id="L902" title="All 2 branches covered.">        } else if (object instanceof Iterator) {</span>
+<span class="fc" id="L903">            Iterator it = (Iterator) object;</span>
+<span class="fc bfc" id="L904" title="All 2 branches covered.">            while (it.hasNext()) {</span>
+<span class="fc" id="L905">                total++;</span>
+<span class="fc" id="L906">                it.next();</span>
+            }
+<span class="fc bfc" id="L908" title="All 2 branches covered.">        } else if (object instanceof Enumeration) {</span>
+<span class="fc" id="L909">            Enumeration it = (Enumeration) object;</span>
+<span class="fc bfc" id="L910" title="All 2 branches covered.">            while (it.hasMoreElements()) {</span>
+<span class="fc" id="L911">                total++;</span>
+<span class="fc" id="L912">                it.nextElement();</span>
+            }
+<span class="fc bfc" id="L914" title="All 2 branches covered.">        } else if (object == null) {</span>
+<span class="fc" id="L915">            throw new IllegalArgumentException(&quot;Unsupported object type: null&quot;);</span>
+        } else {
+            try {
+<span class="fc" id="L918">                total = Array.getLength(object);</span>
+<span class="fc" id="L919">            } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L920">                throw new IllegalArgumentException(&quot;Unsupported object type: &quot; + object.getClass().getName());</span>
+            }
+        }
+<span class="fc" id="L923">        return total;</span>
+    }
+    
+    /**
+     * Checks if the specified collection/array/iterator is empty.
+     * &lt;p&gt;
+     * This method can handles objects as follows
+     * &lt;ul&gt;
+     * &lt;li&gt;Collection - via collection isEmpty
+     * &lt;li&gt;Map - via map isEmpty
+     * &lt;li&gt;Array - using array size
+     * &lt;li&gt;Iterator - via hasNext
+     * &lt;li&gt;Enumeration - via hasMoreElements
+     * &lt;/ul&gt;
+     * &lt;p&gt;
+     * Note: This method is named to avoid clashing with
+     * {@link #isEmpty(Collection)}.
+     * 
+     * @param object  the object to get the size of, not null
+     * @return true if empty
+     * @throws IllegalArgumentException thrown if object is not recognised or null
+     * @since Commons Collections 3.2
+     */
+    public static boolean sizeIsEmpty(Object object) {
+<span class="fc bfc" id="L947" title="All 2 branches covered.">        if (object instanceof Collection) {</span>
+<span class="fc" id="L948">            return ((Collection) object).isEmpty();</span>
+<span class="fc bfc" id="L949" title="All 2 branches covered.">        } else if (object instanceof Map) {</span>
+<span class="fc" id="L950">            return ((Map) object).isEmpty();</span>
+<span class="fc bfc" id="L951" title="All 2 branches covered.">        } else if (object instanceof Object[]) {</span>
+<span class="fc bfc" id="L952" title="All 2 branches covered.">            return ((Object[]) object).length == 0;</span>
+<span class="fc bfc" id="L953" title="All 2 branches covered.">        } else if (object instanceof Iterator) {</span>
+<span class="fc bfc" id="L954" title="All 2 branches covered.">            return ((Iterator) object).hasNext() == false;</span>
+<span class="fc bfc" id="L955" title="All 2 branches covered.">        } else if (object instanceof Enumeration) {</span>
+<span class="fc bfc" id="L956" title="All 2 branches covered.">            return ((Enumeration) object).hasMoreElements() == false;</span>
+<span class="fc bfc" id="L957" title="All 2 branches covered.">        } else if (object == null) {</span>
+<span class="fc" id="L958">            throw new IllegalArgumentException(&quot;Unsupported object type: null&quot;);</span>
+        } else {
+            try {
+<span class="fc bfc" id="L961" title="All 2 branches covered.">                return Array.getLength(object) == 0;</span>
+<span class="fc" id="L962">            } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L963">                throw new IllegalArgumentException(&quot;Unsupported object type: &quot; + object.getClass().getName());</span>
+            }
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Null-safe check if the specified collection is empty.
+     * &lt;p&gt;
+     * Null returns true.
+     * 
+     * @param coll  the collection to check, may be null
+     * @return true if empty or null
+     * @since Commons Collections 3.2
+     */
+    public static boolean isEmpty(Collection coll) {
+<span class="fc bfc" id="L979" title="All 4 branches covered.">        return (coll == null || coll.isEmpty());</span>
+    }
+
+    /**
+     * Null-safe check if the specified collection is not empty.
+     * &lt;p&gt;
+     * Null returns false.
+     * 
+     * @param coll  the collection to check, may be null
+     * @return true if non-null and non-empty
+     * @since Commons Collections 3.2
+     */
+    public static boolean isNotEmpty(Collection coll) {
+<span class="fc bfc" id="L992" title="All 2 branches covered.">        return !CollectionUtils.isEmpty(coll);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Reverses the order of the given array.
+     * 
+     * @param array  the array to reverse
+     */
+    public static void reverseArray(Object[] array) {
+<span class="nc" id="L1002">        int i = 0;</span>
+<span class="nc" id="L1003">        int j = array.length - 1;</span>
+        Object tmp;
+
+<span class="nc bnc" id="L1006" title="All 2 branches missed.">        while (j &gt; i) {</span>
+<span class="nc" id="L1007">            tmp = array[j];</span>
+<span class="nc" id="L1008">            array[j] = array[i];</span>
+<span class="nc" id="L1009">            array[i] = tmp;</span>
+<span class="nc" id="L1010">            j--;</span>
+<span class="nc" id="L1011">            i++;</span>
+        }
+<span class="nc" id="L1013">    }</span>
+
+    private static final int getFreq(final Object obj, final Map freqMap) {
+<span class="fc" id="L1016">        Integer count = (Integer) freqMap.get(obj);</span>
+<span class="fc bfc" id="L1017" title="All 2 branches covered.">        if (count != null) {</span>
+<span class="fc" id="L1018">            return count.intValue();</span>
+        }
+<span class="fc" id="L1020">        return 0;</span>
+    }
+
+    /**
+     * Returns true if no more elements can be added to the Collection.
+     * &lt;p&gt;
+     * This method uses the {@link BoundedCollection} interface to determine the
+     * full status. If the collection does not implement this interface then
+     * false is returned.
+     * &lt;p&gt;
+     * The collection does not have to implement this interface directly.
+     * If the collection has been decorated using the decorators subpackage
+     * then these will be removed to access the BoundedCollection.
+     *
+     * @param coll  the collection to check
+     * @return true if the BoundedCollection is full
+     * @throws NullPointerException if the collection is null
+     */
+    public static boolean isFull(Collection coll) {
+<span class="fc bfc" id="L1039" title="All 2 branches covered.">        if (coll == null) {</span>
+<span class="fc" id="L1040">            throw new NullPointerException(&quot;The collection must not be null&quot;);</span>
+        }
+<span class="fc bfc" id="L1042" title="All 2 branches covered.">        if (coll instanceof BoundedCollection) {</span>
+<span class="fc" id="L1043">            return ((BoundedCollection) coll).isFull();</span>
+        }
+        try {
+<span class="fc" id="L1046">            BoundedCollection bcoll = UnmodifiableBoundedCollection.decorateUsing(coll);</span>
+<span class="fc" id="L1047">            return bcoll.isFull();</span>
+            
+<span class="fc" id="L1049">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L1050">            return false;</span>
+        }
+    }
+
+    /**
+     * Get the maximum number of elements that the Collection can contain.
+     * &lt;p&gt;
+     * This method uses the {@link BoundedCollection} interface to determine the
+     * maximum size. If the collection does not implement this interface then
+     * -1 is returned.
+     * &lt;p&gt;
+     * The collection does not have to implement this interface directly.
+     * If the collection has been decorated using the decorators subpackage
+     * then these will be removed to access the BoundedCollection.
+     *
+     * @param coll  the collection to check
+     * @return the maximum size of the BoundedCollection, -1 if no maximum size
+     * @throws NullPointerException if the collection is null
+     */
+    public static int maxSize(Collection coll) {
+<span class="fc bfc" id="L1070" title="All 2 branches covered.">        if (coll == null) {</span>
+<span class="fc" id="L1071">            throw new NullPointerException(&quot;The collection must not be null&quot;);</span>
+        }
+<span class="fc bfc" id="L1073" title="All 2 branches covered.">        if (coll instanceof BoundedCollection) {</span>
+<span class="fc" id="L1074">            return ((BoundedCollection) coll).maxSize();</span>
+        }
+        try {
+<span class="fc" id="L1077">            BoundedCollection bcoll = UnmodifiableBoundedCollection.decorateUsing(coll);</span>
+<span class="fc" id="L1078">            return bcoll.maxSize();</span>
+            
+<span class="fc" id="L1080">        } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L1081">            return -1;</span>
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Returns a collection containing all the elements in &lt;code&gt;collection&lt;/code&gt;
+     * that are also in &lt;code&gt;retain&lt;/code&gt;. The cardinality of an element &lt;code&gt;e&lt;/code&gt;
+     * in the returned collection is the same as the cardinality of &lt;code&gt;e&lt;/code&gt;
+     * in &lt;code&gt;collection&lt;/code&gt; unless &lt;code&gt;retain&lt;/code&gt; does not contain &lt;code&gt;e&lt;/code&gt;, in which
+     * case the cardinality is zero. This method is useful if you do not wish to modify
+     * the collection &lt;code&gt;c&lt;/code&gt; and thus cannot call &lt;code&gt;c.retainAll(retain);&lt;/code&gt;.
+     * 
+     * @param collection  the collection whose contents are the target of the #retailAll operation
+     * @param retain  the collection containing the elements to be retained in the returned collection
+     * @return a &lt;code&gt;Collection&lt;/code&gt; containing all the elements of &lt;code&gt;collection&lt;/code&gt;
+     * that occur at least once in &lt;code&gt;retain&lt;/code&gt;.
+     * @throws NullPointerException if either parameter is null
+     * @since Commons Collections 3.2
+     */
+    public static Collection retainAll(Collection collection, Collection retain) {
+<span class="nc" id="L1102">        return ListUtils.retainAll(collection, retain);</span>
+    }
+
+    /**
+     * Removes the elements in &lt;code&gt;remove&lt;/code&gt; from &lt;code&gt;collection&lt;/code&gt;. That is, this
+     * method returns a collection containing all the elements in &lt;code&gt;c&lt;/code&gt;
+     * that are not in &lt;code&gt;remove&lt;/code&gt;. The cardinality of an element &lt;code&gt;e&lt;/code&gt;
+     * in the returned collection is the same as the cardinality of &lt;code&gt;e&lt;/code&gt;
+     * in &lt;code&gt;collection&lt;/code&gt; unless &lt;code&gt;remove&lt;/code&gt; contains &lt;code&gt;e&lt;/code&gt;, in which
+     * case the cardinality is zero. This method is useful if you do not wish to modify
+     * the collection &lt;code&gt;c&lt;/code&gt; and thus cannot call &lt;code&gt;collection.removeAll(remove);&lt;/code&gt;.
+     * 
+     * @param collection  the collection from which items are removed (in the returned collection)
+     * @param remove  the items to be removed from the returned &lt;code&gt;collection&lt;/code&gt;
+     * @return a &lt;code&gt;Collection&lt;/code&gt; containing all the elements of &lt;code&gt;collection&lt;/code&gt; except
+     * any elements that also occur in &lt;code&gt;remove&lt;/code&gt;.
+     * @throws NullPointerException if either parameter is null
+     * @since Commons Collections 3.2
+     */
+    public static Collection removeAll(Collection collection, Collection remove) {
+<span class="nc" id="L1122">        return ListUtils.retainAll(collection, remove);</span>
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Returns a synchronized collection backed by the given collection.
+     * &lt;p&gt;
+     * You must manually synchronize on the returned buffer's iterator to 
+     * avoid non-deterministic behavior:
+     *  
+     * &lt;pre&gt;
+     * Collection c = CollectionUtils.synchronizedCollection(myCollection);
+     * synchronized (c) {
+     *     Iterator i = c.iterator();
+     *     while (i.hasNext()) {
+     *         process (i.next());
+     *     }
+     * }
+     * &lt;/pre&gt;
+     * 
+     * This method uses the implementation in the decorators subpackage.
+     * 
+     * @param collection  the collection to synchronize, must not be null
+     * @return a synchronized collection backed by the given collection
+     * @throws IllegalArgumentException  if the collection is null
+     */
+    public static Collection synchronizedCollection(Collection collection) {
+<span class="fc" id="L1149">        return SynchronizedCollection.decorate(collection);</span>
+    }
+
+    /**
+     * Returns an unmodifiable collection backed by the given collection.
+     * &lt;p&gt;
+     * This method uses the implementation in the decorators subpackage.
+     *
+     * @param collection  the collection to make unmodifiable, must not be null
+     * @return an unmodifiable collection backed by the given collection
+     * @throws IllegalArgumentException  if the collection is null
+     */
+    public static Collection unmodifiableCollection(Collection collection) {
+<span class="fc" id="L1162">        return UnmodifiableCollection.decorate(collection);</span>
+    }
+
+    /**
+     * Returns a predicated (validating) collection backed by the given collection.
+     * &lt;p&gt;
+     * Only objects that pass the test in the given predicate can be added to the collection.
+     * Trying to add an invalid object results in an IllegalArgumentException.
+     * It is important not to use the original collection after invoking this method,
+     * as it is a backdoor for adding invalid objects.
+     *
+     * @param collection  the collection to predicate, must not be null
+     * @param predicate  the predicate for the collection, must not be null
+     * @return a predicated collection backed by the given collection
+     * @throws IllegalArgumentException  if the Collection is null
+     */
+    public static Collection predicatedCollection(Collection collection, Predicate predicate) {
+<span class="fc" id="L1179">        return PredicatedCollection.decorate(collection, predicate);</span>
+    }
+
+    /**
+     * Returns a typed collection backed by the given collection.
+     * &lt;p&gt;
+     * Only objects of the specified type can be added to the collection.
+     * 
+     * @param collection  the collection to limit to a specific type, must not be null
+     * @param type  the type of objects which may be added to the collection
+     * @return a typed collection backed by the specified collection
+     */
+    public static Collection typedCollection(Collection collection, Class type) {
+<span class="nc" id="L1192">        return TypedCollection.decorate(collection, type);</span>
+    }
+    
+    /**
+     * Returns a transformed bag backed by the given collection.
+     * &lt;p&gt;
+     * Each object is passed through the transformer as it is added to the
+     * Collection. It is important not to use the original collection after invoking this 
+     * method, as it is a backdoor for adding untransformed objects.
+     *
+     * @param collection  the collection to predicate, must not be null
+     * @param transformer  the transformer for the collection, must not be null
+     * @return a transformed collection backed by the given collection
+     * @throws IllegalArgumentException  if the Collection or Transformer is null
+     */
+    public static Collection transformedCollection(Collection collection, Transformer transformer) {
+<span class="fc" id="L1208">        return TransformedCollection.decorate(collection, transformer);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span>commons-collections-collections-3.2.1 (25-Jun-2019 5:30:11 PM)</div></body></html>
