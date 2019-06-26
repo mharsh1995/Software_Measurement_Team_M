@@ -29,7 +29,7 @@ Here we perform various different coverage tests for developing test cases so th
 2. Installation Steps: 
 ```
     Step 1. From your Eclipse menu select Help → Eclipse Marketplace.
-    Step 2. Search for "EclEmma".
+    Step 2. Search for "EclEmma" or "Jacoco".
     Step 3. Hit Install for the entry "EclEmma Java Code Coverage".
     Step 4. Follow the steps in the installation wizard.
 ```
