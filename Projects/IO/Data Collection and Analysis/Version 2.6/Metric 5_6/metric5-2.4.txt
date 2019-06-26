@@ -1,0 +1,41 @@
+github.com/AlDanial/cloc v 1.82  T=1.96 s (0.5 files/s, 0.5 lines/s)
+----------------------------------------------------------------------------------------
+Language                              files          blank        comment           code
+----------------------------------------------------------------------------------------
+Java
+ same                                   139           2471          17728          23381
+ modified                                57              0            404            248
+ added                                    0              3             19            159
+ removed                                  2            175            840            754
+XML
+ same                                    23            401            497           1967
+ modified                                 4              0              0             38
+ added                                    0              0              1              0
+ removed                                  2             25             33            154
+Velocity Template Language
+ same                                     0              0             32            663
+ modified                                 1              0              0             13
+ added                                    0              0              0              0
+ removed                                  0             15              0             59
+HTML
+ same                                     8             43            112            408
+ modified                                 0              0              0              0
+ added                                    0              0              0              0
+ removed                                  0              0              0              0
+Maven
+ same                                     0              0             17            270
+ modified                                 1              0              2              8
+ added                                    0              1              2             33
+ removed                                  0              0              0             13
+Ant
+ same                                     1             82             63            199
+ modified                                 0              0              0              0
+ added                                    0              0              0              0
+ removed                                  0              0              0              0
+----------------------------------------------------------------------------------------
+SUM:
+ same                                   171           2997          18449          26888
+ modified                                63              0            406            307
+ added                                    0              4             22            192
+ removed                                  4            215            873            980
+----------------------------------------------------------------------------------------
